@@ -1,0 +1,16 @@
+KERNEL_DIR := $(PROJ_FILES)/kernel
+
+CFLAGS += -I$(KERNEL_DIR)
+
+
+#kernel-y :=
+
+#kernel-y += helpers.c
+#kernel-y += syscalls.c
+#kernel-y += task.c
+#kernel-y += debug.c
+
+# the kernel start point
+#kernel-y += init.c
+
+#kernel-fwx-y += queue.c

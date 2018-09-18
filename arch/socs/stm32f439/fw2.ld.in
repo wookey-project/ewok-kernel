@@ -1,0 +1,126 @@
+/* fw1.ld */
+
+/* */
+INCLUDE BUILDDIR/layout.ld
+
+INCLUDE BUILDDIR/layout.apps.ld
+
+/*
+ Memory layout
+
+ +-------------------+	0x0000 0000
+ +  isr_vector       +
+ +--------------------
+
+ +--------------------	0x2000 0000 (RAM_BASE)
+ |  RAM              |
+ ~~~~~~~~~~~~~~~~~~~~~  0x2002 0000
+
+ +-------------------+  0x0800 0000 (LDR_BASE)
+ + Flash             +
+ +- - - - - - - - - -+  0x0802 0000 (SHR_BASE)
+ +                   +
+ +- - - - - - - - - -+  0x0808 0000 (FW1_BASE)
+ +                   +
+ +- - - - - - - - - -+  0x080C 0000 (FW2_BASE)
+ +                   +
+ +-------------------+  0x0810 0000
+
+*/
+
+/* Define output sections */
+SECTIONS
+{
+  /* The startup code goes first into FLASH */
+  .isr_vector :
+  {
+    . = ALIGN(4);
+    KEEP(*(.isr_vector)) /* Startup code */
+    . = ALIGN(4);
+  } >FW2_KERN
+
+  /* Shared variables */
+  .shared :    {
+    . = ALIGN(4);
+    KEEP(*(.shared)) ;
+  } >SHR
+
+  /* The program code and other data goes into FLASH */
+  .text :
+  {
+    _stext = .;	            /* create a global symbol at data start */
+    *startup*(.text.Reset_Handler) /* kernel code should start with its reset handler */
+    *(.text*)
+    *(.rodata)         	/* .rodata sections (constants, strings, etc.) */
+    *(.glue_7)         	/* glue arm to thumb code */
+    *(.glue_7t)        	/* glue thumb to arm code */
+	*(.eh_frame)
+
+    KEEP (*(.init))
+    KEEP (*(.fini))
+
+    . = ALIGN(4);
+    _etext = .;        	/* define a global symbols at end of code */
+    _exit = .;
+  } >FW2_KERN
+
+   /* used by the startup to initialize got */
+  _sigot = .;
+  .got : AT ( _sigot ) {
+    . = ALIGN(4);
+        _sgot = .;
+        /*  *(.got.plt)
+         *    We don't need plt segment
+         *    since we do not need dynamic library relocation
+         */
+        *(.got)
+    . = ALIGN(4);
+    _egot = .;
+  } >FW2_KERN
+
+  /* used by the startup to initialize data */
+  _sidata = .;
+  /* Initialized data sections goes into RAM, load LMA copy after code */
+  .data : AT ( _sidata )
+  {
+    . = ALIGN(4);
+    _sdata = .;        /* create a global symbol at data start */
+    *(.data)           /* .data sections */
+    *(.data*)          /* .data* sections */
+    _edata = .;        /* define a global symbol at data end */
+  } >RAM_KERN
+
+  /* Uninitialized data section */
+  . = ALIGN(4);
+  .bss :
+  {
+    /* This is used by the startup in order to initialize the .bss section */
+    _sbss = .;         /* define a global symbol at bss start */
+    __bss_start__ = _sbss;
+    *debug.o(.bss)
+    *(.bss)
+    *(.bss*)
+    *(COMMON)
+
+    . = ALIGN(4);
+    _ebss = .;         /* define a global symbol at bss end */
+    __bss_end__ = _ebss;
+  } >RAM_KERN
+
+  /* Kernel _heap_stack section, used to check that there is enough RAM left */
+  ._heap_stack :
+  {
+    . = ALIGN(4);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
+    . = ALIGN(4);
+  } >RAM_KERN
+
+  INCLUDE  BUILDDIR/apps_sections.fw2.ld
+
+  /DISCARD/ :
+  {
+  }
+}

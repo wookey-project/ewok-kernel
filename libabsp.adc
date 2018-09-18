@@ -1,0 +1,4 @@
+pragma restrictions(no_elaboration_code);
+pragma restrictions(no_secondary_stack);
+pragma restrictions(no_finalization);
+pragma restrictions(no_exception_handlers);

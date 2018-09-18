@@ -1,0 +1,50 @@
+library project Libabsp is
+
+   for Languages use ("Ada");
+
+   for Source_Dirs use
+     ("Ada",
+      "../../kernel/arch/cores/" & external("ARCH") & "/Ada",
+      "../../kernel/arch/socs/" & external("SOCNAME") & "/Ada");
+
+   for Library_Dir   use   external("BUILD_DIR") & "/Ada/lib";
+   for Object_Dir    use  external("BUILD_DIR") & "/Ada";
+   for Target        use  external("ADA_ARCH");
+   for Runtime ("ada") use external("ADA_PROFILE");
+   for Library_Name  use "absp";
+   for Library_Kind  use "static";
+
+   package Compiler is
+
+      basic :=
+        ("-fstack-usage",  -- Generate .su file with informations about the
+                           -- amount of stack used
+         "-gnateG",        -- Generate preprocessed source
+         "-gnatec=" & Libabsp'Project_Dir & "libabsp.adc",
+         "-gnatn",         -- Enable pragma Inline
+         "-gnatwa",        -- Turn on all warnings
+         "-gnatw.X",       -- Turn off warnings for export/import
+         "-gnatwe");       -- Treat all warnings as errors
+
+      verif :=
+        ("-gnato",         -- Turn on all checks
+         "-gnatVa");       -- Turn on all validity checks
+
+      no_verif :=
+        ("-gnatp",         -- Turn off all checks
+         "-gnatVn");       -- Turn off all validity checks
+
+      for Default_Switches ("ada") use ("-O3", "-g") & basic & verif;
+      for Switches ("soc-dma.adb") use ("-Os", "-g") & basic & verif;
+
+      -- Proved SPARK code
+      for Switches ("soc-dwt.adb") use ("-O3", "-g") & basic & no_verif;
+      for Switches ("m4-mpu.adb")  use ("-O3", "-g") & basic & no_verif;
+
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-n");
+   end Binder;
+
+end Libabsp;

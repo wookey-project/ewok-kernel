@@ -1,0 +1,70 @@
+
+package soc.devmap
+   with spark_mode => off
+is
+
+   type t_peripheral_id is
+     (DEV_BKPSRAM,
+      DEV_RNG
+      DEV_CRYP
+      DEV_HASH
+      DEV_DCMI,
+      DEV_USB_OTG_FS, DEV_USB_OTG_HS, DEV_USB_OTG_HS_ULPI,
+      DEV_SDIO,
+      DEV_DMA1, DEV_DMA2,
+      DEV_ETH_MAC, DEV_ETH_MAC_TX, DEV_ETH_MAC_RX, DEV_ETH_MAC_PTP,
+      DEV_CRC,
+      DEV_USART1, DEV_USART2, DEV_USART3, DEV_UART4, DEV_UART5, DEV_USART6,
+      DEV_UART7, DEV_UART8,
+      DEV_SYSCFG,
+      DEV_NVIC,
+      DEV_WWDG,
+      DEV_PWR,
+      DEV_DAC,
+      DEV_SPI1, DEV_SPI2, DEV_SPI3,
+      DEV_I2C1, DEV_I2C2, DEV_I2C3,
+      DEV_CAN1, DEV_CAN2,
+      DEV_GPIOA, DEV_GPIOB, DEV_GPIOC, DEV_GPIOD, DEV_GPIOE, DEV_GPIOF,
+      DEV_GPIOG, DEV_GPIOH, DEV_GPIOI,
+      DEV_TIM1, DEV_TIM2, DEV_TIM3, DEV_TIM4, DEV_TIM5, DEV_TIM6, DEV_TIM7,
+      DEV_TIM8, DEV_TIM9, DEV_TIM10, DEV_TIM11, DEV_TIM12, DEV_TIM13,
+      DEV_TIM14,
+      DEV_ADC1, DEV_ADC2, DEV_ADC3);
+
+   type t_device_soc_infos is record
+      id          : t_peripheral_id;
+      base_addr   : system_address; -- MMIO base address
+      size        : unsigned_16;
+      subregions  : unsigned_8;
+      intr_num    : unsigned_8;
+      ro          : boolean;
+      minperm     : ewok.perm.t_perm_name;
+   end record;
+
+   subtype irq is unsigned_8 range 0 .. 127;
+   type t_device_irqs is array (1 .. 8) of irq;
+
+   type t_peripheral is record
+      id             : t_peripheral_id;  -- device identifier (enum)
+      address        : system_address;   -- device's address
+      size           : device_size;      -- device size in memory
+      irqs           : t_device_irqs;    -- list of device's IRQ. 0 in a cell indicate 'no irq'
+      subregions     : unsigned_8;
+      readonly       : boolean;
+   end record;
+
+   device_map : t_device_specs :=
+    ((id          => DEV_RNG,
+      address     => 16#50060800#,
+      size        => 16#400#,
+      irqs        => (0,0,0,0,0,0,0,0),
+      subregions  => 0,
+      readonly    => false),
+     (id          => DEV_CRYP,
+      address     => 16#50060000#,
+      size        => 16#1000#,
+      irqs        => (0,0,0,0,0,0,0,0),
+      subregions  => 0,
+      readonly    => false));
+
+end soc.devmap;

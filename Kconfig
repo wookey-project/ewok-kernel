@@ -1,0 +1,265 @@
+menu "Board Support Package"
+
+source "kernel/arch/Kconfig"
+
+endmenu
+
+config ADAKERNEL
+  bool "Ada & SPARK kernel implementation"
+  default n
+  ---help---
+  This option activate the usage of Ada and Spark sources in
+  replacement of C code for the kernel runtime. This permits
+  to compile an hardened kernel based on the efficient properties
+  of the Ada language, mixed with residual C code for libbsp.
+
+choice
+  prompt "kernel console USART identifier"
+  default KERNEL_CONSOLE_USART1
+    config KERNEL_CONSOLE_USART1
+    bool "kernel uses USART1 for its console"
+    ---help---
+      in Discovery board, BP6/PB7 pins are linked to UART1, if
+      using motherboard DM-STF4BB, the RS232 connector is linked
+      to USART6.
+  config KERNEL_CONSOLE_USART6
+    bool "kernel uses USART6 for its console"
+    ---help---
+      in Discovery board, BP6/PB7 pins are linked to UART1, if
+      using motherboard DM-STF4BB, the RS232 connector is linked
+      to USART6.
+endchoice
+
+config KERNEL_USART
+  int
+  default 1 if KERNEL_CONSOLE_USART1
+  default 6 if KERNEL_CONSOLE_USART6
+
+config KERNEL_CONSOLE_TXT
+  bool "Allowing user input text echo on kernel console"
+  default y
+  ---help---
+  If Y, input chars on the kernel console will be echoed. There
+  is no specific behavior behind this (no protocol, shell or others),
+  only a character echo in the ISR.
+
+config KERNEL_DMA_ENABLE
+  bool "Enable secure DMA kernel support"
+  default y
+  ---help---
+  This permits to allow tasks to declare DMA stream usage with
+  kernel control for address and channel management. If you
+  say n here, any DMA declaration will return SYS_E_DENIED.
+
+config KERNEL_GETCYCLES
+  bool "Kernel support for DWT-based getcycles()"
+  default y
+  depends on STM32F4
+  select DWT
+  ---help---
+  Add support for sys_getcycles() syscall, which returns a value
+  in cycles instead of ticks, which is more precise.
+
+config KERNEL_DOMAIN
+  bool "Kernel support tasks domains"
+  default n
+  ---help---
+  If yes, it is possible to set a specific domain for each task (based on
+  a uint8_t value). Task from a same domain can communicate, tasks from
+  different domains cannot (no IPC, no shared DMA spaces, get_taskid return
+  SYS_E_INVAL, etc.). Each task can declare its domain as 'APP_APPNAME_DOMAIN'
+  in the Kconfig system. If no domain is specific, the task is member of the
+  default domain 0. Kernel domains has no impact on the scheduling scheme.
+
+if KERNEL_EXPERT_MODE
+
+choice
+  prompt "Syscall execution time and postponing"
+  default KERNEL_SYSCALLS_WISE_REPARTITION
+config KERNEL_SYSCALLS_IN_IRQ
+  bool "Support for syscalls in handler mode"
+  ---help---
+  Syscalls are executed immediatly instead of being postponed to softirq
+  making the task locked for some time. They are faster and less costly
+  but take more time in IRQ mode with IRQ disabled.
+config KERNEL_SYSCALLS_WISE_REPARTITION
+  bool "Support for fast syscalls in handler mode, slow syscalls in softirq"
+  ---help---
+  Syscall requiring reactivity and having a small cost, such as get_cycles(),
+  are executed in handler mode. All other syscalls are postponed to softirq
+  thread. This is a reasonable middle choice to ally performance and reactivity.
+config KERNEL_SYSCALLS_IN_SOFTIRQ
+  bool "Support for syscalls in softirq mode"
+  ---help---
+  All syscalls are postponed to softirq thread. User main thread are locked
+  on syscall return while the syscall is being executed by softirq thread.
+  This highly reduce CPU time with IRQ disabled but make syscalls being
+  executed with potential big latency.
+endchoice
+
+endif
+
+menu "Scheduling schemes"
+
+choice
+  prompt "Scheduler behavior"
+  config SCHED_RR
+    bool "Round Robin scheduler"
+    ---help---
+    This is a classical Round Robin scheduler. ISR are still
+    executed with a higher priority than the tasks. 
+  config SCHED_MLQ_RR
+    bool "Multilevel Queue Round Robin"
+    ---help---
+    This is a basic, multilevel queues scheduling scheme with Round
+    Robin scheduling for each queue. As priority as fixed,
+    higher priority tasks *must* yield to let other task's main
+    thread being executed.
+    It is efficient for burst-based, high period and high priority
+    tasks such as smartcard management.
+  config SCHED_RAND
+    bool "Random scheduler"
+    ---help---
+    Randomly choose a task in the task list at each schedule
+    time, using the HW Random number generator.
+endchoice
+
+config SCHED_PERIOD
+  int "Scheduler period (in milliseconds)"
+  default 10
+  ---help---
+  Set the scheduling period duration. Beware, this value has a huge
+  impact on the overall system behavior.
+
+if !SCHED_MLQ_RR
+# FISR violate the MLQ_RR priority management. FISR is efficient for
+# Round-Robbin management for sporadic high reactivity constraints
+# When using MLQ_RR, please use priority-based configuration to
+# manage reactivity of tasks and ISRs
+
+config SCHED_SUPPORT_FISR
+  bool "ISR may force immediate one time main thread execution (perm based)"
+  default y
+  ---help---
+  If y, the kernel support the TSK_FISR permission and associated
+  behavior. This permit to tasks with this permission to force one single
+  immediate schedule of its main thread just after a given ISR which
+  as been configured with the flag IRQ_ISR_FORCE_MAINTHREAD.
+  This execution slot can still be preempted by a physical IRQ or another
+  ISR scheduling.
+
+endif
+
+config SCHED_SUPPORT_FIPC
+  bool "IPC send may force immediate one time target task execution (perm based)"
+  default n
+  ---help---
+  If y, the kernel support the TSK_FIPC permission and associated behavior.
+  This permit to a task sending an IPC with reactivity constraint to force
+  one signe immediate schedule of the target task, if this task is waiting for
+  this IPC only. This highly reduce IPC latency but is still a scheduling violation.
+  This execution slot can still be preempted by a physical IRQ or another
+  ISR scheduling.
+
+if KERNEL_EXPERT_MODE
+
+config ISR_REACTIVITY
+  bool "Optimize for ISR reactivity"
+  default y
+  ---help---
+  If you say y here, the softirq will force its own scheduling when
+  an ISR is waiting for schedule, even if there is also syscalls to
+  execute. ISR are executed faster, but there is more scheduling of
+  softirq in comparison with standard task's main threads.
+
+endif
+
+endmenu
+
+choice
+  prompt "Kernel specific optimization flags"
+  default KERN_OPTIM_NONE
+  config KERN_OPTIM_NONE
+    bool "Same optimization as the other parts (see Kernel hacking)"
+  config KERN_OPTIM_O1
+    bool "Optimization with -O1, debug keeped"
+  config KERN_OPTIM_O2
+    bool "Optimization with -O2, debug keeped"
+  config KERN_OPTIM_O3
+    bool "Optimization with -O3, debug keeped"
+  config KERN_OPTIM_OS
+    bool "Optimization for size, debug keeped"
+endchoice
+  
+config KERN_CFLAGS
+  string
+  default "-O1" if KERN_OPTIM_O1
+  default "-O2" if KERN_OPTIM_O2
+  default "-O3" if KERN_OPTIM_O3
+  default "-Os" if KERN_OPTIM_OS
+  default "" if KERN_OPTIM_NONE
+
+
+menu "Kernel hacking"
+
+config DBGLEVEL
+  int "Set debug level"
+  default 3
+  help
+    Set the debug level for pretty printing at runtime. This respects
+    the syslog levels standard:
+      0: EMERG
+      1: ALERT
+      2: CRITICAL
+      3: ERROR
+      4: WARNING
+      5: NOTICE
+      6: INFORMATIONAL
+      7: DEBUG
+    All debug levels less or equal to the chosen level will be printed.
+
+config DEBUG
+  bool "Set debug compile flags"
+  default n
+  help
+    if set, the project will be compiled using debug flags and without
+    compile-time optimization.
+
+config KERNEL_SCHED_DEBUG
+  bool "Activate scheduler debugging"
+  default n
+  help
+    If set, the scheduler will store in a ring buffer all thread execution
+    using the following structure:
+      [ id | timestamp (us) | mode (ISR,MR) ]
+    The ringbuffer is never printed-out to avoid any time overhead. Yet it
+    can be dumped by gdb at anytime
+
+if KERNEL_SCHED_DEBUG
+
+config KERNEL_SCHED_DEBUG_BUFSIZE
+  int "Scheduling buffer size"
+  default 1000
+  help
+    Set the ring buffer base address. Beware, you must set a writeable address
+    in RAM where no content is being stored)
+
+
+
+endif
+
+config KERNEL_EXPERT_MODE
+  bool "Configure EwoK in expert mode"
+  default n
+  ---help---
+  Make complex options visible. Beware when modifying
+  these options. They may have a great impact on the
+  kernel behavior and make the overall system unstable!!!
+
+
+
+endmenu
+
+config KERNEL_EWOK
+   bool
+   default y

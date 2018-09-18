@@ -1,0 +1,10 @@
+ada.ads
+s-imgint.ads
+s-imgint.adb
+s-imglli.ads
+s-imglli.adb
+gnat.ads
+s-imguns.ads
+s-memmov.adb
+s-memmov.ads
+system.ads
