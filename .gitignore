@@ -1,0 +1,13 @@
+.placeholder
+Ada/generated/config.def
+Ada/generated/*.ads
+Ada/generated/*.adb
+generated/*.h
+Ada/libgnat/gnat/s-imgint.adb
+Ada/libgnat/gnat/s-imgint.ads
+Ada/libgnat/gnat/s-imglli.adb
+Ada/libgnat/gnat/s-imglli.ads
+Ada/libgnat/gnat/s-imguns.ads
+Ada/libgnat/gnat/s-memmov.adb
+Ada/libgnat/gnat/s-memmov.ads
+Ada/libgnat/gnat/system.ads

@@ -1,0 +1,25 @@
+CORE_DIR = $(PROJ_FILES)/kernel/arch/cores/$(ARCH)
+
+CFLAGS += -I$(CORE_DIR)
+
+# core content is only in BSP by now (not in userspace drivers)
+core-bsp-y :=
+
+# mandatory
+core-bsp-y += m4-mpu.c
+core-bsp-y += m4-systick.c
+
+# configurable
+
+# per app
+# no need for FPU for loader
+core-bsp-$(CONFIG_FPU_ENABLE) += m4-fpu.c
+
+core-ada-bsp-y :=
+ifeq ($(CONFIG_ADAKERNEL),y)
+# for Ada equivalent
+
+core-ada-bsp-y += Ada/m4-mpu.adb
+core-ada-bsp-y += Ada/m4-systick.adb
+
+endif

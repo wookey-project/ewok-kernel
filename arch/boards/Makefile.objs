@@ -1,0 +1,14 @@
+BOARD_DIR = $(PROJ_FILES)/kernel/arch/boards/$(BOARD)
+
+CFLAGS += -I$(BOARD_DIR)
+CFLAGS += -I$(BOARD_DIR)/..
+
+board-bsp-y :=
+
+# per-board drivers
+ifneq ($(BOARD),)
+include $(PROJ_FILES)kernel/arch/boards/$(BOARD)/Makefile.objs
+endif
+
+# generic, the "../" is relative to BOARD_DIR, see apps Makefile
+board-bsp-y += ../shared.c
