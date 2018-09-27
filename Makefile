@@ -14,6 +14,7 @@ VERSION = 1
 -include $(PROJ_FILES)/Makefile.conf
 -include $(PROJ_FILES)/Makefile.gen
 
+
 # use an app-specific build dir
 APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
@@ -44,7 +45,8 @@ endif
 BUILD_DIR ?= $(PROJ_FILE)build
 
 SRC = $(wildcard *.c) $(wildcard syscalls/*.c)
-OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(SRC))
+OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
+DEP := $(OBJ:%.o=%.d)
 
 ifeq ($(CONFIG_ADAKERNEL),y)
 #ada sources files
@@ -59,28 +61,13 @@ ADACEQ  = $(patsubst Ada/ewok-%.adb,%.c,$(ASRC))
 ADACEQ += $(patsubst Ada/syscalls/ewok-%.adb,syscalls/%.c,$(ASRC))
 SRC_TMP = $(filter-out $(ADACEQ),$(SRC))
 SRC := $(SRC_TMP)
-OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(SRC))
-
+OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
+DEP := $(OBJ:%.o=%.d)
 endif
-
-#Rust sources files
-RSSRC_DIR= rust/src
-RSRC= $(wildcard $(RSRCDIR)/*.rs)
-ROBJ = $(patsubst %.rs,$(APP_BUILD_DIR)/%.o,$(RSRC))
 
 SOC_DIR := $(PROJ_FILES)/kernel/arch/socs/$(SOC)/
 SOC_SRC := startup_$(SOC).s
-SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/%.o,$(SOC_SRC))
-
-CORE_DIR := $(PROJ_FILES)/kernel/arch/cores/$(ARCH)/
-CORE_SRC := $(core-kernel-y)
-CORE_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
-
-#test sources files
-TESTSSRC_DIR = tests
-TESTSSRC = tests.c tests_cryp.c tests_dma.c tests_queue.c tests_sd.c tests_systick.c
-TESTSOBJ = $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(TESTSSRC))
-TESTSDEP = $(TESTSSOBJ:.o=.d)
+SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/asm/%.o,$(SOC_SRC))
 
 OUT_DIRS = $(dir $(KERNEL_OBJ)) $(dir $(AALI)) $(dir $(ROBJ)) $(dir $(ALIB))
 
@@ -88,18 +75,19 @@ LDSCRIPT_NAME = $(APP_BUILD_DIR)/$(APP_NAME).ld
 
 # file to (dist)clean
 # objects and compilation related
-TODEL_CLEAN += $(OBJ) $(ALDIR) $(ALIB) $(ROBJ) $(DEP) $(TESTSDEP) $(LDSCRIPT_NAME)
+TODEL_CLEAN += $(OBJ) $(ALDIR) $(ALIB) $(DEP) $(LDSCRIPT_NAME)
 # targets
 TODEL_DISTCLEAN += $(APP_BUILD_DIR)
 
-.PHONY: kernel __clean __distclean
+.PHONY: __clean __distclean
+
+default: all
 
 ifeq ($(CONFIG_ADAKERNEL),y)
-all: $(APP_BUILD_DIR) libgnat libbsp kernel
+all: check_paradigm_switch $(APP_BUILD_DIR) libgnat libbsp kernel
 else
-all: $(APP_BUILD_DIR) libbsp kernel
+all: check_paradigm_switch $(APP_BUILD_DIR) libbsp kernel
 endif
-
 
 show:
 	@echo
@@ -109,13 +97,11 @@ show:
 	@echo "\t\tKERNEL_ASRC\t=> $(ASRC)"
 	@echo "\t\tKERNEL_SRC\t=> " $(SRC)
 	@echo "\t\tKERNEL_OBJ\t=> " $(OBJ)
+	@echo "\t\tKERNEL_DEP\t=> " $(DEP)
 	@echo
 	@echo "\t\tBUILD_DIR\t=> " $(BUILD_DIR)
 	@echo "\t\tAPP_BUILD_DIR\t=> " $(APP_BUILD_DIR)
 	@echo
-	@echo "Rust sources files:"
-	@echo "\t" $(RSRC)
-	@echo "\t\t=> " $(ROBJ)
 
 libbsp:
 	$(Q)$(MAKE) -C arch clean
@@ -131,6 +117,18 @@ kernel: $(APP_BUILD_DIR)/$(ELF_NAME) $(APP_BUILD_DIR)/$(HEX_NAME)
 # build targets (driver, core, SoC, Board... and local)
 # App C sources files
 # kernel C sources files
+
+
+check_paradigm_switch:
+ifeq ($(CONFIG_ADAKERNEL),y)
+	# when switching between kernel paradigm, we must clean any objects an bin files
+	if test ! -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; fi 
+else
+	# when switching between kernel paradigm, we must clean any objects an bin files
+	if test -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; rm -rf $(APP_BUILD_DIR)/Ada; fi
+endif
+
+
 
 ifeq ($(CONFIG_ADAKERNEL),y)
 $(ADIR):
@@ -149,27 +147,16 @@ sanitize: $(SRC)
 $(APP_BUILD_DIR)/%.o: %.c
 	$(call if_changed,cc_o_c)
 
-$(APP_BUILD_DIR)/%.o: $(SOC_DIR)/$(SOC_SRC)
+# only for ASM startup file
+$(APP_BUILD_DIR)/asm/%.o: $(SOC_DIR)/$(SOC_SRC)
 	$(call if_changed,cc_o_c)
-
-# Core C sources files
-$(APP_BUILD_DIR)/core/%.o: $(CORE_DIR)/%.c
-	$(call if_changed,cc_o_c)
-
-# Test sources files
-$(APP_BUILD_DIR)/tests/%.o: $(TESTSSRC_DIR)/%.c
-	$(call if_changed,cc_o_c)
-
-# RUST FILES
-$(ROBJ): $(RSRC)
-	$(call if_changed,rc_o_rs)
 
 # LDSCRIPT. All are built in one time
-$(LDSCRIPT_NAME): $(OBJ) $(ROBJ) $(SOBJ) $(SOC_OBJ) $(CORE_OBJ) $(ALIB)
+$(LDSCRIPT_NAME):
 	$(call if_changed,k_ldscript)
 
 # ELF
-$(APP_BUILD_DIR)/$(ELF_NAME): $(LDSCRIPT_NAME)
+$(APP_BUILD_DIR)/$(ELF_NAME): $(LDSCRIPT_NAME) $(OBJ) $(SOC_OBJ) $(ALIB)
 	$(call if_changed,link_o_target)
 
 # HEX
@@ -183,17 +170,11 @@ $(APP_BUILD_DIR)/$(BIN_NAME): $(APP_BUILD_DIR)/$(ELF_NAME)
 $(APP_BUILD_DIR):
 	$(call cmd,mkdir)
 
-# TEST TARGETS
-tests_suite: CFLAGS += -Itests/ -DTESTS
-tests_suite: $(TESTSOBJ) $(ROBJ) $(OBJ) $(SOBJ) $(DRVOBJ)
-
-tests: clean tests_suite
-	$(CC) $(LDFLAGS) -o $(APP_NAME).elf $(ROBJ) $(SOBJ) $(OBJ) $(DRVOBJ) $(TESTSOBJ)
-	$(GDB) -x gdbfile_run $(APP_NAME).elf
 
 ifeq ($(CONFIG_ADAKERNEL),y)
 __clean: libkernel.gpr
 	$(call cmd,ada_clean)
+	-rm $(APP_BUILD_DIR)/$(BIN_NAME) $(HEX_NAME) $(OBJ) $(DEP)
 
 __distclean: libkernel.gpr
 	$(call cmd,ada_distclean)
@@ -206,17 +187,14 @@ endif
 # sure that the last potential configuration or userspace layout upgrade is taken into
 # account in the kernel
 #
-clean_headers:
+clean_headers: check_paradigm_switch
 	rm -rf Ada/generated/*
 	rm -rf generated/*
 	rm -rf $(APP_BUILD_DIR)/kernel.*.hex
 	rm -rf $(APP_BUILD_DIR)/*.elf
-ifneq ($(CONFIG_ADAKERNEL),y)
-	# For the C kernel, we have to explicitly remove the files depending
-	# on the generated files
-	rm -rf $(APP_BUILD_DIR)/tasks.o $(APP_BUILD_DIR)/sched.o $(APP_BUILD_DIR)/sleep.o $(APP_BUILD_DIR)/mpu.o $(APP_BUILD_DIR)/perm.o $(APP_BUILD_DIR)/init.o
-endif
 
 -include $(DEP)
--include $(DRVDEP)
--include $(TESTSDEP)
+# no deps for soc obj
+$(SOC_OBJ):
+
+
