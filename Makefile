@@ -199,6 +199,23 @@ __distclean: libkernel.gpr
 	$(call cmd,ada_distclean)
 endif
 
+#
+# As any modification in the user apps permissions or configuration impact the kernel
+# generated headers, the kernel headers and as a consequence the kernel binaries need
+# to be built again. We decide to require a kernel rebuilt at each all target to be
+# sure that the last potential configuration or userspace layout upgrade is taken into
+# account in the kernel
+#
+clean_headers:
+	rm -rf Ada/generated/*
+	rm -rf generated/*
+	rm -rf $(APP_BUILD_DIR)/kernel.*.hex
+	rm -rf $(APP_BUILD_DIR)/*.elf
+ifneq ($(CONFIG_ADAKERNEL),y)
+	# For the C kernel, we have to explicitly remove the files depending
+	# on the generated files
+	rm -rf $(APP_BUILD_DIR)/tasks.o $(APP_BUILD_DIR)/sched.o $(APP_BUILD_DIR)/sleep.o $(APP_BUILD_DIR)/mpu.o $(APP_BUILD_DIR)/perm.o
+endif
 
 -include $(DEP)
 -include $(DRVDEP)
