@@ -214,7 +214,7 @@ clean_headers:
 ifneq ($(CONFIG_ADAKERNEL),y)
 	# For the C kernel, we have to explicitly remove the files depending
 	# on the generated files
-	rm -rf $(APP_BUILD_DIR)/tasks.o $(APP_BUILD_DIR)/sched.o $(APP_BUILD_DIR)/sleep.o $(APP_BUILD_DIR)/mpu.o $(APP_BUILD_DIR)/perm.o
+	rm -rf $(APP_BUILD_DIR)/tasks.o $(APP_BUILD_DIR)/sched.o $(APP_BUILD_DIR)/sleep.o $(APP_BUILD_DIR)/mpu.o $(APP_BUILD_DIR)/perm.o $(APP_BUILD_DIR)/init.o
 endif
 
 -include $(DEP)
