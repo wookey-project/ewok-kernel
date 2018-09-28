@@ -153,6 +153,7 @@ bool perm_ressource_is_granted(res_perm_t  perm_name,
     uint32_t perm = 0;
     uint8_t field_pos;
     uint32_t field_mask;
+    bool multibits = 0; /* when the perm is a bitsfield */
     ressource_reg_t reg = perm_get_ressource_register(task_id);
 
     /*
@@ -212,8 +213,9 @@ bool perm_ressource_is_granted(res_perm_t  perm_name,
             break;
         /* Time specific permissions */
         case PERM_RES_TIM_GETMILLI:
+            multibits = 1;
             perm = (uint32_t)1 << 22;
-            field_mask = (uint32_t)1 << 22;
+            field_mask = (uint32_t)3 << 22;
             field_pos = 22;
             break;
         case PERM_RES_TIM_GETMICRO:
@@ -258,8 +260,23 @@ bool perm_ressource_is_granted(res_perm_t  perm_name,
     }
 
     field = get_reg_value(&reg, field_mask, field_pos);
-    if (field == (perm >> field_pos)) {
-        return true;
+    if (!multibits) {
+        /*  permission is not a bitfield, the comparison should
+         * be a perfect equality
+         */
+        if (field == (perm >> field_pos)) {
+            return true;
+        }
+    } else {
+        /* permission is a bitfield, the permission is increasing
+         * within the bitmask.
+         * For e.g. when GET_MICRO gives access to GET_MILLI.
+         * In that case, any geater value give access to fewer values
+         * based permissions
+         */
+        if (field >= (perm >> field_pos)) {
+            return true;
+        }
     }
     return false;
 }
