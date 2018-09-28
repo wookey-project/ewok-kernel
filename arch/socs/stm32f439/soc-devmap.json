@@ -1,0 +1,428 @@
+{
+  "rng": {
+      "address":"0x50060800",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_CRYPTO_CFG",
+      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
+      "enable_register_bits":["RCC_AHB2ENR_RNGEN"]
+  },
+  "cryp-cfg": {
+      "address":"0x50060000",
+      "size":"0x1000",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_CRYPTO_CFG",
+      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
+      "enable_register_bits":["RCC_AHB2ENR_CRYPEN"]
+  },
+  "cryp-user": {
+      "address":"0x50060000",
+      "size":"0x100",
+      "memory_subregion_mask":"0x11100010",
+      "irqs": [
+          "CRYP_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_CRYPTO_USR",
+      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
+      "enable_register_bits":["RCC_AHB2ENR_CRYPEN"]
+  },
+  "cryp": {
+      "address":"0x50060000",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "CRYP_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_CRYPTO_USR",
+      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
+      "enable_register_bits":["RCC_AHB2ENR_CRYPEN"]
+  },
+  "usb-otg-fs": {
+      "address":"0x50000000",
+      "size":"0x4000",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "OTG_FS_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
+      "enable_register_bits": ["RCC_AHB2ENR_OTGFSEN"]
+  },
+  "usb-otg-hs": {
+      "address":"0x50004000",
+      "size":"0x4000",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "OTG_HS_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": [
+          "RCC_AHB1ENR_OTGHSEN",
+          "RCC_AHB1ENR_OTGHSULPIEN"
+      ]
+  },
+  "sdio": {
+      "address":"0x40012c00",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "SDIO_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB2ENR",
+      "enable_register_bits": ["RCC_APB2ENR_SDIOEN"]
+  },
+  "dma1-info": {
+      "address":"0x40026000",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "0", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str0": {
+      "address":"0x40026028",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream0_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str1": {
+      "address":"0x40026028",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream1_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str2": {
+      "address":"0x40026040",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream2_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str3": {
+      "address":"0x40026058",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream3_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str4": {
+      "address":"0x40026070",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream4_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str5": {
+      "address":"0x40026088",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream5_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str6": {
+      "address":"0x400260a0",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream6_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma1-str7": {
+      "address":"0x400260b8",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA1_Stream7_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA1EN"]
+  },
+  "dma2-info": {
+      "address":"0x40026400",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str0": {
+      "address":"0x40026410",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream0_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str1": {
+      "address":"0x40026428",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream1_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str2": {
+      "address":"0x40026440",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream2_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str3": {
+      "address":"0x40026458",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream3_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str4": {
+      "address":"0x40026470",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream4_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str5": {
+      "address":"0x40026488",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream5_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str6": {
+      "address":"0x400264a0",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream6_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "dma2-str7": {
+      "address":"0x400264b8",
+      "size":"0",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "DMA2_Stream7_IRQ", 0, 0, 0
+      ],
+      "read_only": "true",
+      "permission": "PERM_RES_DEV_DMA",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_DMA2EN"]
+  },
+  "eth-mac": {
+      "address":"0x40028000",
+      "size":"0x1400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "ETH_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_ETHMACEN"]
+  },
+  "crc": {
+      "address":"0x40023000",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_CRYPTO_USR",
+      "enable_register":"r_CORTEX_M_RCC_AHB1ENR",
+      "enable_register_bits": ["RCC_AHB1ENR_CRCEN"]
+  },
+  "spi1": {
+      "address":"0x40013000",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB2ENR",
+      "enable_register_bits": ["RCC_APB2ENR_SPI1EN"]
+  },
+  "spi2": {
+      "address":"0x40003800",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_SPI2EN"]
+  },
+  "spi3": {
+      "address":"0x40003C00",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_SPI3EN"]
+  },
+  "i2c1": {
+      "address":"0x40005400",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "I2C1_EV_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_I2C1EN"]
+  },
+  "i2c2": {
+      "address":"0x40005800",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "I2C2_EV_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_I2C2EN"]
+  },
+  "i2c3": {
+      "address":"0x40005C00",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          "I2C3_EV_IRQ", 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_I2C3EN"]
+  },
+  "can1": {
+      "address":"0x40006400",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_CAN1EN"]
+  },
+  "can2": {
+      "address":"0x40006800",
+      "size":"0x400",
+      "memory_subregion_mask":"0",
+      "irqs": [
+          0, 0, 0, 0
+      ],
+      "read_only": "false",
+      "permission": "PERM_RES_DEV_BUSES",
+      "enable_register":"r_CORTEX_M_RCC_APB1ENR",
+      "enable_register_bits": ["RCC_APB1ENR_CAN2EN"]
+  }
+}
+
+
+
