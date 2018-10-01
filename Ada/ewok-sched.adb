@@ -218,9 +218,10 @@ is
 
          -- Max priority
          for id in applications.list'range loop
-            if TSK.tasks_list(id).prio > max_prio and
-               ewok.tasks.get_state
-              (id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE
+            if TSK.tasks_list(id).prio > max_prio
+               and
+               ewok.tasks.get_state (id, TASK_MODE_MAINTHREAD)
+                  = TASK_STATE_RUNNABLE
             then
                max_prio := TSK.tasks_list(id).prio;
             end if;
@@ -234,9 +235,10 @@ is
             else
                id := applications.list'first;
             end if;
-            if TSK.tasks_list(id).prio = max_prio and
-               ewok.tasks.get_state
-              (id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE
+            if TSK.tasks_list(id).prio = max_prio
+               and
+               ewok.tasks.get_state (id, TASK_MODE_MAINTHREAD)
+                  = TASK_STATE_RUNNABLE
             then
                elected := id;
                goto ok_return;

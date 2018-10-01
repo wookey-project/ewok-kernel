@@ -79,7 +79,7 @@ is
          addr           => ewok.layout.SHR_BASE,
          size           => REGION_SIZE_32KB,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RO_RO,
+         access_perm    => REGION_PERM_PRIV_RO_USER_RO,
          xn             => true,
          b              => false,
          s              => false);
@@ -98,7 +98,7 @@ is
          addr           => applications.txt_kern_region_base,
          size           => applications.txt_kern_region_size,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RO_NO,
+         access_perm    => REGION_PERM_PRIV_RO_USER_NO,
          xn             => false,
          b              => false,
          s              => false);
@@ -111,7 +111,7 @@ is
          addr           => soc.layout.PERIPH_BASE,
          size           => REGION_SIZE_512KB,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RW_NO,
+         access_perm    => REGION_PERM_PRIV_RW_USER_NO,
          xn             => true,
          b              => true,
          s              => true);
@@ -129,7 +129,7 @@ is
          addr           => ewok.layout.KERN_DATA_BASE,
          size           => REGION_SIZE_64KB,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RW_NO,
+         access_perm    => REGION_PERM_PRIV_RW_USER_NO,
          xn             => true,
          b              => false,
          s              => true);
@@ -147,7 +147,7 @@ is
          addr           => ewok.layout.USER_DATA_BASE,
          size           => REGION_SIZE_128KB,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RW_RW,
+         access_perm    => REGION_PERM_PRIV_RW_USER_RW,
          xn             => true,
          b              => false,
          s              => true);
@@ -167,7 +167,7 @@ is
          addr           => applications.txt_user_region_base,
          size           => applications.txt_user_region_size,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RO_RO,
+         access_perm    => REGION_PERM_PRIV_RO_USER_RO,
          xn             => false,
          b              => false,
          s              => false);
@@ -180,7 +180,7 @@ is
          addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
          size           => REGION_SIZE_4KB,
          subregion_mask => 0,
-         access_perm    => REGION_AP_RW_RW,
+         access_perm    => REGION_PERM_PRIV_RW_USER_RW,
          xn             => true,
          b              => false,
          s              => true);
@@ -211,7 +211,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => subregion_mask,
-               access_perm    => REGION_AP_RW_RW,
+               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
                xn             => true,
                b              => true,
                s              => true);
@@ -224,7 +224,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => subregion_mask,
-               access_perm    => REGION_AP_RW_RO,
+               access_perm    => REGION_PERM_PRIV_RW_USER_RO,
                xn             => true,
                b              => true,
                s              => true);
@@ -237,7 +237,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => subregion_mask,
-               access_perm    => REGION_AP_RO_RO,
+               access_perm    => REGION_PERM_PRIV_RO_USER_RO,
                xn             => false,
                b              => false,
                s              => false);
@@ -250,7 +250,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => subregion_mask,
-               access_perm    => REGION_AP_RW_RW,
+               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
                xn             => true,
                b              => false,
                s              => true);
@@ -266,7 +266,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => 0,
-               access_perm    => REGION_AP_NO_NO,
+               access_perm    => REGION_PERM_PRIV_NO_USER_NO,
                xn             => true,
                b              => false,
                s              => false);
@@ -279,7 +279,7 @@ is
                addr           => addr,
                size           => size,
                subregion_mask => 0,
-               access_perm    => REGION_AP_RW_RW,
+               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
                xn             => true,
                b              => false,
                s              => true);

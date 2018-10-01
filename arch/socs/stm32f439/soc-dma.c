@@ -198,7 +198,7 @@ uint8_t soc_dma_reconf(enum dma_controller controller,
         }
 
         if (param->mode & DMA_CIRCULAR_MODE) {
-            if (param->dir == MEMORY_TO_MEMORY || !(param->mode & DMA_FIFO_MODE)) { // FIXME
+            if (param->dir == MEMORY_TO_MEMORY) {
                 dbg_log("DMA%x Circular mode forbidden\n", controller);
             } else {
                 set_reg_bits(r_CORTEX_M_DMA_SxCR(controller, stream),

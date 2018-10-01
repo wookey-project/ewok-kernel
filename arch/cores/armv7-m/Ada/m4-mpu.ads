@@ -77,18 +77,18 @@ is
 
    -- Access Permissions
    -- Note: Describes privileged and user access.
-   --       For example, REGION_AP_RW_NO means
+   --       For example, REGION_PERM_PRIV_RW_USER_NO means
    --       - privileged : read/write access
    --       - user       : no access
 
-   REGION_AP_NO_NO   : constant bits_3 := 2#000#;
-   REGION_AP_RW_NO   : constant bits_3 := 2#001#;
-   REGION_AP_RW_RO   : constant bits_3 := 2#010#;
-   REGION_AP_RW_RW   : constant bits_3 := 2#011#;
-   REGION_AP_UNUSED  : constant bits_3 := 2#100#;
-   REGION_AP_RO_NO   : constant bits_3 := 2#101#;
-   REGION_AP_RO_RO   : constant bits_3 := 2#110#;
-   REGION_AP_RO_RO2  : constant bits_3 := 2#111#;
+   REGION_PERM_PRIV_NO_USER_NO   : constant bits_3 := 2#000#;
+   REGION_PERM_PRIV_RW_USER_NO   : constant bits_3 := 2#001#;
+   REGION_PERM_PRIV_RW_USER_RO   : constant bits_3 := 2#010#;
+   REGION_PERM_PRIV_RW_USER_RW   : constant bits_3 := 2#011#;
+   REGION_PERM_UNUSED            : constant bits_3 := 2#100#;
+   REGION_PERM_PRIV_RO_USER_NO   : constant bits_3 := 2#101#;
+   REGION_PERM_PRIV_RO_USER_RO   : constant bits_3 := 2#110#;
+   REGION_PERM_PRIV_RO_USER_RO2  : constant bits_3 := 2#111#;
 
    ---------------
    -- Functions --
@@ -115,8 +115,8 @@ is
    -- Only used by SPARK prover
    function region_not_rwx(region : t_region_config) return boolean
       is (region.xn = true or
-          region.access_perm = REGION_AP_RO_RO or
-          region.access_perm = REGION_AP_NO_NO)
+          region.access_perm = REGION_PERM_PRIV_RO_USER_RO or
+          region.access_perm = REGION_PERM_PRIV_NO_USER_NO)
       with ghost;
 
    procedure init
