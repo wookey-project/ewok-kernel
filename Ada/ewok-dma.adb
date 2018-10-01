@@ -74,18 +74,20 @@ is
    end has_same_dma_channel;
 
 
-   function dma_is_already_used
+   function stream_is_already_used
      (config : ewok.exported.dma.t_dma_user_config)
       return boolean
    is
    begin
       for index in registered_dma'range loop
-         if has_same_dma_channel (index, config) then
+         if registered_dma(index).user_config.controller = config.controller and
+            registered_dma(index).user_config.stream     = config.stream
+         then
             return true;
          end if;
       end loop;
       return false;
-   end dma_is_already_used;
+   end stream_is_already_used;
 
 
    function task_owns_dma_stream

@@ -54,7 +54,7 @@ is
       config   : ewok.exported.dma.t_dma_user_config)
       return boolean;
 
-   function dma_is_already_used
+   function stream_is_already_used
      (config : ewok.exported.dma.t_dma_user_config)
       return boolean;
 

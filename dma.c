@@ -67,7 +67,9 @@ bool dma_same_dma_stream_channel (e_dma_id id, const dma_t *dma)
 bool dma_stream_is_already_registered(const __user dma_t *dma)
 {
     for (uint8_t id = ID_DMA1; id < num_dmas; id++) {
-        if (dma_same_dma_stream_channel (id, dma)) {
+        if (dma->dma     == dma_tab[id].udma.dma    &&
+            dma->stream  == dma_tab[id].udma.stream)
+        {
             KERNLOG(DBG_ERR, "dma %d stream %d channel %d is already registered!\n", dma->dma, dma->stream, dma->channel);
             return true;
         }

@@ -93,7 +93,9 @@ is
       end if;
 
       -- Check if controller/stream are already used
-      if ewok.dma.dma_is_already_used (dma_config) then
+      -- Note: A DMA controller can manage only one channel per stream in the
+      --       same time.
+      if ewok.dma.stream_is_already_used (dma_config) then
          debug.log (debug.WARNING, "init_do_reg_dma(): dma configuration already used");
          goto ret_denied;
       end if;
