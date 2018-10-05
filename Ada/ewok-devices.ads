@@ -36,7 +36,6 @@ is
    type t_device_state is -- FIXME
      (DEV_STATE_UNUSED,
       DEV_STATE_RESERVED,
-      DEV_STATE_CREATED,
       DEV_STATE_REGISTERED,
       DEV_STATE_ENABLED,
       DEV_STATE_REG_FAILED);

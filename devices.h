@@ -36,7 +36,6 @@ typedef enum {
 typedef enum {
         DEV_STATE_NONE,
         DEV_STATE_RESERVED,
-        DEV_STATE_CREATED,
         DEV_STATE_REGISTERED,
         DEV_STATE_ENABLED,
         DEV_STATE_REG_FAIL,
