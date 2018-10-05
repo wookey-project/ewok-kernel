@@ -83,6 +83,15 @@ is
          goto ret_denied;
       end if;
 
+      if dev_id = ID_DEV_UNUSED then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.WARNING, "[task"
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] sys_cfg(CFG_DEV_MAP): unused device");
+#end if;
+         goto ret_inval;
+      end if;
+
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then
 #if CONFIG_DEBUG_SYS_CFG_MEM
          debug.log (debug.WARNING, "[task"
@@ -193,6 +202,15 @@ is
             & "] sys_cfg(CFG_DEV_MAP): forbidden during init sequence");
 #end if;
          goto ret_denied;
+      end if;
+
+      if dev_id = ID_DEV_UNUSED then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.WARNING, "[task"
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] sys_cfg(CFG_DEV_MAP): unused device");
+#end if;
+         goto ret_inval;
       end if;
 
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then

@@ -64,9 +64,6 @@ is
       return ewok.exported.devices.t_user_device_access
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return registered_device(dev_id).udev'access;
    end get_user_device;
 
@@ -75,9 +72,6 @@ is
       return unsigned_16
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return registered_device(dev_id).udev.size;
    end get_user_device_size;
 
@@ -86,9 +80,6 @@ is
       return system_address
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return registered_device(dev_id).udev.base_addr;
    end get_user_device_addr;
 
@@ -97,9 +88,6 @@ is
       return boolean
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return boolean (registered_device(dev_id).devinfo.all.ro);
    end is_user_device_region_ro;
 
@@ -108,9 +96,6 @@ is
       return unsigned_8
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return registered_device(dev_id).devinfo.all.subregions;
    end get_user_device_subregions_mask;
 
@@ -617,9 +602,6 @@ is
       return boolean
    is
    begin
-      if dev_id = ID_DEV_UNUSED then
-         raise program_error;
-      end if;
       return registered_device(dev_id).is_mapped;
    end is_mapped;
 
