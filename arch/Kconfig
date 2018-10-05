@@ -51,27 +51,28 @@ config STM32F4
   bool
   default n
 
-choice
-  prompt "Target SoC"
+
+# hierarchical selection from board selection. Silent config
 config STM32F407
-    bool "Support for the STMicro STM32F407 Cortex-M4 based SoC"
+    bool
     select STM32F4_SPI
     select ARCH_ARMV7M
     select ARCH_CORTEX_M4
     select STM32F4
+
 config STM32F429
-    bool "Support for the STMicro STM32F429 Cortex-M4 based SoC"
+    bool
     select STM32F4_SPI
     select ARCH_ARMV7M
     select ARCH_CORTEX_M4
     select STM32F4
+
 config STM32F439
-    bool "Support for the STMicro STM32F439 Cortex-M4 based SoC"
+    bool
     select STM32F4_SPI
     select ARCH_ARMV7M
     select ARCH_CORTEX_M4
     select STM32F4
-endchoice
 
 config FPU_ENABLE
   bool "Enable Hardware Floating point unit (FPU)"
