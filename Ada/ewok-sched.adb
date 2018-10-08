@@ -48,6 +48,7 @@ is
    package TSK renames ewok.tasks;
    sched_period      : unsigned_32  := 0;
    current_task_id   : t_task_id    := ID_KERNEL;
+   last_main_user_task_id : t_task_id    := applications.list'first;
 
    -----------------------------------------------
    -- SPARK/ghost specific functions & procedures
@@ -109,6 +110,9 @@ is
       for id in applications.list'range loop
          if TSK.tasks_list(id).state = TASK_STATE_LOCKED then
             elected := id;
+            if TSK.tasks_list(id).mode = TASK_MODE_MAINTHREAD then
+               last_main_user_task_id := elected;
+            end if;
             goto ok_return;
          end if;
       end loop;
@@ -194,7 +198,7 @@ is
       declare
          id : t_task_id;
       begin
-         id := current_task_id;
+         id := last_main_user_task_id;
          for i in 1 .. applications.list'length loop
             if id < applications.list'last then
                id := t_task_id'succ (id);
@@ -204,6 +208,7 @@ is
             if ewok.tasks.get_state
               (id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE then
                elected := id;
+               last_main_user_task_id := elected;
                goto ok_return;
             end if;
          end loop;
@@ -228,7 +233,7 @@ is
          end loop;
 
          -- Round Robin election on tasks with the max priority
-         id := current_task_id;
+         id := last_main_user_task_id;
          for i in 1 .. applications.list'length loop
             if id < applications.list'last then
                id := t_task_id'succ (id);
@@ -241,6 +246,7 @@ is
                   = TASK_STATE_RUNNABLE
             then
                elected := id;
+               last_main_user_task_id := elected;
                goto ok_return;
             end if;
          end loop;
