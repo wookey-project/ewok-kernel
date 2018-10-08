@@ -83,10 +83,24 @@ TODEL_DISTCLEAN += $(APP_BUILD_DIR)
 
 default: all
 
+ifeq (,$(CONFIG_PROJ_FILES))
+# let's detect if the kernel is trying to be compiled out of any SDK...
+all:
+	@echo "The Ewok kernel is not made to be compiled out of any SDK"
+	@echo "please use the following command:"
+	@echo "  repo init -u https://github.com/wookey-project/manifest.git -m default.xml"
+	@echo "  repo sync"
+	@echo
+	@echo "This will create a wookey directory in which the whole SDK (including kernel)"
+	@echo "is downloaded and can be compiled"
+else
+
 ifeq ($(CONFIG_ADAKERNEL),y)
 all: check_paradigm_switch $(APP_BUILD_DIR) libgnat libbsp kernel
 else
 all: check_paradigm_switch $(APP_BUILD_DIR) libbsp kernel
+endif
+
 endif
 
 show:
