@@ -11,3 +11,4 @@ Ada/libgnat/gnat/s-imguns.ads
 Ada/libgnat/gnat/s-memmov.adb
 Ada/libgnat/gnat/s-memmov.ads
 Ada/libgnat/gnat/system.ads
+arch/auto.cgpr
