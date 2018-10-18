@@ -50,6 +50,9 @@ extern stack_frame_t *svc_handler(stack_frame_t* );
 */
 
 static task_t *current_task = NULL;
+static task_t *last_user_task = NULL;
+
+/* default first user task */
 
 #ifdef CONFIG_KERNEL_SCHED_DEBUG
 typedef struct {
@@ -87,7 +90,7 @@ static void push_sched_info(uint32_t ts, uint8_t id, uint8_t mode)
 
 
 #if defined(CONFIG_SCHED_RR) || defined(CONFIG_SCHED_MLQ_RR)
-static uint8_t current_id = 0;
+//static uint8_t current_id = 0;
 #endif
 
 static uint32_t sched_period = 0;
@@ -204,6 +207,7 @@ static task_t *sched_task_elect(void)
 # ifdef CONFIG_KERNEL_SCHED_DEBUG
             tasks_list[id].force_count++;
 # endif
+            tasks_list[id].state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
             elected = &tasks_list[id];
             goto end;
 
@@ -234,30 +238,30 @@ static task_t *sched_task_elect(void)
 #endif
 
 #if CONFIG_SCHED_RR
+    id = last_user_task->id;
     for (int i = ID_APP1; i <= ID_APPMAX; i++) {
-        if (current_id < ID_APPMAX) {
-            current_id++;
+        if (id < ID_APPMAX) {
+            id++;
         }
         else {
-            current_id = ID_APP1;
+            id = ID_APP1;
         }
 
-        id = current_id;
-        if (tasks_list[id].state[tasks_list[id].mode] == TASK_STATE_RUNNABLE) {
+        if (tasks_list[id].state[tasks_list[id].mode] == TASK_STATE_RUNNABLE)       {
 #ifdef CONFIG_KERNEL_SCHED_DEBUG
             tasks_list[id].count++;
 #endif
-	        elected = &tasks_list[id];
+            elected = &tasks_list[id];
+            last_user_task = elected;
             goto end;
-	    }
+        }
     }
 #endif
 
 #if CONFIG_SCHED_MLQ_RR
-    id = ID_APP1;
     uint8_t prio = 0;
 
-    /* 1) found the max priority runnable */
+    /* 1) find the max priority runnable */
     for (int i = ID_APP1; i <= ID_APPMAX; i++) {
         if (tasks_list[i].state[TASK_MODE_MAINTHREAD] == TASK_STATE_RUNNABLE &&
             tasks_list[i].prio > prio)
@@ -267,21 +271,23 @@ static task_t *sched_task_elect(void)
     }
 
     /* 2) now execute a RR scheduling on the tasks of the same priority only */
+    id = last_user_task->id;
     for (int i = ID_APP1; i <= ID_APPMAX; i++) {
-        if (current_id < ID_APPMAX) {
-            current_id++;
+        if (id < ID_APPMAX) {
+            id++;
         }
         else {
-            current_id = ID_APP1;
+            id = ID_APP1;
         }
 
-        id = current_id;
-        if (tasks_list[id].state[TASK_MODE_MAINTHREAD] == TASK_STATE_RUNNABLE &&
-            tasks_list[id].prio == prio) {
+        if (   tasks_list[id].prio == prio
+            && tasks_list[id].state[TASK_MODE_MAINTHREAD] == TASK_STATE_RUNNABLE)
+        {
 #ifdef CONFIG_KERNEL_SCHED_DEBUG
             tasks_list[id].count++;
 #endif
 	        elected = &tasks_list[id];
+            last_user_task = elected;
             goto end;
 	    }
     }
@@ -290,8 +296,9 @@ static task_t *sched_task_elect(void)
     tasks_list[id].count++;
 #endif
 
-    if (tasks_list[current_id].state[TASK_MODE_MAINTHREAD] == TASK_STATE_RUNNABLE) {
-	    elected = &tasks_list[current_id];
+    if (tasks_list[id].state[TASK_MODE_MAINTHREAD] == TASK_STATE_RUNNABLE) {
+	    elected = &tasks_list[id];
+        last_user_task = elected;
         goto end;
     }
 #endif /* MLQ_RR */
@@ -584,14 +591,14 @@ stack_frame_t *Sched_Systick_Handler(stack_frame_t * stack_frame)
 
 void sched_init(void)
 {
-    task_t *tasks_list = NULL;
+    task_t *tasks_list = task_get_tasks_list();
 
 #ifdef CONFIG_KERNEL_SCHED_DEBUG
     init_sched_ring_buffer();
 #endif
 
-    tasks_list = task_get_tasks_list();
     current_task = &tasks_list[ID_KERNEL];
+    last_user_task = &tasks_list[ID_APP1];
 
     /* Set handlers involved in scheduling */
     set_interrupt_handler(SYSTICK_IRQ, Sched_Systick_Handler, 0, ID_DEV_UNUSED);
