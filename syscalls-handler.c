@@ -61,7 +61,10 @@ static inline bool svc_is_synchronous_syscall(task_t * caller)
         return true;
     }
     if (syscall == SYS_CFG) {
-        if (subsyscall == CFG_DMA_RELOAD ||
+        if (subsyscall == CFG_GPIO_GET   ||
+            subsyscall == CFG_GPIO_SET   ||
+            subsyscall == CFG_GPIO_UNLOCK_EXTI||
+            subsyscall == CFG_DMA_RELOAD ||
             subsyscall == CFG_DMA_RECONF ||
             subsyscall == CFG_DMA_DISABLE||
             subsyscall == CFG_DEV_MAP    ||
@@ -122,6 +125,15 @@ static inline void svc_synchronous_syscall(task_t * caller)
         break;
     case SYS_CFG: {
         switch (subsyscall) {
+            case CFG_GPIO_GET:
+                sys_cfg_gpio_get(caller, &args[1], caller->mode);
+                break;
+            case CFG_GPIO_SET:
+                sys_cfg_gpio_set(caller, &args[1], caller->mode);
+                break;
+            case CFG_GPIO_UNLOCK_EXTI:
+                sys_cfg_gpio_unlock_exti(caller, &args[1], caller->mode);
+                break;
             case CFG_DMA_RECONF:
                 sys_cfg_dma_reconf(caller, &args[1], caller->mode);
                 break;

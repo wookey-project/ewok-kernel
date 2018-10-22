@@ -485,6 +485,12 @@ is
          return false;
       end if;
 
+      if not config.exti_lock'valid
+      then
+         debug.log (debug.WARNING, "Device EXTI lock mode not valid");
+         return false;
+      end if;
+
       return true;
 
    end sanitize_user_defined_gpio;

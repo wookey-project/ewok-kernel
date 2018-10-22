@@ -75,6 +75,14 @@ is
       GPIO_EXTI_TRIGGER_FALL,
       GPIO_EXTI_TRIGGER_BOTH);
 
+   type t_interface_gpio_exti_lock is
+     (GPIO_EXTI_UNLOCKED,
+      GPIO_EXTI_LOCKED);
+   for t_interface_gpio_exti_lock use
+      (GPIO_EXTI_UNLOCKED => 0,
+       GPIO_EXTI_LOCKED   => 1);
+
+
    type t_gpio_config is record
       settings       : t_gpio_settings;  -- gpio_mask_t
       kref           : t_gpio_ref;
@@ -87,6 +95,7 @@ is
       bsr_s          : unsigned_32;
       lck            : unsigned_32;
       exti_trigger   : t_interface_gpio_exti_trigger;
+      exti_lock      : t_interface_gpio_exti_lock;
       exti_handler   : system_address;
    end record;
 

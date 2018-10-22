@@ -35,4 +35,9 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
+   procedure gpio_unlock_exti
+     (caller_id   : in     ewok.tasks_shared.t_task_id;
+      params      : in out t_parameters;
+      mode        : in     ewok.tasks_shared.t_task_mode);
+
 end ewok.syscalls.cfg.gpio;

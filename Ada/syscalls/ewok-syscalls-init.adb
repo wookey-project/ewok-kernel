@@ -76,7 +76,7 @@ is
       -- Ada based sanitation using on types compliance
       if not udev'valid_scalars
       then
-         debug.log (debug.WARNING, "init_do_reg_devaccess(): invalid udev");
+         debug.log (debug.WARNING, "init_do_reg_devaccess(): invalid udev scalars");
          goto ret_inval;
       end if;
 

@@ -76,6 +76,7 @@ is
    type t_syscalls_cfg is
      (CFG_GPIO_SET,
       CFG_GPIO_GET,
+      CFG_GPIO_UNLOCK_EXTI,
       CFG_DMA_RECONF,
       CFG_DMA_RELOAD,
       CFG_DMA_DISABLE,

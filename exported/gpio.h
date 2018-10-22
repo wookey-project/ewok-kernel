@@ -172,6 +172,11 @@ typedef enum {
   GPIO_EXTI_TRIGGER_BOTH
 } gpio_exti_trigger_t;
 
+typedef enum {
+  GPIO_EXTI_UNLOCKED = 0,
+  GPIO_EXTI_LOCKED
+} gpio_exti_lock_t;
+
 /**
 ** \brief This is the GPIO informational structure for user drivers
 **
@@ -223,6 +228,7 @@ typedef struct {
 	uint32_t            bsr_s;
 	uint32_t            lck;
     gpio_exti_trigger_t exti_trigger;
+    gpio_exti_lock_t    exti_lock;
 	user_handler_t      exti_handler;
 
 } dev_gpio_info_t;

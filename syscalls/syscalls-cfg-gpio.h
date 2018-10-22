@@ -29,4 +29,6 @@ void sys_cfg_gpio_set(task_t *caller, __user regval_t *regs, e_task_mode mode);
 
 void sys_cfg_gpio_get(task_t *caller, __user regval_t *regs, e_task_mode mode);
 
+void sys_cfg_gpio_unlock_exti(task_t *caller, __user regval_t *regs, e_task_mode mode);
+
 #endif /*!SYSCALLS_CFG_GPIO_H_*/

@@ -23,7 +23,8 @@
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.gpio;
-with ewok.exported.gpios;
+with ewok.exti;
+with ewok.exported.gpios; use ewok.exported.gpios;
 with ewok.sanitize;
 
 package body ewok.syscalls.cfg.gpio
@@ -130,5 +131,65 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
    end gpio_get;
+
+
+
+   -- Unlock EXTI line associated to given GPIO, if the EXTI
+   -- line has been locked by the kernel (exti lock parameter is
+   -- set to 'true'.
+   procedure gpio_unlock_exti
+     (caller_id   : in     ewok.tasks_shared.t_task_id;
+      params      : in out t_parameters;
+      mode        : in     ewok.tasks_shared.t_task_mode)
+   is
+
+      ref   : ewok.exported.gpios.t_gpio_ref
+         with address => params(1)'address;
+
+      cfg   : ewok.exported.gpios.t_gpio_config_access;
+
+   begin
+
+      -- Task initialization is complete ?
+      if not is_init_done (caller_id) then
+         goto ret_denied;
+      end if;
+
+      -- Valid t_gpio_ref ?
+      if not ref.pin'valid or not ref.port'valid then
+         goto ret_inval;
+      end if;
+
+      -- Does that GPIO really belongs to the caller ?
+      if not ewok.gpio.belong_to (caller_id, ref) then
+         goto ret_denied;
+      end if;
+
+      cfg := ewok.gpio.get_config(ref);
+
+      -- Does that GPIO has an EXTI line which is lockable ?
+      if cfg.all.exti_trigger = GPIO_EXTI_TRIGGER_NONE or
+         cfg.all.exti_lock    = GPIO_EXTI_UNLOCKED
+      then
+         goto ret_inval;
+      end if;
+
+      ewok.exti.enable(ref);
+
+      set_return_value (caller_id, mode, SYS_E_DONE);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   <<ret_inval>>
+      set_return_value (caller_id, mode, SYS_E_INVAL);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   <<ret_denied>>
+      set_return_value (caller_id, mode, SYS_E_DENIED);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+   end gpio_unlock_exti;
+
 
 end ewok.syscalls.cfg.gpio;

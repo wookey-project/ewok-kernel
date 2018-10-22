@@ -25,6 +25,7 @@
 # define SYSCALLS_CFG_H_
 
 #include "syscalls-cfg-mem.h"
+#include "syscalls-cfg-gpio.h"
 
 /**
  * SYS_CFG syscall dispatcher familly.

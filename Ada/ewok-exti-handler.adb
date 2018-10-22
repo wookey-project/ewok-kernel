@@ -142,6 +142,13 @@ is
             ewok.interrupts.to_handler_access (conf.all.exti_handler),
             task_id,
             frame_a);
+
+         -- if the EXTI line is configured as lockable by the kernel, the
+         -- EXTI line is disabled here, and must be unabled later by the
+         -- userspace using gpio_unlock_exti(). This permit to support
+         -- external devices that generates regular EXTI events which are
+         -- not correctly filtered
+         ewok.exti.disable(ref);
       end if;
 
    end handle_line;

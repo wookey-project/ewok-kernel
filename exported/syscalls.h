@@ -102,6 +102,9 @@ typedef enum {
     /** Get value from a GPIO previously registered and enabled */
     CFG_GPIO_GET,
 
+    /** Unlock previously locked EXTI line associated to given GPIO */
+    CFG_GPIO_UNLOCK_EXTI,
+
     /** Reconfigure the DMA, given a new dma_t structure for one of the task's
      * predeclared DMA Streams */
     CFG_DMA_RECONF,

@@ -79,6 +79,10 @@ void sys_cfg(task_t *caller, __user regval_t *regs, e_task_mode mode)
         KERNLOG(DBG_DEBUG, "[syscall][cfg][task %s] gpio get\n", caller->name);
         sys_cfg_gpio_get(caller, regs, mode);
         break;
+    case CFG_GPIO_UNLOCK_EXTI:
+        KERNLOG(DBG_DEBUG, "[syscall][cfg][task %s] gpio exti unlock\n", caller->name);
+        sys_cfg_gpio_unlock_exti(caller, regs, mode);
+        break;
 #ifdef CONFIG_KERNEL_DMA_ENABLE
     case CFG_DMA_RECONF:
         KERNLOG(DBG_DEBUG, "[syscall][cfg][task %s] dma reconf\n", caller->name);

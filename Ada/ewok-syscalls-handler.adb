@@ -31,6 +31,7 @@ with ewok.syscalls.sleep;
 with ewok.syscalls.gettick;
 with ewok.syscalls.lock;
 with ewok.syscalls.cfg.mem;
+with ewok.syscalls.cfg.gpio;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with applications;
@@ -64,7 +65,10 @@ is
                   syscall = CFG_DMA_RECONF   or
                   syscall = CFG_DMA_DISABLE  or
                   syscall = CFG_DEV_MAP      or
-                  syscall = CFG_DEV_UNMAP
+                  syscall = CFG_DEV_UNMAP    or
+                  syscall = CFG_GPIO_SET     or
+                  syscall = CFG_GPIO_GET     or
+                  syscall = CFG_GPIO_UNLOCK_EXTI
                then
                   return true;
                else
@@ -100,8 +104,17 @@ is
                   with address => sys_params_a.all.args(0)'address;
             begin
                case syscall is
-                  when CFG_GPIO_SET    => raise program_error;
-                  when CFG_GPIO_GET    => raise program_error;
+                  when CFG_GPIO_SET    =>
+                     ewok.syscalls.cfg.gpio.gpio_set (current_id,
+                        sys_params_a.all.args, mode);
+
+                  when CFG_GPIO_GET    =>
+                     ewok.syscalls.cfg.gpio.gpio_get (current_id,
+                        sys_params_a.all.args, mode);
+
+                  when CFG_GPIO_UNLOCK_EXTI =>
+                     ewok.syscalls.cfg.gpio.gpio_unlock_exti (current_id,
+                        sys_params_a.all.args, mode);
 
                   when CFG_DMA_RECONF  =>
                      ewok.syscalls.dma.sys_cfg_dma_reconf (current_id,

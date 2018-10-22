@@ -45,25 +45,27 @@ is
       end if;
 
       case syscall is
-         when CFG_GPIO_SET    =>
+         when CFG_GPIO_SET         =>
             ewok.syscalls.cfg.gpio.gpio_set (caller_id, params, mode);
-         when CFG_GPIO_GET    =>
+         when CFG_GPIO_GET         =>
             ewok.syscalls.cfg.gpio.gpio_get (caller_id, params, mode);
+         when CFG_GPIO_UNLOCK_EXTI =>
+            ewok.syscalls.cfg.gpio.gpio_unlock_exti (caller_id, params, mode);
 #if CONFIG_KERNEL_DMA_ENABLE
-         when CFG_DMA_RECONF  =>
+         when CFG_DMA_RECONF       =>
             ewok.syscalls.dma.sys_cfg_dma_reconf (caller_id, params, mode);
-         when CFG_DMA_RELOAD  =>
+         when CFG_DMA_RELOAD       =>
             ewok.syscalls.dma.sys_cfg_dma_reload (caller_id, params, mode);
-         when CFG_DMA_DISABLE   =>
+         when CFG_DMA_DISABLE      =>
             ewok.syscalls.dma.sys_cfg_dma_disable (caller_id, params, mode);
 #else
-         when CFG_DMA_RECONF  => null;
-         when CFG_DMA_RELOAD  => null;
-         when CFG_DMA_DISABLE => null;
+         when CFG_DMA_RECONF       => null;
+         when CFG_DMA_RELOAD       => null;
+         when CFG_DMA_DISABLE      => null;
 #end if;
-         when CFG_DEV_MAP     =>
+         when CFG_DEV_MAP          =>
             ewok.syscalls.cfg.mem.dev_map (caller_id, params, mode);
-         when CFG_DEV_UNMAP   =>
+         when CFG_DEV_UNMAP        =>
             ewok.syscalls.cfg.mem.dev_unmap (caller_id, params, mode);
       end case;
 

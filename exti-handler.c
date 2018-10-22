@@ -22,6 +22,7 @@
  */
 
 #include "exti-handler.h"
+#include "exti.h"
 #include "soc-exti.h"
 #include "soc-nvic.h"
 #include "tasks.h"
@@ -82,6 +83,9 @@ static inline void exti_handle_line(uint8_t        exti_line,
          * that one time in the same handler
          */
         stack_frame = postpone_isr(irq, &cell, stack_frame);
+        if (gpio->exti_lock == GPIO_EXTI_LOCKED) {
+            exti_disable(kref);
+        }
     }
 }
 
