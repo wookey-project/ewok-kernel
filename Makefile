@@ -23,6 +23,7 @@ CFLAGS += $(DEBUG_CFLAGS) -Wconversion
 CFLAGS += -I. -Isyscalls -Igenerated -I$(CORE_DIR) -Iarch
 CFLAGS += -MMD -MP
 CFLAGS += $(KERN_CFLAGS)
+CFLAGS += -fstack-protector-strong
 
 CLANG_CFLAGS := -I. -Isyscalls -Igenerated  -I$(CORE_DIR) -Iarch -Iarch/core/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
 

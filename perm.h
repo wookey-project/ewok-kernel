@@ -42,6 +42,7 @@ typedef enum {
     PERM_RES_TSK_FIPC,
     PERM_RES_TSK_RESET,
     PERM_RES_TSK_UPGRADE,
+    PERM_RES_TSK_RNG,
     PERM_RES_MEM_DYNAMIC_MAP
 } res_perm_t;
 

@@ -67,6 +67,7 @@
 #include "dma.h"
 #include "exti.h"
 #include "usart.h"
+#include "get_random.h"
 
 #define r_CORTEX_M_NVIC_ICER0	REG_ADDR(NVIC_BASE + (uint32_t)0x80)
 #define NVIC_ICER		r_CORTEX_M_NVIC_ICER0
@@ -101,6 +102,7 @@ __attribute__ ((optimize("-fno-stack-protector")))
 int main(int argc, char *args[])
 {
     char *base_address = 0;
+    uint32_t seed;
 
     disable_irq();
 
@@ -122,6 +124,18 @@ int main(int argc, char *args[])
      * (required for sys_get_systick()).
      */
     soc_dwt_init();
+
+    /*
+     * Initialize the platform TRNG, the collected seed value must
+     * not be used as it is the first generated random value
+     */
+     get_random_u32(&seed);
+    /*
+     * Initialize the stack protection, based on the hardware RNG device
+     */
+    init_stack_chk_guard();
+
+
 
 #ifdef CONFIG_KERNEL_DMA_ENABLE
     /*
@@ -170,11 +184,6 @@ int main(int argc, char *args[])
 #endif
     KERNLOG(DBG_INFO, "==============================\n");
 #endif
-
-    /*
-     * Initialize the stack protection, based on the hardware RNG device
-     */
-    init_stack_chk_guard();
 
     /*
      * Let's configure the MPU. This is the most imortant part of the early kernel init.

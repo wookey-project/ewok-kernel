@@ -57,3 +57,8 @@ int get_random(unsigned char *buf, uint16_t len)
 err:
         return -1;
 }
+
+int get_random_u32(uint32_t *random)
+{
+    return get_random ((unsigned char*)random, 4);
+}

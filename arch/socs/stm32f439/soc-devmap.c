@@ -43,7 +43,7 @@ struct device_soc_infos* soc_devmap_find_device
 struct device_soc_infos *soc_devices_get_dma // FIXME rename
     (enum dma_controller id, uint8_t stream)
 {
-    return &(soc_devices_list[6 + ((id - 1) * 9) + 1 + stream +1]); // FIXME 6 + 1 + 1... = 8 ?
+    return &(soc_devices_list[5 + ((id - 1) * 9) + 1 + stream +1]); // FIXME 5 + 1 + 1... = 7 ?
 }
 #endif
 

@@ -74,7 +74,6 @@ struct device_soc_infos {
 ** embedded systems.
 */
 static struct device_soc_infos soc_devices_list[] = {
-  { "rng",         0x50060800, r_CORTEX_M_RCC_AHB2ENR, RCC_AHB2ENR_RNGEN,   0x400,  0,                 0, false, PERM_RES_DEV_CRYPTO_CFG },
   /*
    * Various CRYP device mapping support
    */

@@ -30,6 +30,7 @@
 #include "syscalls.h"
 #include "syscalls-cfg.h"
 #include "syscalls-dma.h"
+#include "syscalls-rng.h"
 
 static inline bool svc_is_synchronous_syscall(task_t * caller)
 {
@@ -58,6 +59,9 @@ static inline bool svc_is_synchronous_syscall(task_t * caller)
         return true;
     }
     if (syscall == SYS_LOCK) {
+        return true;
+    }
+    if (syscall == SYS_GET_RANDOM) {
         return true;
     }
     if (syscall == SYS_CFG) {
@@ -122,6 +126,9 @@ static inline void svc_synchronous_syscall(task_t * caller)
         break;
     case SYS_LOCK:
         sys_lock(caller, &args[1], caller->mode);
+        break;
+    case SYS_GET_RANDOM:
+        sys_get_random(caller, &args[1], caller->mode);
         break;
     case SYS_CFG: {
         switch (subsyscall) {

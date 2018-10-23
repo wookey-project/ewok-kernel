@@ -153,25 +153,32 @@ static void rng_unknown_error(void)
 int soc_rng_manager(uint32_t * random)
 {
     uint8_t ret;
- again:
-    ret = rng_run(random);
-    switch (ret) {
-    case 1:
-        rng_ceis_error();
-        goto again;
-    case 2:
-        rng_seis_error();
-        /* We have a seed error, discard the random and run again! */
-        goto again;
-    case 3:
-        rng_unknown_error();
-        break;
-    case 4:
-        rng_fips_error();
-        goto again;
-    }
-    if (ret) {
-        return -1;
+    bool seed_ok = false;
+
+    while (!seed_ok) {
+        ret = rng_run(random);
+        switch (ret) {
+            case 0:
+                seed_ok = true;
+                break;
+            case 1:
+                rng_ceis_error();
+                break;
+            case 2:
+                rng_seis_error();
+                /* We have a seed error, discard the random and run again! */
+                break;
+            case 3:
+                rng_unknown_error();
+                break;
+            case 4:
+                rng_fips_error();
+                break;
+            default:
+                /* ret is non-zero. This should never happend */
+                return -1;
+                break;
+        }
     }
     return 0;
 }

@@ -83,11 +83,7 @@ is
       -- Verifying permissions
       --
       if not ewok.perm.ressource_is_granted
-               (ewok.perm.PERM_RES_DEV_CRYPTO_USR, caller_id) and then
-         not ewok.perm.ressource_is_granted
-               (ewok.perm.PERM_RES_DEV_CRYPTO_CFG, caller_id) and then
-         not ewok.perm.ressource_is_granted
-               (ewok.perm.PERM_RES_DEV_CRYPTO_FULL, caller_id)
+               (ewok.perm.PERM_RES_TSK_RNG, caller_id)
       then
          debug.log (debug.WARNING, "sys_get_random(): permission not granted");
          goto ret_denied;

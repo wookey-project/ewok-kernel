@@ -27,6 +27,7 @@ with m4.cpu.instructions;
 with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.softirq;
+with c.kernel;
 
 with applications; -- Automatically generated
 with sections;     -- Automatically generated
@@ -263,6 +264,7 @@ is
    is
       user_base   : system_address;
       params      : t_parameters;
+      random      : unsigned_32;
    begin
 
       if applications.t_real_task_id'last > ID_APP7 then
@@ -363,8 +365,14 @@ is
             stack := (others => 0);
          end;
 
+
+         if c.kernel.get_random_u32(random) /= 0
+         then
+            debug.panic("Unable to get random from TRNG source");
+         end if;
+         debug.log("generated random with " & random'image & " value");
 	      -- Create the initial stack frame and set the stack pointer
-         params := t_parameters'(to_unsigned_32 (id), 0, 0, 0);
+         params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
 
 	      create_stack
 	        (tasks_list(id).data_slot_end,

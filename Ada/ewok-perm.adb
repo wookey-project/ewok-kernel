@@ -145,6 +145,10 @@ is
             return
                ewok.perm_auto.ressource_perm_register_tab(task_id).TSK_UPGRADE = 1;
 
+         when PERM_RES_TSK_RNG =>
+            return
+               ewok.perm_auto.ressource_perm_register_tab(task_id).TSK_RNG = 1;
+
          when PERM_RES_MEM_DYNAMIC_MAP =>
             return
                ewok.perm_auto.ressource_perm_register_tab(task_id).MEM_DYNAMIC_MAP = 1;

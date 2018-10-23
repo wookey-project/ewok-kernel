@@ -47,5 +47,13 @@ package c.kernel is
       external_name  => "get_random",
       global         => null;
 
+   function get_random_u32 (rng   : out unsigned_32)
+   return Integer
+   with
+      convention     => c,
+      import         => true,
+      external_name  => "get_random_u32",
+      global         => null;
+
 end c.kernel;
 
