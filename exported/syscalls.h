@@ -51,7 +51,8 @@ typedef enum {
     SYS_GETTICK,
     SYS_RESET,
     SYS_SLEEP,
-    SYS_LOCK
+    SYS_LOCK,
+    SYS_GET_RANDOM
 } e_syscall_type;
 
 /**

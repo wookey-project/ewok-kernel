@@ -30,6 +30,7 @@ with ewok.syscalls.reset;
 with ewok.syscalls.sleep;
 with ewok.syscalls.gettick;
 with ewok.syscalls.lock;
+with ewok.syscalls.rng;
 with ewok.syscalls.cfg.mem;
 with ewok.syscalls.cfg.gpio;
 with ewok.exported.interrupts;
@@ -53,10 +54,10 @@ is
    begin
 
       case sys_params_a.all.syscall_type is
-         when SYS_YIELD    => return true;
-         when SYS_INIT     => return false;
-         when SYS_IPC      => return false;
-         when SYS_CFG      =>
+         when SYS_YIELD      => return true;
+         when SYS_INIT       => return false;
+         when SYS_IPC        => return false;
+         when SYS_CFG        =>
             declare
                syscall : t_syscalls_cfg
                   with address => sys_params_a.all.args(0)'address;
@@ -75,10 +76,11 @@ is
                   return false;
                end if;
             end;
-         when SYS_GETTICK  => return true;
-         when SYS_RESET    => return true;
-         when SYS_SLEEP    => return true;
-         when SYS_LOCK     => return true;
+         when SYS_GETTICK    => return true;
+         when SYS_RESET      => return true;
+         when SYS_SLEEP      => return true;
+         when SYS_LOCK       => return true;
+         when SYS_GET_RANDOM => return true;
       end case;
 
    end is_synchronous_syscall;
@@ -154,6 +156,11 @@ is
          when SYS_LOCK     =>
             ewok.syscalls.lock.sys_lock
               (current_id, sys_params_a.all.args, mode);
+
+         when SYS_GET_RANDOM =>
+            ewok.syscalls.rng.sys_get_random
+              (current_id, sys_params_a.all.args, mode);
+
       end case;
 
    end exec_synchronous_syscall;

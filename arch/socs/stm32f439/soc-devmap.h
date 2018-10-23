@@ -79,7 +79,7 @@ static struct device_soc_infos soc_devices_list[] = {
    * Various CRYP device mapping support
    */
   /* CRYP-CFG: for AES key injection only. when configuring the CRYP device, no need to handle the CRYP irq (handler is managed by CRYP user */
-  { "cryp-cfg",    0x50060000, r_CORTEX_M_RCC_AHB2ENR, RCC_AHB2ENR_CRYPEN,  0x1000,  0,                 0, false, PERM_RES_DEV_CRYPTO_CFG },
+  { "cryp-cfg",    0x50060000, r_CORTEX_M_RCC_AHB2ENR, RCC_AHB2ENR_CRYPEN,  0x800,  0,                 0, false, PERM_RES_DEV_CRYPTO_CFG },
   /* CRYP-USER: for IV injection and data path only (no key injection) */
   { "cryp-user",   0x50060000, r_CORTEX_M_RCC_AHB2ENR, RCC_AHB2ENR_CRYPEN,  0x100,   0b11100010, CRYP_IRQ, false, PERM_RES_DEV_CRYPTO_USR },
   /* CRYP: for complete autonomous CRYP usage */

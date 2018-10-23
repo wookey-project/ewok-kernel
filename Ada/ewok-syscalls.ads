@@ -56,7 +56,8 @@ is
       SYS_GETTICK,
       SYS_RESET,
       SYS_SLEEP,
-      SYS_LOCK)
+      SYS_LOCK,
+      SYS_GET_RANDOM)
       with size => 32;
 
    type t_syscalls_init is

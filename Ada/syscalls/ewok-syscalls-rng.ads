@@ -20,32 +20,19 @@
 --
 --
 
-with types.c;
 
-package c.kernel is
+with ewok.tasks_shared;        use ewok.tasks_shared;
 
-   procedure log (s : types.c.c_string)
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "dbg_log",
-      global         => null;
+package ewok.syscalls.rng
+   with spark_mode => off
+is
 
-   procedure flush
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "dbg_flush",
-      global         => null;
+   -- return a random content from the TRNG hardware (if there is one) or
+   -- from a pseudorandom source into a given buffer.
+   -- The length must not be greater than 16 bytes.
+   procedure sys_get_random
+     (caller_id   : in  ewok.tasks_shared.t_task_id;
+      params      : in out t_parameters;
+      mode        : in  ewok.tasks_shared.t_task_mode);
 
-   function get_random (s    : out types.c.c_string;
-                        len  : in  unsigned_16)
-   return Integer
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "get_random",
-      global         => null;
-
-end c.kernel;
-
+end ewok.syscalls.rng;

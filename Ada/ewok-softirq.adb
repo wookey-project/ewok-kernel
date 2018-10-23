@@ -37,6 +37,7 @@ with ewok.syscalls.lock;
 with ewok.syscalls.reset;
 with ewok.syscalls.sleep;
 with ewok.syscalls.yield;
+with ewok.syscalls.rng;
 with soc.interrupts; use type soc.interrupts.t_interrupt;
 with soc.nvic;
 with m4.cpu;
@@ -196,28 +197,31 @@ is
       end if;
 
       case params_a.all.syscall_type is
-         when SYS_YIELD    =>
+         when SYS_YIELD      =>
             ewok.syscalls.yield.sys_yield (req.caller_id, TASK_MODE_MAINTHREAD);
-         when SYS_INIT     =>
+         when SYS_INIT       =>
             ewok.syscalls.init.sys_init
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_IPC      =>
+         when SYS_IPC        =>
             ewok.syscalls.ipc.sys_ipc
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_CFG      =>
+         when SYS_CFG        =>
             ewok.syscalls.cfg.sys_cfg
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_GETTICK  =>
+         when SYS_GETTICK    =>
             ewok.syscalls.gettick.sys_gettick
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_RESET    =>
+         when SYS_RESET      =>
             ewok.syscalls.reset.sys_reset
               (req.caller_id, TASK_MODE_MAINTHREAD);
-         when SYS_SLEEP    =>
+         when SYS_SLEEP      =>
             ewok.syscalls.sleep.sys_sleep
                (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_LOCK     =>
+         when SYS_LOCK       =>
             ewok.syscalls.lock.sys_lock
+               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+         when SYS_GET_RANDOM =>
+            ewok.syscalls.rng.sys_get_random
                (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
       end case;
 
