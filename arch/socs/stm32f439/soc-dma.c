@@ -383,6 +383,22 @@ uint32_t soc_dma_get_status(enum dma_controller ctrl, uint8_t stream)
         set_reg_bits(r_CORTEX_M_DMA_HIFCR(ctrl), DMA_HIFCR_CHTIFx_Msk(stream));
         set_reg_bits(r_CORTEX_M_DMA_HIFCR(ctrl), DMA_HIFCR_CTCIFx_Msk(stream));
     }
+    switch (stream) {
+        case 0:
+        case 4:
+            return reg;
+        case 1:
+        case 5:
+            return reg >> 6;
+        case 2:
+        case 6:
+            return reg >> 16;
+        case 3:
+        case 7:
+            return reg >> 22;
+        default:
+            break;
+    }
     return reg;
 }
 
