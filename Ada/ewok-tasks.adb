@@ -370,7 +370,6 @@ is
          then
             debug.panic("Unable to get random from TRNG source");
          end if;
-         debug.log("generated random with " & random'image & " value");
 	      -- Create the initial stack frame and set the stack pointer
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
 
