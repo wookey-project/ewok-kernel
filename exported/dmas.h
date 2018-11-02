@@ -168,4 +168,29 @@ typedef struct {
   dma_shm_access_t mode;    /**< the region access rights */
 } dma_shm_t;
 
+/********************************************
+ * About status register content
+ *******************************************/
+/*
+ * The DMA Status register is returned to the userspace ISR
+ * in the 'sr' argument of the ISR callback.
+ * This status register is abstracted to the following structure,
+ * as, depending on the DMA IP, status fields may be hold in the same
+ * register for multiple streams or limited to fewer fields.
+ * As a consequence, the kernel will always return a sr value with
+ * the following.
+ * If the HW IP doesn't support one of the given status field, its value
+ * will be zero.
+ */
+
+enum dma_status {
+    DMA_FIFO_ERROR        = (0x1 << 0),
+    DMA_RESERVED          = (0x1 << 1),
+    DMA_DIRECT_MODE_ERROR = (0x1 << 2),
+    DMA_TRANSFER_ERROR    = (0x1 << 3),
+    DMA_HALF_TRANSFER     = (0x1 << 4),
+    DMA_TRANSFER          = (0x1 << 5),
+};
+
+
 #endif				/*!EXPORTED_DMAS_H_ */
