@@ -27,6 +27,7 @@ with soc.nvic;
 with soc.interrupts;
 with ewok.interrupts;
 with ewok.exported.gpios;   use type ewok.exported.gpios.t_gpio_config_access;
+                            use type ewok.exported.gpios.t_interface_gpio_exti_lock;
 with ewok.gpio;
 with ewok.tasks_shared;
 with ewok.devices_shared;
@@ -148,7 +149,9 @@ is
          -- userspace using gpio_unlock_exti(). This permit to support
          -- external devices that generates regular EXTI events which are
          -- not correctly filtered
-         ewok.exti.disable(ref);
+         if conf.all.exti_lock = ewok.exported.gpios.GPIO_EXTI_LOCKED then
+            ewok.exti.disable(ref);
+         end if;
       end if;
 
    end handle_line;
