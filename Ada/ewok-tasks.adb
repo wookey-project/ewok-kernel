@@ -282,8 +282,8 @@ is
 	      tasks_list(id).entry_point  :=
             user_base
             + to_unsigned_32 (applications.list(id).slot - 1)
-               * FW_MAX_USER_SIZE;
-	
+               * applications.txt_user_size / 8; -- this is MPU specific
+
 	      if tasks_list(id).entry_point mod 2 = 0 then
 	         tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
 	      end if;
@@ -345,7 +345,7 @@ is
             user_base
             + to_unsigned_32
                 (applications.list(id).slot + tasks_list(id).num_slots - 1)
-               * FW_MAX_USER_SIZE;
+               * applications.txt_user_size / 8; -- this is MPU specific
 
          tasks_list(id).stack_size  := applications.list(id).stack_size;
          tasks_list(id).state       := TASK_STATE_RUNNABLE;

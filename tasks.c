@@ -237,7 +237,7 @@ uint8_t task_init_apps(void)
 #endif
 
     /* Slot size is fixed. An application may requires more than one slot */
-    task_txt_size = FW_MAX_USER_SIZE;
+    task_txt_size = TXT_USER_SIZE / 8; // MPU specific
     task_ram_size = RAM_USER_SIZE;
 
     for (i = 0; i < num_tasks; ++i) {
