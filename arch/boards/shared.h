@@ -48,6 +48,7 @@ typedef struct __packed {
 
 typedef struct __packed {
         uint32_t default_app_index;
+        uint32_t default_dfu_index;
         app_t apps[MAX_APP_INDEX];
         const char kernel_msg[24][82];
         uint32_t siglen;

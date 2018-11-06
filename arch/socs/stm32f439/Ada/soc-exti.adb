@@ -31,8 +31,18 @@ is
    procedure init
    is
    begin
+      deinit;
       soc.rcc.RCC.APB2.SYSCFGEN := true;
    end init;
+
+   procedure deinit
+   is
+   begin
+     for line in t_exti_line_index'range loop
+       clear_pending(line);
+       disable(line);
+     end loop;
+   end deinit;
 
 
    function is_line_pending
@@ -58,7 +68,6 @@ is
    begin
       EXTI.IMR.line(line) := NOT_MASKED; -- interrupt is unmasked
    end enable;
-
 
    procedure disable
      (line : in t_exti_line_index)

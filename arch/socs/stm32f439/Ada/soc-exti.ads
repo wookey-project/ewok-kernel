@@ -29,8 +29,17 @@ is
 
    subtype t_exti_line_index is natural range 0 .. 22;
 
+   type t_exti_trigger is
+     (EXTI_TRIGGER_NONE,
+      EXTI_TRIGGER_RISE,
+      EXTI_TRIGGER_FALL,
+      EXTI_TRIGGER_BOTH);
+
+
    -- Initialize EXTI by enabling SYSCFG.APB2 clock
    procedure init;
+
+   procedure deinit;
 
    function is_line_pending
      (line : t_exti_line_index)

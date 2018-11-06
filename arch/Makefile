@@ -31,7 +31,7 @@ CFLAGS += -O3
 LDFLAGS += -fno-builtin -nostdlib -nostartfiles
 LD_LIBS +=
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 # libabsp is not linked here, but via libkernel (using libkernel.gpr) and directly in the
 # ldr Makefile.
 # The goal is to link directly libkernel and libbsp (Ada & Ada) to keep type checking and
@@ -50,7 +50,7 @@ CORE_SRC = $(core-bsp-y)
 CORE_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
 CORE_DEP := $(CORE_OBJ:.o=.d)
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 # substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
 CORE_ASRC = $(core-ada-bsp-y)
 
@@ -67,7 +67,7 @@ SOC_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
 SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/soc/%.o,$(SOC_OBJ))
 SOC_DEP := $(SOC_OBJ:.o=.d)
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 # substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
 SOC_ASRC = $(socdrv-ada-bsp-y)
 
@@ -78,7 +78,7 @@ SOC_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
 SOC_DEP := $(SOC_OBJ:.o=.d)
 endif
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 # to finish with Ada, declare the location of the Ada lib
 ALIB = $(APP_BUILD_DIR)/Ada/lib/libabsp.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
@@ -139,7 +139,7 @@ lib: $(APP_BUILD_DIR)/$(LIB_FULL_NAME)
 # build targets (driver, core, SoC, Board... and local)
 # App C sources files
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 $(ADIR):
 	$(call cmd,mkdir)
 
@@ -178,7 +178,7 @@ $(APP_BUILD_DIR)/$(LIB_FULL_NAME): $(OBJ) $(AOBJ) $(ROBJ) $(SOC_OBJ) $(BOARD_OBJ
 $(APP_BUILD_DIR):
 	$(call cmd,mkdir)
 
-ifeq ($(CONFIG_ADAKERNEL),y)
+ifeq ($(ADAKERNEL),y)
 __clean: libabsp.gpr
 	$(call cmd,ada_clean)
 

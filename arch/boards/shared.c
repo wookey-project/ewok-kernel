@@ -37,6 +37,7 @@
 __attribute__((section(".shared")))
     const shr_vars_t shared_vars = {
                     .default_app_index = 0,             /* default boot to FW1 */
+                    .default_dfu_index = 1,             /* default boot to DFU1 */
                     .apps = {
                        { .entry_point = (app_entry_t)FW1_START,  .version = 0x00000001, .boot_status = BOOT_OK },
 #ifdef CONFIG_FIRMWARE_DFU
