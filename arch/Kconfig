@@ -28,18 +28,6 @@ choice
       Compile for the Disco board.
 endchoice
 
-if WOOKEY
-source "kernel/arch/boards/wookey/Kconfig"
-endif
-
-if DISCO407
-source "kernel/arch/boards/32f407discovery/Kconfig"
-endif
-
-if DISCO429
-source "kernel/arch/boards/32f429discovery/Kconfig"
-endif
-
 endmenu
 
 menu "SoC and Core setup"
@@ -73,6 +61,19 @@ config STM32F439
     select ARCH_ARMV7M
     select ARCH_CORTEX_M4
     select STM32F4
+
+if DISCO407
+source "kernel/arch/socs/stm32f407/Kconfig"
+endif
+
+if DISCO429
+source "kernel/arch/socs/stm32f429/Kconfig"
+endif
+
+if WOOKEY
+source "kernel/arch/socs/stm32f439/Kconfig"
+endif
+
 
 config FPU_ENABLE
   bool "Enable Hardware Floating point unit (FPU)"

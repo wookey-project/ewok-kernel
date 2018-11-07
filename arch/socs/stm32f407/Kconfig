@@ -1,1 +1,3 @@
-../stm32f439/Kconfig
+config RAM_SLOT_SIZE
+   int
+   default 16384

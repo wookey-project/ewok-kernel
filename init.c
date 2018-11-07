@@ -56,7 +56,6 @@
 
 #include "m4-core.h"
 #include "shared.h"
-#include "buttons.h"
 #include "mpu.h"
 #include "kernel.h"
 #include "sched.h"
