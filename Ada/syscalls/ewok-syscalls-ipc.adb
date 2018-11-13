@@ -347,7 +347,7 @@ is
 
       if sender_a = NULL or else
          ewok.tasks.get_state(sender_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
-         
+
       then
          debug.panic ("[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
@@ -619,13 +619,13 @@ is
       then
          if blocking then
             ewok.tasks.set_state
-              (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_SEND_BLOCKED);
+              (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_SEND_BLOCKED);
 #if CONFIG_IPC_SCHED_VIOL
             if ewok.tasks.get_state(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE or
                ewok.tasks.get_tate(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_IDLE
             then
-            ewok.tasks.set_state
-              (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
+               ewok.tasks.set_state
+                 (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
             end if;
 #end if;
             return;
@@ -635,7 +635,8 @@ is
       end if;
 
       if ep.all.state /= ewok.ipc.READY then
-         debug.panic ("ipc_do_send(): invalid endpoint state");
+         debug.log ("ipc_do_send(): invalid endpoint state - maybe a dead lock");
+         goto ret_denied;
       end if;
 
       ep.all.from := ewok.ipc.to_ext_task_id (caller_id);
