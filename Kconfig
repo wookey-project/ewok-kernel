@@ -71,20 +71,6 @@ config KERNEL_DOMAIN
   in the Kconfig system. If no domain is specific, the task is member of the
   default domain 0. Kernel domains has no impact on the scheduling scheme.
 
-if KERNEL_EXPERT_MODE
-
-config KERNEL_SOFTIRQ_QUEUE_DEPTH
-  int "Kernel softirq input queue depth"
-  range 16 64
-  default 20
-  ---help---
-  Specify the maximum number of ISR waiting to be executed at a given time.
-  This value can be increased up to 64 depending on the devices behavior,
-  if there interrupt bursts arrise, generating queue overflow.
-  The kernel consider a queue overflow as a critical event and panic.
-
-endif
-
 menu "Scheduling schemes"
 
 choice
@@ -187,6 +173,18 @@ config KERN_CFLAGS
 
 
 menu "Kernel hacking"
+
+config KERNEL_SOFTIRQ_QUEUE_DEPTH
+  int "Kernel softirq input queue depth"
+  range 16 128
+  default 20
+  ---help---
+  Specify the maximum number of ISR waiting to be executed at a given time.
+  This value can be increased up to 64 depending on the devices behavior,
+  if there interrupt bursts arrise, generating queue overflow.
+  The kernel consider a queue overflow as a critical event and panic.
+
+
 
 config DBGLEVEL
   int "Set debug level"
