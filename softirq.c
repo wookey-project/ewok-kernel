@@ -48,7 +48,7 @@
 /*
 ** max IRQ waiting
 */
-#define MAX_QUEUE_SIZE 12
+#define MAX_QUEUE_SIZE CONFIG_KERNEL_SOFTIRQ_QUEUE_DEPTH
 
 typedef enum {
     SFQ_DONE = 0,

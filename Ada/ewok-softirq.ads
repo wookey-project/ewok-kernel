@@ -50,7 +50,10 @@ is
       state       : t_state;
    end record;
 
-   MAX_QUEUE_SIZE : constant := 20;
+   -- softirq input queue depth. Can be configured depending
+   -- on the devices behavior (IRQ bursts)
+   -- defaulting to 20 (see Kconfig)
+   MAX_QUEUE_SIZE : constant := $CONFIG_KERNEL_SOFTIRQ_QUEUE_DEPTH;
 
    package p_isr_requests is new rings (t_isr_request, MAX_QUEUE_SIZE);
    use p_isr_requests;

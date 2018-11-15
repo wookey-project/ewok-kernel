@@ -73,29 +73,15 @@ config KERNEL_DOMAIN
 
 if KERNEL_EXPERT_MODE
 
-choice
-  prompt "Syscall execution time and postponing"
-  default KERNEL_SYSCALLS_WISE_REPARTITION
-config KERNEL_SYSCALLS_IN_IRQ
-  bool "Support for syscalls in handler mode"
+config KERNEL_SOFTIRQ_QUEUE_DEPTH
+  int "Kernel softirq input queue depth"
+  range 16 64
+  default 20
   ---help---
-  Syscalls are executed immediatly instead of being postponed to softirq
-  making the task locked for some time. They are faster and less costly
-  but take more time in IRQ mode with IRQ disabled.
-config KERNEL_SYSCALLS_WISE_REPARTITION
-  bool "Support for fast syscalls in handler mode, slow syscalls in softirq"
-  ---help---
-  Syscall requiring reactivity and having a small cost, such as get_cycles(),
-  are executed in handler mode. All other syscalls are postponed to softirq
-  thread. This is a reasonable middle choice to ally performance and reactivity.
-config KERNEL_SYSCALLS_IN_SOFTIRQ
-  bool "Support for syscalls in softirq mode"
-  ---help---
-  All syscalls are postponed to softirq thread. User main thread are locked
-  on syscall return while the syscall is being executed by softirq thread.
-  This highly reduce CPU time with IRQ disabled but make syscalls being
-  executed with potential big latency.
-endchoice
+  Specify the maximum number of ISR waiting to be executed at a given time.
+  This value can be increased up to 64 depending on the devices behavior,
+  if there interrupt bursts arrise, generating queue overflow.
+  The kernel consider a queue overflow as a critical event and panic.
 
 endif
 

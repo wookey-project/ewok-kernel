@@ -181,12 +181,6 @@ stack_frame_t *svc_handler(stack_frame_t * stack_frame)
     char       *svcptr = 0;
     svcnum_t    svc = 0;
 
-#ifdef CONFIG_KERNEL_SYSCALLS_WISE_REPARTITION // requied for syscalls in ISR
-    bool        wise = true;
-#else
-    bool        wise = false;
-#endif
-
     current_task = sched_get_current();
 
     /* Saving context before executing complex content in handler */
@@ -209,14 +203,14 @@ stack_frame_t *svc_handler(stack_frame_t * stack_frame)
          */
 
         if (current_task->mode == TASK_MODE_ISRTHREAD) {
-            if (wise && svc_is_synchronous_syscall(current_task)) {
+            if (svc_is_synchronous_syscall(current_task)) {
                  svc_synchronous_syscall(current_task);
             } else {
                 syscall_r0_update(current_task, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
             }
         } else {
             /* Only some critical syscalls executed synchronously */
-            if (wise && svc_is_synchronous_syscall(current_task)) {
+            if (svc_is_synchronous_syscall(current_task)) {
                  svc_synchronous_syscall(current_task);
             } else {
                  current_task->state[TASK_MODE_MAINTHREAD] = TASK_STATE_SVC_BLOCKED;
