@@ -32,7 +32,7 @@ package ewok.tasks
    with spark_mode => off
 is
 
-   subtype t_task_name is string (1 .. 8);
+   subtype t_task_name is string (1 .. 10);
 
    type t_task_state is (
       -- No task in this slot
@@ -166,8 +166,8 @@ is
    -- The list of the running tasks
    tasks_list : t_task_array (ID_APP1 .. ID_KERNEL);
 
-   softirq_task_name : aliased t_task_name := "SOFTIRQ" & " ";
-   idle_task_name    : aliased t_task_name := "IDLE" & "    ";
+   softirq_task_name : aliased t_task_name := "SOFTIRQ" & "   ";
+   idle_task_name    : aliased t_task_name := "IDLE" & "      ";
 
 
    ---------------

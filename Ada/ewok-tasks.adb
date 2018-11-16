@@ -100,7 +100,7 @@ is
    procedure set_default_values (tsk : out t_task)
    is
    begin
-      tsk.name              := "        ";
+      tsk.name              := "          ";
       tsk.entry_point       := 0;
       tsk.ttype             := TASK_TYPE_USER;
       tsk.mode              := TASK_MODE_MAINTHREAD;
