@@ -1,16 +1,4 @@
 {
-  "rng": {
-      "address":"0x50060800",
-      "size":"0x400",
-      "memory_subregion_mask":"0",
-      "irqs": [
-          0, 0, 0, 0
-      ],
-      "read_only": "false",
-      "permission": "PERM_RES_DEV_CRYPTO_CFG",
-      "enable_register":"r_CORTEX_M_RCC_AHB2ENR",
-      "enable_register_bits":["RCC_AHB2ENR_RNGEN"]
-  },
   "cryp-cfg": {
       "address":"0x50060000",
       "size":"0x1000",
