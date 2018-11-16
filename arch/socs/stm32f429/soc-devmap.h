@@ -1,1 +1,0 @@
-../stm32f439/soc-devmap.h

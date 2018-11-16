@@ -146,9 +146,10 @@ is
    procedure enable_dma_irq
      (index : in ewok.dma_shared.t_registered_dma_index)
    is
+      -- DMAs have only one IRQ line per stream
       intr  : constant soc.interrupts.t_interrupt :=
          soc.interrupts.t_interrupt'val
-              (registered_dma(index).devinfo.all.intr_num);
+              (registered_dma(index).devinfo.all.intr_num(1));
    begin
       soc.nvic.enable_irq (soc.nvic.to_irq_number (intr));
    end enable_dma_irq;
@@ -354,7 +355,7 @@ is
 
                ewok.interrupts.set_interrupt_handler
                  (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num),
+                    (registered_dma(index).devinfo.all.intr_num(1)),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -370,7 +371,7 @@ is
 
                ewok.interrupts.set_interrupt_handler
                  (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num),
+                    (registered_dma(index).devinfo.all.intr_num(1)),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -491,7 +492,7 @@ is
             if user_config.out_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
                  (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num),
+                    (registered_dma(index).devinfo.all.intr_num(1)),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -506,7 +507,7 @@ is
             if user_config.in_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
                  (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num),
+                    (registered_dma(index).devinfo.all.intr_num(1)),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,

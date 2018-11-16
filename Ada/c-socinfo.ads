@@ -28,15 +28,16 @@ with types.c;
 package c.socinfo
    with spark_mode => off
 is
+   type t_interrupt_list is array (1..4) of unsigned_8;
 
    type t_device_soc_infos is record
       name_ptr    : system_address;
       base_addr   : system_address;
       rcc_enr     : system_address;
       rcc_enb     : unsigned_32;
-      size        : unsigned_16;
+      size        : unsigned_32;
       subregions  : unsigned_8;
-      intr_num    : unsigned_8;
+      intr_num    : t_interrupt_list;
       ro          : types.c.bool;
       minperm     : ewok.perm.t_perm_name;
    end record;

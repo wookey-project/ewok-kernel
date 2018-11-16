@@ -203,12 +203,12 @@ uint8_t dma_reconf_dma(__user dma_t *dma,
         switch (dma->dir) {
         case MEMORY_TO_PERIPHERAL:
             dma_tab[dma_id].udma.in_handler = dma->in_handler;
-            set_interrupt_handler(dma_tab[dma_id].devinfo->irq,
+            set_interrupt_handler(dma_tab[dma_id].devinfo->irq[0],
                             dma->in_handler, caller, ID_DEV_UNUSED);
             break;
         case PERIPHERAL_TO_MEMORY:
             dma_tab[dma_id].udma.out_handler = dma->out_handler;
-            set_interrupt_handler(dma_tab[dma_id].devinfo->irq,
+            set_interrupt_handler(dma_tab[dma_id].devinfo->irq[0],
                             dma->out_handler, caller, ID_DEV_UNUSED);
             break;
         default:
@@ -387,12 +387,12 @@ uint8_t dma_init_dma(__user dma_t  *dma,
     switch (dma_tab[dma_id].udma.dir) {
     case MEMORY_TO_PERIPHERAL:
         set_interrupt_handler
-            (dma_tab[dma_id].devinfo->irq, dma_tab[dma_id].udma.in_handler,
+            (dma_tab[dma_id].devinfo->irq[0], dma_tab[dma_id].udma.in_handler,
                 caller, ID_DEV_UNUSED);
         break;
     case PERIPHERAL_TO_MEMORY:
         set_interrupt_handler
-            (dma_tab[dma_id].devinfo->irq, dma_tab[dma_id].udma.out_handler,
+            (dma_tab[dma_id].devinfo->irq[0], dma_tab[dma_id].udma.out_handler,
                 caller, ID_DEV_UNUSED);
         break;
     case MEMORY_TO_MEMORY:
@@ -424,9 +424,9 @@ ret_busy:
 uint8_t dma_enable_dma_irq(e_dma_id dma)
 {
     /* activate IRQ line for stream */
-    NVIC_EnableIRQ((uint32_t) dma_tab[dma].devinfo->irq - 0x10);    /* minus core interrupts */
+    NVIC_EnableIRQ((uint32_t) dma_tab[dma].devinfo->irq[0] - 0x10);    /* minus core interrupts */
     KERNLOG(DBG_INFO, "Enabled IRQ %x, for device %s\n",
-            dma_tab[dma].devinfo->irq - 16, dma_tab[dma].devinfo->name);
+            dma_tab[dma].devinfo->irq[0] - 16, dma_tab[dma].devinfo->name);
        return 0;
 }
 
@@ -473,7 +473,7 @@ void dma_clean_int(const e_task_id caller, uint8_t irq)
 
     for (uint8_t i = 0; i < caller_task->num_dmas; ++i) {
         kdma = &dma_tab[caller_task->dma[i]];
-        if (kdma->devinfo->irq == irq) {
+        if (kdma->devinfo->irq[0] == irq) {
             soc_dma_clean_int(kdma->udma.dma, kdma->udma.stream);
             break;
         }
@@ -495,7 +495,7 @@ uint32_t dma_get_status(e_task_id caller, uint8_t irq) // FIXME - irq or interru
 
     for (uint8_t i = 0; i < caller_task->num_dmas; ++i) {
         kdma = &dma_tab[caller_task->dma[i]];   // FIXME
-        if (kdma->devinfo->irq == irq) {        // FIXME
+        if (kdma->devinfo->irq[0] == irq) {        // FIXME
             status = soc_dma_get_status(kdma->udma.dma, kdma->udma.stream);
             break;
         }
