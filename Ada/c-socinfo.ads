@@ -23,23 +23,25 @@
 with ada.unchecked_conversion;
 with ewok.perm;
 with ewok.exported.dma;
+with soc.interrupts;
 with types.c;
 
 package c.socinfo
    with spark_mode => off
 is
-   type t_interrupt_list is array (1..4) of unsigned_8;
+   subtype t_dev_interrupt_range is unsigned_8 range 1 .. 4;
+   type t_interrupt_list is array (t_dev_interrupt_range) of soc.interrupts.t_interrupt;
 
    type t_device_soc_infos is record
-      name_ptr    : system_address;
-      base_addr   : system_address;
-      rcc_enr     : system_address;
-      rcc_enb     : unsigned_32;
-      size        : unsigned_32;
-      subregions  : unsigned_8;
-      intr_num    : t_interrupt_list;
-      ro          : types.c.bool;
-      minperm     : ewok.perm.t_perm_name;
+      name_ptr        : system_address;
+      base_addr       : system_address;
+      rcc_enr         : system_address;
+      rcc_enb         : unsigned_32;
+      size            : unsigned_32;
+      subregions      : unsigned_8;
+      interrupt_list  : t_interrupt_list;
+      ro              : types.c.bool;
+      minperm         : ewok.perm.t_perm_name;
    end record;
 
    type t_device_soc_infos_access is access all t_device_soc_infos;

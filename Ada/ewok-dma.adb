@@ -148,8 +148,7 @@ is
    is
       -- DMAs have only one IRQ line per stream
       intr  : constant soc.interrupts.t_interrupt :=
-         soc.interrupts.t_interrupt'val
-              (registered_dma(index).devinfo.all.intr_num(1));
+         registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first);
    begin
       soc.nvic.enable_irq (soc.nvic.to_irq_number (intr));
    end enable_dma_irq;
@@ -354,8 +353,7 @@ is
                   user_config.out_handler;
 
                ewok.interrupts.set_interrupt_handler
-                 (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num(1)),
+                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -370,8 +368,7 @@ is
                   user_config.in_handler;
 
                ewok.interrupts.set_interrupt_handler
-                 (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num(1)),
+                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -491,8 +488,7 @@ is
          when PERIPHERAL_TO_MEMORY  =>
             if user_config.out_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
-                 (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num(1)),
+                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -506,8 +502,7 @@ is
          when MEMORY_TO_PERIPHERAL  =>
             if user_config.in_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
-                 (soc.interrupts.t_interrupt'val
-                    (registered_dma(index).devinfo.all.intr_num(1)),
+                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
