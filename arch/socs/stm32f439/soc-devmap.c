@@ -21,7 +21,7 @@
  *
  */
 #include "types.h"
-#include "soc-devmap.h"
+#include "devmap.h"
 #include "m4-cpu.h"
 #include "regutils.h"
 

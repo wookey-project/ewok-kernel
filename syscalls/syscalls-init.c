@@ -31,7 +31,7 @@
 #include "debug.h"
 #include "softirq.h"
 #include "soc-interrupts.h"
-#include "soc-devmap.h"
+#include "devmap.h"
 #include "devices.h"
 #include "devices-shared.h"
 #include "mpu.h"

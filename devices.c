@@ -26,7 +26,7 @@
 #include "devices.h"
 #include "soc-interrupts.h"
 #include "soc-gpio.h"
-#include "soc-devmap.h"
+#include "devmap.h"
 #include "soc-nvic.h"
 #include "debug.h"
 #include "kernel.h"

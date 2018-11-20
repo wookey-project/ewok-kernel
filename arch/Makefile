@@ -22,6 +22,7 @@ CFLAGS += -I.
 CFLAGS += -Isocs/$(CONFIG_SOCNAME)
 CFLAGS += -Icores/$(CONFIG_ARCH)
 CFLAGS += -I..
+CFLAGS += -I../generated
 CFLAGS += -ffreestanding
 CFLAGS += -MMD -MP
 

@@ -29,7 +29,7 @@
 #include "autoconf.h"
 #include "sanitize.h"
 #include "libc.h"
-#include "soc-devmap.h"
+#include "devmap.h"
 #include "tasks.h"
 
 #ifdef CONFIG_KERNEL_DMA_ENABLE
