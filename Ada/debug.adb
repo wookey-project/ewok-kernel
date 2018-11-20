@@ -23,6 +23,15 @@
 
 with types.c;
 with c.kernel;
+#if CONFIG_KERNEL_PANIC_WIPE
+with soc;
+with soc.layout; use soc.layout;
+#end if;
+#if not CONFIG_KERNEL_PANIC_FREEZE
+with m4;
+with m4.scb;
+#end if;
+with types; use types;
 
 package body debug
    with spark_mode => off
@@ -65,9 +74,30 @@ is
 
    procedure panic (s : string)
    is
+#if CONFIG_KERNEL_PANIC_WIPE
+      sram : array (0 .. soc.layout.USER_RAM_SIZE) of types.byte
+         with address => to_address(USER_RAM_BASE);
+#end if;
    begin
       log (COLOR_ALERT & "panic: " & s & COLOR_NORMAL);
+#if CONFIG_KERNEL_PANIC_FREEZE
       loop null; end loop;
+#end if;
+#if CONFIG_KERNEL_PANIC_REBOOT
+      -- reseting right now...
+      m4.scb.reset;
+#end if;
+#if CONFIG_KERNEL_PANIC_WIPE
+      -- wiping the user applications RAM before reseting
+      -- kernel data and bss are not cleared as:
+      -- 1) it is currently used
+      -- 2) there is, normally, no interresting content in the kernel data
+      --    as secrets (Pin, etc. are contents hold in the user
+      -- TODO: Although: the IPC content should be cleared as they may hold some
+      -- secrets.
+      sram := (others => 0);
+      m4.scb.reset;
+#end if;
    end panic;
 
 end debug;

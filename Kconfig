@@ -27,6 +27,29 @@ config KERNEL_NOSERIAL
   is also closed. This should be the standard behavior of a production
   mode.
 
+choice
+  prompt "Kernel Panic behavior"
+  default KERNEL_PANIC_FREEZE
+    config KERNEL_PANIC_FREEZE
+    bool "Freeze on panic"
+    ---help---
+       Freeze the system on kernel panic(). This freeze the execution.
+       All the software stack is still mapped in flash and RAM. Useful
+       for debugging purpose.
+
+    config KERNEL_PANIC_REBOOT
+    bool "Reboot on panic"
+    ---help---
+       Reboot the system on kernel panic(). This force the device to
+       reboot but the memory content is zeroified only at boot time.
+
+    config KERNEL_PANIC_WIPE
+    bool "Wipe the applications data and reboot"
+    ---help---
+       Wipe the applications data in RAM with zero and then reboot
+       the device. This avoid attacks using panic & reboot action to
+       get back the RAM content at early reboot time
+endchoice
 
 if !KERNEL_NOSERIAL
 

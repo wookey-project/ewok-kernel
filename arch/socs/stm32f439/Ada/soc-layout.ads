@@ -18,6 +18,10 @@ is
    RAM_BASE          : constant system_address := 16#2000_0000#; -- SRAM
    RAM_SIZE          : constant := 128 * KBYTE;
 
+
+   USER_RAM_BASE     : constant system_address := 16#2000_0000#; -- SRAM
+   USER_RAM_SIZE     : constant := 128 * KBYTE;
+
    PERIPH_BASE       : constant system_address := 16#4000_0000#;
    MEMORY_BANK1_BASE : constant system_address := 16#6000_0000#;
    MEMORY_BANK2_BASE : constant system_address := MEMORY_BANK1_BASE;
