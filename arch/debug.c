@@ -38,7 +38,9 @@
 		ring_buffer.start %= BUF_MAX;		\
 	}
 
+#ifndef CONFIG_KERNEL_NOSERIAL
 volatile int logging = CONFIG_KERNEL_CONSOLE_TXT;
+#endif
 
 cb_usart_getc_t console_getc = NULL;
 cb_usart_putc_t console_putc = NULL;
@@ -60,6 +62,7 @@ void init_ring_buffer(void)
     }
 }
 
+#ifndef CONFIG_KERNEL_NOSERIAL
 void cb_console_data_received(void)
 {
     char c;
@@ -69,12 +72,6 @@ void cb_console_data_received(void)
 
     c = console_getc();
 
-#if 0
-    if (c != ' ' && c != 'p') {
-        dbg_flush();
-        return;
-    }
-#endif
 
     if (logging && console_putc) {
         if (c == '\r') {
@@ -87,9 +84,16 @@ void cb_console_data_received(void)
 }
 
 static usart_config_t console_config = { 0 };
+#endif
 
 void debug_console_init(void)
 {
+    /* init ring buffer. The ring buffer is keeped to support sys_ipc(LOG) syscalls,
+     * even when no serial is activated. The ring buffer is never flushed and the
+     * sys_ipc(LOG) syscall behave like writing in /dev/null.
+     */
+    init_ring_buffer();
+#ifndef CONFIG_KERNEL_NOSERIAL
     /* Configure the USART in UART mode */
     console_config.usart = CONFIG_KERNEL_USART;
     console_config.baudrate = 115200;
@@ -104,12 +108,13 @@ void debug_console_init(void)
 
     /* Initialize the USART related to the console */
     soc_usart_init(&console_config);
-    init_ring_buffer();
     dbg_log("[USART%d initialized for console output, baudrate=%d]\n",
             console_config.usart, console_config.baudrate);
     dbg_flush();
+#endif
 }
 
+/* functions implemented only when serial is activated */
 static void write_digit(uint8_t digit)
 {
     if (digit < 0xa)
@@ -145,6 +150,8 @@ static void copy_string(char *str, uint32_t len)
         copy_string(str + size, len - size);
 }
 
+#ifndef CONFIG_KERNEL_NOSERIAL
+/* flush behavior with activated serial... */
 void dbg_flush(void)
 {
     if (console_putc == NULL) {
@@ -155,6 +162,14 @@ void dbg_flush(void)
         ring_buffer.start %= BUF_MAX;
     }
 }
+#else
+/* ... or in /dev/null mode */
+void dbg_flush(void)
+{
+    ring_buffer.start = ring_buffer.end;
+}
+#endif
+
 
 static void print(const char *fmt, va_list args)
 {
@@ -212,6 +227,7 @@ void dbg_log(const char *fmt, ...)
     va_end(args);
 }
 
+/* WARNING: in NOSERIAL mode, panic doesn't printout any information */
 void panic(char *fmt, ...)
 {
     va_list args;

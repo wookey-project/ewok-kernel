@@ -20,6 +20,7 @@
  *     limitations under the License.
  *
  */
+#include "autoconf.h"
 #include "types.h"
 #include "devices.h"
 #include "gpio.h"
@@ -31,6 +32,7 @@ device_t kusart_dev = { 0 };
 
 void usart_init(void)
 {
+#ifndef CONFIG_KERNEL_NOSERIAL
     uint32_t    args[4] = { 0 };
     char       *name;
 
@@ -89,4 +91,5 @@ void usart_init(void)
     /* Kernel task is hosting the kernel devices list */
     args[1] = (uint32_t)&kusart_dev;
     init_do_reg_devaccess(ID_KERNEL, args, TASK_MODE_MAINTHREAD);
+#endif
 }

@@ -13,6 +13,23 @@ config ADAKERNEL
   to compile an hardened kernel based on the efficient properties
   of the Ada language, mixed with residual C code for libbsp.
 
+config KERNEL_NOSERIAL
+  bool "No kernel serial interface (production mode)"
+  default n
+  ---help---
+  This option deactivate the kernel serial interface. There is
+  no more information printed out on any serial interface.
+  Userspace applications printf content will be deleted by
+  the kernel.
+  The kernel usart interface is *not* activated.
+  This mode is a self-protection mechanism to avoid any leak
+  due to debug message content. The kernel usart attack surface
+  is also closed. This should be the standard behavior of a production
+  mode.
+
+
+if !KERNEL_NOSERIAL
+
 choice
   prompt "kernel console USART identifier"
   default KERNEL_CONSOLE_USART1
@@ -42,6 +59,8 @@ config KERNEL_CONSOLE_TXT
   If Y, input chars on the kernel console will be echoed. There
   is no specific behavior behind this (no protocol, shell or others),
   only a character echo in the ISR.
+
+endif
 
 config KERNEL_DMA_ENABLE
   bool "Enable secure DMA kernel support"
