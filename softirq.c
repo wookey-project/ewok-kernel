@@ -98,7 +98,14 @@ __INLINE uint8_t push_softirq(softirqs_queue *queue, e_task_id task_id,
         panic("push_softirq(): faulty task_id %d", task_id);
     }
 
+    /* No more space ! */
     if (queue->full) {
+        return 1;
+    }
+    /* The current queue is the last slot which has just been
+     * released, but not yet unlocked.
+     */
+    if (queue->queue[queue->end].state != SFQ_DONE) {
         return 1;
     }
 
@@ -294,11 +301,13 @@ void softirq_init(void)
     isr_queue.full  = false;
     isr_queue.start = 0;
     isr_queue.end   = 0;
+    memset(isr_queue.queue, 0x0, MAX_QUEUE_SIZE*sizeof(softirq_t));
 
     syscall_queue.empty = true;
     syscall_queue.full  = false;
     syscall_queue.start = 0;
     syscall_queue.end   = 0;
+    memset(syscall_queue.queue, 0x0, MAX_QUEUE_SIZE*sizeof(softirq_t));
 
     KERNLOG(DBG_NOTICE,
             "Initialized softirq subsystem. Syscalls and user IRQ/FIQ are handled out of interrupt mode.\n");
