@@ -31,8 +31,8 @@
 
 void sys_get_random(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {
-    char *buffer    = (char*) regs[1];
-    uint16_t length = (uint16_t) regs[2];
+    char *buffer    = (char*) regs[0];
+    uint16_t length = (uint16_t) regs[1];
     int ret;
 
     /* Generic sanitation of inputs */
@@ -46,6 +46,7 @@ void sys_get_random(task_t *caller, __user regval_t *regs, e_task_mode mode)
     if (!sanitize_is_data_pointer_in_slot
             ((void *)buffer, length, caller->id, mode))
     {
+        dbg_log("invalid pointer !!! : %x, size:%d\n", buffer, length);
         goto ret_inval;
     }
 
