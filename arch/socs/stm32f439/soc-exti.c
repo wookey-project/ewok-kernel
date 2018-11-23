@@ -364,6 +364,8 @@ uint8_t soc_exti_enable(gpioref_t kref)
 
 void soc_exti_init(void)
 {
+    /* set IMR register to 0 (no IT) */
+    write_reg_value(EXTI_IMR, 0x0);
     /* Enable the Syscfg, needed by EXTI */
     set_reg_bits(r_CORTEX_M_RCC_APB2ENR, RCC_APB2ENR_SYSCFGEN);
 }
