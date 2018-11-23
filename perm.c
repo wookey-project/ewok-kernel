@@ -68,6 +68,9 @@
 #define PERM_RES_TSK_UPGRADE_Pos    12
 #define PERM_RES_TSK_UPGRADE_Msk    ((uint32_t)1 << PERM_RES_TSK_UPG_Pos)
 
+#define PERM_RES_TSK_RNG_Pos    11
+#define PERM_RES_TSK_RNG_Msk    ((uint32_t)1 << PERM_RES_TSK_RNG_Pos)
+
 #define PERM_RES_MEM_DYNAMIC_MAP_Pos    7
 #define PERM_RES_MEM_DYNAMIC_MAP_Msk    ((uint32_t)1 << PERM_RES_TSK_FIPC_Pos)
 
@@ -248,6 +251,11 @@ bool perm_ressource_is_granted(res_perm_t  perm_name,
             perm = (uint32_t)1 << 12;
             field_mask = (uint32_t)1 << 12;
             field_pos = 12;
+            break;
+        case PERM_RES_TSK_RNG:
+            perm = (uint32_t)1 << 11;
+            field_mask = (uint32_t)1 << 11;
+            field_pos = 11;
             break;
         case PERM_RES_MEM_DYNAMIC_MAP:
             perm = (uint32_t)1 << 7;
