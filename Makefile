@@ -25,7 +25,7 @@ CFLAGS += -MMD -MP
 CFLAGS += $(KERN_CFLAGS)
 CFLAGS += -fstack-protector-strong
 
-CLANG_CFLAGS := -I. -Isyscalls -Igenerated  -I$(CORE_DIR) -Iarch -Iarch/core/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
+CLANG_CFLAGS := -I../include/generated -I. -Isyscalls -Igenerated  -I$(CORE_DIR) -Iarch -Iarch/core/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
 
 # if no specific ldscript is specified, using default one, if the SDK want to relink successively with
 # varous ldscripts, this variable has to be passed to the Makefile commandline
