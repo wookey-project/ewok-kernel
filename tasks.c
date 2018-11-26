@@ -379,7 +379,7 @@ void task_init(void)
 {
     e_task_id id;
 
-    for (id = 0; id <= ID_MAX; id++) {
+    for (id = 0; id < ID_MAX; id++) {
         tasks_list[id].state[TASK_MODE_MAINTHREAD] = TASK_STATE_EMPTY;
     }
 
