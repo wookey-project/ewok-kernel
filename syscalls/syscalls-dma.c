@@ -254,7 +254,6 @@ void sys_cfg_dma_reconf(task_t *caller, __user regval_t *regs, e_task_mode mode)
 void sys_cfg_dma_reload(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {
 #ifdef CONFIG_KERNEL_DMA_ENABLE
-    uint8_t     ret = 1;
     int         desc = (int) regs[1];
 
     /* The DMA user descriptor must be already defined in the task */
@@ -263,7 +262,6 @@ void sys_cfg_dma_reload(task_t *caller, __user regval_t *regs, e_task_mode mode)
     }
 
     dma_enable_dma_stream(caller->dma[desc]);
-    ret = 0;
 
     syscall_r0_update(caller, mode, SYS_E_DONE);
     if (mode != TASK_MODE_ISRTHREAD) {
@@ -294,7 +292,6 @@ void sys_cfg_dma_reload(task_t *caller, __user regval_t *regs, e_task_mode mode)
 void sys_cfg_dma_disable(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {
 #ifdef CONFIG_KERNEL_DMA_ENABLE
-    uint8_t  ret = 1;
     int      desc = (int) regs[1];
 
     /* The DMA user descriptor must be already defined in the task */
@@ -303,7 +300,6 @@ void sys_cfg_dma_disable(task_t *caller, __user regval_t *regs, e_task_mode mode
     }
 
     dma_disable_dma_stream(caller->dma[desc]);
-    ret = 0;
 
     syscall_r0_update(caller, mode, SYS_E_DONE);
     if (mode != TASK_MODE_ISRTHREAD) {
