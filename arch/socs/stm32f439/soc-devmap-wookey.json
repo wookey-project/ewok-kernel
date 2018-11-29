@@ -264,7 +264,7 @@
       "enable_register_bits": ["RCC_AHB2ENR_OTGFSEN"]
   },
   "usb-otg-hs": {
-      "address":"0x50004000",
+      "address":"0x40040000",
       "size":"0x4000",
       "memory_subregion_mask":"0",
       "irqs": [
