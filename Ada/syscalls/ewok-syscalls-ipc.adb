@@ -707,6 +707,7 @@ is
       size  : positive
          with address => params(2)'address;
       -- Message
+      -- FIXME: size must be sanitized first
       msg   : string (1 .. size)
          with address => to_address (params(3));
    begin
