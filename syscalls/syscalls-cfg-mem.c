@@ -78,6 +78,12 @@ void sys_cfg_dev_map(task_t *caller, __user regval_t *regs, e_task_mode mode)
         goto ret_busy;
     }
 
+    /*
+     * As the device may have never been mapped (and activated) we activate
+     * its clock here
+     */
+    dev_enable_device(dev_id);
+
     /* Okay now map the device */
     if (dev_set_device_map(true, dev_id) == FAILURE) {
         /* max mapped devices already reached ! */

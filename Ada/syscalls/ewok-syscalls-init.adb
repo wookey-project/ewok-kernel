@@ -156,7 +156,8 @@ is
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
-      ok : boolean;
+      ok   : boolean;
+      udev : t_user_device_access;
    begin
 
       -- Forbidden after end of task initialization
@@ -167,10 +168,16 @@ is
       end if;
 
       for i in 1 .. TSK.tasks_list(caller_id).num_devs loop
-         ewok.devices.enable_device
-           (TSK.tasks_list(caller_id).device_id(i), ok);
-         if not ok then
-            raise program_error;
+         udev := ewok.devices.get_user_device
+            (TSK.tasks_list(caller_id).device_id(i));
+         -- We enable only MAP_AUTO devices. MAP_VOLUNTARY devices
+         -- will be enabled during their first sys_cfg(CFG_MAP) call
+         if udev.all.map_mode = DEV_MAP_AUTO then
+            ewok.devices.enable_device
+               (TSK.tasks_list(caller_id).device_id(i), ok);
+            if not ok then
+               raise program_error;
+            end if;
          end if;
       end loop;
 

@@ -228,7 +228,14 @@ static void init_do_done(task_t *caller, e_task_mode mode)
 {
     // activate all devices
     for (uint8_t i = 0; i < caller->num_devs; ++i) {
-        dev_enable_device(caller->dev_id[i]);
+        device_t *dev = dev_get_device_from_id(caller->dev_id[i]);
+        /*
+         * We enable only MAP_AUTO devices. MAP_VOLUNTARY devices
+         * will be enabled during their first sys_cfg(CFG_MAP) call
+         */
+        if (dev->map_mode == DEV_MAP_AUTO) {
+          dev_enable_device(caller->dev_id[i]);
+        }
     }
 
 #if CONFIG_KERNEL_DMA_ENABLE
