@@ -162,21 +162,18 @@ is
 
       -- Forbidden after end of task initialization
       if TSK.is_init_done (caller_id) then
-         set_return_value (caller_id, mode, SYS_E_DENIED);
-         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-         return;
+         goto ret_denied;
       end if;
 
+      -- We enable auto mapped devices (MAP_AUTO)
       for i in 1 .. TSK.tasks_list(caller_id).num_devs loop
          udev := ewok.devices.get_user_device
-            (TSK.tasks_list(caller_id).device_id(i));
-         -- We enable only MAP_AUTO devices. MAP_VOLUNTARY devices
-         -- will be enabled during their first sys_cfg(CFG_MAP) call
+                    (TSK.tasks_list(caller_id).device_id(i));
          if udev.all.map_mode = DEV_MAP_AUTO then
             ewok.devices.enable_device
                (TSK.tasks_list(caller_id).device_id(i), ok);
             if not ok then
-               raise program_error;
+               goto ret_denied;
             end if;
          end if;
       end loop;
@@ -194,7 +191,14 @@ is
 
       -- Request a schedule to ensure that the task has its devices mapped
       -- afterward
+      -- FIXME - has to be changed when device mapping will be synchronously done
       ewok.sched.request_schedule;
+      return;
+
+   <<ret_denied>>
+      set_return_value (caller_id, mode, SYS_E_DENIED);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
    end init_do_done;
 
 

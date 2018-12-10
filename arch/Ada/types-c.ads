@@ -1,6 +1,6 @@
 
 package types.c
-   with SPARK_Mode => Off
+   with spark_mode => off
 is
 
    type t_retval is (SUCCESS, FAILURE) with size => 8;
@@ -27,7 +27,7 @@ is
    -- C buffer
    --
 
-   subtype c_buffer is byte_array; -- alias
+   subtype c_buffer is byte_array;
 
    --
    -- Boolean

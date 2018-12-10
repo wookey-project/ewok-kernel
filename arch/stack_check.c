@@ -32,7 +32,7 @@ volatile uint32_t __stack_chk_guard = 0;
  */
 __attribute__((optimize("-fno-stack-protector","-O0"))) void init_stack_chk_guard(void){
 	uint32_t random;
-	if(get_random((unsigned char*)&random, sizeof(uint32_t))){
+	if (get_random((unsigned char*)&random, sizeof(uint32_t)) != SUCCESS) {
 		panic("Failed to initialize the check guard ...");
 	}
 

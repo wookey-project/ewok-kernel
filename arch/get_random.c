@@ -24,41 +24,46 @@
 #include "libc.h"
 #include "get_random.h"
 
-int get_random(unsigned char *buf, uint16_t len)
+retval_t get_random(unsigned char *buf, uint16_t len)
 {
-        uint16_t i;
+    uint16_t    i;
+    uint32_t    random;
 
-        /* First, set the buffer to zero */
-        memset(buf, 0, len);
+    /* First, set the buffer to zero */
+    memset(buf, 0, len);
 
-        /* Generate as much random as necessary */
-        for(i = 0; i < sizeof(uint32_t) * (len / sizeof(uint32_t)); i += sizeof(uint32_t)){
-                if(soc_rng_manager((uint32_t*)(&(buf[i])))){
-                        goto err;
-                }
+    /* Generate as much random as necessary */
+    for (i = 0;
+         i < sizeof(uint32_t) * (len / sizeof(uint32_t));
+         i += sizeof(uint32_t))
+    {
+        if (soc_rng_manager((uint32_t *) (&(buf[i])))) {
+            goto err;
         }
-        if((len - i) > (int16_t)sizeof(uint32_t)){
-                /* We should not end here ... */
-                goto err;
-        }
-        /* Handle the remaining bytes */
-        if(i < len){
-                uint32_t random;
-                if(soc_rng_manager((&random))){
-                        goto err;
-                }
-                while(i < len){
-                        buf[i] = (random >> (8 * (len - i))) & 0xff;
-                        i++;
-                }
-        }
+    }
 
-        return 0;
+    if ((len - i) > (int16_t) sizeof(uint32_t)) {
+        /* We should not end here ... */
+        goto err;
+    }
+
+    /* Handle the remaining bytes */
+    if (i < len) {
+        if (soc_rng_manager((&random))) {
+            goto err;
+        }
+        while (i < len) {
+            buf[i] = (random >> (8 * (len - i))) & 0xff;
+            i++;
+        }
+    }
+
+    return SUCCESS;
 err:
-        return -1;
+    return FAILURE;
 }
 
-int get_random_u32(uint32_t *random)
+retval_t get_random_u32(uint32_t * random)
 {
-    return get_random ((unsigned char*)random, 4);
+    return get_random((unsigned char *)random, 4);
 }

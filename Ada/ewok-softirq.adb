@@ -216,13 +216,13 @@ is
               (req.caller_id, TASK_MODE_MAINTHREAD);
          when SYS_SLEEP      =>
             ewok.syscalls.sleep.sys_sleep
-               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
          when SYS_LOCK       =>
             ewok.syscalls.lock.sys_lock
-               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
          when SYS_GET_RANDOM =>
             ewok.syscalls.rng.sys_get_random
-               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
       end case;
 
    end syscall_handler;

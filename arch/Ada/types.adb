@@ -1,6 +1,6 @@
 
 package body types
-   with SPARK_Mode => Off
+   with spark_mode => off
 is
 
    function to_bit

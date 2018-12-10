@@ -23,14 +23,17 @@
 
 with types.c;
 with c.kernel;
+
 #if CONFIG_KERNEL_PANIC_WIPE
 with soc;
 with soc.layout; use soc.layout;
 #end if;
+
 #if not CONFIG_KERNEL_PANIC_FREEZE
 with m4;
 with m4.scb;
 #end if;
+
 with types;
 
 package body debug

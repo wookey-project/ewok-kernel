@@ -38,17 +38,19 @@ package c.kernel is
       external_name  => "dbg_flush",
       global         => null;
 
-   function get_random (s    : out types.c.c_string;
-                        len  : in  unsigned_16)
-   return Integer
+   function get_random
+     (s    : out types.c.c_string;
+      len  : in  unsigned_16)
+      return types.c.t_retval
    with
       convention     => c,
       import         => true,
       external_name  => "get_random",
       global         => null;
 
-   function get_random_u32 (rng   : out unsigned_32)
-   return Integer
+   function get_random_u32
+     (rng : out unsigned_32)
+      return types.c.t_retval
    with
       convention     => c,
       import         => true,
@@ -56,4 +58,3 @@ package c.kernel is
       global         => null;
 
 end c.kernel;
-

@@ -123,13 +123,10 @@ is
          goto ret_busy;
       end if;
 
-      -- As this device is not mapped, it may need to be enable.
-      -- We enable the device here (INFO: this may be not needed if
-      -- this is not the first mapping of this device but this
-      -- as no operational impact)
-      ewok.devices.enable_device(dev_id, ok);
+      -- We enable the device if its not already enabled
+      ewok.devices.enable_device (dev_id, ok);
       if not ok then
-         raise program_error;
+         goto ret_denied;
       end if;
 
       ewok.devices.map_device (dev_id, ok);

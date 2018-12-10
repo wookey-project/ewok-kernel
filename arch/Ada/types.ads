@@ -1,25 +1,16 @@
--- Here are the general restriction on Ada implementation.
--- Some are automatically added when activated SPARK mode in SPARK modules
--- no RTE double stacking
 pragma restrictions (no_secondary_stack);
--- no elaboration code must be required at start
 pragma restrictions (no_elaboration_code);
--- ... and no finalization (cleaning of elaboration)
 pragma restrictions (no_finalization);
--- no exception should arise
 pragma restrictions (no_exception_handlers);
--- no recursion call
 pragma restrictions (no_recursion);
--- no wide chars
 pragma restrictions (no_wide_characters);
-
 
 with system;
 with ada.unchecked_conversion;
 with interfaces;  use interfaces;
 
 package types
-   with SPARK_Mode => On
+   with spark_mode => on
 is
 
    KBYTE  : constant := 2 ** 10;
@@ -47,10 +38,6 @@ is
    function to_unsigned_32 is new ada.unchecked_conversion
      (system.address, unsigned_32);
 
-   --
-   -- u8, u16 vers u32
-   --
-
    pragma warnings (off);
 
    function to_unsigned_32 is new ada.unchecked_conversion
@@ -74,9 +61,7 @@ is
    type unsigned_16_array is new short_array;
    type unsigned_32_array is new word_array;
 
-
    nul : constant character := character'First;
-
 
    type bit     is mod 2**1  with size => 1;
    type bits_2  is mod 2**2  with size => 2;

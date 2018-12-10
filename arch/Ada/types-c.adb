@@ -1,6 +1,6 @@
 
 package body types.c
-   with SPARK_Mode => Off
+   with spark_mode => off
 is
 
    function len (s : c_string) return natural

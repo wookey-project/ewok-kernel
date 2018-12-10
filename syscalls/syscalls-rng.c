@@ -31,9 +31,9 @@
 
 void sys_get_random(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {
-    char *buffer    = (char*) regs[0];
+    char    *buffer = (char*) regs[0];
     uint16_t length = (uint16_t) regs[1];
-    int ret;
+    retval_t ret;
 
     /* Generic sanitation of inputs */
     if (caller->init_done == false) {
@@ -61,7 +61,7 @@ void sys_get_random(task_t *caller, __user regval_t *regs, e_task_mode mode)
     }
 
     ret = get_random((unsigned char*)buffer, length);
-    if (ret != 0) {
+    if (ret != SUCCESS) {
         goto ret_busy;
     }
 

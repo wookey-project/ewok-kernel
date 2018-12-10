@@ -128,7 +128,12 @@ int main(int argc, char *args[])
      * Initialize the platform TRNG, the collected seed value must
      * not be used as it is the first generated random value
      */
-     get_random_u32(&seed);
+    if (get_random_u32(&seed) != SUCCESS) {
+        ERROR("Call to the TRNG failed !\n");
+        dbg_flush();
+        panic("halting.\n");
+    }
+
     /*
      * Initialize the stack protection, based on the hardware RNG device
      */
@@ -192,7 +197,7 @@ int main(int argc, char *args[])
     if (mpu_kernel_init()) {
         ERROR("MPU Configuration failed !\n");
         dbg_flush();
-        panic("MPU fail, stopping.\n");
+        panic("MPU fail, halting.\n");
     }
     full_memory_barrier();
 

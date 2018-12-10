@@ -23,13 +23,16 @@
 with ada.unchecked_conversion;
 with ewok.perm;
 with ewok.exported.dma;
+with ewok.exported.devices;
 with soc.interrupts;
 with types.c;
 
 package c.socinfo
    with spark_mode => off
 is
-   subtype t_dev_interrupt_range is unsigned_8 range 1 .. 4;
+   subtype t_dev_interrupt_range is
+      unsigned_8 range 1 .. ewok.exported.devices.MAX_INTERRUPTS;
+
    type t_interrupt_list is array (t_dev_interrupt_range) of soc.interrupts.t_interrupt;
 
    type t_device_soc_infos is record

@@ -164,7 +164,7 @@ is
       devinfo  : c.socinfo.t_device_soc_infos_access;
       len      : constant natural := types.c.len (udev.all.name);
       name     : string (1 .. len);
-      it_owned : boolean;
+      found    : boolean;
    begin
 
       -- Convert C name to Ada string type for further log messages
@@ -222,19 +222,25 @@ is
          end if;
       end loop;
 
-      -- Are interrupts owned by this very device ?
+      -- We verify that the interrupts declared by this device really belong
+      -- to it
       for declared_it in 1 .. udev.interrupt_num loop
-         -- for each declared interrupt, we check that this very
-         -- interrupt is owned by the currently declared device
-         it_owned := false;
-         for device_it in c.socinfo.t_dev_interrupt_range'range loop 
-            if devinfo.interrupt_list(device_it) = udev.interrupts(declared_it).interrupt then
-               it_owned := true;
+         found := false;
+
+         inner_loop:
+         for i in devinfo.interrupt_list'range loop
+            if devinfo.interrupt_list(i)
+                  = udev.interrupts(declared_it).interrupt
+            then
+               found := true;
+               exit inner_loop;
             end if;
-         end loop;
-         if not it_owned then
+         end loop inner_loop;
+
+         if not found then
             debug.log (debug.WARNING,
-               "Device " & name & ": interrupt(s) not owned by device. Check devmap");
+               "Device " & name &
+               ": interrupt(s) not owned by device. Check devmap");
             success := false;
             return;
          end if;

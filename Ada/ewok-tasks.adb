@@ -28,6 +28,7 @@ with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.softirq;
 with c.kernel;
+with types.c;              use type types.c.t_retval;
 
 with applications; -- Automatically generated
 with sections;     -- Automatically generated
@@ -365,12 +366,15 @@ is
             stack := (others => 0);
          end;
 
-
-         if c.kernel.get_random_u32(random) /= 0
-         then
-            debug.panic("Unable to get random from TRNG source");
-         end if;
+         --
 	      -- Create the initial stack frame and set the stack pointer
+         --
+
+         -- Getting the stack "canary"
+         if c.kernel.get_random_u32 (random) /= types.c.SUCCESS then
+            debug.panic ("Unable to get random from TRNG source");
+         end if;
+
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
 
 	      create_stack
@@ -381,15 +385,11 @@ is
 
          tasks_list(id).isr_ctx.entry_point := applications.list(id).start_isr;
 
-         declare
-         begin
-            debug.log (debug.INFO, "created task " & tasks_list(id).name
-               & " (pc: " & system_address'image (tasks_list(id).entry_point)
-               & ", sp: " & system_address'image
-                              (to_system_address (tasks_list(id).ctx.frame_a))
-               & ", ID" & t_task_id'image (id) & ")");
-         end;
-
+         debug.log (debug.INFO, "created task " & tasks_list(id).name
+            & " (pc: " & system_address'image (tasks_list(id).entry_point)
+            & ", sp: " & system_address'image
+                           (to_system_address (tasks_list(id).ctx.frame_a))
+            & ", ID" & t_task_id'image (id) & ")");
       end loop;
 
    end init_apps;

@@ -20,13 +20,12 @@
 --
 --
 
-
-with ewok.tasks;        use ewok.tasks;
-with types.c;
-with c.kernel;
 with ewok.sanitize;
-with debug;
 with ewok.perm;
+with ewok.tasks;        use ewok.tasks;
+with types.c;           use type types.c.t_retval;
+with c.kernel;
+with debug;
 
 package body ewok.syscalls.rng
    with spark_mode => off
@@ -35,23 +34,20 @@ is
    pragma warnings (off);
 
    function to_integer is new ada.unchecked_conversion
-     (unsigned_16, Integer);
+     (unsigned_16, integer);
 
    pragma warnings (on);
 
    procedure sys_get_random
-     (caller_id   : in  ewok.tasks_shared.t_task_id;
+     (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
-      mode        : in  ewok.tasks_shared.t_task_mode)
+      mode        : in     ewok.tasks_shared.t_task_mode)
    is
       length      : unsigned_16
          with address => params(1)'address;
 
       buffer      : types.c.c_string (1 .. to_integer(length))
          with address => to_address (params(0));
-
-      ret         : Integer;
-
    begin
 
       -- Forbidden after end of task initialization
@@ -59,13 +55,12 @@ is
          goto ret_denied;
       end if;
 
-
-      --
-      -- Verifying parameters
-      --
-
+      -- Does buffer'address is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
-               (to_system_address (buffer'address), types.to_unsigned_32(length), caller_id, mode)
+                 (to_system_address (buffer'address),
+                  types.to_unsigned_32(length),
+                  caller_id,
+                  mode)
       then
          debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_get_random: value ("
@@ -74,14 +69,13 @@ is
          goto ret_inval;
       end if;
 
-      if length > 16
-      then
+      -- Size is arbitrary limited to 16 bytes to avoid exhausting the entropy pool
+      -- FIXME - is that check really correct?
+      if length > 16 then
          goto ret_inval;
       end if;
 
-      --
-      -- Verifying permissions
-      --
+      -- Is the task allowed to use the RNG?
       if not ewok.perm.ressource_is_granted
                (ewok.perm.PERM_RES_TSK_RNG, caller_id)
       then
@@ -89,18 +83,15 @@ is
          goto ret_denied;
       end if;
 
+      -- Calling the RNG which handle the potential random source errors (case
+      -- of harware random sources such as TRNG IP)
+      -- NOTE: there is some time when the generated random
+      --       content may be weak for various reason due to arch-specific
+      --       constraint. In this case, the return value is set to
+      --       busy. Please check this return value when using this
+      --       syscall to avoid using weak random content
 
-      -- Here we call the kernel random source which handle the potential
-      -- random source errors (case of harware random sources such as TRNG IP)
-      ret := c.kernel.get_random(buffer, length);
-
-      if ret /= 0
-      then
-         -- INFO: there is some time when the generated random
-         -- content may be weak for various reason due to arch-specific
-         -- constraint. In this case, the return value is set to
-         -- busy. Please check this return value when using this
-         -- syscall to avoid using weak random content
+      if c.kernel.get_random (buffer, length) /= types.c.SUCCESS then
          debug.log (debug.WARNING, "sys_get_random(): weak seed");
          goto ret_busy;
       end if;
