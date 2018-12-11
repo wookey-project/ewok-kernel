@@ -14,6 +14,9 @@ VERSION = 1
 -include $(PROJ_FILES)/Makefile.conf
 -include $(PROJ_FILES)/Makefile.gen
 
+-include $(PROJ_FILES)/kernel/arch/socs/$(SOC)/Makefile.objs
+-include $(PROJ_FILES)/kernel/arch/cores/$(ARCH)/Makefile.objs
+-include $(PROJ_FILES)/kernel/arch/boards/Makefile.objs
 
 # use an app-specific build dir
 APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
@@ -24,8 +27,11 @@ CFLAGS += -I. -Isyscalls -Igenerated -I$(CORE_DIR) -Iarch
 CFLAGS += -MMD -MP
 CFLAGS += $(KERN_CFLAGS)
 CFLAGS += -fstack-protector-strong
+CFLAGS += -I$(PROJ_FILES)/kernel/arch
+CFLAGS += -I$(CORE_DIR) -Iarch -Iarch/cores/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
 
-CLANG_CFLAGS := -I../include/generated -I. -Isyscalls -Igenerated  -I$(CORE_DIR) -Iarch -Iarch/core/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
+
+CLANG_CFLAGS := -I../include/generated -I. -Isyscalls -Igenerated  -I$(CORE_DIR) -Iarch -Iarch/cores/$(ARCH) -Iarch/socs/$(SOC) -Iarch/boards/$(BOARD) -Iarch/boards
 
 # if no specific ldscript is specified, using default one, if the SDK want to relink successively with
 # varous ldscripts, this variable has to be passed to the Makefile commandline

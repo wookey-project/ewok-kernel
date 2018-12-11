@@ -178,7 +178,6 @@ config MAXTASKS
 config AFLAGS_GCC
     string
     default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F4
-    default "-mabi=apcs-gnu -mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F5
     default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F2
 
 config AFLAGS_LLVM

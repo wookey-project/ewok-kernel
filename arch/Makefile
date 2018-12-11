@@ -9,6 +9,10 @@ VERSION = 1
 -include $(PROJ_FILES)/Makefile.conf
 -include $(PROJ_FILES)/Makefile.gen
 
+-include $(PROJ_FILES)/kernel/arch/socs/$(SOC)/Makefile.objs
+-include $(PROJ_FILES)/kernel/arch/cores/$(ARCH)/Makefile.objs
+-include $(PROJ_FILES)/kernel/arch/boards/Makefile.objs
+
 # use an app-specific build dir
 ifeq ($(EXTRA_CFLAGS),-DKERNEL)
 APP_BUILD_DIR = $(BUILD_DIR)/kernel/$(LIB_NAME)
@@ -23,6 +27,7 @@ CFLAGS += -Isocs/$(CONFIG_SOCNAME)
 CFLAGS += -Icores/$(CONFIG_ARCH)
 CFLAGS += -I..
 CFLAGS += -I../generated
+CFLAGS += -I$(CORE_DIR) -Icore/$(CONFIG_ARCH) -Isocs/$(CONFIG_SOCNAME) -Iboards/$(CONFIG_BOARDNAME) -Iboards
 CFLAGS += -ffreestanding
 CFLAGS += -MMD -MP
 
