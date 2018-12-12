@@ -24,6 +24,7 @@ with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.exported.devices;
 with ewok.exported.interrupts;
+with m4.mpu;
 with soc.interrupts;
 with c.socinfo;
 
@@ -43,7 +44,6 @@ is
    type t_device is record
       udev        : aliased ewok.exported.devices.t_user_device;
       task_id     : t_task_id;
-      is_mapped   : boolean;
       devinfo     : c.socinfo.t_device_soc_infos_access; -- FIXME
       status      : t_device_state;
    end record;

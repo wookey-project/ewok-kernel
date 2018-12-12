@@ -28,6 +28,7 @@ with ewok.interrupts;            use ewok.interrupts;
 with ewok.sanitize;
 with ewok.gpio;
 with ewok.exti;
+with ewok.mpu;
 with soc.nvic;
 with soc.gpio;
 with soc.interrupts;             use soc.interrupts;
@@ -271,7 +272,6 @@ is
 
       registered_device(dev_id).udev      := udev.all;
       registered_device(dev_id).task_id   := task_id;
-      registered_device(dev_id).is_mapped := false;
       registered_device(dev_id).devinfo   := devinfo;
       registered_device(dev_id).status    := DEV_STATE_REGISTERED;
 
@@ -359,9 +359,6 @@ is
       end if;
 
       registered_device(dev_id).status := DEV_STATE_ENABLED;
-      if registered_device(dev_id).udev.map_mode = DEV_MAP_AUTO then
-         registered_device(dev_id).is_mapped := true;
-      end if;
       success := true;
    end enable_device;
 

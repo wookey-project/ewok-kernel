@@ -25,7 +25,8 @@ with ewok.tasks_shared;       use ewok.tasks_shared;
 with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices_shared;     use ewok.devices_shared;
 with ewok.devices;
-with ewok.sched;
+with ewok.mpu;
+with m4.mpu;
 
 #if CONFIG_DEBUG_SYS_CFG_MEM
 with debug;
@@ -152,28 +153,45 @@ is
       end;
 
       --
-      -- Adding the device in the 'mounted' list
+      -- Mapping the device
       --
 
       for i in TSK.tasks_list(caller_id).mounted_device'range loop
+
          if TSK.tasks_list(caller_id).mounted_device(i) = ID_DEV_UNUSED then
+
+            -- Mapping the device in its related MPU region
+            ewok.devices.mpu_mapping_device
+              (dev_id, ewok.mpu.device_regions(i), ok);
+
+            if not ok then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+               debug.log ("dev_map(): mapping device failed!");
+#end if;
+               goto ret_denied;
+            end if;
+
+            -- Adding the device in the 'mounted' list
             TSK.tasks_list(caller_id).mounted_device(i)  := dev_id;
             TSK.tasks_list(caller_id).num_devs_mounted   :=
                TSK.tasks_list(caller_id).num_devs_mounted + 1;
+
+            exit;
          end if;
+
       end loop;
 
       -- We enable the device if its not already enabled
+      -- FIXME - That code should not be here.
+      --         Should create a special syscall for enabling/disabling
+      --         devices (cf. ewok-syscalls-init.adb)
       ewok.devices.enable_device (dev_id, ok);
       if not ok then
          goto ret_denied;
       end if;
 
-      -- TODO - mapping the device in its related MPU region
-
       set_return_value (caller_id, mode, SYS_E_DONE);
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      ewok.sched.request_schedule;
       return;
 
    <<ret_inval>>
@@ -293,20 +311,22 @@ is
       end;
 
       --
-      -- Removing the device from the 'mounted' list
+      -- Unmapping the device
       --
 
       for i in TSK.tasks_list(caller_id).mounted_device'range loop
          if TSK.tasks_list(caller_id).mounted_device(i) = dev_id then
-            TSK.tasks_list(caller_id).mounted_device(i) := ID_DEV_UNUSED;
+            -- Removing the device from the 'mounted' list
+            TSK.tasks_list(caller_id).mounted_device(i)  := ID_DEV_UNUSED;
+            TSK.tasks_list(caller_id).num_devs_mounted   :=
+               TSK.tasks_list(caller_id).num_devs_mounted - 1;
+            -- Unmapping the device from its related MPU region
+            m4.mpu.disable_region (ewok.mpu.device_regions(i));
          end if;
       end loop;
 
-      -- TODO - unmapping the device from its related MPU region
-
       set_return_value (caller_id, mode, SYS_E_DONE);
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      ewok.sched.request_schedule;
       return;
 
    <<ret_inval>>
