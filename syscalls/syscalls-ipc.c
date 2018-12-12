@@ -490,12 +490,11 @@ static inline void ipc_do_log(task_t *caller, __user regval_t *regs, e_task_mode
     uint32_t size = regs[2];
     uint32_t msg = regs[3];
 
-    /* Generic sanitation of inputs */
+    /* Is the message in the task address space? */
     if (!sanitize_is_data_pointer_in_slot((void*)msg, size, caller->id, mode)) {
         goto ret_inval;
     }
 
-    /* end of generic sanitation */
     if (size >= 512) {
         goto ret_inval;
     }
@@ -503,6 +502,7 @@ static inline void ipc_do_log(task_t *caller, __user regval_t *regs, e_task_mode
     dbg_log("[%s] ", caller->name);
     dbg_log((char*)msg);
     dbg_flush();
+
     syscall_r0_update(caller, mode, SYS_E_DONE);
     syscall_set_target_task_runnable(caller);
     return;

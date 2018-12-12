@@ -57,7 +57,7 @@ is
          goto ret_denied;
       end if;
 
-      -- Note: The kernel might register some devices using this syscall
+      -- NOTE: The kernel might register some devices using this syscall
       if TSK.is_user (caller_id) and then
         (not ewok.sanitize.is_range_in_data_slot
                (to_system_address (udev'address),
@@ -73,7 +73,7 @@ is
          goto ret_denied;
       end if;
 
-      -- Ada based sanitation using on types compliance
+      -- Ada based sanitization 
       if not udev'valid_scalars
       then
          debug.log (debug.WARNING, "init_do_reg_devaccess(): invalid udev scalars");
@@ -88,19 +88,18 @@ is
          goto ret_inval;
       end if;
 
-      if udev.size > 0                 and
-         udev.map_mode = DEV_MAP_AUTO  and
-         TSK.tasks_list(caller_id).num_devs_mmapped =
-            ewok.mpu.MPU_MAX_EMPTY_REGIONS
-      then
-         debug.log (debug.WARNING,
-            "init_do_reg_devaccess(): no free region left to map the device");
-         goto ret_busy;
-      end if;
-
       if TSK.tasks_list(caller_id).num_devs = TSK.MAX_DEVS_PER_TASK then
          debug.log (debug.WARNING,
             "init_do_reg_devaccess(): no space left to register the device");
+         goto ret_busy;
+      end if;
+
+      if udev.size > 0                 and
+         udev.map_mode = DEV_MAP_AUTO  and
+         TSK.tasks_list(caller_id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS
+      then
+         debug.log (debug.WARNING,
+            "init_do_reg_devaccess(): no free region left to map the device");
          goto ret_busy;
       end if;
 
@@ -116,19 +115,33 @@ is
          goto ret_denied;
       end if;
 
+      --
+      -- Recording registered devices in the task record
+      --
+
+      -- NOTE
+      --    Assumption here is that the registering process is sequential,
+      --    and that the 'num_devs' field is also an offset in the related
+      --    device list.
+      -- FIXME
+      --    Using a list abstraction type with some methods to insert or
+      --    remove items, to return the list status (full/empty) and to return
+      --    an item status (used/unused).
       TSK.tasks_list(caller_id).num_devs
          := TSK.tasks_list(caller_id).num_devs + 1;
 
-      TSK.tasks_list(caller_id).device_id(TSK.tasks_list(caller_id).num_devs)
-         := dev_id;
+      TSK.tasks_list(caller_id).device_id
+        (TSK.tasks_list(caller_id).num_devs) := dev_id;
+
+      if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
+         TSK.tasks_list(caller_id).num_devs_mounted :=
+            TSK.tasks_list(caller_id).num_devs_mounted + 1;
+         TSK.tasks_list(caller_id).mounted_device
+           (TSK.tasks_list(caller_id).num_devs_mounted) := dev_id;
+      end if;
 
       -- Descriptor transmitted to userspace
       descriptor := TSK.tasks_list(caller_id).num_devs;
-
-      if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
-         TSK.tasks_list(caller_id).num_devs_mmapped :=
-            TSK.tasks_list(caller_id).num_devs_mmapped + 1;
-      end if;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

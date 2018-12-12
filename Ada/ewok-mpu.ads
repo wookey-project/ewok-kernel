@@ -37,9 +37,6 @@ is
       REGION_TYPE_ISR_DATA)
    with size => 32;
 
-   -- FIXME to be set in core.mpu
-   MPU_MAX_EMPTY_REGIONS : constant unsigned_8 := 2;
-
    SHARED_REGION        : constant m4.mpu.t_region_number := 0;
    KERN_CODE_REGION     : constant m4.mpu.t_region_number := 1;
    DEVICES_REGION       : constant m4.mpu.t_region_number := 2;
@@ -51,6 +48,11 @@ is
    USER_DEV1_REGION     : constant m4.mpu.t_region_number := 6;
    ISR_DEVICE_REGION    : constant m4.mpu.t_region_number := 7;
    USER_DEV2_REGION     : constant m4.mpu.t_region_number := 7;
+
+   -- How many devices can be mapped in memory
+   MAX_DEVICE_REGIONS   : constant := 2;
+   device_regions       : array (unsigned_8 range 1 .. MAX_DEVICE_REGIONS)
+      of m4.mpu.t_region_number := (USER_DEV1_REGION, USER_DEV2_REGION);
 
    ---------------
    -- Functions --

@@ -109,16 +109,17 @@ is
       tsk.slot              := 0;
       tsk.num_slots         := 0;
       tsk.prio              := 0;
+
 #if CONFIG_KERNEL_DOMAIN
       tsk.domain            := 0;
 #end if;
-      tsk.num_devs          := 0;
-      tsk.num_devs_mmapped  := 0;
+
 #if CONFIG_KERNEL_SCHED_DEBUG
       tsk.count             := 0;
       tsk.force_count       := 0;
       tsk.isr_count         := 0;
 #end if;
+
 #if CONFIG_KERNEL_DMA_ENABLE
       tsk.num_dma_shms      := 0;
       tsk.dma_shm           :=
@@ -132,8 +133,12 @@ is
       tsk.num_dma_id        := 0;
       tsk.dma_id            := (others => ewok.dma_shared.ID_DMA_UNUSED);
 #end if;
+
       tsk.init_done         := false;
+      tsk.num_devs          := 0;
+      tsk.num_devs_mounted  := 0;
       tsk.device_id         := (others => ewok.devices_shared.ID_DEV_UNUSED);
+      tsk.mounted_device    := (others => ewok.devices_shared.ID_DEV_UNUSED);
       tsk.data_slot_start   := 0;
       tsk.data_slot_end     := 0;
       tsk.txt_slot_start    := 0;
@@ -323,11 +328,10 @@ is
 #end if;
 	
          tasks_list(id).num_devs          := 0;
-         tasks_list(id).num_devs_mmapped  := 0;
-
-         tasks_list(id).device_id      := (others => ID_DEV_UNUSED);
-
-         tasks_list(id).init_done   := false;
+         tasks_list(id).num_devs_mounted  := 0;
+         tasks_list(id).device_id         := (others => ID_DEV_UNUSED);
+         tasks_list(id).mounted_device    := (others => ID_DEV_UNUSED);
+         tasks_list(id).init_done         := false;
 
          tasks_list(id).data_slot_start   :=
             USER_DATA_BASE
@@ -478,6 +482,7 @@ is
       end if;
    end get_state;
 
+
    procedure set_state
      (id    : ewok.tasks_shared.t_task_id;
       mode  : t_task_mode;
@@ -491,6 +496,7 @@ is
       end if;
    end set_state;
 
+
    function get_mode
      (id     : in  ewok.tasks_shared.t_task_id)
    return t_task_mode
@@ -499,6 +505,7 @@ is
      return tasks_list(id).mode;
    end get_mode;
 
+
    procedure set_mode
      (id     : in   ewok.tasks_shared.t_task_id;
       mode   : in   ewok.tasks_shared.t_task_mode)
@@ -506,6 +513,7 @@ is
    begin
      tasks_list(id).mode := mode;
    end set_mode;
+
 
    -- FIXME useful ?
    function is_user (id : ewok.tasks_shared.t_task_id) return boolean

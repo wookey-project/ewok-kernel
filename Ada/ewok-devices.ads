@@ -96,15 +96,9 @@ is
       task_id  : in  t_task_id)
       return boolean;
 
-   procedure map_device
-      (dev_id  : in  t_device_id;
-       success : out boolean);
-
-   procedure unmap_device
-      (dev_id  : in  t_device_id;
-       success : out boolean);
-
-   function is_mapped (dev_id : t_device_id)
-      return boolean;
+   procedure mpu_mapping_device
+     (dev_id   : in  t_device_id;
+      region   : in  m4.mpu.t_region_number;
+      success  : out boolean);
 
 end ewok.devices;

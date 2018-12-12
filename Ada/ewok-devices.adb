@@ -27,9 +27,7 @@ with ewok.exported.gpios;        use ewok.exported.gpios;
 with ewok.interrupts;            use ewok.interrupts;
 with ewok.sanitize;
 with ewok.gpio;
-with ewok.mpu;
 with ewok.exti;
-with ewok.tasks; use ewok.tasks;
 with soc.nvic;
 with soc.gpio;
 with soc.interrupts;             use soc.interrupts;
@@ -52,7 +50,7 @@ is
    end init;
 
 
-   function get_task_from_id(dev_id : t_device_id)
+   function get_task_from_id (dev_id : t_device_id)
       return t_task_id
    is
    begin
@@ -267,7 +265,7 @@ is
          return;
       end if;
 
-      -- Registering the device 
+      -- Registering the device
       debug.log (debug.INFO, "Registered device " & name & " (0x" &
          system_address'image (udev.all.base_addr) & ")");
 
@@ -574,61 +572,55 @@ is
    end sanitize_user_defined_device;
 
 
-   -------------------------------------------------
-   -- Marking devices to be mapped in user memory --
-   -------------------------------------------------
-
-   procedure map_device
+   procedure mpu_mapping_device
      (dev_id   : in  t_device_id;
+      region   : in  m4.mpu.t_region_number;
       success  : out boolean)
    is
-      task_id  : constant t_task_id := ewok.devices.get_task_from_id (dev_id);
-      task_a   : constant t_task_access := ewok.tasks.get_task (task_id);
+      dev_size          : unsigned_16;
+      mpu_region_size   : m4.mpu.t_region_size;
+      region_type       : ewok.mpu.t_region_type;
+      ok                : boolean;
    begin
 
-      -- The device is already mapped
-      if registered_device(dev_id).is_mapped then
-         success := true;
-         return;
-      end if;
-
-      -- We are physically limited by the number of regions
-      if task_a.all.num_devs_mmapped = ewok.mpu.MPU_MAX_EMPTY_REGIONS then
+      if dev_id = ID_DEV_UNUSED then
+         debug.log ("mpu_mapping_device(): unused device"); 
          success := false;
          return;
       end if;
 
-      registered_device(dev_id).is_mapped := true;
-      task_a.all.num_devs_mmapped := task_a.all.num_devs_mmapped + 1;
-      success := true;
-   end map_device;
+      dev_size := get_user_device_size (dev_id);
 
-
-   procedure unmap_device
-     (dev_id   : in  t_device_id;
-      success  : out boolean)
-   is
-      task_id  : constant t_task_id := ewok.devices.get_task_from_id (dev_id);
-      task_a   : constant t_task_access := ewok.tasks.get_task (task_id);
-   begin
-      -- The device is already unmapped
-      if not registered_device(dev_id).is_mapped then
-         success := true;
+      if dev_size = 0 then
+         debug.log ("mpu_mapping_device(): device size = 0");
+         success := false;
          return;
       end if;
 
-      task_a.all.num_devs_mmapped := task_a.all.num_devs_mmapped - 1;
-      registered_device(dev_id).is_mapped := false;
+      ewok.mpu.bytes_to_region_size
+        (unsigned_32 (dev_size), mpu_region_size, ok);
+
+      if not ok then
+         debug.log ("mpu_mapping_device(): bytes_to_region_size() failed!");
+         success := false;
+         return;
+      end if;
+
+      if is_user_device_region_ro (dev_id) then
+         region_type := ewok.mpu.REGION_TYPE_RO_USER_DEV;
+      else
+         region_type := ewok.mpu.REGION_TYPE_USER_DEV;
+      end if;
+
+      ewok.mpu.regions_schedule
+        (region_number  => region,
+         addr           => get_user_device_addr (dev_id),
+         size           => mpu_region_size,
+         region_type    => region_type,
+         subregion_mask => get_user_device_subregions_mask (dev_id));
+
       success := true;
-   end unmap_device;
-
-
-   function is_mapped (dev_id : t_device_id)
-      return boolean
-   is
-   begin
-      return registered_device(dev_id).is_mapped;
-   end is_mapped;
+   end mpu_mapping_device;
 
 
 end ewok.devices;

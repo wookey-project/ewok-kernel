@@ -276,8 +276,6 @@ is
       dev_addr          : system_address;
       mpu_region_size   : m4.mpu.t_region_size;
       region_type       : ewok.mpu.t_region_type;
-      dev_region        : m4.mpu.t_region_number;
-      dev_cannot_be_mapped : boolean;
       ok                : boolean;
    begin
 
@@ -291,6 +289,7 @@ is
             -- User ISR --
             --------------
 
+            -- Mapping the ISR device
             dev_id   := new_task.all.isr_ctx.device_id;
 
             -- Notes
@@ -302,10 +301,11 @@ is
                dev_addr := ewok.devices.get_user_device_addr (dev_id);
             end if;
 
-            -- Mapping the ISR device
             if dev_id /= ID_DEV_UNUSED and dev_size > 0 then
 
-               ewok.mpu.bytes_to_region_size (unsigned_32 (dev_size), mpu_region_size, ok);
+               ewok.mpu.bytes_to_region_size
+                 (unsigned_32 (dev_size), mpu_region_size, ok);
+
                if not ok then
                   debug.panic("mpu_switching(): bytes_to_region_size() failed!");
                end if;
@@ -323,8 +323,9 @@ is
                   region_type    => region_type,
                   subregion_mask =>
                      ewok.devices.get_user_device_subregions_mask (dev_id));
-
             else
+               -- Unmapping devices eventually mapped by other tasks
+               -- Note: can be time consumming if no device was mapped
                m4.mpu.disable_region (ewok.mpu.ISR_DEVICE_REGION);
             end if;
 
@@ -342,29 +343,22 @@ is
             -- User main task --
             --------------------
 
-            dev_region           := ewok.mpu.USER_DEV1_REGION;
-            dev_cannot_be_mapped := false;
+            -- Mapping the user devices
+            for i in new_task.all.mounted_device'range loop
+               dev_id   := new_task.all.mounted_device(i);
 
-            for i in 1 .. new_task.all.num_devs loop
-               dev_id   := new_task.all.device_id(i);
-
-               if dev_id = ID_DEV_UNUSED then
-                  raise program_error;
+               if dev_id /= ID_DEV_UNUSED then
+                  dev_size := ewok.devices.get_user_device_size (dev_id);
+                  dev_addr := ewok.devices.get_user_device_addr (dev_id);
                end if;
 
-               dev_size := ewok.devices.get_user_device_size (dev_id);
-               dev_addr := ewok.devices.get_user_device_addr (dev_id);
-
-               if dev_id /= ID_DEV_UNUSED and dev_size > 0 and
-                  ewok.devices.is_mapped (dev_id)
-               then
+               if dev_id /= ID_DEV_UNUSED and dev_size > 0 then
 
                   ewok.mpu.bytes_to_region_size
                     (unsigned_32 (dev_size), mpu_region_size, ok);
 
                   if not ok then
-                     debug.panic
-                       ("mpu_switching(): bytes_to_region_size() failed!");
+                     debug.panic ("mpu_switching(): bytes_to_region_size() failed!");
                   end if;
 
                   if ewok.devices.is_user_device_region_ro (dev_id) then
@@ -373,39 +367,20 @@ is
                      region_type := ewok.mpu.REGION_TYPE_USER_DEV;
                   end if;
 
-                  if dev_cannot_be_mapped then
-                     debug.log (debug.ALERT,
-                        "task " & t_task_id'image (id) &
-                        "mpu_switching(): DEVICE " &
-                        t_device_id'image (dev_id) & " CANNOT BE MAPPED!");
-                     raise program_error;
-                  else
-                     ewok.mpu.regions_schedule
-	                    (region_number  => dev_region,
-	                     addr           => dev_addr,
-	                     size           => mpu_region_size,
-	                     region_type    => region_type,
-	                     subregion_mask =>
-                           ewok.devices.get_user_device_subregions_mask (dev_id));
-
-                     if dev_region < ewok.mpu.USER_DEV2_REGION then
-                        dev_region := dev_region + 1;
-                     else
-                        dev_cannot_be_mapped := true;
-                     end if;
-                  end if;
-
+                  ewok.mpu.regions_schedule
+                    (region_number  => ewok.mpu.device_regions(i),
+	                  addr           => dev_addr,
+	                  size           => mpu_region_size,
+	                  region_type    => region_type,
+	                  subregion_mask =>
+                        ewok.devices.get_user_device_subregions_mask (dev_id));
+               else
+                  -- Unmapping devices eventually mapped by other tasks
+                  -- Note: can be time consumming if no device was mapped
+                  m4.mpu.disable_region (ewok.mpu.device_regions(i));
                end if; -- device must be mapped
 
-            end loop; -- each device_id()
-
-            -- Unmapping devices previously mapped by other tasks
-            if not dev_cannot_be_mapped then
-               for unused_region in dev_region .. ewok.mpu.USER_DEV2_REGION
-               loop
-                  m4.mpu.disable_region (unused_region);
-               end loop;
-            end if;
+            end loop;
 
          end if; -- ISR or MAIN thread
 

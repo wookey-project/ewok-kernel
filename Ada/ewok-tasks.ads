@@ -26,6 +26,7 @@ with ewok.devices_shared;
 with ewok.ipc;
 with ewok.exported.dma;
 with ewok.dma_shared;
+with ewok.mpu;
 
 
 package ewok.tasks
@@ -139,8 +140,9 @@ is
       dma_id            : t_registered_dma_index_list (1 .. MAX_DMAS_PER_TASK);
 #end if;
       num_devs          : unsigned_8 range 0 .. MAX_DEVS_PER_TASK;
-      num_devs_mmapped  : unsigned_8;
+      num_devs_mounted  : unsigned_8 range 0 .. ewok.mpu.MAX_DEVICE_REGIONS;
       device_id         : t_device_id_list (1 .. MAX_DEVS_PER_TASK);
+      mounted_device    : t_device_id_list (ewok.mpu.device_regions'range);
 
       init_done         : boolean;
       data_slot_start   : system_address;

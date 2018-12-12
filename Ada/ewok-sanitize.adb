@@ -91,15 +91,17 @@ is
          := ewok.tasks.get_task (task_id);
    begin
 
-      for i in 1 .. user_task_a.all.num_devs loop
+      for i in user_task_a.all.device_id'range loop
          dev_id   := user_task_a.all.device_id(i);
-         dev_addr := ewok.devices.get_user_device_addr (dev_id);
-         dev_size := unsigned_32 (ewok.devices.get_user_device_size (dev_id));
-         if ptr >= dev_addr         and
-            ptr + 4 >= dev_addr     and
-            ptr + 4 < dev_addr + dev_size
-         then
-            return true;
+         if dev_id /= ID_DEV_UNUSED then
+            dev_addr := ewok.devices.get_user_device_addr (dev_id);
+            dev_size := unsigned_32 (ewok.devices.get_user_device_size (dev_id));
+            if ptr >= dev_addr         and
+               ptr + 4 >= dev_addr     and
+               ptr + 4 < dev_addr + dev_size
+            then
+               return true;
+            end if;
          end if;
       end loop;
 
