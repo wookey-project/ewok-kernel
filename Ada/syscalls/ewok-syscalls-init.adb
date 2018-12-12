@@ -44,10 +44,14 @@ is
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
+
       udev     : aliased ewok.exported.devices.t_user_device
          with import, address => to_address (params(1));
+
+      -- Device descriptor transmitted to userspace
       descriptor  : unsigned_8 range 0 .. ewok.tasks.MAX_DEVS_PER_TASK
          with address => to_address (params(2));
+
       dev_id   : ewok.devices_shared.t_device_id;
       ok       : boolean;
    begin
@@ -73,7 +77,7 @@ is
          goto ret_denied;
       end if;
 
-      -- Ada based sanitization 
+      -- Ada based sanitization
       if not udev'valid_scalars
       then
          debug.log (debug.WARNING, "init_do_reg_devaccess(): invalid udev scalars");
@@ -119,29 +123,18 @@ is
       -- Recording registered devices in the task record
       --
 
-      -- NOTE
-      --    Assumption here is that the registering process is sequential,
-      --    and that the 'num_devs' field is also an offset in the related
-      --    device list.
-      -- FIXME
-      --    Using a list abstraction type with some methods to insert or
-      --    remove items, to return the list status (full/empty) and to return
-      --    an item status (used/unused).
-      TSK.tasks_list(caller_id).num_devs
-         := TSK.tasks_list(caller_id).num_devs + 1;
-
-      TSK.tasks_list(caller_id).device_id
-        (TSK.tasks_list(caller_id).num_devs) := dev_id;
-
-      if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
-         TSK.tasks_list(caller_id).num_devs_mounted :=
-            TSK.tasks_list(caller_id).num_devs_mounted + 1;
-         TSK.tasks_list(caller_id).mounted_device
-           (TSK.tasks_list(caller_id).num_devs_mounted) := dev_id;
+      TSK.append_device
+        (caller_id, dev_id, descriptor, ok);
+      if not ok then
+         raise program_error; -- Should never happen here
       end if;
 
-      -- Descriptor transmitted to userspace
-      descriptor := TSK.tasks_list(caller_id).num_devs;
+      if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
+         TSK.mount_device (caller_id, dev_id, ok);
+         if not ok then
+            raise program_error; -- Should never happen here
+         end if;
+      end if;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
@@ -179,16 +172,17 @@ is
       end if;
 
       -- We enable auto mapped devices (MAP_AUTO)
-      for i in 1 .. TSK.tasks_list(caller_id).num_devs loop
-         udev := ewok.devices.get_user_device
-                    (TSK.tasks_list(caller_id).device_id(i));
-         if udev.all.map_mode = DEV_MAP_AUTO then
-            -- FIXME - Should create a special syscall for enabling/disabling
-            --         devices
-            ewok.devices.enable_device
-               (TSK.tasks_list(caller_id).device_id(i), ok);
-            if not ok then
-               goto ret_denied;
+      for i in TSK.tasks_list(caller_id).device_id'range loop
+         if TSK.tasks_list(caller_id).device_id(i) /= ID_DEV_UNUSED then
+            udev := ewok.devices.get_user_device
+                       (TSK.tasks_list(caller_id).device_id(i));
+            if udev.all.map_mode = DEV_MAP_AUTO then
+               -- FIXME - Should create new syscalls for enabling/disabling devices
+               ewok.devices.enable_device
+                  (TSK.tasks_list(caller_id).device_id(i), ok);
+               if not ok then
+                  goto ret_denied;
+               end if;
             end if;
          end if;
       end loop;

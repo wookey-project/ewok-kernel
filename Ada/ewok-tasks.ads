@@ -252,4 +252,25 @@ is
      (id    : ewok.tasks_shared.t_task_id)
       return boolean;
 
+   procedure append_device
+     (id          : in  ewok.tasks_shared.t_task_id;
+      dev_id      : in  ewok.devices_shared.t_device_id;
+      descriptor  : out unsigned_8;
+      success     : out boolean);
+
+   procedure remove_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean);
+
+   procedure mount_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean);
+
+   procedure unmount_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean);
+
 end ewok.tasks;

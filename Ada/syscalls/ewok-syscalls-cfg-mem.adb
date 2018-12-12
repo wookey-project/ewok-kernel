@@ -25,8 +25,6 @@ with ewok.tasks_shared;       use ewok.tasks_shared;
 with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices_shared;     use ewok.devices_shared;
 with ewok.devices;
-with ewok.mpu;
-with m4.mpu;
 
 #if CONFIG_DEBUG_SYS_CFG_MEM
 with debug;
@@ -125,61 +123,26 @@ is
 #if CONFIG_DEBUG_SYS_CFG_MEM
          debug.log (debug.WARNING, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): the device is already mapped");
+            & "] CFG_DEV_MAP: the device is already mapped");
 #end if;
             goto ret_denied;
          end if;
       end loop;
 
-      -- Verifying that the device can be mapped
-      declare
-         empty_slot : boolean := false;
-      begin
-         look_empty_slot:
-         for i in TSK.tasks_list(caller_id).mounted_device'range loop
-            if TSK.tasks_list(caller_id).mounted_device(i) = ID_DEV_UNUSED then
-               empty_slot := true;
-               exit look_empty_slot;
-            end if;
-         end loop look_empty_slot;
-         if not empty_slot then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-            debug.log (debug.WARNING, "[task"
-               & ewok.tasks_shared.t_task_id'image (caller_id)
-               & "] sys_cfg(CFG_DEV_MAP): no free region left to map the device");
-#end if;
-            goto ret_busy;
-         end if;
-      end;
-
       --
       -- Mapping the device
       --
 
-      for i in TSK.tasks_list(caller_id).mounted_device'range loop
+      TSK.mount_device (caller_id, dev_id, ok);
 
-         if TSK.tasks_list(caller_id).mounted_device(i) = ID_DEV_UNUSED then
-
-            -- Mapping the device in its related MPU region
-            ewok.devices.mpu_mapping_device
-              (dev_id, ewok.mpu.device_regions(i), ok);
-
-            if not ok then
+      if not ok then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-               debug.log ("dev_map(): mapping device failed!");
+         debug.log (debug.WARNING, "[task"
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] CFG_DEV_MAP: mount_device() failed (no free region left to map the device?)");
 #end if;
-               goto ret_denied;
-            end if;
-
-            -- Adding the device in the 'mounted' list
-            TSK.tasks_list(caller_id).mounted_device(i)  := dev_id;
-            TSK.tasks_list(caller_id).num_devs_mounted   :=
-               TSK.tasks_list(caller_id).num_devs_mounted + 1;
-
-            exit;
-         end if;
-
-      end loop;
+         goto ret_busy;
+      end if;
 
       -- We enable the device if its not already enabled
       -- FIXME - That code should not be here.
@@ -218,8 +181,9 @@ is
    is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
-      dev_id      : ewok.devices_shared.t_device_id;
-      dev         : ewok.exported.devices.t_user_device_access;
+      dev_id         : ewok.devices_shared.t_device_id;
+      dev            : ewok.exported.devices.t_user_device_access;
+      ok             : boolean;
    begin
 
       --
@@ -290,40 +254,20 @@ is
          goto ret_denied;
       end if;
 
-      -- Verifying that the device is already mapped
-      declare
-         found : boolean := false;
-      begin
-         for i in TSK.tasks_list(caller_id).mounted_device'range loop
-            if TSK.tasks_list(caller_id).mounted_device(i) = dev_id then
-               found := true;
-               exit;
-            end if;
-         end loop;
-         if not found then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): the device is not mapped"
-#end if;
-            goto ret_denied;
-         end if;
-      end;
-
       --
       -- Unmapping the device
       --
 
-      for i in TSK.tasks_list(caller_id).mounted_device'range loop
-         if TSK.tasks_list(caller_id).mounted_device(i) = dev_id then
-            -- Removing the device from the 'mounted' list
-            TSK.tasks_list(caller_id).mounted_device(i)  := ID_DEV_UNUSED;
-            TSK.tasks_list(caller_id).num_devs_mounted   :=
-               TSK.tasks_list(caller_id).num_devs_mounted - 1;
-            -- Unmapping the device from its related MPU region
-            m4.mpu.disable_region (ewok.mpu.device_regions(i));
-         end if;
-      end loop;
+      TSK.unmount_device (caller_id, dev_id, ok);
+
+      if not ok then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.WARNING, "[task"
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] sys_cfg(CFG_DEV_UNMAP): device is not mapped");
+#end if;
+         goto ret_denied;
+      end if;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

@@ -24,9 +24,11 @@
 with debug;
 with m4.cpu;
 with m4.cpu.instructions;
+with m4.mpu;
 with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.softirq;
+with ewok.devices;
 with c.kernel;
 with types.c;              use type types.c.t_retval;
 
@@ -513,6 +515,115 @@ is
    begin
      tasks_list(id).mode := mode;
    end set_mode;
+
+
+   procedure append_device
+     (id          : in  ewok.tasks_shared.t_task_id;
+      dev_id      : in  ewok.devices_shared.t_device_id;
+      descriptor  : out unsigned_8;
+      success     : out boolean)
+   is
+   begin
+
+      if tasks_list(id).num_devs = MAX_DEVS_PER_TASK then
+         descriptor  := 0;
+         success     := false;
+         return;
+      end if;
+
+      for i in tasks_list(id).device_id'range loop
+         if tasks_list(id).device_id(i) = ID_DEV_UNUSED then
+            tasks_list(id).device_id(i)   := dev_id;
+            tasks_list(id).num_devs       := tasks_list(id).num_devs + 1;
+            descriptor  := i;
+            success     := true;
+            return;
+         end if;
+      end loop;
+
+      raise program_error;
+   end append_device;
+
+
+   procedure remove_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean)
+   is
+   begin
+      for i in tasks_list(id).device_id'range loop
+         if tasks_list(id).device_id(i) = dev_id then
+            tasks_list(id).device_id(i)   := ID_DEV_UNUSED;
+            tasks_list(id).num_devs       := tasks_list(id).num_devs - 1;
+            success := true;
+            return;
+         end if;
+      end loop;
+      success := false;
+   end remove_device;
+
+
+   procedure mount_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean)
+   is
+      ok : boolean;
+   begin
+
+      if tasks_list(id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS then
+         success     := false;
+         return;
+      end if;
+
+      for i in tasks_list(id).mounted_device'range loop
+         if tasks_list(id).mounted_device(i) = ID_DEV_UNUSED then
+            tasks_list(id).mounted_device(i) := dev_id;
+            tasks_list(id).num_devs_mounted  :=
+               tasks_list(id).num_devs_mounted + 1;
+
+            -- Mapping the device in its related MPU region
+            ewok.devices.mpu_mapping_device
+              (dev_id, ewok.mpu.device_regions(i), ok);
+
+            if not ok then
+               tasks_list(id).mounted_device(i) := ID_DEV_UNUSED;
+               tasks_list(id).num_devs_mounted  :=
+                  tasks_list(id).num_devs_mounted - 1;
+               success := false;
+               return;
+            end if;
+
+            success     := true;
+            return;
+         end if;
+      end loop;
+
+      raise program_error;
+   end mount_device;
+
+
+   procedure unmount_device
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id;
+      success  : out boolean)
+   is
+   begin
+      for i in tasks_list(id).mounted_device'range loop
+         if tasks_list(id).mounted_device(i) = dev_id then
+            tasks_list(id).mounted_device(i) := ID_DEV_UNUSED;
+            tasks_list(id).num_devs_mounted  :=
+               tasks_list(id).num_devs_mounted - 1;
+
+            -- Unmapping the device from its related MPU region
+            m4.mpu.disable_region (ewok.mpu.device_regions(i));
+
+            success     := true;
+            return;
+         end if;
+      end loop;
+      success := false;
+   end unmount_device;
 
 
    -- FIXME useful ?
