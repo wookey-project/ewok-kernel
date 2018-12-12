@@ -26,11 +26,12 @@ package debug
    with spark_mode => off
 is
 
-   type t_level is (DEBUG, INFO, WARNING, ALERT);
+   type t_level is (DEBUG, INFO, WARNING, ERROR, ALERT);
 
-   COLOR_NORMAL : constant string := ASCII.ESC & "[37;40m";
-   COLOR_ALERT  : constant string := ASCII.ESC & "[37;41m";
-   COLOR_KERNEL : constant string := ASCII.ESC & "[37;44m";
+   COLOR_NORMAL  : constant string := ASCII.ESC & "[37;40m";
+   COLOR_WARNING : constant string := ASCII.ESC & "[37;43m";
+   COLOR_ALERT   : constant string := ASCII.ESC & "[37;41m";
+   COLOR_KERNEL  : constant string := ASCII.ESC & "[37;44m";
 
    procedure log (s : string; nl : boolean := true);
    procedure log (level : t_level; s : string);

@@ -265,18 +265,18 @@ is
    begin
 
       if not ewok.tasks.is_user (shm.granted_id) then
-         debug.log ("ewok.dma.sanitize_dma_shm(): wrong target");
+         debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): wrong target");
          return false;
       end if;
 
       if shm.accessed_id /= caller_id then
-         debug.log ("ewok.dma.sanitize_dma_shm(): wrong caller");
+         debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): wrong caller");
          return false;
       end if;
 
 #if CONFIG_KERNEL_DOMAIN
       if not ewok.perm.is_same_domain (shm.granted_id, shm.accessed_id) then
-         debug.log ("ewok.dma.sanitize_dma_shm(): not same domain");
+         debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): not same domain");
          return false;
       end if;
 #end if;
@@ -284,7 +284,7 @@ is
       if not ewok.sanitize.is_range_in_data_slot
               (shm.base, unsigned_32 (shm.size), caller_id, mode)
       then
-         debug.log ("ewok.dma.sanitize_dma_shm(): shm not in range");
+         debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): shm not in range");
          return false;
       end if;
 
@@ -335,7 +335,7 @@ is
                   user_config.in_priority;
 
             when MEMORY_TO_MEMORY      =>
-               debug.log ("ewok.dma.reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
+               debug.log (debug.ERROR, "ewok.dma.reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
                success := false;
                return;
          end case;
@@ -379,7 +379,7 @@ is
                end if;
 
             when MEMORY_TO_MEMORY      =>
-               debug.log ("ewok.dma.reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
+               debug.log (debug.ERROR, "ewok.dma.reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
                success := false;
                return;
          end case;
@@ -390,7 +390,7 @@ is
       --
 
       if not is_config_complete (registered_dma(index).user_config) then
-         debug.log ("ewok.dma.reconfigure_stream(): incomplete configuration");
+         debug.log (debug.WARNING, "ewok.dma.reconfigure_stream(): incomplete configuration");
          success := false;
          return;
       end if;

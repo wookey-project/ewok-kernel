@@ -64,9 +64,11 @@ is
    is
    begin
       case level is
-         when DEBUG .. INFO      =>
+         when DEBUG .. INFO   =>
             log (COLOR_KERNEL & s & COLOR_NORMAL);
-         when WARNING .. ALERT   =>
+         when WARNING         =>
+            log (COLOR_WARNING & s & COLOR_NORMAL);
+         when ERROR .. ALERT  =>
             log (COLOR_ALERT & s & COLOR_NORMAL);
       end case;
    end log;
