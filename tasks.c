@@ -225,16 +225,7 @@ uint8_t task_init_apps(void)
         panic("stopping initialization\n");
     }
 
-#ifdef CONFIG_FIRMWARE_DUALBANK
-    /* Detect if we are in firmware 1 or 2 */
-    if ((uint32_t) task_init_apps < FW1_USER_BASE) {
-        user_base = FW1_USER_BASE;
-    } else {
-        user_base = FW2_USER_BASE;
-    }
-#else
-    user_base = FW1_USER_BASE;
-#endif
+    user_base = TXT_USER_REGION_BASE;
 
     /* Slot size is fixed. An application may requires more than one slot */
     task_txt_size = TXT_USER_SIZE / 8; // MPU specific
