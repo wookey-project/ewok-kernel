@@ -129,6 +129,7 @@ is
          raise program_error; -- Should never happen here
       end if;
 
+      -- Mount DEV_MAP_AUTO devices in memory
       if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
          TSK.mount_device (caller_id, dev_id, ok);
          if not ok then

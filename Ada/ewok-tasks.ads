@@ -263,6 +263,11 @@ is
       dev_id   : in  ewok.devices_shared.t_device_id;
       success  : out boolean);
 
+   function is_mounted
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id)
+      return boolean;
+
    procedure mount_device
      (id       : in  ewok.tasks_shared.t_task_id;
       dev_id   : in  ewok.devices_shared.t_device_id;

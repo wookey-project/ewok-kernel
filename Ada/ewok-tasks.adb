@@ -563,6 +563,21 @@ is
    end remove_device;
 
 
+   function is_mounted
+     (id       : in  ewok.tasks_shared.t_task_id;
+      dev_id   : in  ewok.devices_shared.t_device_id)
+      return boolean
+   is
+   begin
+      for i in tasks_list(id).mounted_device'range loop
+         if tasks_list(id).mounted_device(i) = dev_id then
+            return true;
+         end if;
+      end loop;
+      return false;
+   end is_mounted;
+
+
    procedure mount_device
      (id       : in  ewok.tasks_shared.t_task_id;
       dev_id   : in  ewok.devices_shared.t_device_id;
@@ -571,11 +586,19 @@ is
       ok : boolean;
    begin
 
+      -- The device is already mounted
+      if is_mounted (id, dev_id) then
+         success     := false;
+         return;
+      end if;
+
+      -- No available MPU region to map the device in memory
       if tasks_list(id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS then
          success     := false;
          return;
       end if;
 
+      -- Mounting the device
       for i in tasks_list(id).mounted_device'range loop
          if tasks_list(id).mounted_device(i) = ID_DEV_UNUSED then
             tasks_list(id).mounted_device(i) := dev_id;

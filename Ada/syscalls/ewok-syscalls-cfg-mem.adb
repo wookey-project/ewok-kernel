@@ -118,16 +118,14 @@ is
       end if;
 
       -- Verifying that the device is not already mapped
-      for i in TSK.tasks_list(caller_id).mounted_device'range loop
-         if TSK.tasks_list(caller_id).mounted_device(i) = dev_id then
+      if TSK.is_mounted (caller_id, dev_id) then
 #if CONFIG_DEBUG_SYS_CFG_MEM
          debug.log (debug.WARNING, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] CFG_DEV_MAP: the device is already mapped");
 #end if;
-            goto ret_denied;
-         end if;
-      end loop;
+         goto ret_denied;
+      end if;
 
       --
       -- Mapping the device
