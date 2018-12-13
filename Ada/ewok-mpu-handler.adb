@@ -43,28 +43,28 @@ is
    begin
 
       if m4.scb.SCB.CFSR.MMFSR.MMARVALID then
-         debug.log (debug.WARNING, "MPU error: MMFAR.ADDRESS = " &
+         debug.log (debug.ERROR, "MPU error: MMFAR.ADDRESS = " &
             system_address'image (m4.scb.SCB.MMFAR.ADDRESS));
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MLSPERR then
-         debug.log (debug.WARNING, "MPU error: a MemManage fault occurred during floating-point lazy state preservation");
+         debug.log (debug.ERROR, "MPU error: a MemManage fault occurred during floating-point lazy state preservation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MSTKERR then
-         debug.log (debug.WARNING, "MPU error: stacking for an exception entry has caused one or more access violation");
+         debug.log (debug.ERROR, "MPU error: stacking for an exception entry has caused one or more access violation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MUNSTKERR then
-         debug.log (debug.WARNING, "MPU error: unstack for an exception return has caused one or more access violation");
+         debug.log (debug.ERROR, "MPU error: unstack for an exception return has caused one or more access violation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.DACCVIOL then
-         debug.log (debug.WARNING, "MPU error: the processor attempted a load or store at a location that does not permit the operation");
+         debug.log (debug.ERROR, "MPU error: the processor attempted a load or store at a location that does not permit the operation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.IACCVIOL then
-         debug.log (debug.WARNING, "MPU error: the processor attempted an instruction fetch from a location that does not permit execution");
+         debug.log (debug.ERROR, "MPU error: the processor attempted an instruction fetch from a location that does not permit execution");
       end if;
 
       current  := ewok.tasks.get_task(ewok.sched.get_current);
@@ -75,7 +75,7 @@ is
 
       declare
       begin
-         debug.log (debug.WARNING,
+         debug.log (debug.ERROR,
             "MPU error: task: " & current.all.name &
             ", id:"  & ewok.tasks_shared.t_task_id'image (current.all.id) &
             ", PC:"  & system_address'image (frame_a.all.PC));

@@ -50,7 +50,7 @@ is
       m4.mpu.is_mpu_available (success);
 
       if not success then
-         debug.log (debug.WARNING, "Error: no MPU found!");
+         debug.log (debug.ERROR, "Error: no MPU found!");
          return;
       end if;
 
@@ -70,7 +70,7 @@ is
 
       -- SHR
       if get_region_size (REGION_SIZE_32KB) /= ewok.layout.SHR_SIZE then
-         debug.log (debug.WARNING, "MPU error: invalid 'SHARED' region size");
+         debug.log (debug.ERROR, "MPU error: invalid 'SHARED' region size");
          return;
       end if;
 
@@ -89,7 +89,7 @@ is
 
       -- Kernel code
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.FW1_KERN_SIZE then
-         debug.log (debug.WARNING, "MPU error: invalid 'KERNEL CODE' region size");
+         debug.log (debug.ERROR, "MPU error: invalid 'KERNEL CODE' region size");
          return;
       end if;
 
@@ -120,7 +120,7 @@ is
 
 	   -- kernel data + stacks
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
-         debug.log (debug.WARNING, "MPU error: invalid 'KERNEL DATA' region size");
+         debug.log (debug.ERROR, "MPU error: invalid 'KERNEL DATA' region size");
          return;
       end if;
 
@@ -138,7 +138,7 @@ is
 
 	   -- User data
       if get_region_size (REGION_SIZE_128KB) /= ewok.layout.USER_RAM_SIZE then
-         debug.log (debug.WARNING, "MPU error: invalid 'USER DATA' region size");
+         debug.log (debug.ERROR, "MPU error: invalid 'USER DATA' region size");
          return;
       end if;
 
@@ -158,7 +158,7 @@ is
       -- Note: This is for the whole area. Each task will use only a fixed
       --       number of sub-regions
       if get_region_size (REGION_SIZE_256KB) /= ewok.layout.FW1_USER_SIZE then
-         debug.log (debug.WARNING, "MPU error: invalid 'USER CODE' region size");
+         debug.log (debug.ERROR, "MPU error: invalid 'USER CODE' region size");
          return;
       end if;
 

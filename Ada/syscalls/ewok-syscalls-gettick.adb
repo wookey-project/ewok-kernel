@@ -52,7 +52,7 @@ is
       if not ewok.sanitize.is_range_in_data_slot
                (to_system_address (value'address), 8, caller_id, mode)
       then
-         debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_gettick: value ("
             & system_address'image (to_system_address (value'address))
             & ") is not in caller space");

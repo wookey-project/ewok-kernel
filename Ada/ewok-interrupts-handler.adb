@@ -42,52 +42,52 @@ is
       cfsr : constant m4.scb.t_SCB_CFSR := m4.scb.SCB.CFSR;
    begin
 
-      if cfsr.MMFSR.IACCVIOL  then debug.log (debug.WARNING, "+cfsr.MMFSR.IACCVIOL"); end if;
-      if cfsr.MMFSR.DACCVIOL  then debug.log (debug.WARNING, "+cfsr.MMFSR.DACCVIOL"); end if;
-      if cfsr.MMFSR.MUNSTKERR then debug.log (debug.WARNING, "+cfsr.MMFSR.MUNSTKERR"); end if;
-      if cfsr.MMFSR.MSTKERR   then debug.log (debug.WARNING, "+cfsr.MMFSR.MSTKERR"); end if;
-      if cfsr.MMFSR.MLSPERR   then debug.log (debug.WARNING, "+cfsr.MMFSR.MLSPERR"); end if;
-      if cfsr.MMFSR.MMARVALID then debug.log (debug.WARNING, "+cfsr.MMFSR.MMARVALID"); end if;
+      if cfsr.MMFSR.IACCVIOL  then debug.log (debug.ERROR, "+cfsr.MMFSR.IACCVIOL"); end if;
+      if cfsr.MMFSR.DACCVIOL  then debug.log (debug.ERROR, "+cfsr.MMFSR.DACCVIOL"); end if;
+      if cfsr.MMFSR.MUNSTKERR then debug.log (debug.ERROR, "+cfsr.MMFSR.MUNSTKERR"); end if;
+      if cfsr.MMFSR.MSTKERR   then debug.log (debug.ERROR, "+cfsr.MMFSR.MSTKERR"); end if;
+      if cfsr.MMFSR.MLSPERR   then debug.log (debug.ERROR, "+cfsr.MMFSR.MLSPERR"); end if;
+      if cfsr.MMFSR.MMARVALID then debug.log (debug.ERROR, "+cfsr.MMFSR.MMARVALID"); end if;
 
-      if cfsr.BFSR.IBUSERR    then debug.log (debug.WARNING, "+cfsr.BFSR.IBUSERR"); end if;
-      if cfsr.BFSR.PRECISERR  then debug.log (debug.WARNING, "+cfsr.BFSR.PRECISERR"); end if;
-      if cfsr.BFSR.IMPRECISERR then debug.log (debug.WARNING, "+cfsr.BFSR.IMPRECISERR"); end if;
-      if cfsr.BFSR.UNSTKERR   then debug.log (debug.WARNING, "+cfsr.BFSR.UNSTKERR"); end if;
-      if cfsr.BFSR.STKERR     then debug.log (debug.WARNING, "+cfsr.BFSR.STKERR"); end if;
-      if cfsr.BFSR.LSPERR     then debug.log (debug.WARNING, "+cfsr.BFSR.LSPERR"); end if;
-      if cfsr.BFSR.BFARVALID  then debug.log (debug.WARNING, "+cfsr.BFSR.BFARVALID"); end if;
+      if cfsr.BFSR.IBUSERR    then debug.log (debug.ERROR, "+cfsr.BFSR.IBUSERR"); end if;
+      if cfsr.BFSR.PRECISERR  then debug.log (debug.ERROR, "+cfsr.BFSR.PRECISERR"); end if;
+      if cfsr.BFSR.IMPRECISERR then debug.log (debug.ERROR, "+cfsr.BFSR.IMPRECISERR"); end if;
+      if cfsr.BFSR.UNSTKERR   then debug.log (debug.ERROR, "+cfsr.BFSR.UNSTKERR"); end if;
+      if cfsr.BFSR.STKERR     then debug.log (debug.ERROR, "+cfsr.BFSR.STKERR"); end if;
+      if cfsr.BFSR.LSPERR     then debug.log (debug.ERROR, "+cfsr.BFSR.LSPERR"); end if;
+      if cfsr.BFSR.BFARVALID  then debug.log (debug.ERROR, "+cfsr.BFSR.BFARVALID"); end if;
 
-      if cfsr.UFSR.UNDEFINSTR then debug.log (debug.WARNING, "+cfsr.UFSR.UNDEFINSTR"); end if;
-      if cfsr.UFSR.INVSTATE   then debug.log (debug.WARNING, "+cfsr.UFSR.INVSTATE"); end if;
-      if cfsr.UFSR.INVPC      then debug.log (debug.WARNING, "+cfsr.UFSR.INVPC"); end if;
-      if cfsr.UFSR.NOCP       then debug.log (debug.WARNING, "+cfsr.UFSR.NOCP"); end if;
-      if cfsr.UFSR.UNALIGNED  then debug.log (debug.WARNING, "+cfsr.UFSR.UNALIGNED"); end if;
-      if cfsr.UFSR.DIVBYZERO  then debug.log (debug.WARNING, "+cfsr.UFSR.DIVBYZERO"); end if;
+      if cfsr.UFSR.UNDEFINSTR then debug.log (debug.ERROR, "+cfsr.UFSR.UNDEFINSTR"); end if;
+      if cfsr.UFSR.INVSTATE   then debug.log (debug.ERROR, "+cfsr.UFSR.INVSTATE"); end if;
+      if cfsr.UFSR.INVPC      then debug.log (debug.ERROR, "+cfsr.UFSR.INVPC"); end if;
+      if cfsr.UFSR.NOCP       then debug.log (debug.ERROR, "+cfsr.UFSR.NOCP"); end if;
+      if cfsr.UFSR.UNALIGNED  then debug.log (debug.ERROR, "+cfsr.UFSR.UNALIGNED"); end if;
+      if cfsr.UFSR.DIVBYZERO  then debug.log (debug.ERROR, "+cfsr.UFSR.DIVBYZERO"); end if;
 
-      debug.log (debug.WARNING,
+      debug.log (debug.ERROR,
          "registers (frame at " &
          system_address'image (to_system_address (frame_a)) &
          ", EXC_RETURN " & unsigned_32'image (frame_a.all.LR) & ")");
 
-      debug.log (debug.WARNING,
+      debug.log (debug.ERROR,
          "R0 " & unsigned_32'image (frame_a.all.R0) &
          ", R1 " & unsigned_32'image (frame_a.all.R1) &
          ", R2 " & unsigned_32'image (frame_a.all.R2) &
          ", R3 " & unsigned_32'image (frame_a.all.R3));
 
-      debug.log (debug.WARNING,
+      debug.log (debug.ERROR,
          "R4 " & unsigned_32'image (frame_a.all.R4) &
          ", R5 " & unsigned_32'image (frame_a.all.R5) &
          ", R6 " & unsigned_32'image (frame_a.all.R6) &
          ", R7 " & unsigned_32'image (frame_a.all.R7));
 
-      debug.log (debug.WARNING,
+      debug.log (debug.ERROR,
          "R8 " & unsigned_32'image (frame_a.all.R8) &
          ", R9 " & unsigned_32'image (frame_a.all.R9) &
          ", R10 " & unsigned_32'image (frame_a.all.R10) &
          ", R11 " & unsigned_32'image (frame_a.all.R11));
 
-      debug.log (debug.WARNING,
+      debug.log (debug.ERROR,
          "R12 " & unsigned_32'image (frame_a.all.R12) &
          ", PC " & unsigned_32'image (frame_a.all.PC) &
          ", LR " & unsigned_32'image (frame_a.all.LR));

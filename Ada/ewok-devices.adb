@@ -177,7 +177,7 @@ is
          devinfo := c.socinfo.soc_devmap_find_device
            (udev.all.base_addr, udev.all.size);
          if devinfo = NULL then
-            debug.log (debug.WARNING, "Can't find device " & name & "(addr:" &
+            debug.log (debug.ERROR, "Can't find device " & name & "(addr:" &
                system_address'image (udev.all.base_addr) & ", size:" &
                unsigned_16'image (udev.all.size) & ")");
             success := false;
@@ -193,7 +193,7 @@ is
             registered_device(id).devinfo /= NULL and then
             registered_device(id).devinfo = devinfo
          then
-            debug.log (debug.WARNING, "Device " & name & " is already used");
+            debug.log (debug.ERROR, "Device " & name & " is already used");
             success := false;
             return;
          end if;
@@ -202,7 +202,7 @@ is
       -- Are the GPIOs already used ?
       for i in 1 .. udev.gpio_num loop
          if ewok.gpio.is_used (udev.gpios(i).kref) then
-            debug.log (debug.WARNING,
+            debug.log (debug.ERROR,
                "Device " & name & ": some GPIOs are already used");
             success := false;
             return;
@@ -214,7 +214,7 @@ is
          if boolean (udev.gpios(i).settings.set_exti) and then
             ewok.exti.is_used (udev.gpios(i).kref)
          then
-            debug.log (debug.WARNING,
+            debug.log (debug.ERROR,
                "Device " & name & ": some EXTIs are already used");
             success := false;
             return;
@@ -237,7 +237,7 @@ is
          end loop inner_loop;
 
          if not found then
-            debug.log (debug.WARNING,
+            debug.log (debug.ERROR,
                "Device " & name &
                ": interrupt(s) not owned by device. Check devmap");
             success := false;
@@ -250,7 +250,7 @@ is
          if ewok.interrupts.is_interrupt_already_used
               (udev.interrupts(i).interrupt)
          then
-            debug.log (debug.WARNING,
+            debug.log (debug.ERROR,
                "Device " & name & ": some interrupts are already used");
             success := false;
             return;
@@ -261,7 +261,7 @@ is
       get_registered_device_entry (dev_id, success);
 
       if not success then
-         debug.log (debug.WARNING,
+         debug.log (debug.ERROR,
             "register_device(): no slot left to register the device");
          return;
       end if;
@@ -374,20 +374,20 @@ is
       if not ewok.sanitize.is_word_in_txt_slot
             (to_system_address (config.handler), task_id)
       then
-         debug.log (debug.WARNING, "Device handler not in TXT slot");
+         debug.log (debug.ERROR, "Device handler not in TXT slot");
          return false;
       end if;
 
       if config.interrupt not in INT_WWDG .. INT_HASH_RNG
       then
-         debug.log (debug.WARNING, "Device interrupt not in range");
+         debug.log (debug.ERROR, "Device interrupt not in range");
          return false;
       end if;
 
       if config.mode = ISR_FORCE_MAINTHREAD and then
          not ewok.perm.ressource_is_granted (PERM_RES_TSK_FISR, task_id)
       then
-         debug.log (debug.WARNING, "Device ISR_FORCE_MAINTHREAD not allowed");
+         debug.log (debug.ERROR, "Device ISR_FORCE_MAINTHREAD not allowed");
          return false;
       end if;
 
@@ -398,7 +398,7 @@ is
       for i in 1 .. MAX_POSTHOOK_INSTR loop
 
          if not config.posthook.action(i).instr'valid then
-            debug.log (debug.WARNING,
+            debug.log (debug.ERROR,
                "Device posthook: invalid action requested");
             return false;
          end if;
@@ -410,7 +410,7 @@ is
                if config.posthook.action(i).read.offset > udev.all.size - 4 or
                   (config.posthook.action(i).read.offset and 2#11#) > 0
                then
-                  debug.log (debug.WARNING,
+                  debug.log (debug.ERROR,
                      "Device posthook: wrong READ offset");
                   return false;
                end if;
@@ -419,7 +419,7 @@ is
                if config.posthook.action(i).write.offset > udev.all.size - 4 or
                   (config.posthook.action(i).write.offset and 2#11#) > 0
                then
-                  debug.log (debug.WARNING,
+                  debug.log (debug.ERROR,
                      "Device posthook: wrong WRITE offset");
                   return false;
                end if;
@@ -434,7 +434,7 @@ is
                   or (config.posthook.action(i).write_reg.offset_src and 2#11#)
                         > 0
                then
-                  debug.log (debug.WARNING,
+                  debug.log (debug.ERROR,
                      "Device posthook: wrong AND offset");
                   return false;
                end if;
@@ -454,7 +454,7 @@ is
                   or (config.posthook.action(i).write_mask.offset_mask and 2#11#)
                         > 0
                then
-                  debug.log (debug.WARNING,
+                  debug.log (debug.ERROR,
                      "Device posthook: wrong MASK offset");
                   return false;
                end if;
@@ -479,20 +479,20 @@ is
       if config.exti_trigger /= GPIO_EXTI_TRIGGER_NONE and then
          not ewok.perm.ressource_is_granted (PERM_RES_DEV_EXTI, task_id)
       then
-         debug.log (debug.WARNING, "Device PERM_RES_DEV_EXTI not allowed");
+         debug.log (debug.ERROR, "Device PERM_RES_DEV_EXTI not allowed");
          return false;
       end if;
 
       if config.exti_handler /= 0 and then
          not ewok.sanitize.is_word_in_txt_slot (config.exti_handler, task_id)
       then
-         debug.log (debug.WARNING, "Device EXTI handler not in TXT slot");
+         debug.log (debug.ERROR, "Device EXTI handler not in TXT slot");
          return false;
       end if;
 
       if not config.exti_lock'valid
       then
-         debug.log (debug.WARNING, "Device EXTI lock mode not valid");
+         debug.log (debug.ERROR, "Device EXTI lock mode not valid");
          return false;
       end if;
 
@@ -515,7 +515,7 @@ is
 
       if udev.all.name(t_device_name'last) /= ASCII.NUL then
          types.c.to_ada (name, udev.all.name(1 .. t_device_name'length));
-         debug.log (debug.WARNING, "Out-of-bound device name: " & name);
+         debug.log (debug.ERROR, "Out-of-bound device name: " & name);
          return false;
       else
          types.c.to_ada (name, udev.all.name);
@@ -526,14 +526,14 @@ is
             c.socinfo.soc_devmap_find_device (udev.all.base_addr, udev.all.size);
 
          if devinfo = NULL then
-            debug.log (debug.WARNING, "Device at addr" & system_address'image
+            debug.log (debug.ERROR, "Device at addr" & system_address'image
                (udev.all.base_addr) & " with size" & unsigned_16'image (udev.all.size) &
                ": not found");
             return false;
          end if;
 
          if not ewok.perm.ressource_is_granted (devinfo.minperm, task_id) then
-            debug.log (debug.WARNING, "Task" & t_task_id'image (task_id) &
+            debug.log (debug.ERROR, "Task" & t_task_id'image (task_id) &
                " has not access to device " & name);
             return false;
          end if;
@@ -543,7 +543,7 @@ is
          ok := sanitize_user_defined_interrupt
                  (udev, udev.all.interrupts(i), task_id);
          if not ok then
-            debug.log (debug.WARNING, "Device " & name & ": invalid udev.interrupts parameter");
+            debug.log (debug.ERROR, "Device " & name & ": invalid udev.interrupts parameter");
             return false;
          end if;
       end loop;
@@ -551,14 +551,14 @@ is
       for i in 1 .. udev.all.gpio_num loop
          ok := sanitize_user_defined_gpio (udev, udev.all.gpios(i), task_id);
          if not ok then
-            debug.log (debug.WARNING, "Device " & name & ": invalid udev.gpios parameter");
+            debug.log (debug.ERROR, "Device " & name & ": invalid udev.gpios parameter");
             return false;
          end if;
       end loop;
 
       if udev.all.map_mode = DEV_MAP_VOLUNTARY then
          if not ewok.perm.ressource_is_granted (PERM_RES_MEM_DYNAMIC_MAP, task_id) then
-            debug.log (debug.WARNING, "Task" & t_task_id'image (task_id) &
+            debug.log (debug.ERROR, "Task" & t_task_id'image (task_id) &
                " voluntary mapped device " & name & " not permited");
             return false;
         end if;

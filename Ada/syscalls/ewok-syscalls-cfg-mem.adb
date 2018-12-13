@@ -60,7 +60,7 @@ is
       --    manage only the interrupts provided by a specific hardware.
       if mode = ewok.tasks_shared.TASK_MODE_ISRTHREAD then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
            & ewok.tasks_shared.t_task_id'image (caller_id)
            & "] sys_cfg(CFG_DEV_MAP): forbidden in ISR mode");
 #end if;
@@ -70,7 +70,7 @@ is
       -- No map/unmap before end of initialization
       if not is_init_done (caller_id) then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): forbidden during init sequence");
 #end if;
@@ -81,7 +81,7 @@ is
       if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
       then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "invalid device descriptor");
+         debug.log (debug.ERROR, "invalid device descriptor");
 #end if;
          goto ret_inval;
       end if;
@@ -91,7 +91,7 @@ is
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): unused device");
 #end if;
@@ -110,7 +110,7 @@ is
 
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): not a DEV_MAP_VOLUNTARY device");
 #end if;
@@ -120,7 +120,7 @@ is
       -- Verifying that the device is not already mapped
       if TSK.is_mounted (caller_id, dev_id) then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] CFG_DEV_MAP: the device is already mapped");
 #end if;
@@ -135,7 +135,7 @@ is
 
       if not ok then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] CFG_DEV_MAP: mount_device() failed (no free region left to map the device?)");
 #end if;
@@ -195,7 +195,7 @@ is
       --    manage only the interrupts provided by a specific hardware.
       if mode = ewok.tasks_shared.TASK_MODE_ISRTHREAD then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
            & ewok.tasks_shared.t_task_id'image (caller_id)
            & "] sys_cfg(CFG_DEV_MAP): forbidden in ISR mode");
 #end if;
@@ -205,7 +205,7 @@ is
       -- No map/unmap before end of initialization
       if not is_init_done (caller_id) then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): forbidden during init sequence");
 #end if;
@@ -216,7 +216,7 @@ is
       if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
       then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "invalid device descriptor");
+         debug.log (debug.ERROR, "invalid device descriptor");
 #end if;
          goto ret_inval;
       end if;
@@ -226,7 +226,7 @@ is
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): unused device");
 #end if;
@@ -245,7 +245,7 @@ is
 
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_MAP): not a DEV_MAP_VOLUNTARY device");
 #end if;
@@ -260,7 +260,7 @@ is
 
       if not ok then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_cfg(CFG_DEV_UNMAP): device is not mapped");
 #end if;

@@ -78,7 +78,7 @@ is
 --         u : unsigned_8
 --            with address => to_address (params(1));
 --      begin
---         debug.log (debug.WARNING, "debug: ipc_do_recv(): task"
+--         debug.log (debug.ERROR, "debug: ipc_do_recv(): task"
 --            & ewok.tasks_shared.t_task_id'image (caller_id)
 --            & " <- task"
 --            & unsigned_8'image (u));
@@ -90,7 +90,7 @@ is
 
       if mode /= TASK_MODE_MAINTHREAD then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): making IPCs while in ISR mode is not allowed!");
 #end if;
          goto ret_denied;
@@ -106,7 +106,7 @@ is
       -- Task initialization is complete ?
       if not is_init_done (caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): initialization not completed");
 #end if;
          goto ret_denied;
@@ -117,7 +117,7 @@ is
                (to_system_address (size'address), caller_id, mode)
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): size (" & unsigned_8'image (size)
             & ") is not in caller space");
 #end if;
@@ -129,7 +129,7 @@ is
                (to_system_address (expected_sender'address), caller_id, mode)
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): expected_sender ("
             & ewok.ipc.t_extended_task_id'image (expected_sender)
@@ -143,7 +143,7 @@ is
                (to_system_address (buf'address), unsigned_32 (size), caller_id, mode)
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): buffer ("
             & system_address'image (to_system_address (buf'address))
@@ -163,7 +163,7 @@ is
       if not listen_any and then not ewok.tasks.is_user (id_sender)
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): invalid id_sender ("
             & ewok.tasks_shared.t_task_id'image (id_sender)
@@ -179,7 +179,7 @@ is
                                  TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
          then
 #if CONFIG_DEBUG_ADA_IPC
-	         debug.log (debug.WARNING, "[task"
+	         debug.log (debug.ERROR, "[task"
                & ewok.tasks_shared.t_task_id'image (caller_id)
 	            & "] ipc_do_recv(): invalid id_sender ("
 	            & ewok.tasks_shared.t_task_id'image (id_sender)
@@ -193,7 +193,7 @@ is
       if not listen_any and then caller_id = id_sender
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): id_sender ("
             & ewok.tasks_shared.t_task_id'image (id_sender)
@@ -210,7 +210,7 @@ is
 
 #if CONFIG_KERNEL_DOMAIN
 	      if not ewok.perm.is_same_domain (id_sender, caller_id) then
-	         debug.log (debug.WARNING, "[task"
+	         debug.log (debug.ERROR, "[task"
                & ewok.tasks_shared.t_task_id'image (caller_id)
 	            & "] ipc_do_recv(): sender's ("
 	            & ewok.tasks_shared.t_task_id'image (id_sender)
@@ -221,7 +221,7 @@ is
 
          if not ewok.perm.ipc_is_granted (id_sender, caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
-	         debug.log (debug.WARNING, "[task"
+	         debug.log (debug.ERROR, "[task"
                & ewok.tasks_shared.t_task_id'image (caller_id)
 	            & "] ipc_do_recv(): not granted to listen task "
 	            & ewok.tasks_shared.t_task_id'image (id_sender));
@@ -314,7 +314,7 @@ is
       then
 
 #if CONFIG_DEBUG_ADA_IPC
-	      debug.log (debug.WARNING, "[task"
+	      debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
 	         & "] ipc_do_recv(): sender "
 	         & ewok.ipc.t_extended_task_id'image (ep.all.from)
@@ -359,7 +359,7 @@ is
       -- Copying the message in the receiver's buffer
       if ep.all.size > size then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "ipc_do_recv(): IPC message overflows: receiver's ("
+         debug.log (debug.ERROR, "ipc_do_recv(): IPC message overflows: receiver's ("
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & ") buffer is too small ("
             & unsigned_8'image (ep.all.size) & ">"
@@ -451,7 +451,7 @@ is
 
    begin
 
---      debug.log (debug.WARNING, "debug: ipc_do_send(): task"
+--      debug.log (debug.ERROR, "debug: ipc_do_send(): task"
 --         & ewok.tasks_shared.t_task_id'image (caller_id)
 --         & " -> task" & unsigned_32'image (params(1)));
 
@@ -461,7 +461,7 @@ is
 
       if mode /= TASK_MODE_MAINTHREAD then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): making IPCs while in ISR mode is not allowed!");
 #end if;
          goto ret_denied;
@@ -477,7 +477,7 @@ is
       -- Task initialization is complete ?
       if not is_init_done (caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): initialization not completed");
 #end if;
@@ -489,7 +489,7 @@ is
                (to_unsigned_32 (buf'address), unsigned_32 (size), caller_id, mode)
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): buffer ("
             & system_address'image (to_system_address (buf'address))
@@ -501,7 +501,7 @@ is
       -- Verifying that the receiver id corresponds to a user application
       if not ewok.tasks.is_user (id_receiver) then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): task "
             & unsigned_32'image (params(1))
@@ -518,7 +518,7 @@ is
             (receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
       then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): invalid id_receiver ("
             & ewok.tasks_shared.t_task_id'image (id_receiver)
@@ -530,7 +530,7 @@ is
       -- A task can't send a message to itself
       if caller_id = id_receiver then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): invalid id_receiver ("
             & ewok.tasks_shared.t_task_id'image (id_receiver)
@@ -542,7 +542,7 @@ is
       -- Is size valid ?
       if size > ewok.ipc.MAX_IPC_MSG_SIZE then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] invalid size (" & unsigned_8'image (size) & ")");
 #end if;
@@ -555,7 +555,7 @@ is
 
 #if CONFIG_KERNEL_DOMAIN
       if not ewok.perm.is_same_domain (id_receiver, caller_id) then
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_send(): receiver's ("
             & ewok.tasks_shared.t_task_id'image (id_receiver)
@@ -566,7 +566,7 @@ is
 
       if not ewok.perm.ipc_is_granted (id_receiver, caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.WARNING, "[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
 	         & "] ipc_do_send(): receiver "
             & ewok.tasks_shared.t_task_id'image (id_receiver)

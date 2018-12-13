@@ -132,7 +132,7 @@ is
 
       if conf = NULL then
          soc.nvic.clear_pending_irq (soc.nvic.to_irq_number (interrupt));
-         debug.log (debug.WARNING, "unable to find GPIO informations for port" &
+         debug.log (debug.ERROR, "unable to find GPIO informations for port" &
             t_gpio_port_index'image (ref.port) & ", pin" &
             t_gpio_pin_index'image (ref.pin));
       else

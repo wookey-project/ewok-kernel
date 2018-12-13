@@ -390,7 +390,8 @@ is
       --
 
       if not is_config_complete (registered_dma(index).user_config) then
-         debug.log (debug.WARNING, "ewok.dma.reconfigure_stream(): incomplete configuration");
+         debug.log (debug.WARNING,
+            "Warning! Updated DMA configuration not complete.");
          success := false;
          return;
       end if;

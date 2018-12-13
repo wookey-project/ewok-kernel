@@ -136,7 +136,7 @@ is
             val      : unsigned_8 with address => inst.svc_num'address;
          begin
             if not svc_type'valid then
-               debug.log (debug.WARNING, "invalid SVC: "
+               debug.log (debug.ERROR, "invalid SVC: "
                   & unsigned_8'image (val));
                ewok.tasks.set_state
                  (req.caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FAULT);
@@ -156,14 +156,14 @@ is
          to_syscall_parameters_access (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
 
       if params_a = NULL then
-         debug.log (debug.WARNING, "(task"
+         debug.log (debug.ERROR, "(task"
             & ewok.tasks_shared.t_task_id'image (req.caller_id)
             & ") syscall with no parameters");
          return;
       end if;
 
       if not params_a.all.syscall_type'valid then
-         debug.log (debug.WARNING, "(task"
+         debug.log (debug.ERROR, "(task"
             & ewok.tasks_shared.t_task_id'image (req.caller_id)
             & ") unknown syscall" &
             ewok.syscalls.t_syscall_type'image (params_a.all.syscall_type));
