@@ -78,8 +78,7 @@ is
    procedure reset_interrupt_handler
      (interrupt   : in  soc.interrupts.t_interrupt;
       task_id     : in  ewok.tasks_shared.t_task_id;
-      device_id   : in  ewok.devices_shared.t_device_id;
-      success     : out boolean);
+      device_id   : in  ewok.devices_shared.t_device_id);
 
    procedure set_task_switching_handler
      (interrupt   : in  soc.interrupts.t_interrupt;

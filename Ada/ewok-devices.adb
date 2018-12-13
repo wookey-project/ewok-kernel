@@ -319,7 +319,6 @@ is
       dev_id   : in  t_device_id;
       success  : out boolean)
    is
-      ok : boolean;
    begin
 
       -- That device belongs to the task?
@@ -332,10 +331,7 @@ is
       for i in 1 .. registered_device(dev_id).udev.gpio_num loop
 
          ewok.gpio.release
-           (task_id, dev_id, registered_device(dev_id).udev.gpios(i)'access, ok);
-         if not ok then
-            debug.log (debug.ERROR, "release_device(): releasing GPIO failed");
-         end if;
+           (task_id, dev_id, registered_device(dev_id).udev.gpios(i)'access);
 
          ewok.exti.release (registered_device(dev_id).udev.gpios(i)'access);
 
@@ -346,11 +342,7 @@ is
          ewok.interrupts.reset_interrupt_handler
            (registered_device(dev_id).udev.interrupts(i).interrupt,
             task_id,
-            dev_id,
-            ok);
-         if not ok then
-            debug.log (debug.ERROR, "release_device(): releasing interrupt failed");
-         end if;
+            dev_id);
       end loop;
 
       -- Releasing the device

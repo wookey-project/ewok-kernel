@@ -102,12 +102,10 @@ library project Libkernel is
       -- Ada code
       for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
 
-      for Switches ("ewok-sched.adb")  use ("-O3", "-g") & basic & verif;
-      for Switches ("ewok-tasks.adb")  use ("-O3", "-g") & basic & verif;
-      for Switches ("ewok-syscalls-handler.adb")
-                                       use ("-O3", "-g") & basic & verif;
-      for Switches ("ewok-interrupts-handler.adb")
-                                       use ("-O3", "-g") & basic & verif;
+      for Switches ("ewok-sched.adb")  use ("-Os", "-g") & basic & verif;
+      for Switches ("ewok-tasks.adb")  use ("-Os", "-g") & basic & verif;
+      for Switches ("ewok-syscalls-handler.adb") use ("-Os", "-g") & basic & verif;
+      for Switches ("ewok-interrupts-handler.adb") use ("-Os", "-g") & basic & verif;
 
       -- Proved SPARK code
       for Switches ("ewok-perm.adb")   use ("-Os", "-g") & basic & no_verif;

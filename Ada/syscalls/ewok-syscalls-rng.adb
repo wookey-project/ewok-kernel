@@ -62,7 +62,7 @@ is
                   caller_id,
                   mode)
       then
-         debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR, "[" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] sys_get_random: value ("
             & system_address'image (to_system_address (buffer'address))
             & ") is not in caller space");

@@ -107,23 +107,20 @@ is
    procedure reset_interrupt_handler
      (interrupt   : in  soc.interrupts.t_interrupt;
       task_id     : in  ewok.tasks_shared.t_task_id;
-      device_id   : in  ewok.devices_shared.t_device_id;
-      success     : out boolean)
+      device_id   : in  ewok.devices_shared.t_device_id)
    is
    begin
 
       if interrupt_table(interrupt).task_id   /= task_id   or
          interrupt_table(interrupt).device_id /= device_id
       then
-         success := false;
-         return;
+         raise program_error;
       end if;
 
       interrupt_table(interrupt).handler     := NULL;
       interrupt_table(interrupt).task_id     := ID_UNUSED;
       interrupt_table(interrupt).device_id   := ID_DEV_UNUSED;
 
-      success := true;
    end reset_interrupt_handler;
 
 
