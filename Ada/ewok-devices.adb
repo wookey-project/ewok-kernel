@@ -314,6 +314,51 @@ is
    end register_device;
 
 
+   procedure release_device
+     (task_id  : in  t_task_id;
+      dev_id   : in  t_device_id;
+      success  : out boolean)
+   is
+      ok : boolean;
+   begin
+
+      -- That device belongs to the task?
+      if registered_device(dev_id).task_id /= task_id then
+         success := false;
+         return;
+      end if;
+
+      -- Releasing GPIOs and EXTIs
+      for i in 1 .. registered_device(dev_id).udev.gpio_num loop
+
+         ewok.gpio.release
+           (task_id, dev_id, registered_device(dev_id).udev.gpios(i)'access, ok);
+         if not ok then
+            debug.log (debug.ERROR, "release_device(): releasing GPIO failed");
+         end if;
+
+         ewok.exti.release (registered_device(dev_id).udev.gpios(i)'access);
+
+      end loop;
+
+      -- Releasing interrupts
+      for i in 1 .. registered_device(dev_id).udev.interrupt_num loop
+         ewok.interrupts.reset_interrupt_handler
+           (registered_device(dev_id).udev.interrupts(i).interrupt,
+            task_id,
+            dev_id,
+            ok);
+         if not ok then
+            debug.log (debug.ERROR, "release_device(): releasing interrupt failed");
+         end if;
+      end loop;
+
+      -- Releasing the device
+      release_registered_device_entry (dev_id);
+
+   end release_device;
+
+
    procedure enable_device
      (dev_id   : in  t_device_id;
       success  : out boolean)

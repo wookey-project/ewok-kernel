@@ -87,6 +87,11 @@ is
       dev_id   : out t_device_id;
       success  : out boolean);
 
+   procedure release_device
+     (task_id  : in  t_task_id;
+      dev_id   : in  t_device_id;
+      success  : out boolean);
+
    procedure enable_device
      (dev_id   : in  t_device_id;
       success  : out boolean);

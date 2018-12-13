@@ -31,7 +31,7 @@ with ewok.syscalls.sleep;
 with ewok.syscalls.gettick;
 with ewok.syscalls.lock;
 with ewok.syscalls.rng;
-with ewok.syscalls.cfg.mem;
+with ewok.syscalls.cfg.dev;
 with ewok.syscalls.cfg.gpio;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
@@ -68,6 +68,7 @@ is
                   syscall = CFG_DMA_DISABLE  or
                   syscall = CFG_DEV_MAP      or
                   syscall = CFG_DEV_UNMAP    or
+                  syscall = CFG_DEV_RELEASE  or
                   syscall = CFG_GPIO_SET     or
                   syscall = CFG_GPIO_GET     or
                   syscall = CFG_GPIO_UNLOCK_EXTI
@@ -132,11 +133,15 @@ is
                         sys_params_a.all.args, mode);
 
                   when CFG_DEV_MAP     =>
-                     ewok.syscalls.cfg.mem.dev_map (current_id,
+                     ewok.syscalls.cfg.dev.dev_map (current_id,
                         sys_params_a.all.args, mode);
 
                   when CFG_DEV_UNMAP   =>
-                     ewok.syscalls.cfg.mem.dev_unmap (current_id,
+                     ewok.syscalls.cfg.dev.dev_unmap (current_id,
+                        sys_params_a.all.args, mode);
+
+                  when CFG_DEV_RELEASE =>
+                     ewok.syscalls.cfg.dev.dev_release (current_id,
                         sys_params_a.all.args, mode);
                end case;
             end;

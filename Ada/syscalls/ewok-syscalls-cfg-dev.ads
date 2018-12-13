@@ -22,7 +22,7 @@
 
 with ewok.tasks_shared;
 
-package ewok.syscalls.cfg.mem
+package ewok.syscalls.cfg.dev
    with spark_mode => off
 is
    procedure dev_map
@@ -35,4 +35,9 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-end ewok.syscalls.cfg.mem;
+   procedure dev_release
+     (caller_id   : in     ewok.tasks_shared.t_task_id;
+      params      : in out t_parameters;
+      mode        : in     ewok.tasks_shared.t_task_mode);
+
+end ewok.syscalls.cfg.dev;

@@ -39,6 +39,12 @@ is
       conf_a      : in  ewok.exported.gpios.t_gpio_config_access;
       success     : out boolean);
 
+   procedure release
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      device_id   : in  ewok.devices_shared.t_device_id;
+      conf_a      : in  ewok.exported.gpios.t_gpio_config_access;
+      success     : out boolean);
+
    procedure config
      (conf     : in  ewok.exported.gpios.t_gpio_config_access);
 

@@ -22,7 +22,7 @@
 
 with ewok.tasks; use ewok.tasks;
 with ewok.syscalls.cfg.gpio;
-with ewok.syscalls.cfg.mem;
+with ewok.syscalls.cfg.dev;
 with ewok.syscalls.dma;
 
 package body ewok.syscalls.cfg
@@ -64,9 +64,11 @@ is
          when CFG_DMA_DISABLE      => null;
 #end if;
          when CFG_DEV_MAP          =>
-            ewok.syscalls.cfg.mem.dev_map (caller_id, params, mode);
+            ewok.syscalls.cfg.dev.dev_map (caller_id, params, mode);
          when CFG_DEV_UNMAP        =>
-            ewok.syscalls.cfg.mem.dev_unmap (caller_id, params, mode);
+            ewok.syscalls.cfg.dev.dev_unmap (caller_id, params, mode);
+         when CFG_DEV_RELEASE      =>
+            ewok.syscalls.cfg.dev.dev_release (caller_id, params, mode);
       end case;
 
    end sys_cfg;

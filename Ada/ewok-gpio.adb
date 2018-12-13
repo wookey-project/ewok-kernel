@@ -78,6 +78,31 @@ is
    end register;
 
 
+   procedure release
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      device_id   : in  ewok.devices_shared.t_device_id;
+      conf_a      : in  ewok.exported.gpios.t_gpio_config_access;
+      success     : out boolean)
+   is
+      ref : constant ewok.exported.gpios.t_gpio_ref := conf_a.all.kref;
+   begin
+      if gpio_points(ref.port, ref.pin).task_id   /= task_id   or
+         gpio_points(ref.port, ref.pin).device_id /= device_id
+      then
+         debug.log (debug.ERROR, "Releasing GPIO: port" &
+            soc.gpio.t_gpio_port_index'image (ref.port) & ", pin" &
+            soc.gpio.t_gpio_pin_index'image (ref.pin) & " don't belong to the task.");
+         success := false;
+      else
+         gpio_points(ref.port, ref.pin).used       := false;
+         gpio_points(ref.port, ref.pin).task_id    := ID_UNUSED;
+         gpio_points(ref.port, ref.pin).device_id  := ID_DEV_UNUSED;
+         gpio_points(ref.port, ref.pin).config     := NULL;
+         success := true;
+      end if;
+   end release;
+
+
    procedure config
      (conf     : in  ewok.exported.gpios.t_gpio_config_access)
    is

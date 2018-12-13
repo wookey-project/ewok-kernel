@@ -21,7 +21,8 @@
 --
 
 with ewok.interrupts.handler;
-with ewok.tasks_shared;    use type ewok.tasks_shared.t_task_id;
+with ewok.tasks_shared;    use ewok.tasks_shared;
+with ewok.devices_shared;  use ewok.devices_shared;
 with m4.scb;
 with soc.nvic;
 
@@ -101,6 +102,29 @@ is
       success := true;
 
    end set_interrupt_handler;
+
+
+   procedure reset_interrupt_handler
+     (interrupt   : in  soc.interrupts.t_interrupt;
+      task_id     : in  ewok.tasks_shared.t_task_id;
+      device_id   : in  ewok.devices_shared.t_device_id;
+      success     : out boolean)
+   is
+   begin
+
+      if interrupt_table(interrupt).task_id   /= task_id   or
+         interrupt_table(interrupt).device_id /= device_id
+      then
+         success := false;
+         return;
+      end if;
+
+      interrupt_table(interrupt).handler     := NULL;
+      interrupt_table(interrupt).task_id     := ID_UNUSED;
+      interrupt_table(interrupt).device_id   := ID_DEV_UNUSED;
+
+      success := true;
+   end reset_interrupt_handler;
 
 
    procedure set_task_switching_handler

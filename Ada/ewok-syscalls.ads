@@ -82,7 +82,8 @@ is
       CFG_DMA_RELOAD,
       CFG_DMA_DISABLE,
       CFG_DEV_MAP,
-      CFG_DEV_UNMAP);
+      CFG_DEV_UNMAP,
+      CFG_DEV_RELEASE);
 
    type t_syscalls_lock is
      (LOCK_ENTER,

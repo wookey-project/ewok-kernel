@@ -30,7 +30,7 @@ with ewok.devices;
 with debug;
 #end if;
 
-package body ewok.syscalls.cfg.mem
+package body ewok.syscalls.cfg.dev
    with spark_mode => off
 is
 
@@ -195,19 +195,19 @@ is
       --    manage only the interrupts provided by a specific hardware.
       if mode = ewok.tasks_shared.TASK_MODE_ISRTHREAD then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "[task"
+         debug.log (debug.ERROR, "["
            & ewok.tasks_shared.t_task_id'image (caller_id)
-           & "] sys_cfg(CFG_DEV_MAP): forbidden in ISR mode");
+           & "] dev_unmap(): forbidden in ISR mode");
 #end if;
          goto ret_denied;
       end if;
 
-      -- No map/unmap before end of initialization
+      -- No unmap before end of initialization
       if not is_init_done (caller_id) then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "[task"
+         debug.log (debug.ERROR, "["
             & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): forbidden during init sequence");
+            & "] dev_unmap(): forbidden during init sequence");
 #end if;
          goto ret_denied;
       end if;
@@ -226,9 +226,9 @@ is
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "[task"
+         debug.log (debug.ERROR, "["
             & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): unused device");
+            & "] dev_unmap(): unused device");
 #end if;
          goto ret_inval;
       end if;
@@ -245,9 +245,9 @@ is
 
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "[task"
+         debug.log (debug.ERROR, "["
             & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): not a DEV_MAP_VOLUNTARY device");
+            & "] dev_unmap(): not a DEV_MAP_VOLUNTARY device");
 #end if;
          goto ret_denied;
       end if;
@@ -260,9 +260,9 @@ is
 
       if not ok then
 #if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "[task"
+         debug.log (debug.ERROR, "["
             & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_UNMAP): device is not mapped");
+            & "] dev_unmap(): device is not mapped");
 #end if;
          goto ret_denied;
       end if;
@@ -283,4 +283,92 @@ is
 
    end dev_unmap;
 
-end ewok.syscalls.cfg.mem;
+
+   procedure dev_release
+     (caller_id   : in     ewok.tasks_shared.t_task_id;
+      params      : in out t_parameters;
+      mode        : in     ewok.tasks_shared.t_task_mode)
+   is
+      dev_descriptor : unsigned_8
+         with address => params(1)'address;
+      dev_id         : ewok.devices_shared.t_device_id;
+      ok             : boolean;
+   begin
+
+      -- No release before end of initialization
+      if not is_init_done (caller_id) then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.ERROR, "["
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] dev_release(): forbidden during init sequence");
+#end if;
+         goto ret_denied;
+      end if;
+
+      -- Valid device descriptor ?
+      if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
+      then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.ERROR, "invalid device descriptor");
+#end if;
+         goto ret_inval;
+      end if;
+
+      dev_id   := TSK.tasks_list(caller_id).device_id (dev_descriptor);
+
+      -- Used device descriptor ?
+      if dev_id = ID_DEV_UNUSED then
+#if CONFIG_DEBUG_SYS_CFG_MEM
+         debug.log (debug.ERROR, "["
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+            & "] dev_release(): unused device");
+#end if;
+         goto ret_inval;
+      end if;
+
+      -- Verifying that the device really belongs to the task
+      -- NOTE - Defensive programming.
+      -- FIXME - That test may be removed
+      if ewok.devices.get_task_from_id (dev_id) /= caller_id then
+         raise program_error;
+      end if;
+
+      --
+      -- Releasing the device
+      --
+
+      -- Unmounting the device
+      if TSK.is_mounted (caller_id, dev_id) then
+         TSK.unmount_device (caller_id, dev_id, ok);
+         if not ok then
+            raise program_error; -- Should never happen
+         end if;
+      end if;
+
+      -- Removing it from the task's list of used devices
+      TSK.remove_device (caller_id, dev_id, ok);
+      if not ok then
+         raise program_error; -- Should never happen
+      end if;
+
+      -- Release GPIOs, EXTIs and interrupts
+      ewok.devices.release_device (caller_id, dev_id, ok);
+
+      set_return_value (caller_id, mode, SYS_E_DONE);
+      TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   <<ret_inval>>
+      set_return_value (caller_id, mode, SYS_E_INVAL);
+      TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   <<ret_denied>>
+      set_return_value (caller_id, mode, SYS_E_DENIED);
+      TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   end dev_release;
+
+
+end ewok.syscalls.cfg.dev;

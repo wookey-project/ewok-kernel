@@ -141,4 +141,33 @@ is
    end register;
 
 
+   procedure release
+     (conf     : in  ewok.exported.gpios.t_gpio_config_access)
+   is
+      line : constant soc.exti.t_exti_line_index :=
+         soc.exti.t_exti_line_index'val
+           (soc.gpio.t_gpio_pin_index'pos (conf.all.kref.pin));
+   begin
+
+      if not conf.all.settings.set_exti then
+         return;
+      end if;
+
+      if not exti_line_registered (line) then
+         return;
+      end if;
+
+      if not soc.exti.is_enabled (line) then
+         return;
+      end if;
+
+      if conf.all.exti_trigger = GPIO_EXTI_TRIGGER_NONE then
+         return;
+      end if;
+
+      exti_line_registered (line) := false;
+
+   end release;
+
+
 end ewok.exti;

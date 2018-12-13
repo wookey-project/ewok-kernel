@@ -59,5 +59,8 @@ is
      (conf     : in  ewok.exported.gpios.t_gpio_config_access;
       success  : out boolean);
 
+   procedure release
+     (conf     : in  ewok.exported.gpios.t_gpio_config_access);
+
 end ewok.exti;
 
