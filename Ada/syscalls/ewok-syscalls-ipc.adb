@@ -635,7 +635,9 @@ is
       end if;
 
       if ep.all.state /= ewok.ipc.READY then
-         debug.log ("ipc_do_send(): invalid endpoint state - maybe a dead lock");
+         debug.log ("[task"
+            & ewok.tasks_shared.t_task_id'image (caller_id)
+	         & "] ipc_do_send(): invalid endpoint state - maybe a dead lock");
          goto ret_denied;
       end if;
 
