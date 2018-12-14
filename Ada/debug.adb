@@ -31,7 +31,7 @@ with soc.layout; use soc.layout;
 with m4;
 with m4.scb;
 #end if;
-with types; use types;
+with types;
 
 package body debug
    with spark_mode => off
