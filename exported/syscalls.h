@@ -121,6 +121,8 @@ typedef enum {
     CFG_DEV_MAP,
     /** unmap a device set as DEV_MAP_VOLUNTARY */
     CFG_DEV_UNMAP,
+    /** Release a device */
+    CFG_DEV_RELEASE
 } e_cfg_type;
 
 //[PTH] TODO: differentiate a synchronous send/recv and an asynchronous (with loss) one

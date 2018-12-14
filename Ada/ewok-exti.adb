@@ -165,6 +165,8 @@ is
          return;
       end if;
 
+      soc.exti.disable (line);
+
       exti_line_registered (line) := false;
 
    end release;
