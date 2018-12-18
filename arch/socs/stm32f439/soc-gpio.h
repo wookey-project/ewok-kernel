@@ -347,6 +347,11 @@
  */
 uint8_t soc_gpio_set_config(const dev_gpio_info_t * gpio);
 
+/*
+ * Relaese the GPIO, including deactivating the RCC clock
+ */
+uint8_t soc_gpio_release(const dev_gpio_info_t * gpio);
+
 uint8_t soc_gpio_configure
     (uint8_t port, uint8_t pin,
      gpio_mode_t mode,

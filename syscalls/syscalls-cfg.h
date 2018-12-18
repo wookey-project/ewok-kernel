@@ -24,7 +24,7 @@
 #ifndef SYSCALLS_CFG_H_
 # define SYSCALLS_CFG_H_
 
-#include "syscalls-cfg-mem.h"
+#include "syscalls-cfg-dev.h"
 #include "syscalls-cfg-gpio.h"
 
 /**

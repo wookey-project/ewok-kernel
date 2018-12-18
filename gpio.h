@@ -58,6 +58,19 @@ uint8_t gpio_register_gpio
  */
 uint8_t gpio_enable_gpio(const dev_gpio_info_t * gpio);
 
+/*
+ * \brief release the given GPIO
+ * This include:
+ *
+ * delete the GPIO from the GPIO table of the task
+ * delete the GPIO from the used GPIO table
+ * disable the GPIO RCC clock
+ *
+ * @param gpio the gpio structure
+ * @return 0 if the GPIO is released, or a positive value
+ */
+uint8_t gpio_release_gpio(const dev_gpio_info_t * gpio);
+
 /**************************************************
  * Prototypes for nominal phase
  *************************************************/

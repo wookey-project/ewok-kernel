@@ -168,6 +168,8 @@ bool is_interrupt_already_used (e_irq_id id);
 uint8_t set_interrupt_handler
     (e_irq_id id, const void *irq_handler, e_task_id task_id, e_device_id dev_id);
 
+uint8_t clear_interrupt_handler(e_irq_id id);
+
 e_device_id get_device_from_interrupt(e_irq_id id);
 
 s_irq* get_cell_from_interrupt(e_irq_id id);

@@ -160,6 +160,14 @@ bool is_interrupt_already_used (e_irq_id id)
     }
 }
 
+uint8_t clear_interrupt_handler(e_irq_id id)
+{
+    irq_table[id].irq_handler   = 0;
+    irq_table[id].task_id       = ID_UNUSED;
+    irq_table[id].device_id     = ID_DEV_UNUSED;
+    return 0;
+}
+
 /*
 ** Register a custom handler for a given interrupt
 */

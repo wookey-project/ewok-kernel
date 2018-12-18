@@ -47,7 +47,7 @@
 #include "syscalls-utils.h"
 #include "syscalls-cfg.h"
 #include "syscalls-cfg-gpio.h"
-#include "syscalls-cfg-mem.h"
+#include "syscalls-cfg-dev.h"
 
 
 

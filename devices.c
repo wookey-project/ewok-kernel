@@ -273,6 +273,36 @@ uint8_t dev_register_device(e_device_id dev_id, device_t *udev)
  * called by the userspace.
  ***********************************************************************/
 
+uint8_t dev_disable_device(e_task_id task_id,
+                           e_device_id dev_id)
+{
+    if (device_tab[dev_id].task_id != task_id) {
+        return 1;
+    }
+    /* Release GPIOs & Exti */
+    for (uint8_t i = 0; i < device_tab[dev_id].udev.gpio_num; ++i) {
+        gpio_release_gpio(&device_tab[dev_id].udev.gpios[i]);
+        if (device_tab[dev_id].udev.gpios[i].exti_trigger != GPIO_EXTI_TRIGGER_NONE) {
+            exti_disable(device_tab[dev_id].udev.gpios[i].kref);
+        }
+    }
+    /* Release interrupts */
+    for (uint8_t i = 0; i < MIN(device_tab[dev_id].udev.irq_num, MAX_IRQS); ++i)
+    {
+        NVIC_DisableIRQ((uint32_t) device_tab[dev_id].udev.irqs[i].irq - 0x10);
+        clear_interrupt_handler(device_tab[dev_id].udev.irqs[i].irq);
+        
+        KERNLOG(DBG_INFO, "Disabled IRQ %x, for device %s\n",
+            device_tab[dev_id].udev.irqs[i].irq,
+            device_tab[dev_id].udev.name);
+    }
+
+    /* Release the device */
+    device_tab[dev_id].status = DEV_STATE_NONE;
+    device_tab[dev_id].task_id = ID_UNUSED;
+    device_tab[dev_id].devinfo = NULL;
+    return 0;
+}
 
 /*
 ** This function should be called by syscall sys_init(INIT_LOCK).

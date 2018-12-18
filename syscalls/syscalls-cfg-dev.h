@@ -36,4 +36,8 @@ void sys_cfg_dev_unmap(       task_t      *caller,
                        __user regval_t    *regs,
                               e_task_mode  mode);
 
+void sys_cfg_dev_release(task_t          *caller,
+                         __user regval_t *regs,
+                         e_task_mode      mode);
+
 #endif/*!SYSCALL_CFG_MEM_H*/

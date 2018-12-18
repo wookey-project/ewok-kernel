@@ -229,6 +229,20 @@ uint8_t gpio_register_gpio
     return 0;
 }
 
+uint8_t
+gpio_release_gpio(const dev_gpio_info_t * gpio)
+{
+    if (gpio_is_free(gpio->kref)) {
+        KERNLOG(DBG_ERR, "Given gpio %x already freed!\n", gpio->kref.val);
+        return 1;
+    }
+
+    soc_gpio_release(gpio);
+
+    gpio_state[gpio->kref.val] = 0;
+    return 0;
+}
+
 /**
  * \brief Enable (configure) the GPIO
  *

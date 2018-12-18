@@ -20,7 +20,7 @@
  *     limitations under the License.
  *
  */
-#include "syscalls-cfg-mem.h"
+#include "syscalls-cfg-dev.h"
 #include "devices.h"
 #include "sched.h"
 #include "debug.h"
@@ -172,6 +172,69 @@ void sys_cfg_dev_unmap(task_t *caller, __user regval_t *regs, e_task_mode mode)
 
     syscall_r0_update(caller, mode, SYS_E_DONE);
     syscall_set_target_task_runnable(caller);
+    request_schedule();
+    return;
+
+ret_inval:
+    syscall_r0_update(caller, mode, SYS_E_INVAL);
+    syscall_set_target_task_runnable(caller);
+    return;
+
+ret_denied:
+    syscall_r0_update(caller, mode, SYS_E_DENIED);
+    syscall_set_target_task_runnable(caller);
+    return;
+
+}
+
+void sys_cfg_dev_release(task_t *caller, __user regval_t *regs, e_task_mode mode)
+{
+    uint8_t     user_dev_id = (uint8_t) regs[1];
+    e_device_id dev_id;
+
+    if (user_dev_id >= caller->num_devs ) {
+        KERNLOG(DBG_ERR,
+            "[task %d] sys_cfg(CFG_DEV_MAP): invalid descriptor\n", caller->id);
+        goto ret_denied;
+    }
+
+    dev_id = caller->dev_id[user_dev_id];
+
+    /* forbidden from ISR... */
+    if (mode == TASK_MODE_ISRTHREAD) {
+        KERNLOG(DBG_ERR,
+            "[task %d] sys_cfg(CFG_DEV_UNMAP): not allowed in SR mode\n", caller->id);
+        goto ret_denied;
+    }
+
+    /* Should be out of initialization sequence */
+    if (caller->init_done == false) {
+        KERNLOG(DBG_ERR,
+            "[task %d] sys_cfg(CFG_DEV_UNMAP): not allowed before end of init\n", caller->id);
+        goto ret_denied;
+        return;
+    }
+
+    /* check that the device is owned by the task */
+    if (!(dev_get_task_from_id(dev_id) == caller->id)) {
+        /* no 'DENIED' to avoid detecting which dev_id is owned by other tasks */
+        KERNLOG(DBG_ERR,
+            "[task %d] sys_cfg(CFG_DEV_UNMAP): device not owned by the task\n", caller->id);
+        goto ret_inval;
+    }
+
+    if (dev_is_mapped(dev_id)) {
+        dev_set_device_map(false, dev_id);
+    }
+
+    if (dev_disable_device(caller->id, dev_id)) {
+        /* FIXME: there should be a fallback mechanism here */
+        goto ret_inval;
+    }
+
+    syscall_r0_update(caller, mode, SYS_E_DONE);
+    syscall_set_target_task_runnable(caller);
+    /* C implementation of the MPU request schedule (Ada does not) */
     request_schedule();
     return;
 

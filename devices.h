@@ -76,6 +76,15 @@ uint8_t dev_get_device_region_mask (e_device_id dev_id);
 */
 uint8_t dev_register_device(e_device_id, device_t*);
 
+/*
+ * Disabling given device.
+ *
+ * This implies disabling any associated GPIOs, EXTIs and IRQ handler,
+ * including RCC input for GPIOs.
+ */
+uint8_t dev_disable_device(e_task_id task_id,
+                           e_device_id dev_id);
+
 /**
  * \brief return the irq info structure from an IRQ and associated task
  *

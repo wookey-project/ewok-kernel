@@ -105,6 +105,9 @@ void soc_gpio_set_afr(volatile uint32_t * gpioX_afr, uint8_t pin,
         set_reg_value(gpioX_afr, function, 0xf << (4 * pin), 4 * pin);
 }
 
+#define GPIO_RELEASE(port) \
+		clear_reg_bits(r_CORTEX_M_RCC_AHB1ENR, RCC_AHB1ENR_GPIO##port##EN);
+
 #define GPIO_CONFIG(port) \
 		set_reg_bits(r_CORTEX_M_RCC_AHB1ENR, RCC_AHB1ENR_GPIO##port##EN);\
 		gpioX_moder = GPIO_MODER(GPIO##port##_BASE);\
@@ -118,6 +121,32 @@ void soc_gpio_set_afr(volatile uint32_t * gpioX_afr, uint8_t pin,
 		gpioX_lckr = GPIO_LCKR(GPIO##port##_BASE);\
 		gpioX_afr_l = GPIO_AFR_L(GPIO##port##_BASE);\
 		gpioX_afr_h = GPIO_AFR_H(GPIO##port##_BASE)
+
+uint8_t soc_gpio_release(const dev_gpio_info_t * gpio)
+{
+    physaddr_t portaddr = soc_gpio_get_port_base(gpio->kref);
+
+    /* Does the port exist? */
+    if (portaddr == 0) {
+        return 1;
+    }
+
+    switch (portaddr) {
+        case GPIOA_BASE: GPIO_RELEASE(A); break;
+        case GPIOB_BASE: GPIO_RELEASE(B); break;
+        case GPIOC_BASE: GPIO_RELEASE(C); break;
+        case GPIOD_BASE: GPIO_RELEASE(D); break;
+        case GPIOE_BASE: GPIO_RELEASE(E); break;
+        case GPIOF_BASE: GPIO_RELEASE(F); break;
+        case GPIOG_BASE: GPIO_RELEASE(G); break;
+        case GPIOH_BASE: GPIO_RELEASE(H); break;
+        case GPIOI_BASE: GPIO_RELEASE(I); break;
+        default:
+            return 1;
+    }
+
+    return 0;
+}
 
 uint8_t soc_gpio_set_config(const dev_gpio_info_t * gpio)
 {

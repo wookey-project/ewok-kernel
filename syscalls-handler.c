@@ -72,7 +72,8 @@ static inline bool svc_is_synchronous_syscall(task_t * caller)
             subsyscall == CFG_DMA_RECONF ||
             subsyscall == CFG_DMA_DISABLE||
             subsyscall == CFG_DEV_MAP    ||
-            subsyscall == CFG_DEV_UNMAP)
+            subsyscall == CFG_DEV_UNMAP  ||
+            subsyscall == CFG_DEV_RELEASE)
         {
             return true;
         }
@@ -155,6 +156,12 @@ static inline void svc_synchronous_syscall(task_t * caller)
                 break;
             case CFG_DEV_UNMAP:
                 sys_cfg_dev_unmap(caller, &args[1], caller->mode);
+                break;
+            case CFG_DEV_RELEASE:
+                sys_cfg_dev_release(caller, &args[1], caller->mode);
+                break;
+            default:
+                WARN("Unknown syncrhonous cfg syscall %d for task %s\n", syscall, caller->name);
                 break;
         }
         break;
