@@ -187,6 +187,7 @@ $(APP_BUILD_DIR):
 ifeq ($(ADAKERNEL),y)
 __clean: libabsp.gpr
 	$(call cmd,ada_clean)
+	-rm -rf $(CORE_OBJ) $(SOC_OBJ) $(BOARD_OBJ)
 
 __distclean: libabsp.gpr
 	$(call cmd,ada_distclean)
