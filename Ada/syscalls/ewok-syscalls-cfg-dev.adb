@@ -330,7 +330,7 @@ is
       -- NOTE - Defensive programming.
       -- FIXME - That test may be removed
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then
-         raise program_error;
+         goto ret_inval;
       end if;
 
       --
