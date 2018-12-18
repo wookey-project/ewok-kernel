@@ -195,6 +195,8 @@ $(APP_BUILD_DIR):
 ifeq ($(CONFIG_ADAKERNEL),y)
 __clean: libkernel.gpr
 	$(call cmd,ada_clean)
+	-rm generated/*
+	-rm Ada/generated/*
 	-rm $(APP_BUILD_DIR)/$(BIN_NAME) $(HEX_NAME) $(OBJ) $(DEP)
 
 __distclean: libkernel.gpr
