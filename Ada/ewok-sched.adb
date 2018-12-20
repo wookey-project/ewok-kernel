@@ -440,6 +440,12 @@ is
       m4.systick.increment;
       sched_period := sched_period + 1;
 
+      -- Waking-up sleeping tasks
+      ewok.sleep.check_is_awoke;
+
+      -- Managing DWT cycle count overflow
+      soc.dwt.ovf_manage;
+
       -- FIXME - CONFIG_SCHED_PERIOD must be in milliseconds,
       --         not in ticks
       if sched_period /= $CONFIG_SCHED_PERIOD then
@@ -447,12 +453,6 @@ is
       else
          sched_period := 0;
       end if;
-
-      -- Waking-up sleeping tasks
-      ewok.sleep.check_is_awoke;
-
-      -- Managing DWT cycle count overflow
-      soc.dwt.ovf_manage;
 
       -- Keep ISR threads running until they finish
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and

@@ -563,15 +563,15 @@ stack_frame_t *Sched_Systick_Handler(stack_frame_t * stack_frame)
     // reduce the dwt previous value scoping to this function only
     core_systick_handler(stack_frame);
 
+    /* decrement sleep count of sleeping tasks */
+    sleep_check_is_awoke();
+
+    /* Managing DWT cycle count overflow */
+    soc_dwt_ovf_manage();
+
     sched_period++;
     if (sched_period == SCHED_PERIOD) {
         sched_period = 0;
-
-        /* decrement sleep count of sleeping tasks */
-        sleep_check_is_awoke();
-
-        /* Managing DWT cycle count overflow */
-        soc_dwt_ovf_manage();
 
         // no election when ISR thread is being run. It should finish with SVC
         if (current_task->mode == TASK_MODE_ISRTHREAD &&
