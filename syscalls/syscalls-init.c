@@ -77,11 +77,14 @@ void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)
 #ifdef CONFIG_KERNEL_DOMAIN
             /* Checking domain */
             if (!perm_same_ipc_domain(caller->id, peer)) {
-                goto done;
+                goto ret_inval;
             }
 #endif
-            *id = peer;
-            goto done;
+           if (perm_ipc_is_granted(caller->id, peer) ||
+               perm_ipc_is_granted(peer, caller->id)) {
+               *id = peer;
+               goto done;
+           }
         }
     }
 
