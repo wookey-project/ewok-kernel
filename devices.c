@@ -331,8 +331,13 @@ uint8_t dev_enable_device(e_device_id  dev_id)
 
     /* Enable device itself (RCC, etc.) */
     if (device_tab[dev_id].devinfo != NULL) {
-        soc_devmap_enable_clock (device_tab[dev_id].devinfo);
-            KERNLOG(DBG_INFO, "Enabled device %s\n", device_tab[dev_id].udev.name);
+        /* some device may not need an RCC line, like the SoC embedded flash. For
+         * these devices, there is no need for clock line activation. In this
+         * very case, rcc_enbr and rcc_enb are set to 0 in the json device tree */
+        if (device_tab[dev_id].devinfo->rcc_enbr != 0) {
+            soc_devmap_enable_clock (device_tab[dev_id].devinfo);
+        }
+        KERNLOG(DBG_INFO, "Enabled device %s\n", device_tab[dev_id].udev.name);
     }
 
     /* Device is not tagged as enabled */
