@@ -22,6 +22,7 @@
 
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
+with debug;
 
 package body ewok.sleep
    with spark_mode => off
@@ -41,11 +42,16 @@ is
 
       if mode = SLEEP_MODE_INTERRUPTIBLE then
          sleep_info(task_id).interruptible   := true;
+         TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING);
       else
          sleep_info(task_id).interruptible   := false;
+         TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING_DEEP);
+         debug.log (debug.INFO, "["
+           & ewok.tasks_shared.t_task_id'image (task_id)
+           & "] going into deep sleep");
+
       end if;
 
-      TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING);
    end sleeping;
 
 
@@ -54,7 +60,8 @@ is
       t : constant m4.systick.t_tick := m4.systick.get_ticks;
    begin
       for id in applications.list'range loop
-         if TSK.tasks_list(id).state = TASK_STATE_SLEEPING and then
+         if (TSK.tasks_list(id).state = TASK_STATE_SLEEPING or
+            TSK.tasks_list(id).state = TASK_STATE_SLEEPING_DEEP) and then
             t > sleep_info(id).sleep_until
          then
             TSK.set_state (id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -80,7 +87,9 @@ is
       return boolean
    is
    begin
-      if TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING then
+      if TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING or
+         TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING_DEEP
+         then
          if sleep_info(task_id).sleep_until > m4.systick.get_ticks then
             return true;
          else

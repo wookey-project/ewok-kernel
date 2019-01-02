@@ -323,7 +323,8 @@ is
             exit when not ok;
 
             if isr_req.state = WAITING then
-               if TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_LOCKED
+               if TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_LOCKED and
+                  TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_SLEEPING_DEEP
                then
                   m4.cpu.disable_irq;
                   isr_handler (isr_req);

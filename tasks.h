@@ -70,6 +70,9 @@ typedef enum {
     /* Task is sleeping */
     TASK_STATE_SLEEPING,
 
+    /* Task is sleeping */
+    TASK_STATE_SLEEPING_DEEP,
+
     /* Task has generated an exception (memory fault, etc.), not
      * schedulable anymore */
     TASK_STATE_FAULT,

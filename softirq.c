@@ -362,7 +362,8 @@ void task_softirq(void)
         if (!isr_queue.empty) {
             while ((sfq = pop_softirq(&isr_queue))) {
                 if (sfq->state == SFQ_WAITING) {
-                    if (sfq->caller->state[TASK_MODE_MAINTHREAD] != TASK_STATE_LOCKED)
+                    if (sfq->caller->state[TASK_MODE_MAINTHREAD] != TASK_STATE_LOCKED &&
+                        sfq->caller->state[TASK_MODE_MAINTHREAD] != TASK_STATE_SLEEPING_DEEP)
                     {
                         disable_irq();
                         softirq_handler_user_isr(sfq);

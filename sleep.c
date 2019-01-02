@@ -37,10 +37,12 @@ uint8_t sleeping(e_task_id      id,
             core_systick_get_ticks() + core_ms_to_ticks (ms);
         if (mode == SLEEP_MODE_INTERRUPTIBLE) {
             sleep_tab[id].interruptible = true;
+            task_set_task_state(id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING);
         } else {
             sleep_tab[id].interruptible = false;
+            task_set_task_state(id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING_DEEP);
+            KERNLOG(DBG_INFO, "task %d: entering deep sleep\n", id);
         }
-        task_set_task_state(id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING);
     } else {
         goto err_id;
     }
@@ -67,7 +69,8 @@ void sleep_check_is_awoke(void)
     uint64_t t = core_systick_get_ticks();
 
     for (uint8_t id = 0; id <= ID_APPMAX; ++id) {
-        if (task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING
+        if ((task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING ||
+             task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING_DEEP)
             && t > sleep_tab[id].sleep_until)
         {
             task_set_task_state(id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -84,7 +87,9 @@ void sleep_check_is_awoke(void)
  */
 bool sleep_is_sleeping_task(e_task_id id)
 {
-    if (task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING) {
+    if (task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING ||
+        task_get_task_state(id, TASK_MODE_MAINTHREAD) == TASK_STATE_SLEEPING_DEEP)
+    {
         if (sleep_tab[id].sleep_until > core_systick_get_ticks()) {
             return true;
         } else {
