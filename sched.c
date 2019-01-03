@@ -334,7 +334,7 @@ uint8_t sched_switch_mpu(task_t *next)
     uint8_t         mpu_region_size;
     uint8_t         ret;
     physaddr_t      dev_addr;
-    uint16_t        dev_size;
+    uint32_t        dev_size;
     e_device_id     dev_id;
 
     if (next->type == TASK_TYPE_USER) {

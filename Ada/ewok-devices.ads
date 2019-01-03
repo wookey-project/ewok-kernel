@@ -66,7 +66,7 @@ is
       return ewok.exported.devices.t_user_device_access;
 
    function get_user_device_size (dev_id : t_device_id)
-      return unsigned_16;
+      return unsigned_32;
 
    function get_user_device_addr (dev_id : t_device_id)
       return system_address;

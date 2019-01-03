@@ -61,7 +61,7 @@ bool      dev_is_mapped(e_device_id dev_id);
 
 device_t* dev_get_device_from_id (e_device_id dev_id);
 
-uint16_t dev_get_device_size (e_device_id dev_id);
+uint32_t dev_get_device_size (e_device_id dev_id);
 
 physaddr_t dev_get_device_addr (e_device_id dev_id);
 

@@ -49,7 +49,7 @@ is
    type t_user_device is record
       name           : t_device_name;
       base_addr      : system_address;
-      size           : unsigned_16;
+      size           : unsigned_32;
       interrupt_num  : unsigned_8 range 0 .. MAX_INTERRUPTS;
       gpio_num       : unsigned_8 range 0 .. MAX_GPIOS;
       map_mode       : t_dev_map_mode;

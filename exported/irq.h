@@ -43,7 +43,7 @@ typedef enum {
 } dev_irq_ph_action_t;
 
 typedef struct {
-    uint16_t  offset;  /**< Offset of the register to read */
+    uint32_t  offset;  /**< Offset of the register to read */
     uint32_t  value;   /**< Value read */
 } dev_irq_ph_read_t;
 
@@ -52,22 +52,22 @@ typedef struct {
  ** needed. The write table is based on write offset/write mask
  */
 typedef struct {
-    uint16_t  offset;  /**< Offset of the register to write */
+    uint32_t  offset;  /**< Offset of the register to write */
     uint32_t  value;   /**< Value to write */
     uint32_t  mask;    /**< Associated write mask */
 } dev_irq_ph_write_t;
 
 typedef struct {
-    uint16_t    offset_dest; /**< Offset of the register to write */
-    uint16_t    offset_src;  /**< Offset of the register with the mask */
+    uint32_t    offset_dest; /**< Offset of the register to write */
+    uint32_t    offset_src;  /**< Offset of the register with the mask */
     uint32_t    mask;        /**< The masking value */
     uint8_t     mode;
 } dev_irq_ph_and_t;
 
 typedef struct {
-    uint16_t    offset_dest;  /**< The offset of the register to write */
-    uint16_t    offset_src;   /**< The offset of the register to use as value */
-    uint16_t    offset_mask;  /**< The offset of the tregister to use as mask */
+    uint32_t    offset_dest;  /**< The offset of the register to write */
+    uint32_t    offset_src;   /**< The offset of the register to use as value */
+    uint32_t    offset_mask;  /**< The offset of the tregister to use as mask */
     uint8_t     mode;
 } dev_irq_ph_mask_t;
 
@@ -94,10 +94,10 @@ typedef struct {
     dev_irq_ph_instruction_t  action[DEV_MAX_PH_INSTR];
 
     /** From which register the status is read ? */
-    uint16_t  status;
+    uint32_t  status;
 
     /** From which register the data is read ? */
-    uint16_t  data;
+    uint32_t  data;
 } dev_irq_ph_t;
 
 /**

@@ -39,30 +39,30 @@ is
 
    -- value <- register
    type t_posthook_action_read is record
-      offset   : unsigned_16;
+      offset   : unsigned_32;
       value    : unsigned_32;
    end record;
 
    -- register <- value & mask
    type t_posthook_action_write is record
-      offset   : unsigned_16;
+      offset   : unsigned_32;
       value    : unsigned_32;
       mask     : unsigned_32;
    end record;
 
    -- register(dest) <- register(src) & mask
    type t_posthook_action_write_reg is record
-      offset_dest : unsigned_16;
-      offset_src  : unsigned_16;
+      offset_dest : unsigned_32;
+      offset_src  : unsigned_32;
       mask        : unsigned_32;
       mode        : unsigned_8;
    end record;
 
    -- register(dest) <- register(src) & register(mask)
    type t_posthook_action_write_mask is record
-      offset_dest : unsigned_16;
-      offset_src  : unsigned_16;
-      offset_mask : unsigned_16;
+      offset_dest : unsigned_32;
+      offset_src  : unsigned_32;
+      offset_mask : unsigned_32;
       mode        : unsigned_8;
    end record;
 
@@ -95,8 +95,8 @@ is
 
    type t_interrupt_posthook is record
       action      : t_posthook_instruction_list; -- Reading, writing, masking...
-      status      : unsigned_16;
-      data        : unsigned_16;
+      status      : unsigned_32;
+      data        : unsigned_32;
    end record;
 
    type t_interrupt_config is record

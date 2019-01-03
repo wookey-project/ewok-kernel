@@ -81,7 +81,7 @@ inline device_t* dev_get_device_from_id (e_device_id dev_id)
     return &device_tab[dev_id].udev;
 }
 
-inline uint16_t dev_get_device_size (e_device_id dev_id)
+inline uint32_t dev_get_device_size (e_device_id dev_id)
 {
     return device_tab[dev_id].udev.size;
 }

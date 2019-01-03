@@ -80,7 +80,7 @@ typedef struct {
      *   address space (during context switching). Its size is checked against
      *   the SoC/board devmap.
      */
-    uint16_t size;
+    uint32_t size;
 
     /**< Number of IRQ lines associated to the device.
      *   How many entries in irqs[] array are used.

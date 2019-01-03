@@ -54,7 +54,7 @@ is
 
    function soc_devmap_find_device
      (addr : system_address;
-      size : unsigned_16)
+      size : unsigned_32)
       return t_device_soc_infos_access
    with
       convention     => c,

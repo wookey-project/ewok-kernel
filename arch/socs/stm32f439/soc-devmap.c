@@ -26,7 +26,7 @@
 #include "regutils.h"
 
 struct device_soc_infos* soc_devmap_find_device
-    (physaddr_t addr, uint16_t size)
+    (physaddr_t addr, uint32_t size)
 {
     for (uint8_t i = 0; i < soc_devices_list_size; ++i) {
         if (addr == soc_devices_list[i].addr &&

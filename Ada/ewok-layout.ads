@@ -137,7 +137,7 @@ is
    STACK_SIZE_IDLE      : constant := 4 * KBYTE;
 
    STACK_TOP_SOFTIRQ    : constant system_address := STACK_TOP_IDLE - STACK_SIZE_IDLE;
-   STACK_SIZE_SOFTIRQ   : constant := 8 * KBYTE;
+   STACK_SIZE_SOFTIRQ   : constant := 4 * KBYTE;
 
    STACK_TOP_TASK_ISR   : constant system_address := STACK_TOP_SOFTIRQ - STACK_SIZE_SOFTIRQ;
    STACK_SIZE_TASK_ISR  : constant := 4 * KBYTE;

@@ -95,7 +95,7 @@ is
          dev_id   := user_task_a.all.device_id(i);
          if dev_id /= ID_DEV_UNUSED then
             dev_addr := ewok.devices.get_user_device_addr (dev_id);
-            dev_size := unsigned_32 (ewok.devices.get_user_device_size (dev_id));
+            dev_size := ewok.devices.get_user_device_size (dev_id);
             if ptr >= dev_addr         and
                ptr + 4 >= dev_addr     and
                ptr + 4 < dev_addr + dev_size

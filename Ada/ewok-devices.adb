@@ -68,7 +68,7 @@ is
 
 
    function get_user_device_size (dev_id : t_device_id)
-      return unsigned_16
+      return unsigned_32
    is
    begin
       return registered_device(dev_id).udev.size;
@@ -179,7 +179,7 @@ is
          if devinfo = NULL then
             debug.log (debug.ERROR, "Can't find device " & name & "(addr:" &
                system_address'image (udev.all.base_addr) & ", size:" &
-               unsigned_16'image (udev.all.size) & ")");
+               unsigned_32'image (udev.all.size) & ")");
             success := false;
             return;
          end if;
@@ -569,7 +569,7 @@ is
 
          if devinfo = NULL then
             debug.log (debug.ERROR, "Device at addr" & system_address'image
-               (udev.all.base_addr) & " with size" & unsigned_16'image (udev.all.size) &
+               (udev.all.base_addr) & " with size" & unsigned_32'image (udev.all.size) &
                ": not found");
             return false;
          end if;
@@ -616,7 +616,7 @@ is
       region   : in  m4.mpu.t_region_number;
       success  : out boolean)
    is
-      dev_size          : unsigned_16;
+      dev_size          : unsigned_32;
       mpu_region_size   : m4.mpu.t_region_size;
       region_type       : ewok.mpu.t_region_type;
       ok                : boolean;
@@ -637,7 +637,7 @@ is
       end if;
 
       ewok.mpu.bytes_to_region_size
-        (unsigned_32 (dev_size), mpu_region_size, ok);
+        (dev_size, mpu_region_size, ok);
 
       if not ok then
          debug.log ("mpu_mapping_device(): bytes_to_region_size() failed!");
