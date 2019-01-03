@@ -31,9 +31,9 @@
 #define STACK_SIZE_IDLE     4*KBYTE
 
 #define STACK_TOP_SOFTIRQ   RAM_KERN_BASE + RAM_KERN_SIZE - (4*KBYTE)
-#define STACK_SIZE_SOFTIRQ  8*KBYTE
+#define STACK_SIZE_SOFTIRQ  4*KBYTE
 
-#define STACK_TOP_ISR       RAM_KERN_BASE + RAM_KERN_SIZE - (12*KBYTE)
+#define STACK_TOP_ISR       RAM_KERN_BASE + RAM_KERN_SIZE - (8*KBYTE)
 #define STACK_SIZE_ISR      4*KBYTE
 
 static inline bool frame_is_kernel(physaddr_t frame) {

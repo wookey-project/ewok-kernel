@@ -93,7 +93,7 @@ SECTIONS
     PROVIDE ( _end = . );
     . = . + 4096; /* kernel idle thread stack */
     . = . + 4096; /* kernel initial thread stack */
-    . = . + 8192; /* softirq thread stack */
+    . = . + 4096; /* softirq thread stack */
     . = . + 4096; /* user ISR stack (remapped region) */
     . = ALIGN(4);
   }>RAM_KERN
