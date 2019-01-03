@@ -120,7 +120,8 @@ void init_do_reg_devaccess(e_task_id caller_id, __user regval_t *regs, e_task_mo
 
     if (task_is_user(caller_id)) {
         /* Generic sanitation of inputs */
-        if (!sanitize_is_data_pointer_in_slot((void *)udev, sizeof(device_t), caller->id, mode)) {
+        if (!sanitize_is_data_pointer_in_slot((void *)udev, sizeof(device_t), caller->id, mode) &&
+            !sanitize_is_data_pointer_in_txt_slot((void *)udev, sizeof(device_t), caller->id, mode)) {
             KERNLOG(DBG_ERR, "invalid pointer given in argument\n");
             goto ret_inval;
         }

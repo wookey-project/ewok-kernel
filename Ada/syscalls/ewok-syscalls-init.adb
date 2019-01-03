@@ -62,18 +62,32 @@ is
       end if;
 
       -- NOTE: The kernel might register some devices using this syscall
+      -- for user task, device_t structure may be stored in:
+      --    - its data slot (RAM)
+      --    - its txt slot (.rodata)
       if TSK.is_user (caller_id) and then
         (not ewok.sanitize.is_range_in_data_slot
                (to_system_address (udev'address),
                 udev'size/8,
                 caller_id,
                 mode)
-         or
-         not ewok.sanitize.is_word_in_data_slot
-               (to_system_address (descriptor'address), caller_id, mode))
+         and
+         not ewok.sanitize.is_range_in_txt_slot
+               (to_system_address (udev'address),
+                udev'size/8,
+                caller_id))
       then
          debug.log (debug.ERROR,
             "init_do_reg_devaccess(): udev not in task's memory space");
+         goto ret_denied;
+      end if;
+
+      if TSK.is_user (caller_id) and then
+         not ewok.sanitize.is_word_in_data_slot
+               (to_system_address (descriptor'address), caller_id, mode)
+      then
+         debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): descriptor not in task's memory space");
          goto ret_denied;
       end if;
 
