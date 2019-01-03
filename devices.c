@@ -547,8 +547,6 @@ retval_t dev_sanitize_user_device (device_t *udev, e_task_id task_id)
         }
     }
 
-    udev->name[15] = '\0';
-
     if (udev->irq_num > MAX_IRQS) {
         KERNLOG(DBG_ERR, "device %s : invalid udev.irq_num value (%d)\n",
             udev->name, udev->irq_num);
