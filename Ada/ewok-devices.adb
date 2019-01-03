@@ -277,10 +277,15 @@ is
 
       -- Registering GPIOs
       for i in 1 .. udev.gpio_num loop
-         ewok.gpio.register (task_id, dev_id, udev.gpios(i)'access, success);
+         ewok.gpio.register
+           (task_id,
+            dev_id,
+            registered_device(dev_id).udev.gpios(i)'access,
+            success);
          if not success then
             raise program_error;
          end if;
+
          debug.log (debug.INFO,
             "Registered GPIO port" &
             soc.gpio.t_gpio_port_index'image (udev.gpios(i).kref.port) &
