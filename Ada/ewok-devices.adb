@@ -365,7 +365,9 @@ is
    begin
 
       -- Check if the device was already configured
-      if registered_device(dev_id).status /= DEV_STATE_REGISTERED then
+      -- the device can be registered (first mapping) or enabled (successive (un)mappings)
+      if registered_device(dev_id).status /= DEV_STATE_REGISTERED and
+         registered_device(dev_id).status /= DEV_STATE_ENABLED then
          raise program_error;
       end if;
 
