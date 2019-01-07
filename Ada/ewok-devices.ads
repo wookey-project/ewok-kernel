@@ -41,8 +41,11 @@ is
       DEV_STATE_ENABLED,
       DEV_STATE_REG_FAILED);
 
+   type t_checked_user_device is new ewok.exported.devices.t_user_device;
+   type t_checked_user_device_access is access all t_checked_user_device;
+
    type t_device is record
-      udev        : aliased ewok.exported.devices.t_user_device;
+      udev        : aliased t_checked_user_device;
       task_id     : t_task_id;
       devinfo     : c.socinfo.t_device_soc_infos_access; -- FIXME
       status      : t_device_state;
@@ -63,7 +66,7 @@ is
       return t_task_id;
 
    function get_user_device (dev_id : t_device_id)
-      return ewok.exported.devices.t_user_device_access;
+      return t_checked_user_device_access;
 
    function get_user_device_size (dev_id : t_device_id)
       return unsigned_32;

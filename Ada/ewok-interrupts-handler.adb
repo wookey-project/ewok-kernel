@@ -67,7 +67,7 @@ is
       debug.log (debug.ERROR,
          "registers (frame at " &
          system_address'image (to_system_address (frame_a)) &
-         ", EXC_RETURN " & unsigned_32'image (frame_a.all.LR) & ")");
+         ", EXC_RETURN " & unsigned_32'image (frame_a.all.exc_return) & ")");
 
       debug.log (debug.ERROR,
          "R0 " & unsigned_32'image (frame_a.all.R0) &

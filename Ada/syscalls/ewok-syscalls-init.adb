@@ -178,7 +178,7 @@ is
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
       ok   : boolean;
-      udev : t_user_device_access;
+      udev : ewok.devices.t_checked_user_device_access;
    begin
 
       -- Forbidden after end of task initialization

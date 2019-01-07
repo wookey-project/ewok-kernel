@@ -60,7 +60,7 @@ is
 
 
    function get_user_device (dev_id : t_device_id)
-      return ewok.exported.devices.t_user_device_access
+      return t_checked_user_device_access
    is
    begin
       return registered_device(dev_id).udev'access;
@@ -270,7 +270,7 @@ is
       debug.log (debug.INFO, "Registered device " & name & " (0x" &
          system_address'image (udev.all.base_addr) & ")");
 
-      registered_device(dev_id).udev      := udev.all;
+      registered_device(dev_id).udev      := t_checked_user_device (udev.all);
       registered_device(dev_id).task_id   := task_id;
       registered_device(dev_id).devinfo   := devinfo;
       registered_device(dev_id).status    := DEV_STATE_REGISTERED;
@@ -399,7 +399,7 @@ is
             c.socinfo.soc_devmap_enable_clock (registered_device(dev_id).devinfo.all);
          end if;
          declare
-            udev : constant t_user_device := registered_device(dev_id).udev;
+            udev : constant t_checked_user_device := registered_device(dev_id).udev;
             name : string (1 .. types.c.len (udev.name));
          begin
             types.c.to_ada (name, udev.name);

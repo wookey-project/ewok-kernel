@@ -45,7 +45,7 @@ is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
       dev_id      : ewok.devices_shared.t_device_id;
-      dev         : ewok.exported.devices.t_user_device_access;
+      dev         : ewok.devices.t_checked_user_device_access;
       ok          : boolean;
    begin
 
@@ -180,7 +180,7 @@ is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
       dev_id         : ewok.devices_shared.t_device_id;
-      dev            : ewok.exported.devices.t_user_device_access;
+      dev            : ewok.devices.t_checked_user_device_access;
       ok             : boolean;
    begin
 
