@@ -254,15 +254,15 @@ is
 
       target_id := TSK.get_task_id (target_name);
 
-#if CONFIG_KERNEL_DOMAIN
-      if TSK.get_domain (target_id) /= TSK.get_domain (caller_id) then
-         target_id := ID_UNUSED;
-      end if;
-#end if;
-
       if target_id = ID_UNUSED then
          goto ret_inval;
       end if;
+
+#if CONFIG_KERNEL_DOMAIN
+      if TSK.get_domain (target_id) /= TSK.get_domain (caller_id) then
+         goto ret_inval;
+      end if;
+#end if;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
