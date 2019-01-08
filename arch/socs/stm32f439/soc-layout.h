@@ -137,7 +137,7 @@
 
 
 /* LDR is in the last sub-region (slot 8) */
-#define RAM_LDR_BASE    0x2001c000 
+#define RAM_LDR_BASE    0x2001c000
 #define RAM_LDR_SIZE    20*KBYTE
 
 /*
@@ -183,12 +183,14 @@
 /**** DFU 2 ****/
 #define DFU2_SIZE       320*KBYTE
 
-#define DFU2_KERN_BASE  0x08130000
-#define DFU2_KERN_SIZE  64*KBYTE
 
+#define DFU2_KERN_BASE  0x08130000
 #define DFU2_USER_BASE  0x08140000
-#define DFU2_USER_SIZE  256*KBYTE
+
+#define DFU2_KERN_SIZE  64*KBYTE
 #define DFU2_KERN_REGION_SIZE   MPU_REGION_SIZE_256Kb
+#define DFU2_USER_SIZE  256*KBYTE
+#define DFU2_USER_REGION_SIZE  MPU_REGION_SIZE_256Kb
 
 
 

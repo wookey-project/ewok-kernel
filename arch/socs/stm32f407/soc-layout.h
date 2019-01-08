@@ -101,7 +101,7 @@
 #define DFU1_APP8_BASE    0x08078000
 
 /* LDR is in the last sub-region (slot 8) */
-#define RAM_LDR_BASE    0x2001c000 
+#define RAM_LDR_BASE    0x2001c000
 #define RAM_LDR_SIZE    20*KBYTE
 
 /*
@@ -154,9 +154,7 @@
 
 
 #define FW1_START       FW1_KERN_BASE + VTORS_SIZE + 1
-#define FW2_START       FW2_KERN_BASE + VTORS_SIZE + 1
 #define DFU1_START      DFU1_BASE + VTORS_SIZE + 1
-#define DFU2_START      DFU2_BASE + VTORS_SIZE + 1
 
 
 #define FW_MAX_USER_SIZE 64*KBYTE
