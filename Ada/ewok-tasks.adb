@@ -354,7 +354,10 @@ is
                 (applications.list(id).slot + tasks_list(id).num_slots - 1)
                * applications.txt_user_size / 8; -- this is MPU specific
 
-         tasks_list(id).stack_size  := applications.list(id).stack_size;
+         tasks_list(id).stack_bottom   := applications.list(id).stack_bottom;
+         tasks_list(id).stack_top      := applications.list(id).stack_top;
+         tasks_list(id).stack_size     := applications.list(id).stack_size;
+
          tasks_list(id).state       := TASK_STATE_RUNNABLE;
          tasks_list(id).isr_state   := TASK_STATE_IDLE;
 
@@ -384,7 +387,7 @@ is
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
 
 	      create_stack
-	        (tasks_list(id).data_slot_end,
+	        (tasks_list(id).stack_top,
 	         tasks_list(id).entry_point,
 	         params,
 	         tasks_list(id).ctx.frame_a);

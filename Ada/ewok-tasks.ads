@@ -152,6 +152,8 @@ is
       data_slot_end     : system_address;
       txt_slot_start    : system_address;
       txt_slot_end      : system_address;
+      stack_bottom      : system_address;
+      stack_top         : system_address;
       stack_size        : unsigned_16;
       state             : t_task_state;
       isr_state         : t_task_state;

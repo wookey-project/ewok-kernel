@@ -275,11 +275,15 @@ uint8_t task_init_apps(void)
         tsk->txt_slot_end = user_base +
             ((uint32_t)tsk->slot + tsk->num_slots - 1) * task_txt_size;
 
+        tsk->stack_bottom = app_tab[i].stack_bottom;
+        tsk->stack_top = app_tab[i].stack_top;
+        tsk->stack_size = app_tab[i].stack_size;
+
         /* Top of the stack is at the end of the task's address space */
         args[0] = tsk->id;
-        task_create_stack(&(tsk->ctx[TASK_MODE_MAINTHREAD]), tsk->ram_slot_end, tsk->fn, args);
+        task_create_stack(&tsk->ctx[TASK_MODE_MAINTHREAD], tsk->stack_top,
+            tsk->fn, args);
 
-        tsk->stack_size = app_tab[i].stacksize;
         tsk->mode = TASK_MODE_MAINTHREAD;
         tsk->state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
         tsk->state[TASK_MODE_ISRTHREAD] = TASK_STATE_IDLE;

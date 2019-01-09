@@ -200,6 +200,8 @@ typedef struct task_t {
     physaddr_t txt_slot_start;  /* .text slot start address */
     physaddr_t txt_slot_end;    /* .text slot end address */
 
+    physaddr_t stack_bottom;
+    physaddr_t stack_top;
     uint16_t stack_size;        /* stack size (in bytes) */
 
     e_task_state state[TASK_MODE_MAX];     /* current schedulable state */
