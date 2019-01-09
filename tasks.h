@@ -43,7 +43,7 @@
 #define MAX_TIMERS_PER_TASK     6
 #define MAX_DMAS_PER_TASK       8
 #define MAX_DMA_SHM_PER_TASK    4
-#define MAX_DEVS_PER_TASK       4
+#define MAX_DEVS_PER_TASK       6
 
 
 /*
