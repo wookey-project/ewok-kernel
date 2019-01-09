@@ -79,7 +79,7 @@ is
       granted_id     : t_task_id;
       accessed_id    : t_task_id; -- caller
       base           : system_address;
-      size           : unsigned_16;
+      size           : unsigned_32;
       access_type    : t_dma_shm_access;
    end record;
 

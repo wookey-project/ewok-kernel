@@ -121,6 +121,36 @@ is
          is_word_in_txt_slot (ptr, task_id);
    end is_word_in_any_slot;
 
+   function is_range_in_devices_slot
+     (ptr      : system_address;
+      size     : unsigned_32;
+      task_id  : ewok.tasks_shared.t_task_id)
+      return boolean
+      with spark_mode => off -- access incompatible with SPARK
+   is
+      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_device_size : unsigned_32;
+      user_device_addr : unsigned_32;
+      dev_id           : t_device_id;
+   begin
+
+      for i in user_task_a.all.device_id'range loop
+         dev_id   := user_task_a.all.device_id(i);
+         if dev_id /= ID_DEV_UNUSED then
+            user_device_size := ewok.devices.get_user_device_size(dev_id);
+            user_device_addr := ewok.devices.get_user_device_addr(dev_id);
+            if ptr >= user_device_addr                            and
+               ptr + size <= user_device_addr + user_device_size
+            then
+               return true;
+            end if;
+         end if;
+      end loop;
+
+      return false;
+   end is_range_in_devices_slot;
+
+
 
    function is_range_in_data_slot
      (ptr      : system_address;
@@ -203,7 +233,7 @@ is
             ptr >= user_task_a.all.dma_shm(i).base                and
             ptr + size >= ptr                                     and
             ptr + size <= (user_task_a.all.dma_shm(i).base +
-                           unsigned_32 (user_task_a.all.dma_shm(i).size))
+                           user_task_a.all.dma_shm(i).size)
          then
             return true;
          end if;

@@ -29,6 +29,7 @@ with ewok.sanitize;
 with ewok.dma;
 with ewok.syscalls.dma;
 with ewok.mpu;
+with ewok.perm;
 with ewok.sched;
 with debug;
 
@@ -238,6 +239,8 @@ is
       target_id   : ewok.tasks_shared.t_task_id
          with address => to_address (params(2));
 
+      local_target_id : ewok.tasks_shared.t_task_id;
+
    begin
 
       -- Forbidden after end of task initialization
@@ -252,17 +255,26 @@ is
          goto ret_denied;
       end if;
 
-      target_id := TSK.get_task_id (target_name);
+      local_target_id := TSK.get_task_id (target_name);
 
-      if target_id = ID_UNUSED then
+      if local_target_id = ID_UNUSED then
          goto ret_inval;
       end if;
 
 #if CONFIG_KERNEL_DOMAIN
-      if TSK.get_domain (target_id) /= TSK.get_domain (caller_id) then
+      if TSK.get_domain (local_target_id) /= TSK.get_domain (caller_id) then
          goto ret_inval;
       end if;
 #end if;
+      -- are tasks allowed to communicate through IPCs or DMA_SHM ?
+      if not ewok.perm.ipc_is_granted(caller_id, local_target_id) and
+         not ewok.perm.ipc_is_granted(local_target_id, caller_id) and
+         not ewok.perm.dmashm_is_granted(caller_id, local_target_id) then
+         goto ret_inval;
+      end if;
+
+      -- every sanitation and security check passed. Updating target_id
+      target_id := local_target_id;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

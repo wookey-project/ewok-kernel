@@ -28,6 +28,14 @@ package ewok.sanitize
    with spark_mode => on
 is
 
+   function is_range_in_devices_slot
+     (ptr      : system_address;
+      size     : unsigned_32;
+      task_id  : ewok.tasks_shared.t_task_id)
+      return boolean
+      with spark_mode => off;
+
+
    function is_word_in_data_slot
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id;

@@ -282,7 +282,9 @@ is
 #end if;
 
       if not ewok.sanitize.is_range_in_data_slot
-              (shm.base, unsigned_32 (shm.size), caller_id, mode)
+              (shm.base, shm.size, caller_id, mode) and
+         not ewok.sanitize.is_range_in_devices_slot
+              (shm.base, shm.size, caller_id)
       then
          debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): shm not in range");
          return false;

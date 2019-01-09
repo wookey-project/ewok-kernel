@@ -164,7 +164,7 @@ typedef struct {
   e_task_id        target;  /**< target task authorized to initiate a DMA transfer to/from this region */
   e_task_id        source;  /**< Your own id */
   uint32_t         address; /**< the region base address */
-  uint16_t         size;    /**< the region size (in bytes) */
+  uint32_t         size;    /**< the region size (in bytes) */
   dma_shm_access_t mode;    /**< the region access rights */
 } dma_shm_t;
 

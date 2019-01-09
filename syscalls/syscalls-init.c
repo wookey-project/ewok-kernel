@@ -85,6 +85,13 @@ void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)
                *id = peer;
                goto done;
            }
+           /* for DMASHM grant check, the dmashm initiator is
+            * the only one requiring the target task id */
+           if (perm_dmashm_is_granted(caller->id, peer)) {
+               *id = peer;
+               goto done;
+           }
+
         }
     }
 
