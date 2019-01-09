@@ -77,7 +77,7 @@
 static ressource_reg_t perm_get_ressource_register(e_task_id task_identifier)
 {
     /*
-     * In C, table rows start with 0. EwoK id start with 1, 
+     * In C, table rows start with 0. EwoK id start with 1,
      * we need to decrement id in consequence
      */
     return ressource_perm_tab[task_identifier - 1];
@@ -104,7 +104,7 @@ bool perm_dmashm_is_granted(e_task_id from,
                             e_task_id to)
 {
     /*
-     * In C, table rows start with 0. EwoK id start with 1, 
+     * In C, table rows start with 0. EwoK id start with 1,
      * we need to decrement id in consequence
      */
     return com_dmashm_perm[from - 1][to - 1];
@@ -128,7 +128,7 @@ bool perm_ipc_is_granted(e_task_id from,
                          e_task_id to)
 {
     /*
-     * In C, table rows start with 0. EwoK id start with 1, 
+     * In C, table rows start with 0. EwoK id start with 1,
      * we need to decrement id in consequence
      */
     return com_ipc_perm[from - 1][to - 1];
@@ -185,16 +185,19 @@ bool perm_ressource_is_granted(res_perm_t  perm_name,
             field_pos = 31;
             break;
         case PERM_RES_DEV_CRYPTO_CFG:
+            multibits = 1;
             perm = (uint32_t)2 << 29;
             field_mask = (uint32_t)3 << 29;
             field_pos = 29;
             break;
         case PERM_RES_DEV_CRYPTO_USR:
+            multibits = 1;
             perm = (uint32_t)1 << 29;
             field_mask = (uint32_t)3 << 29;
             field_pos = 29;
             break;
         case PERM_RES_DEV_CRYPTO_FULL:
+            multibits = 1;
             perm = (uint32_t)3 << 29;
             field_mask = (uint32_t)3 << 29;
             field_pos = 29;

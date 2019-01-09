@@ -12,6 +12,7 @@
 #include "tasks.h"
 #include "autoconf.h"
 #include "layout.h"
+#include "devices.h"
 
 /*
  * FIXME: add isr stack slotting in task_t struct
@@ -34,9 +35,35 @@
  **************************************************************/
 
 /*!
+ * @brief return true if the pointer target a slot in one of the task
+ * registered devices memory area
+ * @param[in] ptr 32 bits data pointer
+ * @param[in] size 32 bits data size
+ * @param[in] t associated user task kernel structure
+ *
+ * @return true if ptr point to an address in one of its devices memory area
+ */
+bool sanitize_is_pointer_in_devices_slot(__user void     *ptr,
+                                          __user uint32_t  size,
+                                          __user e_task_id caller)
+{
+    const task_t *t = task_get_task(caller);
+    for (uint8_t i = 0; i < t->num_devs; ++i) {
+        e_device_id dev_id = t->dev_id[i];
+        physaddr_t dev_addr = dev_get_device_addr(dev_id);
+        uint32_t   dev_size = dev_get_device_size(dev_id);
+        if ((physaddr_t) ptr >= dev_addr &&
+            (physaddr_t) ptr + size <= dev_addr + dev_size) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*!
  * @brief return true if the pointer target a scalar value in task RAM slot
  * @param[in] ptr 32 bits data pointer
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to an address in the RAM slot of the task
  */
@@ -61,7 +88,7 @@ bool sanitize_is_pointer_in_slot(__user void   *ptr,
 /*!
  * @brief return true if the pointer target a scalar value in task .text or .rodata slot
  * @param[in] ptr 32 bits data pointer
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to an address in the .text or .rodata section of the task
  */
@@ -79,7 +106,7 @@ bool sanitize_is_pointer_in_txt_slot(__user void       *ptr,
 /*!
  * @brief return true if the pointer target a scalar value in any task slots
  * @param[in] ptr 32 bits data pointer
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to an address in any (RAM, .text or .rodata) sections of the task
  */
@@ -105,7 +132,7 @@ bool sanitize_is_data_pointer_in_any_slot(__user void     *ptr,
  * @brief return true if the pointer target a structured value in task RAM slot
  * @param[in] ptr the data pointer
  * @param[in] size the size of the pointed content
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to an address in the RAM slot of the task
  */
@@ -132,7 +159,7 @@ bool sanitize_is_data_pointer_in_slot(__user void      *ptr,
  * @brief return true if the pointer target a structured value in task .text or .rodata slot
  * @param[in] ptr 32 bits data pointer
  * @param[in] size the size of the pointed content
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to an address in the .text or .rodata section of the task
  */
@@ -158,7 +185,7 @@ bool sanitize_is_data_pointer_in_txt_slot(__user void     *ptr,
  * @param[in] ptr a DMA buffer pointer
  * @param[in] size the size of the DMA buffer
  * @param[in] mode (dma RO/RW)
- * @param[in] t associated user task kernel structure 
+ * @param[in] t associated user task kernel structure
  *
  * @return true if ptr point to a valid shared DMA buffer, allowed as a source for DMA transactions
  */

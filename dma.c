@@ -19,7 +19,7 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  *
- */
+anit*/
 
 #include "dma.h"
 #include "soc-nvic.h"
@@ -542,7 +542,8 @@ uint8_t dma_shm_sanitize(dma_shm_t *dmashm, e_task_id caller, e_task_mode mode)
 #endif
 
     /* check region address and size */
-    if (!sanitize_is_data_pointer_in_slot((void*)dmashm->address, dmashm->size, caller, mode)) {
+    if (!sanitize_is_data_pointer_in_slot((void*)dmashm->address, dmashm->size, caller, mode) &&
+        !sanitize_is_pointer_in_devices_slot((void*)dmashm->address, dmashm->size, caller)) {
         KERNLOG(DBG_ERR,
             "DMA SHM buffer %x is not owned by the declaring task\n",
             dmashm->address);
