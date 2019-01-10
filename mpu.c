@@ -32,9 +32,9 @@
 #include "mpu.h"
 #include "sched.h"
 #include "generated/apps_layout.h"
+#include "mpu-handler.h"
 
 extern const shr_vars_t shared_vars;
-extern void MemManage_Handler(void);
 
 uint8_t mpu_regions_schedule(uint8_t region_number,
                              physaddr_t addr,
@@ -214,8 +214,8 @@ uint8_t mpu_kernel_init(void)
     }
 
 
-    /* 
-     * User ISR stack 
+    /*
+     * User ISR stack
      * Note: STM32F4 MPU does not properly handle overlapping memory regions.
      * We may need to disable the MPU during sub-region reconfiguration
      * to avoid some hardware (?) bug.
