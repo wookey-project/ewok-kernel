@@ -21,7 +21,6 @@
 --
 
 with soc.interrupts; use soc.interrupts;
-with ewok.tasks;     use ewok.tasks;
 with ewok.posthook;
 with ewok.softirq;
 with ewok.dma;
@@ -36,21 +35,12 @@ is
    procedure postpone_isr
      (intr     : in soc.interrupts.t_interrupt;
       handler  : in ewok.interrupts.t_interrupt_handler_access;
-      task_id  : in ewok.tasks_shared.t_task_id;
-      frame_a  : in t_stack_frame_access)
+      task_id  : in ewok.tasks_shared.t_task_id)
    is
       status      : unsigned_32 := 0;
       data        : unsigned_32 := 0;
       isr_params  : ewok.softirq.t_isr_parameters;
    begin
-
-      -- If the current ISR is handled by the kernel, we just execute it we
-      -- return without requesting schedule
-
-      if ewok.tasks.tasks_list(task_id).ttype = TASK_TYPE_KERNEL then
-         handler (frame_a);
-         return;
-      end if;
 
       -- Acknowledge interrupt:
       -- - DMAs are managed by the kernel

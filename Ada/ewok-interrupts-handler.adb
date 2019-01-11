@@ -128,19 +128,16 @@ is
 
       -- External interrupt
       if it >= INT_WWDG then
-         if interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED
-         then
-            -- User or kernel ISR: asynchronous execution (postponed)
+         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+            -- Execute kernel ISR
+            interrupt_table(it).handler (frame_a);
+         elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
+            -- User ISR are postponed (asynchronous execution)
             ewok.isr.postpone_isr
               (it,
                interrupt_table(it).handler,
-               interrupt_table(it).task_id,
-               frame_a);
-         elsif interrupt_table(it).handler /= NULL
-         then
-            -- Execute kernel ISR w/o associated device (handler is not
-            -- postponed)
-            interrupt_table(it).handler (frame_a);
+               interrupt_table(it).task_id);
+            ewok.sched.request_schedule;
          else
             debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
          end if;

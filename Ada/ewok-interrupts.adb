@@ -47,7 +47,7 @@ is
            (htype     => TASK_SWITCH_HANDLER,
             task_switch_handler =>
                ewok.interrupts.handler.hardfault_handler'access,
-            task_id   => ewok.tasks_shared.ID_UNUSED,
+            task_id   => ewok.tasks_shared.ID_KERNEL,
             device_id => ewok.devices_shared.ID_DEV_UNUSED,
             count     => 0);
 
@@ -56,7 +56,7 @@ is
            (htype     => TASK_SWITCH_HANDLER,
             task_switch_handler =>
                ewok.interrupts.handler.systick_default_handler'access,
-            task_id   => ewok.tasks_shared.ID_UNUSED,
+            task_id   => ewok.tasks_shared.ID_KERNEL,
             device_id => ewok.devices_shared.ID_DEV_UNUSED,
             count     => 0);
 

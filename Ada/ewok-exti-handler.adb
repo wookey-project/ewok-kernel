@@ -46,7 +46,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI0,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -55,7 +55,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI1,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -64,7 +64,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI2,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -73,7 +73,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI3,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -82,7 +82,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI4,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -91,7 +91,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI9_5,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -100,7 +100,7 @@ is
       ewok.interrupts.set_interrupt_handler
         (soc.interrupts.INT_EXTI15_10,
          exti_handler'access,
-         ewok.tasks_shared.ID_UNUSED,
+         ewok.tasks_shared.ID_KERNEL,
          ewok.devices_shared.ID_DEV_UNUSED,
          ok);
 
@@ -111,8 +111,7 @@ is
 
    procedure handle_line
      (line        : in  soc.exti.t_exti_line_index;
-      interrupt   : in  soc.interrupts.t_interrupt;
-      frame_a     : in  ewok.t_stack_frame_access)
+      interrupt   : in  soc.interrupts.t_interrupt)
    is
       ref         : ewok.exported.gpios.t_gpio_ref;
       conf        : ewok.exported.gpios.t_gpio_config_access;
@@ -141,8 +140,7 @@ is
          ewok.isr.postpone_isr
            (interrupt,
             ewok.interrupts.to_handler_access (conf.all.exti_handler),
-            task_id,
-            frame_a);
+            task_id);
 
          -- if the EXTI line is configured as lockable by the kernel, the
          -- EXTI line is disabled here, and must be unabled later by the
@@ -160,6 +158,7 @@ is
    procedure exti_handler
      (frame_a : in ewok.t_stack_frame_access)
    is
+      pragma unreferenced (frame_a);
       intr        : soc.interrupts.t_interrupt;
    begin
 
@@ -167,25 +166,25 @@ is
 
       case intr is
          when soc.interrupts.INT_EXTI0 =>
-            handle_line (0, intr, frame_a);
+            handle_line (0, intr);
 
          when soc.interrupts.INT_EXTI1 =>
-            handle_line (1, intr, frame_a);
+            handle_line (1, intr);
 
          when soc.interrupts.INT_EXTI2 =>
-            handle_line (2, intr, frame_a);
+            handle_line (2, intr);
 
          when soc.interrupts.INT_EXTI3 =>
-            handle_line (3, intr, frame_a);
+            handle_line (3, intr);
 
          when soc.interrupts.INT_EXTI4 =>
-            handle_line (4, intr, frame_a);
+            handle_line (4, intr);
 
          when soc.interrupts.INT_EXTI9_5     =>
 
             for line in t_exti_line_index range 5 .. 9 loop
                if soc.exti.is_line_pending (line) then
-                  handle_line (line, intr, frame_a);
+                  handle_line (line, intr);
                end if;
             end loop;
 
@@ -193,7 +192,7 @@ is
 
             for line in t_exti_line_index range 10 .. 15 loop
                if soc.exti.is_line_pending (line) then
-                  handle_line (line, intr, frame_a);
+                  handle_line (line, intr);
                end if;
             end loop;
 

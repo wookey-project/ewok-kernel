@@ -31,7 +31,6 @@ is
    procedure postpone_isr
      (intr     : in soc.interrupts.t_interrupt;
       handler  : in ewok.interrupts.t_interrupt_handler_access;
-      task_id  : in ewok.tasks_shared.t_task_id;
-      frame_a  : in t_stack_frame_access);
+      task_id  : in ewok.tasks_shared.t_task_id);
 
 end ewok.isr;
