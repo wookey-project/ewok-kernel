@@ -98,8 +98,6 @@ is
       end if;
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
-      ewok.sched.request_schedule;
-      m4.cpu.instructions.full_memory_barrier;
    end push_syscall;
 
 

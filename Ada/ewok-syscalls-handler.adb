@@ -257,7 +257,6 @@ is
                  (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FAULT);
                set_return_value
                  (current_id, ewok.tasks.get_mode(current_id), SYS_E_DENIED);
-               return frame_a;
             end if;
 
             if current_a.all.mode = TASK_MODE_ISRTHREAD then
@@ -276,13 +275,10 @@ is
 
                   ewok.softirq.push_syscall (current_id);
 
-                  ewok.tasks.set_state
-                    (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
-
                   ewok.tasks.set_state (current_id, TASK_MODE_MAINTHREAD,
                      TASK_STATE_SVC_BLOCKED);
 
-                  ewok.sched.request_schedule;
+                  return ewok.sched.do_schedule (frame_a);
                end if;
 
             end if;
@@ -291,7 +287,7 @@ is
             ewok.tasks.set_state
               (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
-            ewok.sched.request_schedule;
+            return ewok.sched.do_schedule (frame_a);
 
          when SVC_ISR_DONE    =>
 
@@ -314,7 +310,7 @@ is
             ewok.tasks.set_state
               (current_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
 
-            ewok.sched.request_schedule;
+            return ewok.sched.do_schedule (frame_a);
 
       end case;
 

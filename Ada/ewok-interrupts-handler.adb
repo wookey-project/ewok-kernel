@@ -131,17 +131,17 @@ is
          if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
             -- Execute kernel ISR
             interrupt_table(it).handler (frame_a);
+            new_frame_a := frame_a;
          elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
             -- User ISR are postponed (asynchronous execution)
             ewok.isr.postpone_isr
               (it,
                interrupt_table(it).handler,
                interrupt_table(it).task_id);
-            ewok.sched.request_schedule;
+            new_frame_a := ewok.sched.do_schedule (frame_a);
          else
             debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
          end if;
-         new_frame_a := frame_a;
 
       -- System exceptions are synchronously executed (handler is not postponed)
       else

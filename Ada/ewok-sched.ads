@@ -27,16 +27,10 @@ package ewok.sched
    with SPARK_Mode => On
 is
 
-   -----------------------------------------------
-   -- SPARK/ghost specific functions & procedures
-   -----------------------------------------------
+   -- SPARK/ghost specific function
    function current_task_is_valid
       return boolean
    with ghost;
-
-   ----------------------------------------------
-   -- sched functions
-   ----------------------------------------------
 
    function get_current return ewok.tasks_shared.t_task_id
    with
@@ -51,6 +45,17 @@ is
 
    procedure init
    with SPARK_Mode => Off;
+
+   function pendsv_handler
+     (frame_a : ewok.t_stack_frame_access)
+      return ewok.t_stack_frame_access
+   with SPARK_Mode => Off;
+
+   function do_schedule
+     (frame_a : ewok.t_stack_frame_access)
+      return ewok.t_stack_frame_access
+   renames pendsv_handler;
+
 
 end ewok.sched;
 

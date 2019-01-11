@@ -30,6 +30,7 @@ with ewok.sanitize;
 with ewok.perm;
 with ewok.sleep;
 with ewok.softirq;
+with ewok.sched;
 with types.c;           use types.c;
 --with m4.cpu;
 with debug;
@@ -390,13 +391,9 @@ is
               (sender_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
 
          when TASK_STATE_IPC_SEND_BLOCKED  =>
-            --m4.cpu.disable_irq;
             sender_a.all.state := TASK_STATE_SVC_BLOCKED;
             ewok.softirq.push_syscall (sender_a.all.id);
-            ewok.tasks.set_state (ewok.tasks_shared.ID_SOFTIRQ,
-                                  TASK_MODE_MAINTHREAD,
-                                  TASK_STATE_RUNNABLE);
-            --m4.cpu.enable_irq;
+            ewok.sched.request_schedule;
          when others =>
             null;
       end case;
@@ -657,13 +654,9 @@ is
       -- state. We reinject it so that it can fulfill its syscall
       if ewok.tasks.get_state(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_IPC_RECV_BLOCKED
       then
-         --m4.cpu.disable_irq;
          receiver_a.all.state := TASK_STATE_SVC_BLOCKED;
          ewok.softirq.push_syscall (receiver_a.all.id);
-         ewok.tasks.set_state (ID_SOFTIRQ,
-                               TASK_MODE_MAINTHREAD,
-                               TASK_STATE_RUNNABLE);
-         --m4.cpu.enable_irq;
+         ewok.sched.request_schedule;
       end if;
 
       if blocking then
