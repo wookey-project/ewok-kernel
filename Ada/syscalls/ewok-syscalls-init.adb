@@ -239,7 +239,7 @@ is
       target_id   : ewok.tasks_shared.t_task_id
          with address => to_address (params(2));
 
-      local_target_id : ewok.tasks_shared.t_task_id;
+      tmp_id      : ewok.tasks_shared.t_task_id;
 
    begin
 
@@ -255,26 +255,30 @@ is
          goto ret_denied;
       end if;
 
-      local_target_id := TSK.get_task_id (target_name);
+      -- We retrieve the 'id' related to the target name. Before updating the
+      -- parameter passed by the user, we must check that the 2 tasked are
+      -- allowed to communicate
+      tmp_id := TSK.get_task_id (target_name);
 
-      if local_target_id = ID_UNUSED then
+      if tmp_id = ID_UNUSED then
          goto ret_inval;
       end if;
 
 #if CONFIG_KERNEL_DOMAIN
-      if TSK.get_domain (local_target_id) /= TSK.get_domain (caller_id) then
+      if TSK.get_domain (tmp_id) /= TSK.get_domain (caller_id) then
          goto ret_inval;
       end if;
 #end if;
-      -- are tasks allowed to communicate through IPCs or DMA_SHM ?
-      if not ewok.perm.ipc_is_granted(caller_id, local_target_id) and
-         not ewok.perm.ipc_is_granted(local_target_id, caller_id) and
-         not ewok.perm.dmashm_is_granted(caller_id, local_target_id) then
+
+      -- Are tasks allowed to communicate through IPCs or DMA_SHM ?
+      if not ewok.perm.ipc_is_granted (caller_id, tmp_id) and
+         not ewok.perm.dmashm_is_granted (caller_id, tmp_id)
+      then
          goto ret_inval;
       end if;
 
-      -- every sanitation and security check passed. Updating target_id
-      target_id := local_target_id;
+      -- We may update the target_id
+      target_id := tmp_id;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

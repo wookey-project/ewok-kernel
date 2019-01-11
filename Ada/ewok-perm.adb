@@ -61,6 +61,7 @@ is
       return ewok.perm_auto.com_ipc_perm (from, to);
    end ipc_is_granted;
 
+
 #if CONFIG_KERNEL_DOMAIN
    function is_same_domain
      (from    : in t_real_task_id;
