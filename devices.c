@@ -291,7 +291,7 @@ uint8_t dev_disable_device(e_task_id task_id,
     {
         NVIC_DisableIRQ((uint32_t) device_tab[dev_id].udev.irqs[i].irq - 0x10);
         clear_interrupt_handler(device_tab[dev_id].udev.irqs[i].irq);
-        
+
         KERNLOG(DBG_INFO, "Disabled IRQ %x, for device %s\n",
             device_tab[dev_id].udev.irqs[i].irq,
             device_tab[dev_id].udev.name);
@@ -312,6 +312,10 @@ uint8_t dev_disable_device(e_task_id task_id,
 */
 uint8_t dev_enable_device(e_device_id  dev_id)
 {
+    if ( device_tab[dev_id].status != DEV_STATE_ENABLED) {
+        /* remapping case, device has been previously mapped and enabled */
+        return 0;
+    }
     if (device_tab[dev_id].status != DEV_STATE_REGISTERED) {
         KERNLOG(DBG_ERR, "dev_enable_device(): device status is not DEV_REGISTERED\n");
         return 1;
