@@ -330,10 +330,8 @@ is
                   isr_handler (isr_req);
                   isr_req.state := DONE;
                   m4.cpu.enable_irq;
-#if CONFIG_ISR_REACTIVITY
-                  m4.cpu.instructions.full_memory_barrier;
                   ewok.sched.request_schedule;
-#end if;
+                  m4.cpu.instructions.full_memory_barrier;
                else
                   m4.cpu.disable_irq;
                   p_isr_requests.write (isr_queue, isr_req, ok);
@@ -341,17 +339,15 @@ is
                      debug.panic
                        ("softirq.main_task() failed to add ISR request");
                   end if;
-                  m4.cpu.instructions.full_memory_barrier;
-                  ewok.sched.request_schedule;
                   m4.cpu.enable_irq;
+                  ewok.sched.request_schedule;
+                  m4.cpu.instructions.full_memory_barrier;
                end if;
             else
                raise program_error;
             end if;
 
          end loop;
-
-         m4.cpu.instructions.full_memory_barrier;
 
          --
          -- Syscalls
