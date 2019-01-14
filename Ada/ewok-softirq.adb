@@ -44,7 +44,7 @@ with m4.cpu;
 with m4.cpu.instructions;
 with debug;
 
-#if CONFIG_DBGLEVEL > 6
+#if CONFIG_DBGLEVEL >= 7
 with types.c; use types.c;
 #end if;
 
@@ -170,7 +170,7 @@ is
       -- Logging
       --
 
-#if CONFIG_DBGLEVEL > 6
+#if CONFIG_DBGLEVEL >= 7
       declare
          len  : constant natural := types.c.len (TSK.tasks_list(req.caller_id).name.all);
          name : string (1 .. len);

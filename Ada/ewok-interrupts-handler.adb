@@ -117,23 +117,29 @@ is
       current_id  : ewok.tasks_shared.t_task_id;
       new_frame_a : t_stack_frame_access;
       ttype       : t_task_type;
+
    begin
 
       it := soc.interrupts.get_interrupt;
       interrupt_table(it).count := interrupt_table(it).count + 1;
 
-      -- FIXME - Differenciation between sync / async ISR is not clear.
-      --         Maybe using a specific flag:
-      --            "if interrupt_table(it).async then (...)"
-
-      -- External interrupt
-      if it >= INT_WWDG then
+      -- System exceptions
+      if it < INT_WWDG then
          if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
-            -- Execute kernel ISR
+            new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
+         else
+            debug.panic ("Unhandled exception " & t_interrupt'image (it));
+         end if;
+
+      else
+      -- External interrupt
+         -- Execute kernel ISR
+         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
             interrupt_table(it).handler (frame_a);
             new_frame_a := frame_a;
+
+         -- User ISR are postponed (asynchronous execution)
          elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
-            -- User ISR are postponed (asynchronous execution)
             ewok.isr.postpone_isr
               (it,
                interrupt_table(it).handler,
@@ -143,15 +149,6 @@ is
             debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
          end if;
 
-      -- System exceptions are synchronously executed (handler is not postponed)
-      else
-
-         if interrupt_table(it).htype = DEFAULT_HANDLER then
-            interrupt_table(it).handler (frame_a);
-            new_frame_a := frame_a;
-         else
-            new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
-         end if;
       end if;
 
       -- Task's execution mode must be transmitted to the Default_Handler

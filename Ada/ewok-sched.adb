@@ -499,7 +499,7 @@ is
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_SYSTICK,
          systick_handler'access,
-         ID_UNUSED,
+         ID_KERNEL,
          ID_DEV_UNUSED,
          ok);
 
@@ -508,7 +508,7 @@ is
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_PENDSV,
          pendsv_handler'access,
-         ID_UNUSED,
+         ID_KERNEL,
          ID_DEV_UNUSED,
          ok);
 
@@ -517,7 +517,7 @@ is
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_SVC,
          ewok.syscalls.handler.svc_handler'access,
-         ID_UNUSED,
+         ID_KERNEL,
          ID_DEV_UNUSED,
          ok);
 

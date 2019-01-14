@@ -95,9 +95,8 @@ is
          raise program_error;
       end if;
 
-      interrupt_table(interrupt).handler     := handler;
-      interrupt_table(interrupt).task_id     := task_id;
-      interrupt_table(interrupt).device_id   := device_id;
+      interrupt_table(interrupt) :=
+        (DEFAULT_HANDLER, task_id, device_id, 0, handler);
 
       success := true;
 

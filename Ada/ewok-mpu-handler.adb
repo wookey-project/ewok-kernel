@@ -67,7 +67,7 @@ is
          debug.log (debug.ERROR, "MPU error: the processor attempted an instruction fetch from a location that does not permit execution");
       end if;
 
-      current  := ewok.tasks.get_task(ewok.sched.get_current);
+      current  := ewok.tasks.get_task (ewok.sched.get_current);
 
       if current = NULL then
          debug.panic ("MPU error: No current task.");
@@ -90,7 +90,7 @@ is
       m4.scb.SCB.ICSR.PENDSVSET := 1;
 
       -- FIXME
-      debug.panic("panic!");
+      debug.panic ("panic!");
 
       return frame_a;
    end memory_fault_handler;
@@ -103,7 +103,7 @@ is
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_MEMMANAGE,
          memory_fault_handler'access,
-         ID_UNUSED,
+         ID_KERNEL,
          ID_DEV_UNUSED,
          ok);
       if not ok then raise program_error; end if;
