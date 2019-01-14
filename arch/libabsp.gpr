@@ -36,6 +36,8 @@ library project Libabsp is
 
       for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
       for Switches ("soc-dma.adb") use ("-O2", "-g") & basic & verif;
+      for Switches ("soc-cpu.adb") use ("-O2", "-g") & basic & verif;
+      for Switches ("soc-cpu-instructions.adb") use ("-O3", "-g") & basic & verif;
 
       -- Proved SPARK code
       for Switches ("soc-dwt.adb") use ("-O2", "-g") & basic & no_verif;
