@@ -85,9 +85,11 @@ is
       ewok.tasks.set_state
          (current.all.id, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
 
+      -- FIXME
       -- Request schedule
       m4.scb.SCB.ICSR.PENDSVSET := 1;
 
+      -- FIXME
       debug.panic("panic!");
 
       return frame_a;

@@ -62,7 +62,7 @@ is
       p_syscall_requests.init (syscall_queue);
       debug.log
         (debug.INFO,
-         "SOFTIRQ subsystem initialized: syscalls and user IRQ/FIQ are handled out of interrupt mode.");
+         "SOFTIRQ initialized");
    end init;
 
 
@@ -75,7 +75,7 @@ is
    begin
       p_isr_requests.write (isr_queue, req, ok);
       if not ok then
-         debug.panic ("ewok.softirq.push_isr() failed. isr_queue is "
+         debug.panic ("ewok.softirq.push_isr() failed. "
             & p_isr_requests.ring_state'image
                  (p_isr_requests.state (isr_queue)));
       end if;
@@ -92,7 +92,7 @@ is
    begin
       p_syscall_requests.write (syscall_queue, req, ok);
       if not ok then
-         debug.panic ("ewok.softirq.push_syscall() failed. syscall_queue is "
+         debug.panic ("ewok.softirq.push_syscall() failed. "
             & p_syscall_requests.ring_state'image
                  (p_syscall_requests.state (syscall_queue)));
       end if;
@@ -361,8 +361,7 @@ is
                syscall_handler (sys_req);
                sys_req.state := DONE;
             else
-               debug.panic
-                 ("ewok.softirq.main_task() syscall request not in WAITING state");
+               raise program_error;
             end if;
          end loop;
 

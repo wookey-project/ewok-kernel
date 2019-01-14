@@ -247,8 +247,9 @@ private
          Part_Of => Cnt;
 
 
-   -- specify the package state. Set to true by init().
+   -- Specify the package state. Set to true by init().
    init_done : boolean := False with Part_Of => Ini_F;
+
    --
    -- DWT CYCCNT register overflow counting
    -- This permit to support incremental getcycle
