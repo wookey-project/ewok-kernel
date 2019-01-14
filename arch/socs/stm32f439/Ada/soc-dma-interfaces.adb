@@ -253,24 +253,28 @@ is
       controller.streams(stream).CR.EN := false;
 
       -- Direction
-      controller.streams(stream).CR.DIR :=
-         soc.dma.t_transfer_dir'val
-           (t_transfer_dir'pos (user_config.transfer_dir));
+      if to_configure.direction then
+         controller.streams(stream).CR.DIR :=
+            soc.dma.t_transfer_dir'val
+              (t_transfer_dir'pos (user_config.transfer_dir));
+      end if;
 
       -- Input and output addresses
-      case user_config.transfer_dir is
-         when PERIPHERAL_TO_MEMORY =>
-            controller.streams(stream).PAR   := user_config.in_addr;
-            controller.streams(stream).M0AR  := user_config.out_addr;
+      if to_configure.buffer_in or to_configure.buffer_out then
+         case user_config.transfer_dir is
+            when PERIPHERAL_TO_MEMORY =>
+               controller.streams(stream).PAR   := user_config.in_addr;
+               controller.streams(stream).M0AR  := user_config.out_addr;
 
-         when MEMORY_TO_PERIPHERAL =>
-            controller.streams(stream).M0AR  := user_config.in_addr;
-            controller.streams(stream).PAR   := user_config.out_addr;
+            when MEMORY_TO_PERIPHERAL =>
+               controller.streams(stream).M0AR  := user_config.in_addr;
+               controller.streams(stream).PAR   := user_config.out_addr;
 
-         when MEMORY_TO_MEMORY     =>
-            controller.streams(stream).PAR   := user_config.in_addr;
-            controller.streams(stream).M0AR  := user_config.out_addr;
-      end case;
+            when MEMORY_TO_MEMORY     =>
+               controller.streams(stream).PAR   := user_config.in_addr;
+               controller.streams(stream).M0AR  := user_config.out_addr;
+         end case;
+      end if;
 
       -- Number of data items to transfer
       if user_config.flow_controller = DMA_FLOW_CONTROLLER then

@@ -35,36 +35,29 @@ is
    -- User defined DMA configuration
    --
 
-   type t_mode is new soc.dma.interfaces.t_mode;
-   type t_transfer_dir is new soc.dma.interfaces.t_transfer_dir;
-   type t_priority_level is new soc.dma.interfaces.t_priority_level;
-   type t_data_size is new soc.dma.interfaces.t_data_size;
-   type t_burst_size is new soc.dma.interfaces.t_burst_size;
-   type t_flow_controller is new soc.dma.interfaces.t_flow_controller;
-
    type t_controller is new soc.dma.t_dma_periph_index with size => 8;
    subtype t_stream  is unsigned_8 range 0 .. 7;
    subtype t_channel is unsigned_8 range 0 .. 7;
 
    type t_dma_user_config is record
-      in_addr        : system_address;
-      out_addr       : system_address;
-      in_priority    : t_priority_level;
-      out_priority   : t_priority_level;
-      size           : unsigned_16; -- size in bytes
       controller     : t_controller := ID_DMA1;
-      channel        : t_channel    := 0;
       stream         : t_stream     := 0;
-      flow_controller   : t_flow_controller;
-      transfer_dir   : t_transfer_dir;
-      mode           : t_mode;
+      channel        : t_channel    := 0;
+      size           : unsigned_16; -- size in bytes
+      in_addr        : system_address;
+      in_priority    : soc.dma.interfaces.t_priority_level;
+      in_handler     : system_address; -- ISR
+      out_addr       : system_address;
+      out_priority   : soc.dma.interfaces.t_priority_level;
+      out_handler    : system_address; -- ISR
+      flow_controller   : soc.dma.interfaces.t_flow_controller;
+      transfer_dir   : soc.dma.interfaces.t_transfer_dir;
+      mode           : soc.dma.interfaces.t_mode;
+      data_size      : soc.dma.interfaces.t_data_size;
       memory_inc     : types.c.bool;
       periph_inc     : types.c.bool;
-      data_size      : t_data_size;
-      mem_burst_size : t_burst_size;
-      periph_burst_size : t_burst_size;
-      in_handler     : system_address; -- ISR
-      out_handler    : system_address; -- ISR
+      mem_burst_size : soc.dma.interfaces.t_burst_size;
+      periph_burst_size : soc.dma.interfaces.t_burst_size;
    end record;
 
    type t_dma_user_config_access is access all t_dma_user_config;

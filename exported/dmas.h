@@ -27,21 +27,21 @@
 
 typedef enum {
   /** Reconfigure handlers (in or out, depending on direction) */
-	DMA_RECONF_HANDLERS = 0b0000001,
+    DMA_RECONF_HANDLERS = 0b0000001,
   /** Reconfigure source buffer */
-	DMA_RECONF_BUFIN 	= 0b0000010,
+    DMA_RECONF_BUFIN 	= 0b0000010,
   /** Reconfigure destination buffer */
-	DMA_RECONF_BUFOUT 	= 0b0000100,
+    DMA_RECONF_BUFOUT 	= 0b0000100,
   /** Reconfigure buffer size (in bytes) */
-	DMA_RECONF_BUFSIZE 	= 0b0001000,
+    DMA_RECONF_BUFSIZE 	= 0b0001000,
   /** Reconfigure DMA mode */
-	DMA_RECONF_MODE 	= 0b0010000,
+    DMA_RECONF_MODE 	= 0b0010000,
   /** Reconfigure DMA priority */
-	DMA_RECONF_PRIO 	= 0b0100000,
+    DMA_RECONF_PRIO 	= 0b0100000,
   /** Reconfigure DMA direction */
-	DMA_RECONF_DIR  	= 0b1000000,
+    DMA_RECONF_DIR  	= 0b1000000,
   /** Reconfigure all fields (handlers, buffers, size, mode and priority */
-	DMA_RECONF_ALL 		= 0b1111111,
+    DMA_RECONF_ALL 		= 0b1111111,
 } dma_reconf_mask_t;
 
 typedef enum {
@@ -120,30 +120,26 @@ typedef void (*user_dma_handler_t) (uint8_t irq, uint32_t status);
 ** All the structure's fields are compared with the current SoC's DMA mapping to
 ** validate that the corresponding stream is able to respond to the request
 */
+
 typedef struct {
-	physaddr_t in_addr;	    /**< DMA input base address, for memory to memory or to peripheral only */
-	physaddr_t out_addr;	    /**< DMA output base address for peripheral to memory or memory to memory only */
-	dma_prio_t in_prio;	    /**< DMA priority for memory to peripheral */
-	dma_prio_t out_prio;	    /**< DMA priority for peripheral to peripheral */
-	uint16_t size;		    /**< DMA output size to copy (in bytes, whatever the datasize is) */
-	uint8_t dma;		    /**< DMA controler identifier, (starting with 1 for DMA1, 2 for DMA2, etc.) */
-	uint8_t channel;	    /**< DMA channel to configure */
-	uint8_t stream;		    /**< DMA stream to configure */
-    dma_flowctrl_t flow_control; /**< DMA Flow controller */
-	dma_dir_t dir;		    /**< Current DMA direction */
-	dma_mode_t mode;	    /**< Current DMA mode */
-	bool mem_inc;		    /**< DMA increment for memory, when set to 0, the device doesn't increment
-                                         the memory address at each read */
-	bool dev_inc;		    /**< DMA increment for device, with the same behavior as the mem_inc, but
-                                         for the device. Typically set to 0 when the DMA read (or write) to (from)
-                                         a register */
-	dma_datasize_t datasize;    /**< data unit size (byte, HW or Word, varies depending on the device specifications */
-	dma_burst_t mem_burst;	    /**< type of DMA burst mode */
-	dma_burst_t dev_burst;	    /**< type of DMA burst mode */
-	user_dma_handler_t in_handler;
-				    /**< associated ISR, with one argument (irqnum), see types.h */
-	user_dma_handler_t out_handler;
-				    /**< associated ISR, with one argument (irqnum), see types.h */
+    uint8_t dma;        /**< DMA controler identifier (1 for DMA1, 2 for DMA2, etc.) */
+    uint8_t stream;
+    uint8_t channel;
+    uint16_t size;          /**< Transfering size in bytes */
+    physaddr_t in_addr;     /**< Input base address */
+    dma_prio_t in_prio;     /**< Priority */
+    user_dma_handler_t in_handler;  /**< ISR with one argument (irqnum), see types.h */
+    physaddr_t out_addr;    /**< Output base address */
+    dma_prio_t out_prio;    /**< Priority */
+    user_dma_handler_t out_handler; /**< ISR with one argument (irqnum), see types.h */
+    dma_flowctrl_t flow_control;    /**< Flow controller */
+    dma_dir_t dir;          /**< Transfert direction */
+    dma_mode_t mode;        /**< DMA mode */
+    dma_datasize_t datasize;    /**< Data unit size (byte, half-word or word) */
+    bool mem_inc;           /**< Increment for memory, when set to 0, the device doesn't increment the memory address at each read */
+    bool dev_inc;           /**< Increment for device, with the same behavior as the mem_inc, but for the device. Typically set to 0 when the DMA read (or write) to (from) a register */
+    dma_burst_t mem_burst;  /**< Memory burst size */
+    dma_burst_t dev_burst;  /**< Device burst size */
 } dma_t;
 
 

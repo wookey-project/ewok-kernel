@@ -24,6 +24,7 @@ with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.dma_shared;
 with ewok.exported.dma;
 with soc.dma;
+with soc.dma.interfaces;
 with soc.interrupts;
 with c.socinfo;
 
@@ -32,13 +33,13 @@ package ewok.dma
    with spark_mode => off
 is
 
-   type t_status is (DMA_UNUSED, DMA_USED, DMA_INITIALIZED, DMA_CONFIGURED);
+   type t_status is (DMA_UNUSED, DMA_USED, DMA_CONFIGURED);
 
    type t_registered_dma is record
-      user_config : ewok.exported.dma.t_dma_user_config;
-      task_id     : ewok.tasks_shared.t_task_id          := ID_UNUSED;
-      status      : t_status                             := DMA_UNUSED;
-      devinfo     : c.socinfo.t_device_soc_infos_access  := NULL;
+      config   : soc.dma.interfaces.t_dma_config;
+      task_id  : ewok.tasks_shared.t_task_id          := ID_UNUSED;
+      status   : t_status                             := DMA_UNUSED;
+      devinfo  : c.socinfo.t_device_soc_infos_access  := NULL;
    end record;
 
    registered_dma :
@@ -50,12 +51,12 @@ is
       success  : out boolean);
 
    function has_same_dma_channel
-     (index    : ewok.dma_shared.t_registered_dma_index;
-      config   : ewok.exported.dma.t_dma_user_config)
+     (index       : ewok.dma_shared.t_registered_dma_index;
+      user_config : ewok.exported.dma.t_dma_user_config)
       return boolean;
 
    function stream_is_already_used
-     (config : ewok.exported.dma.t_dma_user_config)
+     (user_config : ewok.exported.dma.t_dma_user_config)
       return boolean;
 
    procedure enable_dma_stream
@@ -68,7 +69,7 @@ is
      (index : in ewok.dma_shared.t_registered_dma_index);
 
    function is_config_complete
-     (user_config : ewok.exported.dma.t_dma_user_config)
+     (config : soc.dma.interfaces.t_dma_config)
       return boolean;
 
    function sanitize_dma
