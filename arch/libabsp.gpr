@@ -34,12 +34,12 @@ library project Libabsp is
         ("-gnatp",         -- Turn off all checks
          "-gnatVn");       -- Turn off all validity checks
 
-      for Default_Switches ("ada") use ("-O3", "-g") & basic & verif;
-      for Switches ("soc-dma.adb") use ("-Os", "-g") & basic & verif;
+      for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
+      for Switches ("soc-dma.adb") use ("-O2", "-g") & basic & verif;
 
       -- Proved SPARK code
-      for Switches ("soc-dwt.adb") use ("-O3", "-g") & basic & no_verif;
-      for Switches ("m4-mpu.adb")  use ("-O3", "-g") & basic & no_verif;
+      for Switches ("soc-dwt.adb") use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-mpu.adb")  use ("-O2", "-g") & basic & no_verif;
 
    end Compiler;
 

@@ -12,7 +12,7 @@ library project Gnat is
 
    package Builder is
       for Default_Switches ("Ada") use
-        ("-Os", "-x", "-nostdinc", "-nostdlib");
+        ("-O2", "-x", "-nostdinc", "-nostdlib");
    end Builder;
 
    package Compiler is
