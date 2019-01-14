@@ -103,7 +103,8 @@ library project Libkernel is
       for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
 
       for Switches ("ewok-sched.adb")  use ("-O3", "-g") & basic & verif;
-      for Switches ("ewok-tasks.adb")  use ("-Os", "-g") & basic & verif;
+      for Switches ("ewok-tasks.adb")  use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-dma-interfaces.adb")  use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-syscalls-handler.adb") use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-interrupts-handler.adb") use ("-O2", "-g") & basic & verif;
 
