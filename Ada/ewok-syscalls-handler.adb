@@ -53,38 +53,13 @@ is
       return boolean
    is
    begin
-
-      case sys_params_a.all.syscall_type is
-         when SYS_YIELD      => return true;
-         when SYS_INIT       => return false;
-         when SYS_IPC        => return false;
-         when SYS_CFG        =>
-            declare
-               syscall : t_syscalls_cfg
-                  with address => sys_params_a.all.args(0)'address;
-            begin
-               if syscall = CFG_DMA_RELOAD   or
-                  syscall = CFG_DMA_RECONF   or
-                  syscall = CFG_DMA_DISABLE  or
-                  syscall = CFG_DEV_MAP      or
-                  syscall = CFG_DEV_UNMAP    or
-                  syscall = CFG_DEV_RELEASE  or
-                  syscall = CFG_GPIO_SET     or
-                  syscall = CFG_GPIO_GET     or
-                  syscall = CFG_GPIO_UNLOCK_EXTI
-               then
-                  return true;
-               else
-                  return false;
-               end if;
-            end;
-         when SYS_GETTICK    => return true;
-         when SYS_RESET      => return true;
-         when SYS_SLEEP      => return true;
-         when SYS_LOCK       => return true;
-         when SYS_GET_RANDOM => return true;
-      end case;
-
+      if sys_params_a.all.syscall_type = SYS_IPC or
+         sys_params_a.all.syscall_type = SYS_INIT
+      then
+         return false;
+      else
+         return true;
+      end if;
    end is_synchronous_syscall;
 
 
