@@ -146,7 +146,6 @@ typedef enum {
     SYS_E_INVAL,    /**< Invalid input data */
     SYS_E_DENIED,   /**< Permission is denied */
     SYS_E_BUSY,     /**< Target is busy OR not enough ressources OR ressource is already used */
-    SYS_E_INCOMPLETE, /**< given content is incomplete (typical for DMA_RECONF) with some empty fields */
     SYS_E_MAX,      /**< Number of possible return values */
 } e_syscall_ret;
 

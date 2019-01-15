@@ -305,10 +305,6 @@ is
          goto ret_inval;
       end if;
 
-      if not ewok.dma.is_config_complete(TSK.tasks_list(caller_id).dma_id(dma_descriptor)) then
-         goto ret_incomplete;
-      end if;
-
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
@@ -320,11 +316,6 @@ is
 
    <<ret_denied>>
       set_return_value (caller_id, mode, SYS_E_DENIED);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
-
-   <<ret_incomplete>>
-      set_return_value (caller_id, mode, SYS_E_INCOMPLETE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 

@@ -225,10 +225,6 @@ void sys_cfg_dma_reconf(task_t *caller, __user regval_t *regs, e_task_mode mode)
         goto ret_inval;
     }
 
-    if (!dma_is_complete_dma(dma_id)) {
-        goto ret_incomplete;
-    }
-
     syscall_r0_update(caller, mode, SYS_E_DONE);
     if (mode != TASK_MODE_ISRTHREAD) {
         syscall_set_target_task_runnable(caller);
@@ -240,16 +236,8 @@ void sys_cfg_dma_reconf(task_t *caller, __user regval_t *regs, e_task_mode mode)
     if (mode != TASK_MODE_ISRTHREAD) {
         syscall_set_target_task_runnable(caller);
     }
-    return;
-
-ret_incomplete:
-    syscall_r0_update(caller, mode, SYS_E_INCOMPLETE);
-    if (mode != TASK_MODE_ISRTHREAD) {
-        syscall_set_target_task_runnable(caller);
-    }
 
     return;
-
 #else
     KERNLOG(DBG_INFO, "DMA not activated at config time\n");
     regs = regs;

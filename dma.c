@@ -106,10 +106,8 @@ void dma_disable_dma_stream(e_dma_id dma_id)
 ** Return true if all necessary fields are set in order to make the DMA
 ** works without risk. the enable bit can be set.
 */
-bool dma_is_complete_dma(e_dma_id dma_id)
+static bool dma_is_complete_dma(dma_t * dma)
 {
-    dma_t * dma = &dma_tab[dma_id].udma;
-
     if (dma->in_addr == 0   ||
         dma->out_addr == 0  ||
         dma->size == 0      ||
@@ -226,7 +224,7 @@ uint8_t dma_reconf_dma(__user dma_t *dma,
      * needed informations to permit DMA stream activation. If not, the
      * kernel waits for another DMA reconfiguration.
      */
-    if (dma_is_complete_dma(dma_id)) {
+    if (dma_is_complete_dma(&dma_tab[dma_id].udma)) {
         dma_tab[dma_id].status = DMA_CONFIGURED;
         soc_dma_enable(dma_tab[dma_id].udma.dma, dma_tab[dma_id].udma.stream);
     }
