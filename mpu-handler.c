@@ -22,7 +22,6 @@
  */
 
 #include "m4-mpu.h"
-#include "shared.h"
 #include "autoconf.h"
 #include "soc-layout.h"
 #include "soc-scb.h"

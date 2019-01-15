@@ -61,12 +61,6 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   }>RAM_KERN
 
-  /* Shared variables */
-  .shared :    {
-    . = ALIGN(4);
-    KEEP(*(.shared)) ;
-  }>SHR
-
 
   /* Uninitialized data section */
   . = ALIGN(4);

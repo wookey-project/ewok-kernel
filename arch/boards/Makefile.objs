@@ -9,6 +9,3 @@ board-bsp-y :=
 ifneq ($(BOARD),)
 include $(PROJ_FILES)kernel/arch/boards/$(BOARD)/Makefile.objs
 endif
-
-# generic, the "../" is relative to BOARD_DIR, see apps Makefile
-board-bsp-y += ../shared.c

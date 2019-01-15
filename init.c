@@ -55,7 +55,6 @@
 #include "soc-dwt.h"
 
 #include "m4-core.h"
-#include "shared.h"
 #include "mpu.h"
 #include "kernel.h"
 #include "sched.h"
@@ -76,13 +75,6 @@
   ok. I'm the kernel. This information is passed to some arch specific code of the BSP
   that is kernel specific (not generic with the loader)
 */
-
-/*
-** Shared vars are hosted in the SHR section, out of the firmware. This is used by
-** the firmwares, the DFUs and the loader to communicate with each-others, to manage the
-** Wookey firmware and DFU update
-*/
-extern const shr_vars_t shared_vars;
 
 #ifdef CONFIG_ADAKERNEL
     /* Specific Ada runtime elaboration code */

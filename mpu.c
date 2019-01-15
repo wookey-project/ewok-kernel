@@ -24,7 +24,6 @@
 #include "m4-mpu.h"
 #include "soc-layout.h"
 #include "layout.h"
-#include "shared.h"
 #include "autoconf.h"
 #include "debug.h"
 #include "tasks.h"
@@ -33,8 +32,6 @@
 #include "sched.h"
 #include "generated/apps_layout.h"
 #include "mpu-handler.h"
-
-extern const shr_vars_t shared_vars;
 
 uint8_t mpu_regions_schedule(uint8_t region_number,
                              physaddr_t addr,
