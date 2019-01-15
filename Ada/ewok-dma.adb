@@ -394,7 +394,11 @@ is
       if not is_config_complete (registered_dma(index).user_config) then
          debug.log (debug.WARNING,
             "Warning! Updated DMA configuration not complete.");
-         success := false;
+         -- here we consider that it is an allowed case, in DMA_RECONFIGURE syscall.
+         -- As a consequence, it is *not* a failure and the procedure keeps its ok
+         -- flag to true.
+         -- The userspace is considered as aware of the fact the its structure is still
+         -- incomplete and still need to be configured again later.
          return;
       end if;
 
