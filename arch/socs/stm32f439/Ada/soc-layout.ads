@@ -87,9 +87,9 @@ is
    FW2_SIZE             : constant unsigned_32 := 576*1024;
 
    FW2_KERN_SIZE        : constant unsigned_32 := 64*1024;
-   FW2_KERN_BASE        : constant unsigned_32 := 16#09020000#;
+   FW2_KERN_BASE        : constant unsigned_32 := 16#08120000#;
    FW2_KERN_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
-   FW2_USER_BASE        : constant unsigned_32 := 16#09080000#;
+   FW2_USER_BASE        : constant unsigned_32 := 16#08180000#;
    FW2_USER_SIZE        : constant unsigned_32 := 512*1024;
    FW2_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
 --   FW2_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
@@ -98,11 +98,11 @@ is
    --  DFU 2
    DFU2_SIZE            : constant unsigned_32 := 320*1024;
 
-   DFU2_KERN_BASE       : constant unsigned_32 := 16#09030000#;
+   DFU2_KERN_BASE       : constant unsigned_32 := 16#08130000#;
    DFU2_KERN_SIZE       : constant unsigned_32 := 64*1024;
    DFU2_KERN_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
-   DFU2_USER_BASE       : constant unsigned_32 := 16#09040000#;
+   DFU2_USER_BASE       : constant unsigned_32 := 16#08140000#;
    DFU2_USER_SIZE       : constant unsigned_32 := 256*1024;
    DFU2_USER_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
