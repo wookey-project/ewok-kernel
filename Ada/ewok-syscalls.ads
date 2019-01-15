@@ -30,14 +30,16 @@ is
    -- FIXME - using an enumeration with size 32
    subtype t_syscall_ret is unsigned_32;
 
-   SYS_E_DONE     : constant t_syscall_ret := 0;
+   SYS_E_DONE       : constant t_syscall_ret := 0;
       -- Syscall has succesfully being executed
-   SYS_E_INVAL    : constant t_syscall_ret := 1;
+   SYS_E_INVAL      : constant t_syscall_ret := 1;
       -- Invalid input data
-   SYS_E_DENIED   : constant t_syscall_ret := 2;
+   SYS_E_DENIED     : constant t_syscall_ret := 2;
       -- Permission is denied
-   SYS_E_BUSY     : constant t_syscall_ret := 3;
+   SYS_E_BUSY       : constant t_syscall_ret := 3;
       -- Target is busy OR not enough ressources OR ressource is already used
+   SYS_E_INCOMPLETE : constant t_syscall_ret := 4;
+      -- given content is incomplete and still need to be updated
 
    type t_svc_type is
      (SVC_SYSCALL,

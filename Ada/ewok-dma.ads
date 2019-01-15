@@ -68,7 +68,7 @@ is
      (index : in ewok.dma_shared.t_registered_dma_index);
 
    function is_config_complete
-     (user_config : ewok.exported.dma.t_dma_user_config)
+     (dma_index : ewok.dma_shared.t_registered_dma_index)
       return boolean;
 
    function sanitize_dma

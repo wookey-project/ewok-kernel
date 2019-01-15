@@ -155,10 +155,12 @@ is
 
 
    function is_config_complete
-     (user_config : ewok.exported.dma.t_dma_user_config)
+     (dma_index : ewok.dma_shared.t_registered_dma_index)
       return boolean
    is
+      user_config : ewok.exported.dma.t_dma_user_config;
    begin
+      user_config := registered_dma(dma_index).user_config;
       if user_config.in_addr  = 0 or
          user_config.out_addr = 0 or
          user_config.size     = 0 or
@@ -391,10 +393,12 @@ is
       -- Check if we enough elements to enable the DMA
       --
 
-      if not is_config_complete (registered_dma(index).user_config) then
+      if not is_config_complete (index) then
          debug.log (debug.WARNING,
             "Warning! Updated DMA configuration not complete.");
-         success := false;
+         -- incomplete config is not an error, as DMA_RECONF allows it.
+         -- we just stop here, without configuring the DMA controler itself
+         -- while the DMA is not fully configured by the task
          return;
       end if;
 

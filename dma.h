@@ -196,5 +196,7 @@ void dma_enable_dma_stream(e_dma_id dma_id);
 void dma_disable_dma_stream(e_dma_id dma_id);
 
 
+bool dma_is_complete_dma(e_dma_id dma_id);
+
 #endif
 #endif
