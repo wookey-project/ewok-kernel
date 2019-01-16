@@ -269,7 +269,7 @@ is
    is
    begin
 
-      if not ewok.tasks.is_user (shm.granted_id) then
+      if not ewok.tasks.is_real_user (shm.granted_id) then
          debug.log (debug.ERROR, "ewok.dma.sanitize_dma_shm(): wrong target");
          return false;
       end if;

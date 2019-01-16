@@ -80,9 +80,8 @@ is
 --            with address => to_address (params(1));
 --      begin
 --         debug.log (debug.ERROR, "debug: ipc_do_recv(): task"
---            & ewok.tasks_shared.t_task_id'image (caller_id)
---            & " <- task"
---            & unsigned_8'image (u));
+--            & ewok.tasks.tasks_list(caller_id).name &
+--            & " <- " & unsigned_8'image (u));
 --      end;
 
       --------------------------
@@ -98,7 +97,7 @@ is
       end if;
 
       if not expected_sender'valid then
-         debug.panic ("[task"
+         debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): invalid id_sender ("
             & unsigned_32'image (params(1)) & ")");
@@ -153,7 +152,7 @@ is
          goto ret_inval;
       end if;
 
-      -- Verifying that the sender is a user application
+      -- The expected sender might be a particular task or any of them
       if expected_sender = ewok.ipc.ANY_APP then
          listen_any  := true;
       else
@@ -161,54 +160,41 @@ is
          listen_any  := false;
       end if;
 
-      if not listen_any and then not ewok.tasks.is_user (id_sender)
-      then
-#if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.ERROR, "[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] ipc_do_recv(): invalid id_sender ("
-            & ewok.tasks_shared.t_task_id'image (id_sender)
-            & ")");
-#end if;
-         goto ret_inval;
-      end if;
-
+      -- When the sender is a task, we have to do some additional checks
       if not listen_any then
-         sender_a := ewok.tasks.get_task (id_sender);
-         if sender_a = NULL or else
-            ewok.tasks.get_state(sender_a.all.id,
-                                 TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
-         then
+
+         -- Is the sender is an existing user task?
+         if not ewok.tasks.is_real_user (id_sender) then
 #if CONFIG_DEBUG_ADA_IPC
-	         debug.log (debug.ERROR, "[task"
+            debug.log (debug.ERROR, "[task"
                & ewok.tasks_shared.t_task_id'image (caller_id)
-	            & "] ipc_do_recv(): invalid id_sender ("
-	            & ewok.tasks_shared.t_task_id'image (id_sender)
-	            & ") - empty task");
+               & "] ipc_do_recv(): invalid id_sender ("
+               & ewok.tasks_shared.t_task_id'image (id_sender)
+               & ")");
 #end if;
-	         goto ret_inval;
+            goto ret_inval;
          end if;
-      end if;
 
-      -- A task can't send a message to itself
-      if not listen_any and then caller_id = id_sender
-      then
+         -- Defensive programming test: should *never* be true
+         if ewok.tasks.get_state (id_sender, TASK_MODE_MAINTHREAD)
+               = TASK_STATE_EMPTY
+         then
+            raise program_error;
+         end if;
+
+         -- A task can't send a message to itself
+         if caller_id = id_sender then
 #if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.ERROR, "[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] ipc_do_recv(): id_sender ("
-            & ewok.tasks_shared.t_task_id'image (id_sender)
-            & ") - same as caller->id");
+            debug.log (debug.ERROR, "[task"
+               & ewok.tasks_shared.t_task_id'image (caller_id)
+               & "] ipc_do_recv(): id_sender ("
+               & ewok.tasks_shared.t_task_id'image (id_sender)
+               & ") - same as caller->id");
 #end if;
-         goto ret_inval;
-      end if;
+            goto ret_inval;
+         end if;
 
-      --
-      -- Verifying permissions
-      --
-
-      if not listen_any then
-
+         -- Is the sender in the same domain?
 #if CONFIG_KERNEL_DOMAIN
 	      if not ewok.perm.is_same_domain (id_sender, caller_id) then
 	         debug.log (debug.ERROR, "[task"
@@ -220,6 +206,7 @@ is
 	      end if;
 #end if;
 
+         -- Are ipc granted?
          if not ewok.perm.ipc_is_granted (id_sender, caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
 	         debug.log (debug.ERROR, "[task"
@@ -229,6 +216,9 @@ is
 #end if;
             goto ret_denied;
          end if;
+
+         -- Checks are ok
+         sender_a := ewok.tasks.get_task (id_sender);
 
       end if;
 
@@ -244,10 +234,12 @@ is
          for i in ewok.tasks.tasks_list(caller_id).ipc_endpoints'range loop
             if ewok.tasks.tasks_list(caller_id).ipc_endpoints(i) /= NULL
                and then
-               ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).state = ewok.ipc.WAIT_FOR_RECEIVER
+               ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).state
+                  = ewok.ipc.WAIT_FOR_RECEIVER
                and then
-               ewok.ipc.to_task_id (ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).to) =
-                  caller_id
+               ewok.ipc.to_task_id
+                 (ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).to)
+                     = caller_id
             then
                ep := ewok.tasks.tasks_list(caller_id).ipc_endpoints(i);
                exit;
@@ -283,49 +275,12 @@ is
 
          -- Waking up idle senders
          if not listen_any and then
-            ewok.tasks.get_state(sender_a.all.id,
-                                 TASK_MODE_MAINTHREAD) = TASK_STATE_IDLE
+            ewok.tasks.get_state (sender_a.all.id, TASK_MODE_MAINTHREAD)
+               = TASK_STATE_IDLE
          then
-            ewok.tasks.set_state(sender_a.all.id,
-                                 TASK_MODE_MAINTHREAD,
-                                 TASK_STATE_RUNNABLE);
+            ewok.tasks.set_state
+              (sender_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
          end if;
-
-         -- Receiver is blocking until it receives a message or it returns
-         -- E_SYS_BUSY
-         if blocking then
-            ewok.tasks.set_state(caller_id,
-                                 TASK_MODE_MAINTHREAD,
-                                 TASK_STATE_IPC_RECV_BLOCKED);
-            return;
-         else
-            goto ret_busy;
-         end if;
-
-      end if;
-
-      --
-      -- A message was sent. First, we verify that the caller is granted to
-      -- read a message sent by the sender in the specific case of a recv(ANY)
-      --
-
-      if listen_any and then
-         not ewok.perm.ipc_is_granted
-               (ewok.ipc.to_task_id (ep.all.from), caller_id)
-      then
-
-#if CONFIG_DEBUG_ADA_IPC
-	      debug.log (debug.ERROR, "[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-	         & "] ipc_do_recv(): sender "
-	         & ewok.ipc.t_extended_task_id'image (ep.all.from)
-            & " not granted");
-#end if;
-
-         set_return_value
-           (sender_a.all.id, TASK_MODE_MAINTHREAD, SYS_E_DENIED);
-         ewok.tasks.set_state
-           (sender_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
 
          -- Receiver is blocking until it receives a message or it returns
          -- E_SYS_BUSY
@@ -344,18 +299,12 @@ is
       expected_sender   := ep.all.from;
       id_sender         := ewok.ipc.to_task_id (ep.all.from);
 
-      sender_a := ewok.tasks.get_task (id_sender);
-
-      if sender_a = NULL or else
-         ewok.tasks.get_state(sender_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
-
-      then
-         debug.panic ("[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] ipc_do_recv(): invalid sender ("
-            & ewok.tasks_shared.t_task_id'image (id_sender)
-            & ") - empty task");
+      -- Defensive programming test: should *never* happen
+      if not ewok.tasks.is_real_user (id_sender) then
+         raise program_error;
       end if;
+
+      sender_a := ewok.tasks.get_task (id_sender);
 
       -- Copying the message in the receiver's buffer
       if ep.all.size > size then
@@ -382,7 +331,7 @@ is
       ep.all.size  := 0;
 
       -- Free sender from it's blocking state
-      case ewok.tasks.get_state(sender_a.all.id, TASK_MODE_MAINTHREAD) is
+      case ewok.tasks.get_state (sender_a.all.id, TASK_MODE_MAINTHREAD) is
 
          when TASK_STATE_IPC_WAIT_ACK      =>
             set_return_value
@@ -496,7 +445,7 @@ is
       end if;
 
       -- Verifying that the receiver id corresponds to a user application
-      if not ewok.tasks.is_user (id_receiver) then
+      if not ewok.tasks.is_real_user (id_receiver) then
 #if CONFIG_DEBUG_ADA_IPC
          debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
@@ -509,19 +458,11 @@ is
 
       receiver_a := ewok.tasks.get_task (id_receiver);
 
-      -- Verifying that the receiver is valid
-      if receiver_a = NULL or else
-         ewok.tasks.get_state
-            (receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_EMPTY
+      -- Defensive programming test: should *never* be true
+      if ewok.tasks.get_state (id_receiver, TASK_MODE_MAINTHREAD)
+            = TASK_STATE_EMPTY
       then
-#if CONFIG_DEBUG_ADA_IPC
-         debug.log (debug.ERROR, "[task"
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] ipc_do_send(): invalid id_receiver ("
-            & ewok.tasks_shared.t_task_id'image (id_receiver)
-            & ") - empty task");
-#end if;
-         goto ret_inval;
+         raise program_error;
       end if;
 
       -- A task can't send a message to itself
@@ -561,11 +502,11 @@ is
       end if;
 #end if;
 
-      if not ewok.perm.ipc_is_granted (id_receiver, caller_id) then
+      if not ewok.perm.ipc_is_granted (caller_id, id_receiver) then
 #if CONFIG_DEBUG_ADA_IPC
          debug.log (debug.ERROR, "[task"
             & ewok.tasks_shared.t_task_id'image (caller_id)
-	         & "] ipc_do_send(): receiver "
+	         & "] ipc_do_send() to "
             & ewok.tasks_shared.t_task_id'image (id_receiver)
             & " not granted");
 #end if;
@@ -582,8 +523,9 @@ is
       if ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) = NULL
       then
 
+         -- Defensive programming test: should *never* happen
          if receiver_a.all.ipc_endpoints(caller_id) /= NULL then
-            debug.panic ("ipc_do_send(): EndPoint already defined by the receiver");
+            raise program_error;
          end if;
 
          ewok.ipc.get_endpoint (ep, ok);
@@ -618,8 +560,11 @@ is
             ewok.tasks.set_state
               (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_SEND_BLOCKED);
 #if CONFIG_IPC_SCHED_VIOL
-            if ewok.tasks.get_state(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE or
-               ewok.tasks.get_tate(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_IDLE
+            if ewok.tasks.get_state (receiver_a.all.id, TASK_MODE_MAINTHREAD)
+                  = TASK_STATE_RUNNABLE
+               or
+               ewok.tasks.get_tate (receiver_a.all.id, TASK_MODE_MAINTHREAD)
+                  = TASK_STATE_IDLE
             then
                ewok.tasks.set_state
                  (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
@@ -652,7 +597,8 @@ is
 
       -- If the receiver was blocking, it can be 'freed' from its blocking
       -- state. We reinject it so that it can fulfill its syscall
-      if ewok.tasks.get_state(receiver_a.all.id, TASK_MODE_MAINTHREAD) = TASK_STATE_IPC_RECV_BLOCKED
+      if ewok.tasks.get_state (receiver_a.all.id, TASK_MODE_MAINTHREAD)
+            = TASK_STATE_IPC_RECV_BLOCKED
       then
          receiver_a.all.state := TASK_STATE_SVC_BLOCKED;
          ewok.softirq.push_syscall (receiver_a.all.id);

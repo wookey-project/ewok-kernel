@@ -89,7 +89,7 @@ is
    begin
       if TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING or
          TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING_DEEP
-         then
+      then
          if sleep_info(task_id).sleep_until > m4.systick.get_ticks then
             return true;
          else

@@ -62,11 +62,11 @@ is
          goto ret_denied;
       end if;
 
-      -- NOTE: The kernel might register some devices using this syscall
-      -- for user task, device_t structure may be stored in:
-      --    - its data slot (RAM)
-      --    - its txt slot (.rodata)
-      if TSK.is_user (caller_id) and then
+      -- NOTE
+      --    The kernel might register some devices using this syscall
+      --    for user tasks. The device_t structure may be stored in
+      --    RAM (.data section) or in flash (.rodata section)
+      if TSK.is_real_user (caller_id) and then
         (not ewok.sanitize.is_range_in_data_slot
                (to_system_address (udev'address),
                 udev'size/8,
@@ -83,7 +83,7 @@ is
          goto ret_denied;
       end if;
 
-      if TSK.is_user (caller_id) and then
+      if TSK.is_real_user (caller_id) and then
          not ewok.sanitize.is_word_in_data_slot
                (to_system_address (descriptor'address), caller_id, mode)
       then
@@ -99,7 +99,7 @@ is
          goto ret_inval;
       end if;
 
-      if TSK.is_user (caller_id) and then
+      if TSK.is_real_user (caller_id) and then
          not ewok.devices.sanitize_user_defined_device
                  (udev'unchecked_access, caller_id)
       then

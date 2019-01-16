@@ -24,7 +24,7 @@
 with ada.unchecked_conversion;
 
 package ewok.tasks_shared
-   with spark_mode => off
+   with spark_mode => on
 is
    type t_task_id is
      (ID_UNUSED,

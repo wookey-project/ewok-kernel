@@ -84,15 +84,10 @@ is
    --
    -- \brief test if a task is allow to send an IPC to another task
    --
-   -- Here we are based on a symetric paradigm (i.e. when a
-   -- task is allowed to send an IPC to another task, the other
-   -- task is allowed to receive an IPC from it). Nonetheless it
-   -- is still an half duplex communication channel.
-   --
    -- \param[in] from the task which want to send an IPC data
-   -- \param[in] tto  the task target of the IPC
+   -- \param[in] to  the task target of the IPC
    --
-   -- \return true if the permission is granted, of false
+   -- \return true if the 'from' task is granted to send a message to the 'to' task
    --
 
    function ipc_is_granted

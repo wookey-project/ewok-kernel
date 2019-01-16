@@ -197,7 +197,7 @@ is
    procedure init_idle_task;
    procedure init_apps;
 
-   function is_user (id : ewok.tasks_shared.t_task_id) return boolean;
+   function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean;
 
    function get_task (id : ewok.tasks_shared.t_task_id)
       return t_task_access;

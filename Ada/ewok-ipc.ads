@@ -92,9 +92,9 @@ is
 
    ipc_endpoints : array (1 .. ENDPOINTS_POOL_SIZE) of aliased t_endpoint;
 
-   -- 
+   --
    -- Functions
-   -- 
+   --
 
    -- Init IPC endpoints
    procedure init_endpoints;

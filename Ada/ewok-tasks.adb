@@ -652,12 +652,11 @@ is
    end unmount_device;
 
 
-   -- FIXME useful ?
-   function is_user (id : ewok.tasks_shared.t_task_id) return boolean
+   function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean
    is
    begin
       return (id in applications.t_real_task_id);
-   end is_user;
+   end is_real_user;
 
 
    procedure set_return_value
