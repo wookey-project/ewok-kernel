@@ -87,6 +87,8 @@ is
    is
       dma_id   : soc.dma.t_dma_periph_index;
       stream   : soc.dma.t_stream_index;
+      pragma unreferenced (dma_id);
+      pragma unreferenced (stream);
       ok       : boolean;
    begin
       soc.dma.get_dma_stream_from_interrupt (intr, dma_id, stream, ok);
@@ -150,11 +152,6 @@ is
    begin
 
       controller.streams(stream).CR.EN := false;
-
-      -- FIXME - We really need this?
-      loop
-         exit when controller.streams(stream).CR.EN = false;
-      end loop;
 
       clear_all_interrupts (controller, stream);
 
