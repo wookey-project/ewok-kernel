@@ -376,7 +376,8 @@ is
 
    procedure enable
      (controller  : in out t_dma_periph;
-      stream      : in     t_stream_index);
+      stream      : in     t_stream_index)
+   with inline;
 
    procedure disable
      (controller  : in out t_dma_periph;
