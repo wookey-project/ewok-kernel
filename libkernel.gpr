@@ -107,9 +107,12 @@ library project Libkernel is
       for Switches ("ewok-dma-interfaces.adb")  use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-syscalls-handler.adb") use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-interrupts-handler.adb") use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-isr.adb")  use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-posthook.adb")  use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-softirq.adb")  use ("-O2", "-g") & basic & verif;
 
       -- Proved SPARK code
-      for Switches ("ewok-perm.adb")   use ("-Os", "-g") & basic & no_verif;
+      for Switches ("ewok-perm.adb")   use ("-O2", "-g") & basic & no_verif;
 
    end Compiler;
 
