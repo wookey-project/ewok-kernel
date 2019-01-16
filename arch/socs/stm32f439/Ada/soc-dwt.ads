@@ -32,12 +32,12 @@ pragma Annotate (GNATprove,
 package soc.dwt
    with
       spark_mode => on,
-      Abstract_State => ((Ctrl         with external), -- this is a register
+      abstract_state => ((Ctrl         with external), -- this is a register
                          (Cnt          with external),  -- this is a register
                          (Lar_register with external), -- this is a register
                          (Dem          with external), -- this is a register
-                         Ini_F, Loo, Last),
-      Initializes => (Ctrl, Cnt, Dem, Ini_F) -- assumed as initialized
+                          Ini_F, Loo, Last),
+      initializes => (Ctrl, Cnt, Dem, Ini_F) -- assumed as initialized
 is
 
    -----------------------------------------------------
@@ -61,13 +61,13 @@ is
    --------------------------------------------------
 
 
-   -- reset the DWT-based timer (initialize to 0)
+   -- Reset the DWT-based timer
    procedure reset_timer
    with
        pre           => not init_is_done,
-       global        => (Input  => Ini_F,
-                         In_Out => (Dem, Ctrl),
-                         Output => (Lar_register, Cnt) ),
+       global        => (input  => Ini_F,
+                         in_out => (Dem, Ctrl),
+                         output => (Lar_register, Cnt)),
        depends       => (Dem          =>+ null,
                          Lar_register => null,
                          Cnt          => null,
@@ -75,13 +75,13 @@ is
                          null         => Ini_F);
 
 
-   -- start the DWT timer. The register is counting the number of
+   -- Start the DWT timer. The register is counting the number of
    -- CPU cycles
    procedure start_timer
    with
       pre             => not init_is_done,
-      global          => (Input        => Ini_F,
-                          In_Out       => Ctrl),
+      global          => (input        => Ini_F,
+                          in_out       => Ctrl),
       depends         => (Ctrl        =>+ null,
                           null        => Ini_F);
 
@@ -93,8 +93,8 @@ is
       export         => true,
       external_name  => "soc_dwt_stop_timer",
       pre            => init_is_done,
-      global         => (Input => Ini_F,
-                        In_Out => Ctrl),
+      global         => (input => Ini_F,
+                        in_out => Ctrl),
       depends        => (Ctrl       =>+ null,
                         null        => Ini_F);
 
@@ -117,10 +117,10 @@ is
    procedure init
    with
       pre            => not init_is_done,
-      Global         => (In_Out => (Ini_F,
+      global         => (in_out => (Ini_F,
                                     Ctrl,
                                     Dem),
-                         Output => (Last,
+                         output => (Last,
                                     Loo,
                                     Cnt,
                                     Lar_register)),
@@ -134,8 +134,8 @@ is
    procedure get_cycles_32(cycles : out unsigned_32)
      with
        pre            => init_is_done,
-       global         => (Input  => Ini_F,
-                          In_Out => Cnt),
+       global         => (input  => Ini_F,
+                          in_out => Cnt),
        depends        => (Cnt        =>+ null,
                           cycles     => Cnt,
                           null       => Ini_F);
@@ -146,8 +146,8 @@ is
    procedure get_cycles (cycles : out unsigned_64)
      with
        pre            => init_is_done,
-       global         => (Input  => (Ini_F, Loo),
-                          In_Out => Cnt),
+       global         => (input  => (Ini_F, Loo),
+                          in_out => Cnt),
        depends        => (Cnt        =>+ null,
                           cycles     => (Cnt, Loo),
                           null       => Ini_F);
@@ -156,8 +156,8 @@ is
    procedure get_microseconds (micros : out unsigned_64)
    with
      pre             => init_is_done,
-     global          => (Input   => (Ini_F, Loo),
-                         In_Out  => Cnt),
+     global          => (input   => (Ini_F, Loo),
+                         in_out  => Cnt),
      depends         => (micros     => (Cnt, Loo),
                          Cnt        =>+ null,
                          null       => Ini_F);
@@ -166,8 +166,8 @@ is
    procedure get_milliseconds (milli : out unsigned_64)
    with
      pre             => init_is_done,
-     global          => (In_Out  => Cnt,
-                         Input => (Loo, Ini_F)),
+     global          => (in_out  => Cnt,
+                         input => (Loo, Ini_F)),
      depends         => (milli      => (Cnt, Loo),
                          Cnt        =>+ null,
                          null       => Ini_F);
@@ -231,7 +231,7 @@ private
          import,
          volatile,
          address => system'to_address (16#E000_1000#),
-         Part_Of => Ctrl;
+         part_of => Ctrl;
 
    --
    -- CYCCNT register
@@ -244,11 +244,11 @@ private
          import,
          volatile,
          address => system'to_address (16#E000_1004#),
-         Part_Of => Cnt;
+         part_of => Cnt;
 
 
    -- Specify the package state. Set to true by init().
-   init_done : boolean := False with Part_Of => Ini_F;
+   init_done : boolean := false with part_of => Ini_F;
 
    --
    -- DWT CYCCNT register overflow counting
@@ -256,14 +256,14 @@ private
    -- with a time window of 64bits length (instead of 32bits)
    --
 
-   dwt_loops : unsigned_64 with Part_Of => Loo;
+   dwt_loops : unsigned_64 with part_of => Loo;
 
    --
    -- Last measured DWT CYCCNT. Compared with current measurement,
    -- we can detect if the register has generated an overflow or not
    --
 
-   last_dwt    : unsigned_32 with Part_Of => Last;
+   last_dwt    : unsigned_32 with part_of => Last;
 
    --------------------------------------------------
    -- CoreSight Software Lock registers            --
@@ -281,7 +281,7 @@ private
          import,
          volatile,
          address => system'to_address (16#E000_1FB0#),
-         Part_Of => Lar_register;
+         part_of => Lar_register;
 
    LAR_ENABLE_WRITE_KEY : constant := 16#C5AC_CE55#;
 
@@ -350,7 +350,7 @@ private
       with import,
            volatile,
            address => system'to_address (16#E000_EDFC#),
-           Part_Of => Dem;
+           part_of => Dem;
 
 
 

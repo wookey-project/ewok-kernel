@@ -25,7 +25,7 @@ with soc.interrupts;
 with system;
 
 package soc.dma
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_dma_periph_index is (ID_DMA1, ID_DMA2);
@@ -359,7 +359,6 @@ is
       streams  at 16#10# range 0 .. (32 * 6 * 8) - 1;
    end record;
 
-   type t_dma_periph_access is access all t_dma_periph;
 
    DMA1  : aliased t_dma_periph
       with import, volatile, address => system'to_address (soc.layout.DMA1_BASE);
@@ -395,7 +394,8 @@ is
 
    function get_interrupt_status
      (controller  : t_dma_periph;
-      stream      : t_stream_index) return t_dma_stream_int_status;
+      stream      : t_stream_index) return t_dma_stream_int_status
+   with volatile_function;
 
    procedure set_IFCR
      (controller  : in out t_dma_periph;

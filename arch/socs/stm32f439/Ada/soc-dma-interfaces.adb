@@ -26,6 +26,9 @@ package body soc.dma.interfaces
    with spark_mode => off
 is
 
+   type t_dma_periph_access is access all t_dma_periph;
+
+
    procedure enable_stream
      (dma_id  : in  soc.dma.t_dma_periph_index;
       stream  : in  soc.dma.t_stream_index)

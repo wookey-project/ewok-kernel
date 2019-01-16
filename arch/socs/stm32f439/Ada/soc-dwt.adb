@@ -24,8 +24,9 @@ with ada.unchecked_conversion;
 with m4.systick;
 
 package body soc.dwt
-     with spark_mode => on,
-      Refined_State => (Cnt           => DWT_CYCCNT,
+     with
+      spark_mode    => on,
+      refined_state => (Cnt           => DWT_CYCCNT,
                         Ctrl          => DWT_CONTROL,
                         Ini_F         => init_done,
                         Loo           => dwt_loops,
@@ -60,9 +61,9 @@ is
 
    procedure reset_timer
    with
-      Refined_Global => (Input  => init_done,
-                         In_Out => (DEMCR, DWT_CONTROL),
-                         Output => (LAR, DWT_CYCCNT))
+      refined_global => (input  => init_done,
+                         in_out => (DEMCR, DWT_CONTROL),
+                         output => (LAR, DWT_CYCCNT))
    is
    begin
       DEMCR.TRCENA   := true;
@@ -74,8 +75,8 @@ is
 
    procedure start_timer
    with
-      Refined_Global => (Input  => init_done,
-                         In_Out => DWT_CONTROL)
+      refined_global => (input  => init_done,
+                         in_out => DWT_CONTROL)
    is
    begin
       DWT_CONTROL.CYCCNTENA   := true; -- enable the counter
@@ -84,8 +85,8 @@ is
 
    procedure stop_timer
    with
-      Refined_Global=> (Input  => init_done,
-                        In_Out => DWT_CONTROL)
+      refined_global=> (input  => init_done,
+                        in_out => DWT_CONTROL)
    is
    begin
       DWT_CONTROL.CYCCNTENA   := false; -- stop the counter
@@ -110,10 +111,10 @@ is
    procedure init
    with
       Refined_Post   => (init_done),
-      Refined_Global => (In_Out => (init_done,
+      refined_global => (in_out => (init_done,
                                     DWT_CONTROL,
                                     DEMCR),
-                          Output => (last_dwt,
+                         output => (last_dwt,
                                     dwt_loops,
                                     DWT_CYCCNT,
                                     LAR))
@@ -129,8 +130,8 @@ is
 
    procedure get_cycles_32 (cycles : out unsigned_32)
    with
-      Refined_Global=> (Input  => init_done,
-                        In_Out => DWT_CYCCNT)
+      refined_global => (input  => init_done,
+                         in_out => DWT_CYCCNT)
    is
    begin
       cycles := DWT_CYCCNT; -- can't return volatile (SPARK RM 7.1.3(12))
@@ -139,8 +140,8 @@ is
 
    procedure get_cycles (cycles : out unsigned_64)
    with
-      Refined_Global => (Input   => (init_done, dwt_loops),
-                         In_Out  => DWT_CYCCNT)
+      refined_global => (input   => (init_done, dwt_loops),
+                         in_out  => DWT_CYCCNT)
    is
       cyccnt : unsigned_64;
    begin
@@ -152,8 +153,8 @@ is
 
    procedure get_microseconds (micros : out unsigned_64)
    with
-      Refined_Global => (Input   => (init_done, dwt_loops),
-                         In_Out  => DWT_CYCCNT)
+      refined_global => (input   => (init_done, dwt_loops),
+                         in_out  => DWT_CYCCNT)
    is
       cycles : unsigned_64;
    begin
@@ -164,8 +165,8 @@ is
 
    procedure get_milliseconds (milli : out unsigned_64)
    with
-      Refined_Global => (Input   => (init_done, dwt_loops),
-                         In_Out  => DWT_CYCCNT)
+      refined_global => (input   => (init_done, dwt_loops),
+                         in_out  => DWT_CYCCNT)
    is
       cycles : unsigned_64;
    begin
