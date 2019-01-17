@@ -42,6 +42,8 @@ is
       ID_DEV13,
       ID_DEV14,
       ID_DEV15,
-      ID_DEV16);
+      ID_DEV16,
+      ID_DEV17,
+      ID_DEV18);
 
 end ewok.devices_shared;

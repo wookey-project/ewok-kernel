@@ -51,7 +51,7 @@ is
       status      : t_device_state;
    end record;
 
-   registered_device : array (t_device_id range ID_DEV1 .. ID_DEV16) of t_device;
+   registered_device : array (t_device_id range ID_DEV1 .. ID_DEV18) of t_device;
 
 
    procedure init;

@@ -42,6 +42,8 @@ typedef enum {
     ID_DEV14,
     ID_DEV15,
     ID_DEV16,
+    ID_DEV17,
+    ID_DEV18,
     ID_DEV_MAX
 } e_device_id;
 
