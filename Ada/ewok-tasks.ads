@@ -105,7 +105,7 @@ is
    -- Tasks
    --
 
-   MAX_DEVS_PER_TASK       : constant := 6;
+   MAX_DEVS_PER_TASK       : constant := 8;
    MAX_DMAS_PER_TASK       : constant := 8;
    MAX_INTERRUPTS_PER_TASK : constant := 8;
    MAX_DMA_SHM_PER_TASK    : constant := 4;
