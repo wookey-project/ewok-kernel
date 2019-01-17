@@ -392,12 +392,16 @@ is
 
       -- Enable device's clock
       if registered_device(dev_id).devinfo /= NULL then
-         -- some device may not depend on a RCC clock (this is the case of
-         -- the SoC flash device, which is enabled at boot time and has no
-         -- RCC bit on STM32 for example).
-         if registered_device(dev_id).devinfo.all.rcc_enr /= 0 then
-            c.socinfo.soc_devmap_enable_clock (registered_device(dev_id).devinfo.all);
+         -- write enable bit is needed only in REGISTERED state
+         if registered_device(dev_id).status = DEV_STATE_REGISTERED then
+            -- some device may not depend on a RCC clock (this is the case of
+            -- the SoC flash device, which is enabled at boot time and has no
+            -- RCC bit on STM32 for example).
+            if registered_device(dev_id).devinfo.all.rcc_enr /= 0 then
+               c.socinfo.soc_devmap_enable_clock (registered_device(dev_id).devinfo.all);
+            end if;
          end if;
+
          declare
             udev : constant t_checked_user_device := registered_device(dev_id).udev;
             name : string (1 .. types.c.len (udev.name));
