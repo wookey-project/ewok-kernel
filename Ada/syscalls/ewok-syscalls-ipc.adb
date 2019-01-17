@@ -29,10 +29,7 @@ with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.sanitize;
 with ewok.perm;
 with ewok.sleep;
-with ewok.softirq;
-with ewok.sched;
 with types.c;           use types.c;
---with m4.cpu;
 with debug;
 
 
@@ -285,9 +282,9 @@ is
          -- Receiver is blocking until it receives a message or it returns
          -- E_SYS_BUSY
          if blocking then
-            ewok.tasks.set_state(caller_id,
-                                 TASK_MODE_MAINTHREAD,
-                                 TASK_STATE_IPC_RECV_BLOCKED);
+            ewok.tasks.set_state (caller_id,
+                                  TASK_MODE_MAINTHREAD,
+                                  TASK_STATE_IPC_RECV_BLOCKED);
             return;
          else
             goto ret_busy;
@@ -340,9 +337,10 @@ is
               (sender_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
 
          when TASK_STATE_IPC_SEND_BLOCKED  =>
-            sender_a.all.state := TASK_STATE_SVC_BLOCKED;
-            ewok.softirq.push_syscall (sender_a.all.id);
-            ewok.sched.request_schedule;
+            -- The sender will reexecute the SVC instruction to fulfill its syscall
+            sender_a.all.state := TASK_STATE_FORCED;
+            sender_a.all.ctx.frame_a.all.PC :=
+               sender_a.all.ctx.frame_a.all.PC - 2;
          when others =>
             null;
       end case;
@@ -596,13 +594,14 @@ is
       ep.all.state := ewok.ipc.WAIT_FOR_RECEIVER;
 
       -- If the receiver was blocking, it can be 'freed' from its blocking
-      -- state. We reinject it so that it can fulfill its syscall
+      -- state.
       if ewok.tasks.get_state (receiver_a.all.id, TASK_MODE_MAINTHREAD)
             = TASK_STATE_IPC_RECV_BLOCKED
       then
-         receiver_a.all.state := TASK_STATE_SVC_BLOCKED;
-         ewok.softirq.push_syscall (receiver_a.all.id);
-         ewok.sched.request_schedule;
+         -- The receiver will reexecute the SVC instruction to fulfill its syscall
+         receiver_a.all.state := TASK_STATE_FORCED;
+         receiver_a.all.ctx.frame_a.all.PC :=
+            receiver_a.all.ctx.frame_a.all.PC - 2;
       end if;
 
       if blocking then
@@ -639,44 +638,6 @@ is
    end ipc_do_send;
 
 
-   procedure ipc_do_log
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out t_parameters;
-      mode        : in     ewok.tasks_shared.t_task_mode)
-   is
-      -- Message size
-      size  : positive
-         with address => params(2)'address;
-      -- Message
-      -- FIXME: size must be sanitized first
-      msg   : string (1 .. size)
-         with address => to_address (params(3));
-   begin
-
-      if not ewok.sanitize.is_word_in_data_slot
-              (to_system_address (msg'address),
-               caller_id,
-               mode)
-      then
-         goto ret_inval;
-      end if;
-
-      if size >= 512 then
-         goto ret_inval;
-      end if;
-
-      debug.log (ewok.tasks.tasks_list(caller_id).name & " " & msg, false);
-
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
-
-   <<ret_inval>>
-      set_return_value (caller_id, mode, SYS_E_INVAL);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-   end ipc_do_log;
-
-
    procedure sys_ipc
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
@@ -693,8 +654,6 @@ is
       end if;
 
       case syscall is
-         when IPC_LOG         =>
-            ipc_do_log (caller_id, params, mode);
          when IPC_RECV_SYNC   =>
             ipc_do_recv (caller_id, params, true, mode);
          when IPC_SEND_SYNC   =>

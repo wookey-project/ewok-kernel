@@ -1,4 +1,4 @@
-/* \file syscalls.h
+/* \file syscalls-log.c
  *
  * Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
  *   - Ryad     Benadjila
@@ -20,32 +20,35 @@
  *     limitations under the License.
  *
  */
-
-#ifndef SYSCALLS_H_
-#define SYSCALLS_H_
-
-#include "types.h"
-#include "syscalls-utils.h"
-#include "exported/syscalls.h"
-#include "autoconf.h"
+#include "syscalls.h"
 #include "tasks.h"
-#include "devices.h"
+#include "sanitize.h"
+#include "debug.h"
 
-/* including all syscalls header */
-#include "syscalls-yield.h"
-#include "syscalls-sleep.h"
-#include "syscalls-reset.h"
-#include "syscalls-gettick.h"
-#include "syscalls-lock.h"
-#include "syscalls-init.h"
-#include "syscalls-log.h"
+void sys_log (task_t *caller, __user regval_t *regs, e_task_mode mode)
+{
+    uint32_t size = regs[0];
+    uint32_t msg = regs[1];
 
-/*
-** IPC type to define, please use register based, not buffer based to
-** set type and content (r1, r2, r3, r4... r1 = target, r2 = ipctype, r3 = ipc arg1...)
-*/
-void sys_ipc(task_t * t, regval_t * regs, e_task_mode mode);
+    /* Is the message in the task address space? */
+    if (!sanitize_is_data_pointer_in_slot((void*)msg, size, caller->id, mode)) {
+        goto ret_inval;
+    }
 
-void sys_cfg(task_t *caller, __user regval_t *regs, e_task_mode mode);
+    if (size >= 512) {
+        goto ret_inval;
+    }
 
-#endif
+    dbg_log("[%s] ", caller->name);
+    dbg_log((char*)msg);
+    dbg_flush();
+
+    syscall_r0_update(caller, mode, SYS_E_DONE);
+    syscall_set_target_task_runnable(caller);
+    return;
+
+ ret_inval:
+    syscall_r0_update(caller, mode, SYS_E_INVAL);
+    syscall_set_target_task_runnable(caller);
+    return;
+}

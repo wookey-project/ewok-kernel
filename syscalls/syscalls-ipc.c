@@ -485,33 +485,6 @@ void ipc_do_send(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
     return;
 }
 
-static inline void ipc_do_log(task_t *caller, __user regval_t *regs, e_task_mode mode)
-{
-    uint32_t size = regs[2];
-    uint32_t msg = regs[3];
-
-    /* Is the message in the task address space? */
-    if (!sanitize_is_data_pointer_in_slot((void*)msg, size, caller->id, mode)) {
-        goto ret_inval;
-    }
-
-    if (size >= 512) {
-        goto ret_inval;
-    }
-
-    dbg_log("[%s] ", caller->name);
-    dbg_log((char*)msg);
-    dbg_flush();
-
-    syscall_r0_update(caller, mode, SYS_E_DONE);
-    syscall_set_target_task_runnable(caller);
-    return;
-
- ret_inval:
-    syscall_r0_update(caller, mode, SYS_E_INVAL);
-    syscall_set_target_task_runnable(caller);
-    return;
-}
 
 /*
 ** IPC type to define, please use register based, not buffer based to
@@ -522,10 +495,6 @@ void sys_ipc(task_t *caller, __user regval_t *regs, e_task_mode mode)
     uint32_t type = regs[0];
     // check that msg toward msg+size is in task's data section.
     switch (type) {
-    case IPC_LOG:
-        KERNLOG(DBG_DEBUG, "[syscall][ipc][task %s] ipc log\n", caller->name);
-        ipc_do_log(caller, regs, mode);
-        break;
     case IPC_RECV_SYNC:
         KERNLOG(DBG_DEBUG, "[syscall][ipc][task %s] recv sync\n", caller->name);
         ipc_do_recv(caller, regs, true, mode); /* blocking */

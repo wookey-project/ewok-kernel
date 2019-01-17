@@ -1,4 +1,4 @@
-/* \file syscalls.h
+/* \file syscalls-log.h
  *
  * Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
  *   - Ryad     Benadjila
@@ -20,32 +20,12 @@
  *     limitations under the License.
  *
  */
+#ifndef SYSCALLS_LOG_H_
+# define SYSCALLS_LOG_H_
 
-#ifndef SYSCALLS_H_
-#define SYSCALLS_H_
-
-#include "types.h"
-#include "syscalls-utils.h"
-#include "exported/syscalls.h"
-#include "autoconf.h"
 #include "tasks.h"
-#include "devices.h"
+#include "types.h"
 
-/* including all syscalls header */
-#include "syscalls-yield.h"
-#include "syscalls-sleep.h"
-#include "syscalls-reset.h"
-#include "syscalls-gettick.h"
-#include "syscalls-lock.h"
-#include "syscalls-init.h"
-#include "syscalls-log.h"
+void sys_log(task_t *caller, __user regval_t *regs, e_task_mode mode);
 
-/*
-** IPC type to define, please use register based, not buffer based to
-** set type and content (r1, r2, r3, r4... r1 = target, r2 = ipctype, r3 = ipc arg1...)
-*/
-void sys_ipc(task_t * t, regval_t * regs, e_task_mode mode);
-
-void sys_cfg(task_t *caller, __user regval_t *regs, e_task_mode mode);
-
-#endif
+#endif/*!SYSCALLS_LOG_H_*/

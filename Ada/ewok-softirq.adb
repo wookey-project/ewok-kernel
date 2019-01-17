@@ -34,6 +34,7 @@ with ewok.syscalls.cfg;
 with ewok.syscalls.gettick;
 with ewok.syscalls.ipc;
 with ewok.syscalls.lock;
+with ewok.syscalls.log;
 with ewok.syscalls.reset;
 with ewok.syscalls.sleep;
 with ewok.syscalls.yield;
@@ -218,6 +219,9 @@ is
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
          when SYS_GET_RANDOM =>
             ewok.syscalls.rng.sys_get_random
+              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+         when SYS_LOG =>
+            ewok.syscalls.log.sys_log
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
       end case;
 

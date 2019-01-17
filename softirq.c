@@ -39,6 +39,7 @@
 #include "devices.h"
 #include "mpu.h"
 #include "syscalls-init.h"
+#include "syscalls-log.h"
 #include "syscalls-rng.h"
 
 #include "dma.h"
@@ -223,6 +224,9 @@ static void softirq_handler_syscall(softirq_t * sfq)
             break;
         case SYS_GET_RANDOM:
             sys_get_random(sfq->caller, &args[1], TASK_MODE_MAINTHREAD);
+            break;
+        case SYS_LOG:
+            sys_log(sfq->caller, &args[1], TASK_MODE_MAINTHREAD);
             break;
         default:
             WARN("Unknown syscall %d for task %s\n", syscall, sfq->caller->name);

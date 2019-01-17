@@ -57,7 +57,8 @@ is
       SYS_RESET,
       SYS_SLEEP,
       SYS_LOCK,
-      SYS_GET_RANDOM)
+      SYS_GET_RANDOM,
+      SYS_LOG)
       with size => 32;
 
    type t_syscalls_init is
@@ -68,8 +69,7 @@ is
       INIT_DONE);
 
    type t_syscalls_ipc is
-     (IPC_LOG,
-      IPC_RECV_SYNC,
+     (IPC_RECV_SYNC,
       IPC_SEND_SYNC,
       IPC_RECV_ASYNC,
       IPC_SEND_ASYNC);

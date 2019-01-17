@@ -24,25 +24,14 @@
 with ewok.tasks_shared;
 
 
-package ewok.syscalls.ipc
+package ewok.syscalls.log
    with spark_mode => off
 is
 
-   procedure ipc_do_recv
-     (caller_id   : in ewok.tasks_shared.t_task_id;
-      params      : in t_parameters;
-      blocking    : in boolean;
-      mode        : in ewok.tasks_shared.t_task_mode);
-
-   procedure ipc_do_send
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out t_parameters;
-      blocking    : in     boolean;
-      mode        : in     ewok.tasks_shared.t_task_mode);
-
-   procedure sys_ipc
+   procedure sys_log
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-end ewok.syscalls.ipc;
+end ewok.syscalls.log;
+

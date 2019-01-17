@@ -52,7 +52,8 @@ typedef enum {
     SYS_RESET,
     SYS_SLEEP,
     SYS_LOCK,
-    SYS_GET_RANDOM
+    SYS_GET_RANDOM,
+    SYS_LOG
 } e_syscall_type;
 
 /**
@@ -78,11 +79,8 @@ typedef enum {
 ** \brief Definition of all the IPC syscall types
 */
 typedef enum {
-    /** Logging using kernel serial output */
-    IPC_LOG = 0,
-
     /** Waiting data from another task (blocking syscall) */
-    IPC_RECV_SYNC,
+    IPC_RECV_SYNC = 0,
 
     /** Sending data to another task (executed just after), or
      * return busy if the target already have an ipc content to read */

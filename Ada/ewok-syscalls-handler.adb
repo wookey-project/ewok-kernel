@@ -26,6 +26,7 @@ with ewok.sched;
 with ewok.softirq;
 with ewok.syscalls.dma;
 with ewok.syscalls.yield;
+with ewok.syscalls.ipc;
 with ewok.syscalls.reset;
 with ewok.syscalls.sleep;
 with ewok.syscalls.gettick;
@@ -53,13 +54,15 @@ is
       return boolean
    is
    begin
-      if sys_params_a.all.syscall_type = SYS_IPC or
+
+      if sys_params_a.all.syscall_type = SYS_LOG or
          sys_params_a.all.syscall_type = SYS_INIT
       then
          return false;
-      else
-         return true;
       end if;
+
+      return true;
+
    end is_synchronous_syscall;
 
 
@@ -71,6 +74,10 @@ is
    begin
 
       case sys_params_a.all.syscall_type is
+         when SYS_IPC  =>
+            ewok.syscalls.ipc.sys_ipc
+              (current_id, sys_params_a.all.args, mode);
+
          when SYS_GETTICK  =>
             ewok.syscalls.gettick.sys_gettick
               (current_id,
@@ -140,7 +147,7 @@ is
               (current_id, mode);
 
          when SYS_INIT     => raise program_error;
-         when SYS_IPC      => raise program_error;
+         when SYS_LOG      => raise program_error;
 
       end case;
 
@@ -241,6 +248,7 @@ is
                   exec_synchronous_syscall
                     (current_id, current_a.all.mode, sys_params_a);
                else
+               -- Postponed syscall are forbidden
                   set_return_value
                     (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
                end if;
@@ -250,6 +258,9 @@ is
                if is_synchronous_syscall (sys_params_a) then
                   exec_synchronous_syscall
                     (current_id, current_a.all.mode, sys_params_a);
+                  if sys_params_a.all.syscall_type = SYS_IPC then
+                     return ewok.sched.do_schedule (frame_a);
+                  end if;
                else
                -- Postponed syscall
                   ewok.softirq.push_syscall (current_id);
@@ -257,7 +268,6 @@ is
                      TASK_STATE_SVC_BLOCKED);
                   return ewok.sched.do_schedule (frame_a);
                end if;
-
             end if;
 
          when SVC_TASK_DONE   =>
