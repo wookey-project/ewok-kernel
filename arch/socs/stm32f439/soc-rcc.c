@@ -25,6 +25,7 @@
 #include "soc-rcc.h"
 #include "soc-pwr.h"
 #include "soc-flash.h"
+#include "m4-cpu.h"
 
 void soc_rcc_reset(void)
 {
@@ -50,6 +51,8 @@ void soc_rcc_reset(void)
 
     /* Reset all interrupts */
     write_reg_value(r_CORTEX_M_RCC_CIR, 0x00000000);
+
+    full_memory_barrier();
 }
 
 void soc_rcc_setsysclock(void)

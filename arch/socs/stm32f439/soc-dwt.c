@@ -22,6 +22,7 @@
  */
 
 #include "soc-dwt.h"
+#include "m4-cpu.h"
 
 static uint32_t last_dwt = 0;
 
@@ -37,11 +38,13 @@ void soc_dwt_reset_timer(void)
     *(volatile uint32_t *)LAR = 0xC5ACCE55;
     *(volatile uint32_t *)DWT_CYCCNT = 0;   // reset the counter
     *(volatile uint32_t *)DWT_CONTROL = 0;
+   full_memory_barrier();
 }
 
 void soc_dwt_start_timer(void)
 {
     *(volatile uint32_t *)DWT_CONTROL = *(uint32_t *) DWT_CONTROL | 1;  // enable the counter
+   full_memory_barrier();
 }
 
 void soc_dwt_stop_timer(void)

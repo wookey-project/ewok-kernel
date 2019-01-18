@@ -20,6 +20,7 @@
  *     limitations under the License.
  *
  */
+#include "autoconf.h"
 #include "m4-cpu.h"
 #include "soc-init.h"
 #include "soc-flash.h"
@@ -28,7 +29,6 @@
 #include "soc-rcc.h"
 #include "product.h"
 #include "debug.h"
-#include "autoconf.h"
 
 /*
  * \brief Configure the Vector Table location and offset address
