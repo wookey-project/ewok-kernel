@@ -37,9 +37,7 @@ with ewok.syscalls.sleep;
 with ewok.syscalls.yield;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
-with applications;
 with m4.cpu.instructions;
-with debug;
 
 package body ewok.syscalls.handler
    with spark_mode => off
@@ -144,31 +142,14 @@ is
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
    is
-
       svc            : t_svc_type;
       sys_params_a   : t_syscall_parameters_access;
-      current_a      : ewok.tasks.t_task_access;
       current_id     : t_task_id;
-
-#if CONFIG_SCHED_SUPPORT_FISR
-      fast_isr    : constant boolean := true;
-#else
-      fast_isr    : constant boolean := false;
-#end if;
-
+      current_a      : ewok.tasks.t_task_access;
    begin
 
       current_id  := ewok.sched.get_current;
       current_a   := ewok.tasks.get_task (current_id);
-
-      -- FIXME
-      -- When there are numerous SVC, it seems that SYSTICK might generate an
-      -- improper tail-chaining with a priority inversion resulting in SVC
-      -- beeing handled after SYSTICK.
-      if current_id not in applications.list'range then
-         debug.log ("<spurious>");
-         raise program_error;
-      end if;
 
       --
       -- We must save the frame pointer because synchronous syscall don't refer
@@ -215,15 +196,12 @@ is
 
       case svc is
 
-         --
-         -- Syscalls
-         --
-
          when SVC_SYSCALL     =>
 
             -- Extracting syscall parameters
             sys_params_a   := to_syscall_parameters_access (frame_a.all.R0);
 
+            -- Are they valid?
             if not sys_params_a.all.syscall_type'valid then
                ewok.tasks.set_state
                  (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FAULT);
@@ -231,19 +209,19 @@ is
                  (current_id, ewok.tasks.get_mode(current_id), SYS_E_DENIED);
             end if;
 
-            -- IPCs
+            -- Executing IPCs
             if sys_params_a.all.syscall_type = SYS_IPC then
                ewok.syscalls.ipc.sys_ipc
                  (current_id, sys_params_a.all.args, current_a.all.mode);
                return ewok.sched.do_schedule (frame_a);
 
-            -- Synchronous syscall
+            -- Executing other synchronous syscall
             elsif sys_params_a.all.syscall_type /= SYS_LOG then
                exec_synchronous_syscall
                  (current_id, current_a.all.mode, sys_params_a);
                return frame_a;
 
-            -- sys_log() syscall is postponed (asynchronously executed)
+            -- Sys_log() syscall is postponed (asynchronously executed)
             else
                if current_a.all.mode = TASK_MODE_MAINTHREAD then
                   ewok.softirq.push_syscall (current_id);
@@ -258,9 +236,6 @@ is
                end if;
             end if;
 
-         --
-         -- End of task
-         --
 
          when SVC_TASK_DONE   =>
             ewok.tasks.set_state
@@ -268,15 +243,10 @@ is
 
             return ewok.sched.do_schedule (frame_a);
 
-         --
-         -- End of ISR
-         --
 
          when SVC_ISR_DONE    =>
 
-            if fast_isr and
-               current_a.all.isr_ctx.sched_policy = ISR_FORCE_MAINTHREAD
-            then
+#if CONFIG_SCHED_SUPPORT_FISR
                declare
                   current_state : constant t_task_state :=
                      ewok.tasks.get_state (current_id, TASK_MODE_MAINTHREAD);
@@ -288,7 +258,7 @@ is
                        (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
                   end if;
                end;
-            end if;
+#end if;
 
             ewok.tasks.set_state
               (current_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
