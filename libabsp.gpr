@@ -39,7 +39,7 @@ library project Libabsp is
       for Switches ("soc-nvic.adb") use ("-O2", "-g") & basic & verif;
       for Switches ("m4-cpu.adb") use ("-O2", "-g") & basic & verif;
       for Switches ("m4-cpu-instructions.adb") use ("-O2", "-g") & basic & verif;
-      --for Switches ("soc-dma.adb") use ("-O2", "-g") & basic & verif;
+      for Switches ("soc-dma.adb") use ("-O2", "-g") & basic & verif;
       --for Switches ("soc-gpio.adb") use ("-O2", "-g") & basic & verif;
       --for Switches ("soc-gpio-interfaces.adb") use ("-O2", "-g") & basic & verif;
 

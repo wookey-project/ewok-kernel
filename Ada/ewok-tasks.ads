@@ -200,7 +200,8 @@ is
    function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean;
 
    function get_task (id : ewok.tasks_shared.t_task_id)
-      return t_task_access;
+      return t_task_access
+   with inline;
 
 #if CONFIG_KERNEL_DOMAIN
    function get_domain (id : in ewok.tasks_shared.t_task_id)
@@ -244,7 +245,8 @@ is
    procedure set_return_value
      (id    : in  ewok.tasks_shared.t_task_id;
       mode  : in  t_task_mode;
-      val   : in  unsigned_32);
+      val   : in  unsigned_32)
+   with inline;
 
    procedure task_init
    with

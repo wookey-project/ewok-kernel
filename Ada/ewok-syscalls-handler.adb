@@ -24,16 +24,17 @@ with ewok.tasks;  use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.sched;
 with ewok.softirq;
-with ewok.syscalls.dma;
-with ewok.syscalls.yield;
-with ewok.syscalls.ipc;
-with ewok.syscalls.reset;
-with ewok.syscalls.sleep;
-with ewok.syscalls.gettick;
-with ewok.syscalls.lock;
-with ewok.syscalls.rng;
 with ewok.syscalls.cfg.dev;
 with ewok.syscalls.cfg.gpio;
+with ewok.syscalls.dma;
+with ewok.syscalls.gettick;
+with ewok.syscalls.init;
+with ewok.syscalls.ipc;
+with ewok.syscalls.lock;
+with ewok.syscalls.reset;
+with ewok.syscalls.rng;
+with ewok.syscalls.sleep;
+with ewok.syscalls.yield;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with applications;
@@ -47,23 +48,6 @@ is
    type t_syscall_parameters_access is access all t_syscall_parameters;
    function to_syscall_parameters_access is new ada.unchecked_conversion
      (system_address, t_syscall_parameters_access);
-
-
-   function is_synchronous_syscall
-     (sys_params_a   : t_syscall_parameters_access)
-      return boolean
-   is
-   begin
-
-      if sys_params_a.all.syscall_type = SYS_LOG or
-         sys_params_a.all.syscall_type = SYS_INIT
-      then
-         return false;
-      end if;
-
-      return true;
-
-   end is_synchronous_syscall;
 
 
    procedure exec_synchronous_syscall
@@ -82,6 +66,10 @@ is
             ewok.syscalls.gettick.sys_gettick
               (current_id,
                sys_params_a.all.args, mode);
+
+         when SYS_LOCK     =>
+            ewok.syscalls.lock.sys_lock
+              (current_id, sys_params_a.all.args, mode);
 
          when SYS_YIELD    =>
             ewok.syscalls.yield.sys_yield (current_id, mode);
@@ -134,19 +122,17 @@ is
             ewok.syscalls.sleep.sys_sleep
               (current_id, sys_params_a.all.args, mode);
 
-         when SYS_LOCK     =>
-            ewok.syscalls.lock.sys_lock
-              (current_id, sys_params_a.all.args, mode);
-
          when SYS_GET_RANDOM =>
             ewok.syscalls.rng.sys_get_random
               (current_id, sys_params_a.all.args, mode);
 
          when SYS_RESET    =>
-            ewok.syscalls.reset.sys_reset
-              (current_id, mode);
+            ewok.syscalls.reset.sys_reset (current_id, mode);
 
-         when SYS_INIT     => raise program_error;
+         when SYS_INIT     =>
+            ewok.syscalls.init.sys_init
+              (current_id, sys_params_a.all.args, mode);
+
          when SYS_LOG      => raise program_error;
 
       end case;
@@ -223,11 +209,15 @@ is
          end;
       end;
 
-      --
-      -- Managing SVCs
-      --
+      -------------------
+      -- Managing SVCs --
+      -------------------
 
       case svc is
+
+         --
+         -- Syscalls
+         --
 
          when SVC_SYSCALL     =>
 
@@ -241,40 +231,46 @@ is
                  (current_id, ewok.tasks.get_mode(current_id), SYS_E_DENIED);
             end if;
 
-            -- ISR mode
-            if current_a.all.mode = TASK_MODE_ISRTHREAD then
-               -- Synchronous syscall
-               if is_synchronous_syscall (sys_params_a) then
-                  exec_synchronous_syscall
-                    (current_id, current_a.all.mode, sys_params_a);
-               else
-               -- Postponed syscall are forbidden
-                  set_return_value
-                    (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
-               end if;
+            -- IPCs
+            if sys_params_a.all.syscall_type = SYS_IPC then
+               ewok.syscalls.ipc.sys_ipc
+                 (current_id, sys_params_a.all.args, current_a.all.mode);
+               return ewok.sched.do_schedule (frame_a);
+
+            -- Synchronous syscall
+            elsif sys_params_a.all.syscall_type /= SYS_LOG then
+               exec_synchronous_syscall
+                 (current_id, current_a.all.mode, sys_params_a);
+               return frame_a;
+
+            -- sys_log() syscall is postponed (asynchronously executed)
             else
-            -- Main thread
-               -- Synchronous syscall
-               if is_synchronous_syscall (sys_params_a) then
-                  exec_synchronous_syscall
-                    (current_id, current_a.all.mode, sys_params_a);
-                  if sys_params_a.all.syscall_type = SYS_IPC then
-                     return ewok.sched.do_schedule (frame_a);
-                  end if;
-               else
-               -- Postponed syscall
+               if current_a.all.mode = TASK_MODE_MAINTHREAD then
                   ewok.softirq.push_syscall (current_id);
                   ewok.tasks.set_state (current_id, TASK_MODE_MAINTHREAD,
                      TASK_STATE_SVC_BLOCKED);
                   return ewok.sched.do_schedule (frame_a);
+               else
+                  -- Postponed syscalls are forbidden in ISR mode
+                  set_return_value
+                    (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
+                  return frame_a;
                end if;
             end if;
+
+         --
+         -- End of task
+         --
 
          when SVC_TASK_DONE   =>
             ewok.tasks.set_state
               (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
             return ewok.sched.do_schedule (frame_a);
+
+         --
+         -- End of ISR
+         --
 
          when SVC_ISR_DONE    =>
 
@@ -300,8 +296,6 @@ is
             return ewok.sched.do_schedule (frame_a);
 
       end case;
-
-      return frame_a;
 
    end svc_handler;
 

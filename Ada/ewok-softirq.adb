@@ -194,6 +194,9 @@ is
       end if;
 
       case params_a.all.syscall_type is
+         when SYS_LOG =>
+            ewok.syscalls.log.sys_log
+              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
          when SYS_YIELD      =>
             ewok.syscalls.yield.sys_yield (req.caller_id, TASK_MODE_MAINTHREAD);
          when SYS_INIT       =>
@@ -219,9 +222,6 @@ is
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
          when SYS_GET_RANDOM =>
             ewok.syscalls.rng.sys_get_random
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_LOG =>
-            ewok.syscalls.log.sys_log
               (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
       end case;
 
