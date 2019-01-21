@@ -67,12 +67,14 @@ is
    is
    begin
       case level is
-         when DEBUG .. INFO   =>
-            log (COLOR_KERNEL & s & COLOR_NORMAL);
+         when DEBUG => 
+            log (BG_COLOR_ORANGE & s & BG_COLOR_BLACK);
+         when INFO   =>
+            log (BG_COLOR_BLUE & s & BG_COLOR_BLACK);
          when WARNING         =>
-            log (COLOR_WARNING & s & COLOR_NORMAL);
+            log (BG_COLOR_ORANGE & s & BG_COLOR_BLACK);
          when ERROR .. ALERT  =>
-            log (COLOR_ALERT & s & COLOR_NORMAL);
+            log (BG_COLOR_RED & s & BG_COLOR_BLACK);
       end case;
    end log;
 
@@ -84,7 +86,7 @@ is
          with address => to_address(USER_RAM_BASE);
 #end if;
    begin
-      log (COLOR_ALERT & "panic: " & s & COLOR_NORMAL);
+      log (BG_COLOR_RED & "panic: " & s & BG_COLOR_BLACK);
 #if CONFIG_KERNEL_PANIC_FREEZE
       loop null; end loop;
 #end if;
