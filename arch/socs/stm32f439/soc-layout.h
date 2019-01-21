@@ -78,8 +78,8 @@
  * Mapping
  */
 #define LDR_BASE        0x08000000  /* loader */
-#define SHR_FLIP_BASE   0x0800C000  /* shared memory */
-#define SHR_FLOP_BASE   0x0810C000  /* shared memory */
+#define SHR_FLIP_BASE   0x08008000  /* shared memory */
+#define SHR_FLOP_BASE   0x08108000  /* shared memory */
 
 #define RAM2_BASE       0x10000000
 #define RAM_KERN_BASE   0x10000000  /* 96k user RAM (div by 8 subregions, 12*8, 24*4), starting at RAM size + 32k */
@@ -220,7 +220,7 @@
 
 
 /**** Shared mem ****/
-#define SHR_SIZE        16*KBYTE
+#define SHR_SIZE        32*KBYTE
 
 /**** SRAM ****/
 #define RAM_SIZE        128*KBYTE
