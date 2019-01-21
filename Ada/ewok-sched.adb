@@ -157,7 +157,6 @@ is
          goto ok_return;
       end if;
 
-#if CONFIG_SCHED_SUPPORT_FIPC or CONFIG_SCHED_SUPPORT_FISR
       --
       -- IPC can force task election to reduce IPC overhead
       --
@@ -169,7 +168,7 @@ is
             goto ok_return;
          end if;
       end loop;
-#end if;
+
 
 #if CONFIG_SCHED_RAND
       declare

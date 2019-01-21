@@ -72,14 +72,16 @@ is
 
    begin
 
---      declare
---         u : unsigned_8
---            with address => to_address (params(1));
---      begin
---         debug.log (debug.ERROR, "debug: ipc_do_recv(): task"
---            & ewok.tasks.tasks_list(caller_id).name &
---            & " <- " & unsigned_8'image (u));
---      end;
+#if CONFIG_DEBUG_ADA_IPC
+      if expected_sender = ewok.ipc.ANY_APP then
+         debug.log (debug.DEBUG, "ipc_do_recv(): "
+            & ewok.tasks.tasks_list(caller_id).name & " <- ANY");
+      else
+         debug.log (debug.DEBUG, "ipc_do_recv(): "
+            & ewok.tasks.tasks_list(caller_id).name & " <- "
+            & ewok.tasks.tasks_list(ewok.ipc.to_task_id(expected_sender)).name);
+      end if;
+#end if;
 
       --------------------------
       -- Verifying parameters --
@@ -395,9 +397,11 @@ is
 
    begin
 
---      debug.log (debug.ERROR, "debug: ipc_do_send(): task"
---         & ewok.tasks_shared.t_task_id'image (caller_id)
---         & " -> task" & unsigned_32'image (params(1)));
+#if CONFIG_DEBUG_ADA_IPC
+      debug.log (debug.DEBUG, "ipc_do_send(): "
+         & ewok.tasks.tasks_list(caller_id).name & " -> "
+         & ewok.tasks.tasks_list(id_receiver).name);
+#end if;
 
       --------------------------
       -- Verifying parameters --
