@@ -480,10 +480,10 @@ is
       return t_task_state
    is
    begin
-     if mode = TASK_MODE_MAINTHREAD then
-       return tasks_list(id).state;
-      else -- TASK_MODE_ISRTHREAD
-       return tasks_list(id).isr_state;
+      if mode = TASK_MODE_MAINTHREAD then
+         return tasks_list(id).state;
+      else
+         return tasks_list(id).isr_state;
       end if;
    end get_state;
 
@@ -495,8 +495,8 @@ is
    is
    begin
       if mode = TASK_MODE_MAINTHREAD then
-        tasks_list(id).state := state;
-      else -- TASK_MODE_ISRTHREAD
+         tasks_list(id).state := state;
+      else
          tasks_list(id).isr_state := state;
       end if;
    end set_state;
@@ -507,7 +507,7 @@ is
    return t_task_mode
    is
    begin
-     return tasks_list(id).mode;
+      return tasks_list(id).mode;
    end get_mode;
 
 
@@ -516,7 +516,7 @@ is
       mode   : in   ewok.tasks_shared.t_task_mode)
    is
    begin
-     tasks_list(id).mode := mode;
+      tasks_list(id).mode := mode;
    end set_mode;
 
 

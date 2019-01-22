@@ -132,7 +132,7 @@ is
             TSK.tasks_list(id).isr_ctx.frame_a        := NULL;
             TSK.tasks_list(id).isr_ctx.device_id      := ID_DEV_UNUSED;
             TSK.tasks_list(id).isr_ctx.sched_policy   := ISR_STANDARD;
-            TSK.tasks_list(id).mode := TASK_MODE_MAINTHREAD;
+            ewok.tasks.set_mode (id, TASK_MODE_MAINTHREAD);
 
 
             -- When a task has just finished its ISR  its main thread might
@@ -140,7 +140,8 @@ is
             if ewok.sleep.is_sleeping (id) then
                ewok.sleep.try_waking_up (id);
             elsif TSK.tasks_list(id).state = TASK_STATE_IDLE then
-               TSK.tasks_list(id).state := TASK_STATE_RUNNABLE;
+               ewok.tasks.set_state
+                 (id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
             end if;
 
          end if;
@@ -163,7 +164,8 @@ is
 
       for id in applications.list'range loop
          if TSK.tasks_list(id).state = TASK_STATE_FORCED then
-            TSK.tasks_list(id).state := TASK_STATE_RUNNABLE;
+            ewok.tasks.set_state
+              (id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
             elected := id;
             goto ok_return;
          end if;

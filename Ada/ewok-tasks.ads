@@ -176,7 +176,6 @@ is
    softirq_task_name : aliased t_task_name := "SOFTIRQ" & "   ";
    idle_task_name    : aliased t_task_name := "IDLE" & "      ";
 
-
    ---------------
    -- Functions --
    ---------------
@@ -237,7 +236,7 @@ is
       mode   : in   ewok.tasks_shared.t_task_mode)
    with
       inline,
-      global => ( In_Out => tasks_list );
+      global => ( in_out => tasks_list );
 
    -- Set return value inside a syscall
    -- Note: mode must be defined as a task can do a syscall while in ISR mode

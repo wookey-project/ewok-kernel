@@ -330,17 +330,19 @@ is
       ep.all.size  := 0;
 
       -- Free sender from it's blocking state
-      case ewok.tasks.get_state (sender_a.all.id, TASK_MODE_MAINTHREAD) is
+      case ewok.tasks.get_state (id_sender, TASK_MODE_MAINTHREAD) is
 
          when TASK_STATE_IPC_WAIT_ACK      =>
             set_return_value
-              (sender_a.all.id, TASK_MODE_MAINTHREAD, SYS_E_DONE);
+              (id_sender, TASK_MODE_MAINTHREAD, SYS_E_DONE);
             ewok.tasks.set_state
-              (sender_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
+              (id_sender, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
 
          when TASK_STATE_IPC_SEND_BLOCKED  =>
             -- The sender will reexecute the SVC instruction to fulfill its syscall
-            sender_a.all.state := TASK_STATE_FORCED;
+            ewok.tasks.set_state
+              (id_sender, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
+
             sender_a.all.ctx.frame_a.all.PC :=
                sender_a.all.ctx.frame_a.all.PC - 2;
          when others =>
@@ -550,7 +552,8 @@ is
       if ewok.sleep.is_sleeping (receiver_a.id) then
          ewok.sleep.try_waking_up (receiver_a.id);
       elsif receiver_a.all.state = TASK_STATE_IDLE then
-         receiver_a.all.state := TASK_STATE_RUNNABLE;
+         ewok.tasks.set_state
+           (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
       end if;
 
       -- The receiver has already a pending message and the endpoint is already
@@ -603,18 +606,21 @@ is
             = TASK_STATE_IPC_RECV_BLOCKED
       then
          -- The receiver will reexecute the SVC instruction to fulfill its syscall
-         receiver_a.all.state := TASK_STATE_FORCED;
+         ewok.tasks.set_state
+           (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
          receiver_a.all.ctx.frame_a.all.PC :=
             receiver_a.all.ctx.frame_a.all.PC - 2;
       end if;
 
       if blocking then
-         ewok.tasks.tasks_list(caller_id).state := TASK_STATE_IPC_WAIT_ACK;
+         ewok.tasks.set_state
+           (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_WAIT_ACK);
 #if CONFIG_IPC_SCHED_VIOL
          if receiver_a.all.state = TASK_STATE_RUNNABLE or
             receiver_a.all.state = TASK_STATE_IDLE
          then
-            receiver_a.all.state := TASK_STATE_FORCED;
+            ewok.tasks.set_state
+              (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
          end if;
 #end if;
          return;

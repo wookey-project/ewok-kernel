@@ -56,6 +56,5 @@ is
       return ewok.t_stack_frame_access
    renames pendsv_handler;
 
-
 end ewok.sched;
 

@@ -295,7 +295,7 @@ is
          params,
          TSK.tasks_list(req.caller_id).isr_ctx.frame_a);
 
-      TSK.tasks_list(req.caller_id).mode := TASK_MODE_ISRTHREAD;
+      ewok.tasks.set_mode (req.caller_id, TASK_MODE_ISRTHREAD);
       ewok.tasks.set_state
         (req.caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_RUNNABLE);
 
