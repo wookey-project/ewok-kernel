@@ -27,15 +27,11 @@ package ewok.syscalls
    with spark_mode => off
 is
 
-   -- FIXME - using an enumeration with size 32
    subtype t_syscall_ret is unsigned_32;
 
-   SYS_E_DONE     : constant t_syscall_ret := 0;
-      -- Syscall has succesfully being executed
-   SYS_E_INVAL    : constant t_syscall_ret := 1;
-      -- Invalid input data
-   SYS_E_DENIED   : constant t_syscall_ret := 2;
-      -- Permission is denied
+   SYS_E_DONE     : constant t_syscall_ret := 0; -- Syscall succesful
+   SYS_E_INVAL    : constant t_syscall_ret := 1; -- Invalid input data
+   SYS_E_DENIED   : constant t_syscall_ret := 2; -- Permission is denied
    SYS_E_BUSY     : constant t_syscall_ret := 3;
       -- Target is busy OR not enough ressources OR ressource is already used
 

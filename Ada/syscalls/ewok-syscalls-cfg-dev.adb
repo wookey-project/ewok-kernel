@@ -98,9 +98,8 @@ is
          goto ret_inval;
       end if;
 
-      -- Verifying that the device really belongs to the task
-      -- NOTE - Defensive programming
-      -- FIXME - That test may be removed
+      -- Defensive programming. Verifying that the device really belongs to the
+      -- task
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then
          raise program_error;
       end if;
@@ -233,9 +232,8 @@ is
          goto ret_inval;
       end if;
 
-      -- Verifying that the device really belongs to the task
-      -- NOTE - Defensive programming.
-      -- FIXME - That test may be removed
+      -- Defensive programming. Verifying that the device really belongs to the
+      -- task
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then
          raise program_error;
       end if;
@@ -326,11 +324,10 @@ is
          goto ret_inval;
       end if;
 
-      -- Verifying that the device really belongs to the task
-      -- NOTE - Defensive programming.
-      -- FIXME - That test may be removed
+      -- Defensive programming. Verifying that the device really belongs to the
+      -- task
       if ewok.devices.get_task_from_id (dev_id) /= caller_id then
-         goto ret_inval;
+         raise program_error;
       end if;
 
       --

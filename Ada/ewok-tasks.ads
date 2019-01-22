@@ -211,7 +211,6 @@ is
    function get_task_id (name : t_task_name)
       return ewok.tasks_shared.t_task_id;
 
-   -- FIXME - transitions between states
    procedure set_state
      (id    : ewok.tasks_shared.t_task_id;
       mode  : t_task_mode;

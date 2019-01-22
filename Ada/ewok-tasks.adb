@@ -488,6 +488,7 @@ is
    end get_state;
 
 
+   -- FIXME - transitions between states
    procedure set_state
      (id    : ewok.tasks_shared.t_task_id;
       mode  : t_task_mode;

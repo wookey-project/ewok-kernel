@@ -39,7 +39,12 @@ is
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
    is
-      current  : ewok.tasks.t_task_access;
+
+#if not CONFIG_KERNEL_PANIC_FREEZE
+      new_frame_a : t_stack_frame_access
+#end if;
+      current     : ewok.tasks.t_task_access;
+
    begin
 
       if m4.scb.SCB.CFSR.MMFSR.MMARVALID then
@@ -83,16 +88,16 @@ is
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state
-         (current.all.id, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
+        (current.all.id, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
 
-      -- FIXME
-      -- Request schedule
-      m4.scb.SCB.ICSR.PENDSVSET := 1;
-
-      -- FIXME
+#if CONFIG_KERNEL_PANIC_FREEZE
       debug.panic ("panic!");
-
       return frame_a;
+#else
+      new_frame_a := ewok.sched.do_schedule (frame_a);
+      return new_frame_a;
+#end if;
+
    end memory_fault_handler;
 
 

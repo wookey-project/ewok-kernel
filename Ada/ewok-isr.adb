@@ -65,8 +65,7 @@ is
       -- All user ISR have their Pending IRQ bit clean here
       soc.nvic.clear_pending_irq (soc.nvic.to_irq_number (intr));
 
-      -- FIXME - softirq.query parameters interface must use some
-      --         explanatory names
+      -- Pushing the request for further treatment by softirq
       isr_params.handler          := ewok.interrupts.to_system_address (handler);
       isr_params.interrupt        := intr;
       isr_params.posthook_status  := status;
