@@ -434,15 +434,12 @@ is
    function systick_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with spark_mode => off
+      with spark_mode => off
    is
    begin
 
       m4.systick.increment;
       sched_period := sched_period + 1;
-
-      -- Waking-up sleeping tasks
-      ewok.sleep.check_is_awoke;
 
       -- Managing DWT cycle count overflow
       soc.dwt.ovf_manage;
@@ -455,6 +452,9 @@ is
          sched_period := 0;
       end if;
 
+      -- Waking-up sleeping tasks
+      ewok.sleep.check_is_awoke;
+
       -- Keep ISR threads running until they finish
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and
          ewok.tasks.get_state
@@ -466,16 +466,17 @@ is
 	   -- Save current context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
          -- ISR is done here. We don't really need to save its context.
+         -- FIXME -- Really ???
 	      TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
 	      TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
       end if;
 
 	   -- Elect a new task
-	   current_task_id := task_elect;
+	   current_task_id   := task_elect;
 	
 	   -- Apply MPU specific configuration
-	   mpu_switching (current_task_id);
+      mpu_switching (current_task_id);
 
       -- Return the new context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
