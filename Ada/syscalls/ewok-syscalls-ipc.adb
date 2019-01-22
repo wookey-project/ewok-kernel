@@ -103,7 +103,7 @@ is
       end if;
 
       -- Task initialization is complete ?
-      if not is_init_done (caller_id) then
+      if not ewok.tasks.is_init_done (caller_id) then
 #if CONFIG_DEBUG_ADA_IPC
          debug.log (debug.ERROR, "[task" & ewok.tasks_shared.t_task_id'image (caller_id)
             & "] ipc_do_recv(): initialization not completed");
@@ -565,7 +565,7 @@ is
             if ewok.tasks.get_state (receiver_a.all.id, TASK_MODE_MAINTHREAD)
                   = TASK_STATE_RUNNABLE
                or
-               ewok.tasks.get_tate (receiver_a.all.id, TASK_MODE_MAINTHREAD)
+               ewok.tasks.get_state (receiver_a.all.id, TASK_MODE_MAINTHREAD)
                   = TASK_STATE_IDLE
             then
                ewok.tasks.set_state
