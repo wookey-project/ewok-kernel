@@ -407,19 +407,19 @@ is
          return frame_a;
       end if;
 
-	   -- Save current context
+      -- Save current context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
          -- ISR is done here. We don't really need to save its context.
-	      TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
+         TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
-	      TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
+         TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
       end if;
-	
-	   -- Elect a new task and change current_task_id
-	   current_task_id := task_elect;
-	
-	   -- Apply MPU specific configuration
-	   mpu_switching (current_task_id);
+
+      -- Elect a new task and change current_task_id
+      current_task_id := task_elect;
+
+      -- Apply MPU specific configuration
+      mpu_switching (current_task_id);
 
       -- Return the new context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
@@ -463,19 +463,19 @@ is
          return frame_a;
       end if;
 
-	   -- Save current context
+      -- Save current context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
          -- ISR is done here. We don't really need to save its context.
          -- FIXME -- Really ???
-	      TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
+         TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
-	      TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
+         TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
       end if;
 
-	   -- Elect a new task
-	   current_task_id   := task_elect;
-	
-	   -- Apply MPU specific configuration
+      -- Elect a new task
+      current_task_id   := task_elect;
+
+      -- Apply MPU specific configuration
       mpu_switching (current_task_id);
 
       -- Return the new context
