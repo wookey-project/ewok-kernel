@@ -42,9 +42,6 @@ void ipc_init_endpoints (void)
     }
 }
 
-/*
- * XXX: a malicious user task could starve endpoints by getting them all
- */
 ipc_endpoint_t* ipc_get_endpoint (void)
 {
     for (int ep=0; ep<MAX_IPC_ENDPOINTS; ep++) {

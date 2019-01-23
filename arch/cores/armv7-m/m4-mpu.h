@@ -146,8 +146,6 @@
     (B   << MPU_RASR_B_Pos)   |\
     (S   << MPU_RASR_S_Pos))
 
-/* */
-
 typedef struct region_config_t {
     unsigned int region_number;
     unsigned long int addr;
@@ -170,11 +168,6 @@ uint8_t core_mpu_region_config(region_config * region);
 uint8_t core_mpu_update_subregion_mask(region_config * region);
 
 uint8_t core_mpu_bytes_to_region_size (uint32_t bytes);
-
-/*XXX : Useful ? */
-void core_MemManage_Handler(void);
-
-//void HardFault_Handler(void);
 
 #endif
 #endif                          /* _STM32F4XX_MPU_H */

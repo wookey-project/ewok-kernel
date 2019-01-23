@@ -109,12 +109,12 @@ is
    procedure configure_stream
      (dma_id      : in  soc.dma.t_dma_periph_index;
       stream      : in  soc.dma.t_stream_index;
-      user_config : in  t_dma_config); -- FIXME - duplicate ewok.exported
+      user_config : in  t_dma_config);
 
    procedure reconfigure_stream
      (dma_id      : in  soc.dma.t_dma_periph_index;
       stream      : in  soc.dma.t_stream_index;
-      user_config : in  t_dma_config; -- FIXME - duplicate ewok.exported
+      user_config : in  t_dma_config;
       to_configure: in  t_config_mask);
 
    procedure reset_stream

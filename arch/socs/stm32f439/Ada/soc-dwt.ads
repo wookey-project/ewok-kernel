@@ -22,8 +22,6 @@
 
 with system;
 
--- FIXME - Should be moved to package 'm4.debug'
--- FIXME: pragma doesn't work... :-/
 pragma Annotate (GNATprove,
                  Intentional,
                  "initialization of init_done is not mentioned in Initializes contract",

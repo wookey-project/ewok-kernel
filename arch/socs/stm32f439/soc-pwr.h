@@ -26,7 +26,7 @@
 #include "soc-core.h"
 
 /*
- * XXX: These registers are defined for STM32F405xx/407xx and STM32F415xx/417xx
+ * These registers are defined for STM32F405xx/407xx and STM32F415xx/417xx
  * only. Please refer to the programming manual section 5.5 for STM32F42xxx and
  * STM32F43xxx).
  */
