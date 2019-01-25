@@ -38,7 +38,7 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list(task_id);
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
       if ptr >= user_task.data_slot_start   and
@@ -66,7 +66,7 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
       if ptr >= user_task.txt_slot_start     and
          ptr + 4 <= user_task.txt_slot_end
@@ -87,8 +87,7 @@ is
       dev_id      : ewok.devices_shared.t_device_id;
       dev_size    : unsigned_32;
       dev_addr    : system_address;
-      user_task   : constant ewok.tasks.t_task
-         := ewok.tasks.tasks_list (task_id);
+      user_task   : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
       for i in user_task.device_id'range loop
@@ -122,6 +121,7 @@ is
          is_word_in_txt_slot (ptr, task_id);
    end is_word_in_any_slot;
 
+
    function is_range_in_devices_slot
      (ptr      : system_address;
       size     : unsigned_32;
@@ -129,10 +129,10 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
       user_device_size : unsigned_32;
       user_device_addr : unsigned_32;
       dev_id           : t_device_id;
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
       for i in user_task.device_id'range loop
@@ -161,7 +161,7 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
       if ptr >= user_task.data_slot_start       and
@@ -190,7 +190,7 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
       if ptr >= user_task.txt_slot_start        and
          ptr + size >= ptr                      and
@@ -226,14 +226,14 @@ is
       return boolean
       with spark_mode => off
    is
-      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
+      user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
       for i in 1 .. user_task.num_dma_shms loop
 
          if user_task.dma_shm(i).access_type = dma_access   and
             ptr >= user_task.dma_shm(i).base                and
-            ptr + size >= ptr                                     and
+            ptr + size >= ptr                               and
             ptr + size <= (user_task.dma_shm(i).base +
                            user_task.dma_shm(i).size)
          then
