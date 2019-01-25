@@ -39,8 +39,11 @@ is
      (success : out boolean)
      with spark_mode => off  -- handler is not SPARK compatible
    is
-      -- layout mapping validation of generated constants
-      pragma assert (applications.txt_kern_size + applications.txt_kern_region_base <= applications.txt_user_region_base);
+      -- Layout mapping validation of generated constants
+      pragma assert
+        (applications.txt_kern_size + applications.txt_kern_region_base
+            <= applications.txt_user_region_base);
+
       function get_region_size (size : t_region_size) return unsigned_32
          is (2**(natural (size) + 1));
 
