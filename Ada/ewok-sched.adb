@@ -42,7 +42,7 @@ with applications; -- Automatically generated
 
 
 package body ewok.sched
-   with SPARK_Mode => On
+   with spark_mode => on
 is
 
    package TSK renames ewok.tasks;
@@ -73,7 +73,7 @@ is
 
 
    procedure request_schedule
-   with SPARK_Mode => Off
+   with spark_mode => off
    is
    begin
       m4.scb.SCB.ICSR.PENDSVSET := 1;
@@ -82,7 +82,7 @@ is
 
    function task_elect
       return t_task_id
-   with SPARK_Mode => Off
+   with spark_mode => off
    is
       elected  : t_task_id;
    begin
@@ -267,7 +267,7 @@ is
 
    procedure mpu_switching
      (id : in t_task_id)
-   with SPARK_Mode => Off
+   with spark_mode => off
    is
       new_task : t_task_access;
       dev_id   : t_device_id;
@@ -391,7 +391,7 @@ is
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with SPARK_Mode => Off
+   with spark_mode => off
    is
    begin
 
@@ -432,7 +432,7 @@ is
    function systick_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with SPARK_Mode => Off
+   with spark_mode => off
    is
    begin
 
@@ -486,7 +486,7 @@ is
 
 
    procedure init
-   with SPARK_Mode => Off
+      with spark_mode => off
    is
       idle_task   : t_task_access;
       ok          : boolean;

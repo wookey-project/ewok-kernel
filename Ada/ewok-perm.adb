@@ -68,12 +68,11 @@ is
       to      : in t_real_task_id)
       return boolean
       with
-         Spark_Mode => Off -- implies tasks.get_domain() to be Spark compatible
+         spark_mode => off -- implies tasks.get_domain() to be Spark compatible
    is
    begin
       return
-        (ewok.tasks.get_domain(from) =
-         ewok.tasks.get_domain(to));
+         ewok.tasks.get_domain (from) = ewok.tasks.get_domain (to);
    end is_same_domain;
 #end if;
 

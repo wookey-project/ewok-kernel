@@ -24,7 +24,7 @@
 with ewok.tasks_shared; use ewok.tasks_shared;
 
 package ewok.sched
-   with SPARK_Mode => On
+   with spark_mode => on
 is
 
    -- SPARK/ghost specific function
@@ -38,18 +38,18 @@ is
       pre => (current_task_is_valid);
 
    procedure request_schedule
-   with SPARK_Mode => Off;
+   with spark_mode => off;
 
    function task_elect return t_task_id
-   with SPARK_Mode => Off;
+   with spark_mode => off;
 
    procedure init
-   with SPARK_Mode => Off;
+   with spark_mode => off;
 
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with SPARK_Mode => Off;
+   with spark_mode => off;
 
    function do_schedule
      (frame_a : ewok.t_stack_frame_access)
