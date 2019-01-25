@@ -40,17 +40,17 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
-         Global => null,
-         Post  => (if (ptr + 4 not in system_address'range) then is_word_in_data_slot'Result = false);
+         global => null,
+         post  => (if (ptr + 4 not in system_address'range) then is_word_in_data_slot'result = false);
 
    function is_word_in_txt_slot
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id) return boolean
       with
-         Global => null,
+         global => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post  => (if (ptr + 4 not in system_address'range) then is_word_in_txt_slot'Result = false);
+         post  => (if (ptr + 4 not in system_address'range) then is_word_in_txt_slot'result = false);
 
    function is_word_in_allocated_device
      (ptr      : system_address;
@@ -62,10 +62,10 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
-         Global => null,
+         global => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post  => (if (ptr + 4 not in system_address'range) then is_word_in_any_slot'Result = false);
+         post  => (if (ptr + 4 not in system_address'range) then is_word_in_any_slot'result = false);
 
    function is_range_in_data_slot
      (ptr      : system_address;
@@ -73,20 +73,20 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
-         Global => null,
+         global => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post  => (if (ptr + size not in system_address'range) then is_range_in_data_slot'Result = false);
+         post  => (if (ptr + size not in system_address'range) then is_range_in_data_slot'result = false);
 
    function is_range_in_txt_slot
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id) return boolean
       with
-         Global => null,
+         global => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post  => (if (ptr + size not in system_address'range) then is_range_in_txt_slot'Result = false);
+         post  => (if (ptr + size not in system_address'range) then is_range_in_txt_slot'result = false);
 
    function is_range_in_any_slot
      (ptr      : system_address;
@@ -94,10 +94,10 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
-         Global => null,
+         global => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post  => (if (ptr + size not in system_address'range) then is_range_in_any_slot'Result = false);
+         post  => (if (ptr + size not in system_address'range) then is_range_in_any_slot'result = false);
 
    function is_range_in_dma_shm
      (ptr         : system_address;
@@ -106,9 +106,9 @@ is
       task_id     : ewok.tasks_shared.t_task_id) return boolean
       with
          spark_mode => off,
-         Global     => null,
+         global     => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
-         Post       => (if (ptr + size not in system_address'range) then is_range_in_dma_shm'Result = false);
+         post       => (if (ptr + size not in system_address'range) then is_range_in_dma_shm'result = false);
 
 end ewok.sanitize;
