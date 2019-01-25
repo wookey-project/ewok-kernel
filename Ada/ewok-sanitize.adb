@@ -36,13 +36,13 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list(task_id);
    begin
 
-      if ptr >= user_task_a.all.data_slot_start   and
-         ptr + 4 <= user_task_a.all.data_slot_end
+      if ptr >= user_task.data_slot_start   and
+         ptr + 4 <= user_task.data_slot_end
       then
          return true;
       end if;
@@ -64,12 +64,12 @@ is
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
    begin
-      if ptr >= user_task_a.all.txt_slot_start     and
-         ptr + 4 <= user_task_a.all.txt_slot_end
+      if ptr >= user_task.txt_slot_start     and
+         ptr + 4 <= user_task.txt_slot_end
       then
          return true;
       else
@@ -82,17 +82,17 @@ is
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
       dev_id      : ewok.devices_shared.t_device_id;
       dev_size    : unsigned_32;
       dev_addr    : system_address;
-      user_task_a : constant ewok.tasks.t_task_access
-         := ewok.tasks.get_task (task_id);
+      user_task   : constant ewok.tasks.t_task
+         := ewok.tasks.tasks_list (task_id);
    begin
 
-      for i in user_task_a.all.device_id'range loop
-         dev_id   := user_task_a.all.device_id(i);
+      for i in user_task.device_id'range loop
+         dev_id   := user_task.device_id(i);
          if dev_id /= ID_DEV_UNUSED then
             dev_addr := ewok.devices.get_user_device_addr (dev_id);
             dev_size := ewok.devices.get_user_device_size (dev_id);
@@ -114,6 +114,7 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
+      with spark_mode => off
    is
    begin
       return
@@ -126,16 +127,16 @@ is
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
       user_device_size : unsigned_32;
       user_device_addr : unsigned_32;
       dev_id           : t_device_id;
    begin
 
-      for i in user_task_a.all.device_id'range loop
-         dev_id   := user_task_a.all.device_id(i);
+      for i in user_task.device_id'range loop
+         dev_id   := user_task.device_id(i);
          if dev_id /= ID_DEV_UNUSED then
             user_device_size := ewok.devices.get_user_device_size(dev_id);
             user_device_addr := ewok.devices.get_user_device_addr(dev_id);
@@ -158,14 +159,14 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
    begin
 
-      if ptr >= user_task_a.all.data_slot_start       and
+      if ptr >= user_task.data_slot_start       and
          ptr + size >= ptr                            and
-         ptr + size <= user_task_a.all.data_slot_end
+         ptr + size <= user_task.data_slot_end
       then
          return true;
       end if;
@@ -187,13 +188,13 @@ is
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
    begin
-      if ptr >= user_task_a.all.txt_slot_start        and
+      if ptr >= user_task.txt_slot_start        and
          ptr + size >= ptr                      and
-         ptr + size <= user_task_a.all.txt_slot_end
+         ptr + size <= user_task.txt_slot_end
       then
          return true;
       else
@@ -208,6 +209,7 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
+      with spark_mode => off
    is
    begin
       return
@@ -222,18 +224,18 @@ is
       dma_access  : ewok.exported.dma.t_dma_shm_access;
       task_id     : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off -- access incompatible with SPARK
+      with spark_mode => off
    is
-      user_task_a : constant ewok.tasks.t_task_access := ewok.tasks.get_task (task_id);
+      user_task : constant ewok.tasks.t_task := ewok.tasks.tasks_list (task_id);
    begin
 
-      for i in 1 .. user_task_a.all.num_dma_shms loop
+      for i in 1 .. user_task.num_dma_shms loop
 
-         if user_task_a.all.dma_shm(i).access_type = dma_access   and
-            ptr >= user_task_a.all.dma_shm(i).base                and
+         if user_task.dma_shm(i).access_type = dma_access   and
+            ptr >= user_task.dma_shm(i).base                and
             ptr + size >= ptr                                     and
-            ptr + size <= (user_task_a.all.dma_shm(i).base +
-                           user_task_a.all.dma_shm(i).size)
+            ptr + size <= (user_task.dma_shm(i).base +
+                           user_task.dma_shm(i).size)
          then
             return true;
          end if;

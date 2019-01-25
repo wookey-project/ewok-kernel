@@ -24,7 +24,7 @@
 with ada.unchecked_conversion;
 
 package ewok.syscalls
-   with spark_mode
+   with spark_mode => off
 is
 
    -- FIXME - using an enumeration with size 32

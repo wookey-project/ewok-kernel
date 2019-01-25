@@ -32,8 +32,7 @@ is
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
-      return boolean
-      with spark_mode => off;
+      return boolean;
 
 
    function is_word_in_data_slot
@@ -106,7 +105,7 @@ is
       dma_access  : ewok.exported.dma.t_dma_shm_access;
       task_id     : ewok.tasks_shared.t_task_id) return boolean
       with
-         Spark_Mode => off,
+         spark_mode => off,
          Global     => null,
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
