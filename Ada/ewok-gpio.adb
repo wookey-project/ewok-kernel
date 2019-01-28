@@ -22,8 +22,8 @@
 
 with debug;
 with ewok.exported.gpios; use ewok.exported.gpios;
-with soc.gpio;           use type soc.gpio.t_GPIO_port_access;
-                         use type soc.gpio.t_gpio_pin_index;
+with soc.gpio;            use type soc.gpio.t_gpio_pin_index;
+                          use type soc.gpio.t_gpio_port_index;
 with soc.rcc;
 
 package body ewok.gpio
@@ -101,7 +101,6 @@ is
    procedure config
      (conf     : in  ewok.exported.gpios.t_gpio_config_access)
    is
-      gpio : soc.gpio.t_GPIO_port_access;
    begin
 
       -- Enable RCC
@@ -117,55 +116,68 @@ is
          when soc.gpio.GPIO_PI => soc.rcc.RCC.AHB1.GPIOIEN := true;
       end case;
 
-      gpio := soc.gpio.get_port_access (conf.all.kref.port);
 
       if conf.all.settings.set_mode then
-         gpio.all.MODER.pin (conf.all.kref.pin) :=
+         soc.gpio.set_mode(
+            conf.all.kref.port,
+            conf.all.kref.pin,
             soc.gpio.t_pin_mode'val
-              (t_interface_gpio_mode'pos (conf.all.mode));
+               (t_interface_gpio_mode'pos (conf.all.mode)));
+
       end if;
 
       if conf.all.settings.set_type then
-         gpio.all.OTYPER.pin (conf.all.kref.pin) :=
+         soc.gpio.set_type(
+            conf.all.kref.port,
+            conf.all.kref.pin,
             soc.gpio.t_pin_output_type'val
-              (t_interface_gpio_type'pos (conf.all.otype));
+               (t_interface_gpio_type'pos (conf.all.otype)));
       end if;
 
       if conf.all.settings.set_speed then
-         gpio.all.OSPEEDR.pin (conf.all.kref.pin) :=
+         soc.gpio.set_speed(
+            conf.all.kref.port,
+            conf.all.kref.pin,
             soc.gpio.t_pin_output_speed'val
-              (t_interface_gpio_speed'pos (conf.all.ospeed));
+              (t_interface_gpio_speed'pos (conf.all.ospeed)));
       end if;
 
       if conf.all.settings.set_pupd then
-         gpio.all.PUPDR.pin (conf.all.kref.pin) :=
+         soc.gpio.set_pupd(
+            conf.all.kref.port,
+            conf.all.kref.pin,
             soc.gpio.t_pin_pupd'val
-              (t_interface_gpio_pupd'pos (conf.all.pupd));
+              (t_interface_gpio_pupd'pos (conf.all.pupd)));
       end if;
 
       if conf.all.settings.set_bsr_r then
-         gpio.all.BSRR.BR (conf.all.kref.pin) := types.to_bit (conf.all.bsr_r);
+         soc.gpio.set_bsr_r(
+            conf.all.kref.port,
+            conf.all.kref.pin,
+            types.to_bit (conf.all.bsr_r));
       end if;
 
       if conf.all.settings.set_bsr_s then
-         gpio.all.BSRR.BS (conf.all.kref.pin) := types.to_bit (conf.all.bsr_s);
+         soc.gpio.set_bsr_s(
+            conf.all.kref.port,
+            conf.all.kref.pin,
+            types.to_bit (conf.all.bsr_s));
       end if;
 
       -- FIXME - Writing to LCKR register requires a specific sequence
       --         describe in section 8.4.8 (RM 00090)
       if conf.all.settings.set_lck then
-         gpio.all.LCKR.pin (conf.all.kref.pin) :=
-            soc.gpio.t_pin_lock'val (conf.all.lck);
+         soc.gpio.set_lck(
+            conf.all.kref.port,
+            conf.all.kref.pin,
+            soc.gpio.t_pin_lock'val (conf.all.lck));
       end if;
 
       if conf.all.settings.set_af then
-         if conf.all.kref.pin < 8 then
-            gpio.all.AFRL.pin (conf.all.kref.pin) :=
-               to_pin_alt_func (conf.all.af);
-         else
-            gpio.all.AFRH.pin (conf.all.kref.pin) :=
-               to_pin_alt_func (conf.all.af);
-         end if;
+         soc.gpio.set_af(
+            conf.all.kref.port,
+            conf.all.kref.pin,
+            to_pin_alt_func (conf.all.af));
       end if;
 
    end config;
@@ -175,10 +187,8 @@ is
      (ref      : in  ewok.exported.gpios.t_gpio_ref;
       value    : in  bit)
    is
-      port : soc.gpio.t_GPIO_port_access;
    begin
-      port := soc.gpio.get_port_access (ref.port);
-      port.all.ODR.pin (ref.pin) := value;
+      soc.gpio.write_pin(ref.port, ref.pin, value);
    end write_pin;
 
 
@@ -186,10 +196,10 @@ is
      (ref      : ewok.exported.gpios.t_gpio_ref)
       return bit
    is
-      port : soc.gpio.t_GPIO_port_access;
+      value : bit;
    begin
-      port := soc.gpio.get_port_access (ref.port);
-      return port.all.IDR.pin (ref.pin);
+      soc.gpio.read_pin(ref.port, ref.pin, value);
+      return value;
    end read_pin;
 
 

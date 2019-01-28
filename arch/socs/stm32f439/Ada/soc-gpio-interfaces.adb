@@ -20,6 +20,7 @@
 --
 --
 
+with soc.rcc;
 
 
 package body soc.gpio.interfaces
@@ -42,17 +43,34 @@ is
 
       gpio_port := t_gpio_port_index'val (port);
 
-      if not port'valid then
+      if not gpio_port'valid then
          return types.c.FAILURE;
       end if;
 
       gpio_pin := t_gpio_pin_index'val (pin);
 
-      if not pin'valid then
+      if not gpio_pin'valid then
          return types.c.FAILURE;
       end if;
 
-      soc.gpio.config (gpio_port, gpio_pin, mode, otype, ospeed, pupd, af);
+      case gpio_port is
+         when GPIO_PA => soc.rcc.RCC.AHB1.GPIOAEN := true;
+         when GPIO_PB => soc.rcc.RCC.AHB1.GPIOBEN := true;
+         when GPIO_PC => soc.rcc.RCC.AHB1.GPIOCEN := true;
+         when GPIO_PD => soc.rcc.RCC.AHB1.GPIODEN := true;
+         when GPIO_PE => soc.rcc.RCC.AHB1.GPIOEEN := true;
+         when GPIO_PF => soc.rcc.RCC.AHB1.GPIOFEN := true;
+         when GPIO_PG => soc.rcc.RCC.AHB1.GPIOGEN := true;
+         when GPIO_PH => soc.rcc.RCC.AHB1.GPIOHEN := true;
+         when GPIO_PI => soc.rcc.RCC.AHB1.GPIOIEN := true;
+      end case;
+
+      soc.gpio.set_mode(gpio_port, gpio_pin, mode);
+      soc.gpio.set_type(gpio_port, gpio_pin, otype);
+      soc.gpio.set_speed(gpio_port, gpio_pin, ospeed);
+      soc.gpio.set_pupd(gpio_port, gpio_pin, pupd);
+      soc.gpio.set_af(gpio_port, gpio_pin, af);
+
       return types.c.SUCCESS;
    end configure;
 
