@@ -61,9 +61,11 @@ is
    begin
       p_isr_requests.init (isr_queue);
       p_syscall_requests.init (syscall_queue);
+#if CONFIG_DBGLEVEL >= 7
       debug.log
         (debug.INFO,
          "SOFTIRQ initialized");
+#end if;
    end init;
 
 
