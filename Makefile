@@ -45,7 +45,6 @@ LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp
 ifeq ($(CONFIG_ADAKERNEL),y)
 LD_LIBS = -lkernel -L$(APP_BUILD_DIR)/Ada/lib
 LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp
-LD_LIBS += -labsp -L$(BUILD_DIR)/kernel/libbsp/Ada/lib
 LD_LIBS += -lgnat -L$(BUILD_DIR)/kernel/libgnat
 endif
 
@@ -143,7 +142,7 @@ kernel: $(APP_BUILD_DIR)/$(ELF_NAME) $(APP_BUILD_DIR)/$(HEX_NAME)
 check_paradigm_switch:
 ifeq ($(CONFIG_ADAKERNEL),y)
 	# when switching between kernel paradigm, we must clean any objects an bin files
-	if test ! -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; fi 
+	if test ! -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; fi
 else
 	# when switching between kernel paradigm, we must clean any objects an bin files
 	if test -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; rm -rf $(APP_BUILD_DIR)/Ada; fi
