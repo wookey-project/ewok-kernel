@@ -20,9 +20,30 @@
 --
 --
 
+with soc.rcc;
+
 package body soc.gpio
    with spark_mode => off
 is
+
+
+   procedure enable_clock
+     (port     : in  t_gpio_port_index)
+   is
+   begin
+      case port is
+         when GPIO_PA => soc.rcc.RCC.AHB1.GPIOAEN := true;
+         when GPIO_PB => soc.rcc.RCC.AHB1.GPIOBEN := true;
+         when GPIO_PC => soc.rcc.RCC.AHB1.GPIOCEN := true;
+         when GPIO_PD => soc.rcc.RCC.AHB1.GPIODEN := true;
+         when GPIO_PE => soc.rcc.RCC.AHB1.GPIOEEN := true;
+         when GPIO_PF => soc.rcc.RCC.AHB1.GPIOFEN := true;
+         when GPIO_PG => soc.rcc.RCC.AHB1.GPIOGEN := true;
+         when GPIO_PH => soc.rcc.RCC.AHB1.GPIOHEN := true;
+         when GPIO_PI => soc.rcc.RCC.AHB1.GPIOIEN := true;
+      end case;
+   end enable_clock;
+
 
    procedure set_mode
      (port     : in  t_gpio_port_index;
@@ -35,26 +56,18 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.MODER.pin(pin)    := mode;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.MODER.pin(pin)    := mode;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.MODER.pin(pin)    := mode;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.MODER.pin(pin)    := mode;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.MODER.pin(pin)    := mode;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.MODER.pin(pin)    := mode;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.MODER.pin(pin)    := mode;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.MODER.pin(pin)    := mode;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.MODER.pin(pin)    := mode;
+         when GPIO_PA => GPIOA.MODER.pin(pin)   := mode;
+         when GPIO_PB => GPIOB.MODER.pin(pin)   := mode;
+         when GPIO_PC => GPIOC.MODER.pin(pin)   := mode;
+         when GPIO_PD => GPIOD.MODER.pin(pin)   := mode;
+         when GPIO_PE => GPIOE.MODER.pin(pin)   := mode;
+         when GPIO_PF => GPIOF.MODER.pin(pin)   := mode;
+         when GPIO_PG => GPIOG.MODER.pin(pin)   := mode;
+         when GPIO_PH => GPIOH.MODER.pin(pin)   := mode;
+         when GPIO_PI => GPIOI.MODER.pin(pin)   := mode;
       end case;
    end set_mode;
+
 
    procedure set_type
      (port     : in  t_gpio_port_index;
@@ -67,26 +80,18 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.OTYPER.pin(pin)   := otype;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.OTYPER.pin(pin)   := otype;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.OTYPER.pin(pin)   := otype;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.OTYPER.pin(pin)   := otype;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.OTYPER.pin(pin)   := otype;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.OTYPER.pin(pin)   := otype;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.OTYPER.pin(pin)   := otype;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.OTYPER.pin(pin)   := otype;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.OTYPER.pin(pin)   := otype;
+         when GPIO_PA => GPIOA.OTYPER.pin(pin)  := otype;
+         when GPIO_PB => GPIOB.OTYPER.pin(pin)  := otype;
+         when GPIO_PC => GPIOC.OTYPER.pin(pin)  := otype;
+         when GPIO_PD => GPIOD.OTYPER.pin(pin)  := otype;
+         when GPIO_PE => GPIOE.OTYPER.pin(pin)  := otype;
+         when GPIO_PF => GPIOF.OTYPER.pin(pin)  := otype;
+         when GPIO_PG => GPIOG.OTYPER.pin(pin)  := otype;
+         when GPIO_PH => GPIOH.OTYPER.pin(pin)  := otype;
+         when GPIO_PI => GPIOI.OTYPER.pin(pin)  := otype;
       end case;
    end set_type;
+
 
    procedure set_speed
      (port     : in  t_gpio_port_index;
@@ -99,24 +104,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.OSPEEDR.pin(pin)  := ospeed;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PA => GPIOA.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PB => GPIOB.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PC => GPIOC.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PD => GPIOD.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PE => GPIOE.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PF => GPIOF.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PG => GPIOG.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PH => GPIOH.OSPEEDR.pin(pin)  := ospeed;
+         when GPIO_PI => GPIOI.OSPEEDR.pin(pin)  := ospeed;
       end case;
    end set_speed;
 
@@ -132,24 +128,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.PUPDR.pin(pin)    := pupd;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.PUPDR.pin(pin)    := pupd;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.PUPDR.pin(pin)    := pupd;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.PUPDR.pin(pin)    := pupd;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.PUPDR.pin(pin)    := pupd;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.PUPDR.pin(pin)    := pupd;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.PUPDR.pin(pin)    := pupd;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.PUPDR.pin(pin)    := pupd;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.PUPDR.pin(pin)    := pupd;
+         when GPIO_PA => GPIOA.PUPDR.pin(pin)    := pupd;
+         when GPIO_PB => GPIOB.PUPDR.pin(pin)    := pupd;
+         when GPIO_PC => GPIOC.PUPDR.pin(pin)    := pupd;
+         when GPIO_PD => GPIOD.PUPDR.pin(pin)    := pupd;
+         when GPIO_PE => GPIOE.PUPDR.pin(pin)    := pupd;
+         when GPIO_PF => GPIOF.PUPDR.pin(pin)    := pupd;
+         when GPIO_PG => GPIOG.PUPDR.pin(pin)    := pupd;
+         when GPIO_PH => GPIOH.PUPDR.pin(pin)    := pupd;
+         when GPIO_PI => GPIOI.PUPDR.pin(pin)    := pupd;
       end case;
    end set_pupd;
 
@@ -165,24 +152,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.BSRR.BR(pin)  := bsr_r;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PA => GPIOA.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PB => GPIOB.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PC => GPIOC.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PD => GPIOD.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PE => GPIOE.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PF => GPIOF.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PG => GPIOG.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PH => GPIOH.BSRR.BR(pin)  := bsr_r;
+         when GPIO_PI => GPIOI.BSRR.BR(pin)  := bsr_r;
       end case;
    end set_bsr_r;
 
@@ -198,24 +176,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.BSRR.BS(pin)  := bsr_s;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PA => GPIOA.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PB => GPIOB.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PC => GPIOC.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PD => GPIOD.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PE => GPIOE.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PF => GPIOF.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PG => GPIOG.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PH => GPIOH.BSRR.BS(pin)  := bsr_s;
+         when GPIO_PI => GPIOI.BSRR.BS(pin)  := bsr_s;
       end case;
    end set_bsr_s;
 
@@ -231,24 +200,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.LCKR.pin(pin)  := lck;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.LCKR.pin(pin)  := lck;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.LCKR.pin(pin)  := lck;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.LCKR.pin(pin)  := lck;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.LCKR.pin(pin)  := lck;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.LCKR.pin(pin)  := lck;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.LCKR.pin(pin)  := lck;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.LCKR.pin(pin)  := lck;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.LCKR.pin(pin)  := lck;
+         when GPIO_PA => GPIOA.LCKR.pin(pin)  := lck;
+         when GPIO_PB => GPIOB.LCKR.pin(pin)  := lck;
+         when GPIO_PC => GPIOC.LCKR.pin(pin)  := lck;
+         when GPIO_PD => GPIOD.LCKR.pin(pin)  := lck;
+         when GPIO_PE => GPIOE.LCKR.pin(pin)  := lck;
+         when GPIO_PF => GPIOF.LCKR.pin(pin)  := lck;
+         when GPIO_PG => GPIOG.LCKR.pin(pin)  := lck;
+         when GPIO_PH => GPIOH.LCKR.pin(pin)  := lck;
+         when GPIO_PI => GPIOI.LCKR.pin(pin)  := lck;
       end case;
    end set_lck;
 
@@ -266,57 +226,57 @@ is
       case port is
          when GPIO_PA =>
             if pin < 8 then
-               soc.gpio.GPIOA.AFRL.pin(pin)  := af;
+               GPIOA.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOA.AFRH.pin(pin)  := af;
+               GPIOA.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PB =>
             if pin < 8 then
-               soc.gpio.GPIOB.AFRL.pin(pin)  := af;
+               GPIOB.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOB.AFRH.pin(pin)  := af;
+               GPIOB.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PC =>
             if pin < 8 then
-               soc.gpio.GPIOC.AFRL.pin(pin)  := af;
+               GPIOC.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOC.AFRH.pin(pin)  := af;
+               GPIOC.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PD =>
             if pin < 8 then
-               soc.gpio.GPIOD.AFRL.pin(pin)  := af;
+               GPIOD.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOD.AFRH.pin(pin)  := af;
+               GPIOD.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PE =>
             if pin < 8 then
-               soc.gpio.GPIOE.AFRL.pin(pin)  := af;
+               GPIOE.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOE.AFRH.pin(pin)  := af;
+               GPIOE.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PF =>
             if pin < 8 then
-               soc.gpio.GPIOF.AFRL.pin(pin)  := af;
+               GPIOF.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOF.AFRH.pin(pin)  := af;
+               GPIOF.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PG =>
             if pin < 8 then
-               soc.gpio.GPIOG.AFRL.pin(pin)  := af;
+               GPIOG.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOG.AFRH.pin(pin)  := af;
+               GPIOG.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PH =>
             if pin < 8 then
-               soc.gpio.GPIOH.AFRL.pin(pin)  := af;
+               GPIOH.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOH.AFRH.pin(pin)  := af;
+               GPIOH.AFRH.pin(pin)  := af;
             end if;
          when GPIO_PI =>
             if pin < 8 then
-               soc.gpio.GPIOI.AFRL.pin(pin)  := af;
+               GPIOI.AFRL.pin(pin)  := af;
             else
-               soc.gpio.GPIOI.AFRH.pin(pin)  := af;
+               GPIOI.AFRH.pin(pin)  := af;
             end if;
       end case;
    end set_af;
@@ -333,24 +293,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            soc.gpio.GPIOA.ODR.pin (pin) := value;
-         when GPIO_PB =>
-            soc.gpio.GPIOB.ODR.pin (pin) := value;
-         when GPIO_PC =>
-            soc.gpio.GPIOC.ODR.pin (pin) := value;
-         when GPIO_PD =>
-            soc.gpio.GPIOD.ODR.pin (pin) := value;
-         when GPIO_PE =>
-            soc.gpio.GPIOE.ODR.pin (pin) := value;
-         when GPIO_PF =>
-            soc.gpio.GPIOF.ODR.pin (pin) := value;
-         when GPIO_PG =>
-            soc.gpio.GPIOG.ODR.pin (pin) := value;
-         when GPIO_PH =>
-            soc.gpio.GPIOH.ODR.pin (pin) := value;
-         when GPIO_PI =>
-            soc.gpio.GPIOI.ODR.pin (pin) := value;
+         when GPIO_PA => GPIOA.ODR.pin (pin) := value;
+         when GPIO_PB => GPIOB.ODR.pin (pin) := value;
+         when GPIO_PC => GPIOC.ODR.pin (pin) := value;
+         when GPIO_PD => GPIOD.ODR.pin (pin) := value;
+         when GPIO_PE => GPIOE.ODR.pin (pin) := value;
+         when GPIO_PF => GPIOF.ODR.pin (pin) := value;
+         when GPIO_PG => GPIOG.ODR.pin (pin) := value;
+         when GPIO_PH => GPIOH.ODR.pin (pin) := value;
+         when GPIO_PI => GPIOI.ODR.pin (pin) := value;
       end case;
 
    end write_pin;
@@ -367,24 +318,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA =>
-            value := soc.gpio.GPIOA.IDR.pin (pin);
-         when GPIO_PB =>
-            value := soc.gpio.GPIOB.IDR.pin (pin);
-         when GPIO_PC =>
-            value := soc.gpio.GPIOC.IDR.pin (pin);
-         when GPIO_PD =>
-            value := soc.gpio.GPIOD.IDR.pin (pin);
-         when GPIO_PE =>
-            value := soc.gpio.GPIOE.IDR.pin (pin);
-         when GPIO_PF =>
-            value := soc.gpio.GPIOF.IDR.pin (pin);
-         when GPIO_PG =>
-            value := soc.gpio.GPIOG.IDR.pin (pin);
-         when GPIO_PH =>
-            value := soc.gpio.GPIOH.IDR.pin (pin);
-         when GPIO_PI =>
-            value := soc.gpio.GPIOI.IDR.pin (pin);
+         when GPIO_PA => value := GPIOA.IDR.pin (pin);
+         when GPIO_PB => value := GPIOB.IDR.pin (pin);
+         when GPIO_PC => value := GPIOC.IDR.pin (pin);
+         when GPIO_PD => value := GPIOD.IDR.pin (pin);
+         when GPIO_PE => value := GPIOE.IDR.pin (pin);
+         when GPIO_PF => value := GPIOF.IDR.pin (pin);
+         when GPIO_PG => value := GPIOG.IDR.pin (pin);
+         when GPIO_PH => value := GPIOH.IDR.pin (pin);
+         when GPIO_PI => value := GPIOI.IDR.pin (pin);
       end case;
    end read_pin;
 

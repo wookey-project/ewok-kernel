@@ -24,7 +24,6 @@ with debug;
 with ewok.exported.gpios; use ewok.exported.gpios;
 with soc.gpio;            use type soc.gpio.t_gpio_pin_index;
                           use type soc.gpio.t_gpio_port_index;
-with soc.rcc;
 
 package body ewok.gpio
    with spark_mode => off
@@ -104,62 +103,51 @@ is
    begin
 
       -- Enable RCC
-      case conf.all.kref.port is
-         when soc.gpio.GPIO_PA => soc.rcc.RCC.AHB1.GPIOAEN := true;
-         when soc.gpio.GPIO_PB => soc.rcc.RCC.AHB1.GPIOBEN := true;
-         when soc.gpio.GPIO_PC => soc.rcc.RCC.AHB1.GPIOCEN := true;
-         when soc.gpio.GPIO_PD => soc.rcc.RCC.AHB1.GPIODEN := true;
-         when soc.gpio.GPIO_PE => soc.rcc.RCC.AHB1.GPIOEEN := true;
-         when soc.gpio.GPIO_PF => soc.rcc.RCC.AHB1.GPIOFEN := true;
-         when soc.gpio.GPIO_PG => soc.rcc.RCC.AHB1.GPIOGEN := true;
-         when soc.gpio.GPIO_PH => soc.rcc.RCC.AHB1.GPIOHEN := true;
-         when soc.gpio.GPIO_PI => soc.rcc.RCC.AHB1.GPIOIEN := true;
-      end case;
-
+      soc.gpio.enable_clock (conf.all.kref.port);
 
       if conf.all.settings.set_mode then
-         soc.gpio.set_mode(
-            conf.all.kref.port,
+         soc.gpio.set_mode
+           (conf.all.kref.port,
             conf.all.kref.pin,
             soc.gpio.t_pin_mode'val
-               (t_interface_gpio_mode'pos (conf.all.mode)));
+              (t_interface_gpio_mode'pos (conf.all.mode)));
 
       end if;
 
       if conf.all.settings.set_type then
-         soc.gpio.set_type(
-            conf.all.kref.port,
+         soc.gpio.set_type
+           (conf.all.kref.port,
             conf.all.kref.pin,
             soc.gpio.t_pin_output_type'val
                (t_interface_gpio_type'pos (conf.all.otype)));
       end if;
 
       if conf.all.settings.set_speed then
-         soc.gpio.set_speed(
-            conf.all.kref.port,
+         soc.gpio.set_speed
+           (conf.all.kref.port,
             conf.all.kref.pin,
             soc.gpio.t_pin_output_speed'val
               (t_interface_gpio_speed'pos (conf.all.ospeed)));
       end if;
 
       if conf.all.settings.set_pupd then
-         soc.gpio.set_pupd(
-            conf.all.kref.port,
+         soc.gpio.set_pupd
+           (conf.all.kref.port,
             conf.all.kref.pin,
             soc.gpio.t_pin_pupd'val
               (t_interface_gpio_pupd'pos (conf.all.pupd)));
       end if;
 
       if conf.all.settings.set_bsr_r then
-         soc.gpio.set_bsr_r(
-            conf.all.kref.port,
+         soc.gpio.set_bsr_r
+           (conf.all.kref.port,
             conf.all.kref.pin,
             types.to_bit (conf.all.bsr_r));
       end if;
 
       if conf.all.settings.set_bsr_s then
-         soc.gpio.set_bsr_s(
-            conf.all.kref.port,
+         soc.gpio.set_bsr_s
+           (conf.all.kref.port,
             conf.all.kref.pin,
             types.to_bit (conf.all.bsr_s));
       end if;
@@ -167,15 +155,15 @@ is
       -- FIXME - Writing to LCKR register requires a specific sequence
       --         describe in section 8.4.8 (RM 00090)
       if conf.all.settings.set_lck then
-         soc.gpio.set_lck(
-            conf.all.kref.port,
+         soc.gpio.set_lck
+           (conf.all.kref.port,
             conf.all.kref.pin,
             soc.gpio.t_pin_lock'val (conf.all.lck));
       end if;
 
       if conf.all.settings.set_af then
-         soc.gpio.set_af(
-            conf.all.kref.port,
+         soc.gpio.set_af
+           (conf.all.kref.port,
             conf.all.kref.pin,
             to_pin_alt_func (conf.all.af));
       end if;
@@ -188,7 +176,7 @@ is
       value    : in  bit)
    is
    begin
-      soc.gpio.write_pin(ref.port, ref.pin, value);
+      soc.gpio.write_pin (ref.port, ref.pin, value);
    end write_pin;
 
 
@@ -198,7 +186,7 @@ is
    is
       value : bit;
    begin
-      soc.gpio.read_pin(ref.port, ref.pin, value);
+      soc.gpio.read_pin (ref.port, ref.pin, value);
       return value;
    end read_pin;
 
