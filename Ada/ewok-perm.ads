@@ -128,7 +128,7 @@ is
      (perm_name : in t_perm_name;
       task_id   : in applications.t_real_task_id)
       return boolean
-      with Global => (Input => ewok.perm_auto.ressource_perm_register_tab);
+      with Global => null;
 
 
 end ewok.perm;
