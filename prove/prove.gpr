@@ -16,6 +16,7 @@ project Prove is
       for Global_Compilation_Switches ("Ada") use
         ("-gnatep=" & Prove'Project_Dir & "gnatprep.def",
          "-gnateT=" & Prove'Project_Dir & "target.atp",
+         "-gnata",
          "--RTS=/opt/adacore-arm-eabi/arm-eabi/lib/gnat/zfp-stm32f4");
    end Builder;
 
