@@ -385,47 +385,47 @@ private
    -- GPIO peripherals --
    ----------------------
 
-   GPIOA : t_GPIO_port
+   GPIOA : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOA_BASE),
            part_of => gpio_a;
 
-   GPIOB : t_GPIO_port
+   GPIOB : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOB_BASE),
            part_of => gpio_b;
 
-   GPIOC : t_GPIO_port
+   GPIOC : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOC_BASE),
            part_of => gpio_c;
 
-   GPIOD : t_GPIO_port
+   GPIOD : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOD_BASE),
            part_of => gpio_d;
 
-   GPIOE : t_GPIO_port
+   GPIOE : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOE_BASE),
            part_of => gpio_e;
 
-   GPIOF : t_GPIO_port
+   GPIOF : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOF_BASE),
            part_of => gpio_f;
 
-   GPIOG : t_GPIO_port
+   GPIOG : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOG_BASE),
            part_of => gpio_g;
 
-   GPIOH : t_GPIO_port
+   GPIOH : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOH_BASE),
            part_of => gpio_h;
 
-   GPIOI : t_GPIO_port
+   GPIOI : aliased t_GPIO_port
       with import, volatile,
            address => system'to_address (soc.layout.GPIOI_BASE),
            part_of => gpio_i;
