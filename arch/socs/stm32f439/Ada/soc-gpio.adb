@@ -70,9 +70,9 @@ is
       pin      : in  t_gpio_pin_index;
       mode     : in  t_pin_mode)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -85,9 +85,9 @@ is
       pin      : in  t_gpio_pin_index;
       otype    : in  t_pin_output_type)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -100,9 +100,9 @@ is
       pin      : in  t_gpio_pin_index;
       ospeed   : in  t_pin_output_speed)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -115,9 +115,9 @@ is
       pin      : in  t_gpio_pin_index;
       pupd     : in  t_pin_pupd)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -130,9 +130,9 @@ is
       pin      : in  t_gpio_pin_index;
       bsr_r    : in  types.bit)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -145,9 +145,9 @@ is
       pin      : in  t_gpio_pin_index;
       bsr_s    : in  types.bit)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -160,9 +160,9 @@ is
       pin      : in  t_gpio_pin_index;
       lck      : in  t_pin_lock)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -175,9 +175,9 @@ is
       pin      : in  t_gpio_pin_index;
       af       : in  t_pin_alt_func)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (output => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -194,9 +194,9 @@ is
       pin      : in  t_gpio_pin_index;
       value    : in  bit)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (in_out => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
@@ -209,9 +209,9 @@ is
       pin      : in  t_gpio_pin_index;
       value    : out bit)
       with
-         refined_global => (output => (GPIOA, GPIOB, GPIOC,
-                                       GPIOD, GPIOE, GPIOF,
-                                       GPIOG, GPIOH, GPIOI))
+         refined_global => (in_out => (gpio_a, gpio_b, gpio_c,
+                                       gpio_d, gpio_e, gpio_f,
+                                       gpio_g, gpio_h, gpio_i))
    is
       gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
