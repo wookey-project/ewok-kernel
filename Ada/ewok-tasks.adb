@@ -202,7 +202,7 @@ is
          tasks_list(ID_SOFTIRQ).ipc_endpoints(i)   := NULL;
       end loop;
 
-      debug.log (debug.INFO, "Created context for SOFTIRQ task (pc: "
+      debug.log (debug.INFO, "Created SOFTIRQ context (pc: "
          & system_address'image (tasks_list(ID_SOFTIRQ).entry_point)
          & ") sp: "
          & system_address'image
@@ -286,7 +286,7 @@ is
          set_default_values (tasks_list(id));
 
 	      tasks_list(id).name := applications.list(id).name;
-	
+
 	      tasks_list(id).entry_point  :=
             user_base
             + to_unsigned_32 (applications.list(id).slot - 1)
@@ -295,11 +295,11 @@ is
 	      if tasks_list(id).entry_point mod 2 = 0 then
 	         tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
 	      end if;
-	
+
 	      tasks_list(id).ttype := TASK_TYPE_USER;
 	      tasks_list(id).mode  := TASK_MODE_MAINTHREAD;
 	      tasks_list(id).id    := id;
-	
+
 	      tasks_list(id).slot      := applications.list(id).slot;
 	      tasks_list(id).num_slots := applications.list(id).num_slots;
 
@@ -328,7 +328,7 @@ is
          tasks_list(id).dma_id         :=
            (others => ewok.dma_shared.ID_DMA_UNUSED);
 #end if;
-	
+
          tasks_list(id).num_devs          := 0;
          tasks_list(id).num_devs_mounted  := 0;
          tasks_list(id).device_id         := (others => ID_DEV_UNUSED);
