@@ -22,14 +22,16 @@
 
 with soc.rcc;
 
+-- About SPARK:
 -- In this driver implementation, there is no such
 -- complex algorithmic requiring effective SPARK prove,
 -- as the package body is only composed on registers
--- fields setters and gettters. Using SPARK in this
+-- fields setters and getters. Using SPARK in this
 -- package body would be mostly useless in this very
 -- case
+
 package body soc.gpio
-   with spark_mode => on
+   with spark_mode => off
 is
 
    type t_GPIO_port_access is access all t_GPIO_port;
