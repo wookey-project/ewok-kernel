@@ -63,6 +63,7 @@ is
       params   : in  ewok.t_parameters;
       frame_a  : out ewok.t_stack_frame_access)
    is
+      pragma Assertion_Policy (Pre  => Check);
    begin
 
       frame_a := to_stack_frame_access (sp - (t_stack_frame'size / 8));
@@ -527,6 +528,7 @@ is
       descriptor  : out unsigned_8;
       success     : out boolean)
    is
+      pragma Assertion_Policy (Post => Check);
    begin
 
       if tasks_list(id).num_devs = MAX_DEVS_PER_TASK then

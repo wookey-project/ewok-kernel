@@ -27,6 +27,8 @@ with ewok.ipc;
 with ewok.exported.dma;
 with ewok.dma_shared;
 with ewok.mpu;
+with soc;
+with soc.layout;
 
 
 package ewok.tasks
@@ -183,12 +185,31 @@ is
    procedure idle_task with no_return;
    procedure finished_task with no_return;
 
+   -- create various task's stack
+   -- preconditions :
+   -- Here we check that generated headers, defining stack address and
+   -- program counter of various stack are valid for the currently
+   -- supported SoC. This is a sanitizing function for generated files.
    procedure create_stack
      (sp       : in  system_address;
       pc       : in  system_address;
       params   : in  ewok.t_parameters;
-      frame_a  : out ewok.t_stack_frame_access);
-      -- Note: see ewok.tasks.interfaces
+      frame_a  : out ewok.t_stack_frame_access)
+      with
+         -- precondition 1 : stack pointer must be in RAM
+         pre =>
+           (
+            (sp >= soc.layout.USER_RAM_BASE and
+             sp <= (soc.layout.USER_RAM_BASE + soc.layout.USER_RAM_SIZE)) or
+            (sp >= soc.layout.KERNEL_RAM_BASE and
+             sp <= (soc.layout.KERNEL_RAM_BASE + soc.layout.KERNEL_RAM_SIZE))
+           ) and (
+         -- precondition 2 : program counter must be in flash
+            pc >= soc.layout.FLASH_BASE and
+            pc <= soc.layout.FLASH_BASE + soc.layout.FLASH_SIZE
+           ),
+         global => ( in_out => tasks_list );
+
 
    procedure set_default_values (tsk : out t_task);
 
@@ -261,7 +282,14 @@ is
      (id          : in  ewok.tasks_shared.t_task_id;
       dev_id      : in  ewok.devices_shared.t_device_id;
       descriptor  : out unsigned_8;
-      success     : out boolean);
+      success     : out boolean)
+      with
+         post => (if success = false then
+                     descriptor = 0
+                  else
+                     descriptor > 0 and
+                     descriptor < tasks_list(id).device_id'last
+                  );
 
    procedure remove_device
      (id       : in  ewok.tasks_shared.t_task_id;

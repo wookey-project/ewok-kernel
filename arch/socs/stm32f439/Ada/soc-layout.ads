@@ -22,6 +22,9 @@ is
    USER_RAM_BASE     : constant system_address := 16#2000_0000#; -- SRAM
    USER_RAM_SIZE     : constant := 128 * KBYTE;
 
+   KERNEL_RAM_BASE   : constant system_address := 16#1000_0000#;
+   KERNEL_RAM_SIZE   : constant := 64 * KBYTE;
+
    PERIPH_BASE       : constant system_address := 16#4000_0000#;
    MEMORY_BANK1_BASE : constant system_address := 16#6000_0000#;
    MEMORY_BANK2_BASE : constant system_address := MEMORY_BANK1_BASE;
