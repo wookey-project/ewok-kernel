@@ -36,7 +36,7 @@ package soc.gpio
         (gpio_g   with external),
         (gpio_h   with external),
         (gpio_i   with external)),
-      initializes    => -- Assumed as initialized
+      initializes    => -- Assumed registers are initialized
         (gpio_a, gpio_b, gpio_c, gpio_d,
          gpio_e, gpio_f, gpio_h, gpio_i)
 is
@@ -361,10 +361,6 @@ is
 
 private
 
-   ---------------
-   -- GPIO port --
-   ---------------
-
    type t_GPIO_port is record
       MODER       : t_GPIOx_MODER;
       OTYPER      : t_GPIOx_OTYPER;
@@ -391,7 +387,6 @@ private
       AFRL        at 16#20# range 0 .. 31;
       AFRH        at 16#24# range 0 .. 31;
    end record;
-
 
    ----------------------
    -- GPIO peripherals --

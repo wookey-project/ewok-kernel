@@ -29,7 +29,7 @@ with soc.rcc;
 -- package body would be mostly useless in this very
 -- case
 package body soc.gpio
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_GPIO_port_access is access all t_GPIO_port;
@@ -39,22 +39,10 @@ is
    --   1) reduce the generated asm
    --   2) avoid writting errors in switch/case write which
    --      can't be detected through SPARK rules
-   function get_port_access
-     (port : t_gpio_port_index) return t_GPIO_port_access
-   is
-   begin
-      case port is
-         when GPIO_PA => return soc.gpio.GPIOA'access;
-         when GPIO_PB => return soc.gpio.GPIOB'access;
-         when GPIO_PC => return soc.gpio.GPIOC'access;
-         when GPIO_PD => return soc.gpio.GPIOD'access;
-         when GPIO_PE => return soc.gpio.GPIOE'access;
-         when GPIO_PF => return soc.gpio.GPIOF'access;
-         when GPIO_PG => return soc.gpio.GPIOG'access;
-         when GPIO_PH => return soc.gpio.GPIOH'access;
-         when GPIO_PI => return soc.gpio.GPIOI'access;
-      end case;
-   end get_port_access;
+
+   GPIOx : constant array (t_gpio_port_index) of t_GPIO_port_access :=
+     (GPIOA'access, GPIOB'access, GPIOC'access, GPIOD'access, GPIOE'access,
+      GPIOF'access, GPIOG'access, GPIOH'access, GPIOI'access);
 
 
    -- FIXME - Should be in soc.rcc package
@@ -85,9 +73,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.MODER.pin(pin)   := mode;
+      GPIOx(port).all.MODER.pin(pin)   := mode;
    end set_mode;
 
 
@@ -100,9 +87,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.OTYPER.pin(pin)   := otype;
+      GPIOx(port).all.OTYPER.pin(pin)   := otype;
    end set_type;
 
 
@@ -115,9 +101,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.OSPEEDR.pin(pin)  := ospeed;
+      GPIOx(port).all.OSPEEDR.pin(pin)  := ospeed;
    end set_speed;
 
 
@@ -130,9 +115,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.PUPDR.pin(pin)  := pupd;
+      GPIOx(port).all.PUPDR.pin(pin)  := pupd;
    end set_pupd;
 
 
@@ -145,9 +129,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.BSRR.BR(pin) := bsr_r;
+      GPIOx(port).all.BSRR.BR(pin) := bsr_r;
    end set_bsr_r;
 
 
@@ -160,9 +143,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.BSRR.BS(pin) := bsr_s;
+      GPIOx(port).all.BSRR.BS(pin) := bsr_s;
    end set_bsr_s;
 
 
@@ -175,9 +157,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.LCKR.pin(pin)  := lck;
+      GPIOx(port).all.LCKR.pin(pin)  := lck;
    end set_lck;
 
 
@@ -190,12 +171,11 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
       if pin < 8 then
-         gpio_port.all.AFRL.pin(pin)  := af;
+         GPIOx(port).all.AFRL.pin(pin)  := af;
       else
-         gpio_port.all.AFRH.pin(pin)  := af;
+         GPIOx(port).all.AFRH.pin(pin)  := af;
       end if;
    end set_af;
 
@@ -209,9 +189,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      gpio_port.all.ODR.pin (pin) := value;
+      GPIOx(port).all.ODR.pin (pin) := value;
    end write_pin;
 
 
@@ -224,9 +203,8 @@ is
                                        gpio_d, gpio_e, gpio_f,
                                        gpio_g, gpio_h, gpio_i))
    is
-      gpio_port : constant t_GPIO_port_access := get_port_access (port);
    begin
-      value := gpio_port.all.IDR.pin (pin);
+      value := GPIOx(port).all.IDR.pin (pin);
    end read_pin;
 
 end soc.gpio;
