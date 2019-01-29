@@ -121,7 +121,6 @@ is
    begin
 
       it := soc.interrupts.get_interrupt;
-      interrupt_table(it).count := interrupt_table(it).count + 1;
 
       -- System exceptions
       if it < INT_WWDG then

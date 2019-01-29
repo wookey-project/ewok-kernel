@@ -39,8 +39,7 @@ is
            (htype     => DEFAULT_HANDLER,
             handler   => NULL,
             task_id   => ewok.tasks_shared.ID_UNUSED,
-            device_id => ewok.devices_shared.ID_DEV_UNUSED,
-            count     => 0);
+            device_id => ewok.devices_shared.ID_DEV_UNUSED);
       end loop;
 
       interrupt_table(soc.interrupts.INT_HARDFAULT) :=
@@ -48,8 +47,7 @@ is
             task_switch_handler =>
                ewok.interrupts.handler.hardfault_handler'access,
             task_id   => ewok.tasks_shared.ID_KERNEL,
-            device_id => ewok.devices_shared.ID_DEV_UNUSED,
-            count     => 0);
+            device_id => ewok.devices_shared.ID_DEV_UNUSED);
 
 
       interrupt_table(soc.interrupts.INT_SYSTICK) :=
@@ -57,8 +55,7 @@ is
             task_switch_handler =>
                ewok.interrupts.handler.systick_default_handler'access,
             task_id   => ewok.tasks_shared.ID_KERNEL,
-            device_id => ewok.devices_shared.ID_DEV_UNUSED,
-            count     => 0);
+            device_id => ewok.devices_shared.ID_DEV_UNUSED);
 
       m4.scb.SCB.SHPR1.mem_fault.priority := 0;
       m4.scb.SCB.SHPR1.bus_fault.priority := 1;
@@ -96,7 +93,7 @@ is
       end if;
 
       interrupt_table(interrupt) :=
-        (DEFAULT_HANDLER, task_id, device_id, 0, handler);
+        (DEFAULT_HANDLER, task_id, device_id, handler);
 
       success := true;
 
@@ -137,7 +134,7 @@ is
       end if;
 
       interrupt_table(interrupt) :=
-        (TASK_SWITCH_HANDLER, task_id, device_id, 0, handler);
+        (TASK_SWITCH_HANDLER, task_id, device_id, handler);
 
       success := true;
 

@@ -41,15 +41,12 @@ is
    type t_interrupt_cell (htype : t_handler_type := DEFAULT_HANDLER) is record
       task_id     : ewok.tasks_shared.t_task_id;
       device_id   : ewok.devices_shared.t_device_id;
-      count       : unsigned_32;
-
       case htype is
          when DEFAULT_HANDLER       =>
-            handler  : t_interrupt_handler_access;
+            handler              : t_interrupt_handler_access;
          when TASK_SWITCH_HANDLER   =>
             task_switch_handler  : t_interrupt_task_switch_handler_access;
       end case;
-
    end record;
 
    type t_interrupt_cell_access is access all t_interrupt_cell;
