@@ -34,13 +34,13 @@ package body soc.gpio
    with spark_mode => off
 is
 
-   type t_GPIO_port_access is access all t_GPIO_port;
-
    -- Here we choose to use local accessors instead of
    -- a full switch case, in order to:
    --   1) reduce the generated asm
    --   2) avoid writting errors in switch/case write which
    --      can't be detected through SPARK rules
+
+   type t_GPIO_port_access is access all t_GPIO_port;
 
    GPIOx : constant array (t_gpio_port_index) of t_GPIO_port_access :=
      (GPIOA'access, GPIOB'access, GPIOC'access, GPIOD'access, GPIOE'access,
