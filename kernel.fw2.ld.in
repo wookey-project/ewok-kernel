@@ -33,10 +33,12 @@ SECTIONS
     . = ALIGN(4);
     _etext = .;        	/* define a global symbols at end of code */
     _exit = .;
+
+    /* used by the startup to initialize got */
+    _sigot = .;
+
   }>FW2_KERN
 
-  /* used by the startup to initialize got */
-  _sigot = .;
   .got : AT ( _sigot ) {
     . = ALIGN(4);
         _sgot = .;
@@ -48,9 +50,12 @@ SECTIONS
         *(.got*)
     . = ALIGN(4);
     _egot = .;
+
+    /* used by the startup to initialize data */
+    _sidata = .;
+
   }>FW2_KERN
-  /* used by the startup to initialize data */
-  _sidata = .;
+
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data : AT ( _sidata )
   {
@@ -61,6 +66,16 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   }>RAM_KERN
 
+  .data_in_flash : AT ( _sidata )
+  {
+    /* to be sure that there is enough space in flash for .data, we fill the
+     * content with .data size here. .data is added in a dedicated section
+     * using the AT attribute
+     * This section doesn't store anything but fullfill the flash with
+     * the size of .data section */
+    . = . + SIZEOF(.data);
+    . = ALIGN(4);
+  } >FW2_KERN
 
   /* Uninitialized data section */
   . = ALIGN(4);
