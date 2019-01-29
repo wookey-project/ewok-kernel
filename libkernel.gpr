@@ -128,7 +128,7 @@ library project Libkernel is
       -- Ada code
       for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
 
-      for Switches ("ewok-sched.adb")              use ("-O3", "-g") & basic & verif;
+      for Switches ("ewok-sched.adb")              use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-tasks.adb")              use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-interrupts-handler.adb") use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-syscalls-handler.adb")   use ("-O2", "-g") & basic & verif;
@@ -136,19 +136,23 @@ library project Libkernel is
       for Switches ("ewok-isr.adb")                use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-posthook.adb")           use ("-O2", "-g") & basic & verif;
       for Switches ("ewok-softirq.adb")            use ("-O2", "-g") & basic & verif;
-      for Switches ("m4-cpu.adb")                  use ("-O2", "-g") & basic & verif;
-      for Switches ("m4-cpu-instructions.adb")     use ("-O2", "-g") & basic & verif;
+
       --for Switches ("soc-nvic.adb")                use ("-O2", "-g") & basic & verif;
       --for Switches ("soc-dma.adb")                 use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio.adb")                use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio-interfaces.adb")     use ("-O2", "-g") & basic & verif;
 
       -- Proved SPARK code
-      for Switches ("ewok-perm.adb")         use ("-O2", "-g") & basic & no_verif;
-      for Switches ("soc-gpio.adb")          use ("-O2", "-g") & basic & no_verif;
-      for Switches ("soc-interrupts.adb")    use ("-O2", "-g") & basic & no_verif;
-      for Switches ("m4-mpu.adb")            use ("-O2", "-g") & basic & no_verif;
-      for Switches ("soc-dwt.adb")           use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-systick.adb")        use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-scb.adb")            use ("-Os", "-g") & basic & no_verif;
+      for Switches ("ewok-perm.adb")            use ("-O2", "-g") & basic & no_verif;
+
+      for Switches ("soc-interrupts.adb")       use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-mpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu-instructions.adb")  use ("-O2", "-g") & basic & no_verif;
+
+      for Switches ("m4-systick.adb")           use ("-Os", "-g") & basic & no_verif;
+      for Switches ("soc-dwt.adb")              use ("-Os", "-g") & basic & no_verif;
+      for Switches ("m4-scb.adb")               use ("-Os", "-g") & basic & no_verif;
 
 
    end Compiler;
