@@ -22,12 +22,23 @@
 
 with soc.rcc;
 
+-- In this driver implementation, there is no such
+-- complex algorithmic requiring effective SPARK prove,
+-- as the package body is only composed on registers
+-- fields setters and gettters. Using SPARK in this
+-- package body would be mostly useless in this very
+-- case
 package body soc.gpio
    with spark_mode => off
 is
 
    type t_GPIO_port_access is access all t_GPIO_port;
 
+   -- Here we choose to use local accessors instead of
+   -- a full switch case, in order to:
+   --   1) reduce the generated asm
+   --   2) avoid writting errors in switch/case write which
+   --      can't be detected through SPARK rules
    function get_port_access
      (port : t_gpio_port_index) return t_GPIO_port_access
    is

@@ -244,9 +244,11 @@ is
    -- Utilities --
    ---------------
 
+   -- enable the input RCC clock of the GPIO IP, given its index
    procedure enable_clock
      (port     : in  t_gpio_port_index);
 
+   -- set the GPIO mode (input, output, alternate, analog)
    procedure set_mode
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -255,6 +257,7 @@ is
          global => (output => (gpio_a, gpio_b, gpio_c, gpio_d, gpio_e,
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
+   -- set the GPIO type (push-pull, open-drain)
    procedure set_type
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -264,6 +267,7 @@ is
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
 
+   -- set the GPIO speed, from low to very high speed
    procedure set_speed
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -273,6 +277,7 @@ is
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
 
+   -- set the gpio pull mode (no pull, pull-up or pull-down mode)
    procedure set_pupd
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -282,6 +287,8 @@ is
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
 
+   -- set the GPIO behavior on the output data register bit write action
+   -- (reset action)
    procedure set_bsr_r
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -291,6 +298,8 @@ is
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
 
+   -- set the GPIO behavior on the output data register bit write action
+   -- (set action)
    procedure set_bsr_s
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -300,6 +309,7 @@ is
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
 
+   -- lock the GPIO configuration
    procedure set_lck
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -308,7 +318,8 @@ is
          global => (output => (gpio_a, gpio_b, gpio_c, gpio_d, gpio_e,
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
-
+   -- set the GPIO alternate function (see the SoC datasheet to get the
+   -- list of available alternate functions)
    procedure set_af
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -317,7 +328,7 @@ is
          global => (output => (gpio_a, gpio_b, gpio_c, gpio_d, gpio_e,
                                gpio_f, gpio_g, gpio_h, gpio_i));
 
-
+   -- set the GPIO output value on GPIO in output mode
    procedure write_pin
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
@@ -332,6 +343,7 @@ is
                      null   =>  (port, pin));
 
 
+   -- set the GPIO input value on GPIO in input mode
    procedure read_pin
      (port     : in  t_gpio_port_index;
       pin      : in  t_gpio_pin_index;
