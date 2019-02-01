@@ -83,7 +83,7 @@ is
          addr           => ewok.layout.SHR_BASE,
          size           => REGION_SIZE_32KB,
          subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RO_USER_RO,
+         access_perm    => REGION_PERM_PRIV_RO_USER_NO,
          xn             => true,
          b              => false,
          s              => false);
