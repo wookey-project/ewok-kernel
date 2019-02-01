@@ -31,8 +31,8 @@ is
    procedure enable_clocks
    is
    begin
-      soc.rcc.RCC.AHB1.DMA1EN := true;
-      soc.rcc.RCC.AHB1.DMA2EN := true;
+      soc.rcc.RCC.AHB1ENR.DMA1EN := true;
+      soc.rcc.RCC.AHB1ENR.DMA2EN := true;
    end enable_clocks;
 
 

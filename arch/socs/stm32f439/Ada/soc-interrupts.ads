@@ -20,8 +20,6 @@
 --
 --
 
-with ada.unchecked_conversion;
-
 package soc.interrupts
    with spark_mode => on
 is

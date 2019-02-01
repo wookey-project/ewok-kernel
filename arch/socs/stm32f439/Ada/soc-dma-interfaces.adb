@@ -20,8 +20,6 @@
 --
 --
 
-with ada.unchecked_conversion;
-
 package body soc.dma.interfaces
    with spark_mode => off
 is

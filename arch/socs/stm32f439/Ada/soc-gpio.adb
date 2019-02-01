@@ -53,15 +53,15 @@ is
    is
    begin
       case port is
-         when GPIO_PA => soc.rcc.RCC.AHB1.GPIOAEN := true;
-         when GPIO_PB => soc.rcc.RCC.AHB1.GPIOBEN := true;
-         when GPIO_PC => soc.rcc.RCC.AHB1.GPIOCEN := true;
-         when GPIO_PD => soc.rcc.RCC.AHB1.GPIODEN := true;
-         when GPIO_PE => soc.rcc.RCC.AHB1.GPIOEEN := true;
-         when GPIO_PF => soc.rcc.RCC.AHB1.GPIOFEN := true;
-         when GPIO_PG => soc.rcc.RCC.AHB1.GPIOGEN := true;
-         when GPIO_PH => soc.rcc.RCC.AHB1.GPIOHEN := true;
-         when GPIO_PI => soc.rcc.RCC.AHB1.GPIOIEN := true;
+         when GPIO_PA => soc.rcc.RCC.AHB1ENR.GPIOAEN := true;
+         when GPIO_PB => soc.rcc.RCC.AHB1ENR.GPIOBEN := true;
+         when GPIO_PC => soc.rcc.RCC.AHB1ENR.GPIOCEN := true;
+         when GPIO_PD => soc.rcc.RCC.AHB1ENR.GPIODEN := true;
+         when GPIO_PE => soc.rcc.RCC.AHB1ENR.GPIOEEN := true;
+         when GPIO_PF => soc.rcc.RCC.AHB1ENR.GPIOFEN := true;
+         when GPIO_PG => soc.rcc.RCC.AHB1ENR.GPIOGEN := true;
+         when GPIO_PH => soc.rcc.RCC.AHB1ENR.GPIOHEN := true;
+         when GPIO_PI => soc.rcc.RCC.AHB1ENR.GPIOIEN := true;
       end case;
    end enable_clock;
 

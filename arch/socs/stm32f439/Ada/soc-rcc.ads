@@ -20,17 +20,16 @@
 --
 --
 
-
 with system;
-
+with types.c;
 
 package soc.rcc
    with spark_mode => on
 is
 
-   type t_RCC_mode is
-     (RCC_DISABLE,
-      RCC_ENABLE);
+   -----------------------------------------
+   -- RCC clock control register (RCC_CR) --
+   -----------------------------------------
 
    type t_RCC_CR is record
       HSION          : boolean;  -- Internal high-speed clock enable
@@ -47,7 +46,9 @@ is
       PLLRDY         : boolean;  -- Main PLL clock ready flag
       PLLI2SON       : boolean;  -- PLLI2S enable
       PLLI2SRDY      : boolean;  -- PLLI2S clock ready flag
-      Reserved_28_31 : bits_4;
+      PLLSAION       : boolean;  -- PLLSAI enable
+      PLLSAIRDY      : boolean;  -- PLLSAI clock ready flag
+      Reserved_30_31 : bits_2;
    end record
      with volatile_full_access, size => 32;
 
@@ -66,15 +67,72 @@ is
       PLLRDY         at 0 range 25 .. 25;
       PLLI2SON       at 0 range 26 .. 26;
       PLLI2SRDY      at 0 range 27 .. 27;
-      Reserved_28_31 at 0 range 28 .. 31;
+      PLLSAION       at 0 range 28 .. 28;
+      PLLSAIRDY      at 0 range 29 .. 29;
+      Reserved_30_31 at 0 range 30 .. 31;
    end record;
 
-   -----------------
-   -- RCC_AHB1ENR --
-   -----------------
+   --------------------------------------------------
+   -- RCC PLL configuration register (RCC_PLLCFGR) --
+   --------------------------------------------------
 
-   -- RCC AHB1 peripheral clock enable register
-   -- Ref. : RM0090, p. 242
+   type t_RCC_PLLCFGR is record
+      PLLM           : bits_6;
+      PLLN           : bits_9;
+      PLLP           : bits_2;
+      PLLSRC         : bit;
+      PLLQ           : bits_4;
+   end record
+      with size => 32, volatile_full_access;
+
+   for t_RCC_PLLCFGR use record
+      PLLM           at 0 range 0 .. 5;
+      PLLN           at 0 range 6 .. 14;
+      PLLP           at 0 range 16 .. 17;
+      PLLSRC         at 0 range 22 .. 22;
+      PLLQ           at 0 range 24 .. 27;
+   end record;
+
+   PLLCFGR_RESET : constant unsigned_32 := 16#2400_3010#;
+
+   -------------------------------------------------
+   -- RCC clock configuration register (RCC_CFGR) --
+   -------------------------------------------------
+
+   type t_RCC_CFGR is record
+      SW             : bits_2;   -- System clock switch
+      SWS            : bits_2;   -- System clock switch status
+      HPRE           : bits_4;   -- AHB prescaler
+      reserved_8_9   : bits_2;
+      PPRE1          : bits_3;   -- APB Low speed prescaler (APB1)
+      PPRE2          : bits_3;   -- APB high-speed prescaler (APB2)
+      RTCPRE         : bits_5;   -- HSE division factor for RTC clock
+      MCO1           : bits_2;   -- Microcontroller clock output 1
+      I2SSCR         : bit;      -- I2S clock selection
+      MCO1PRE        : bits_3;   -- MCO1 prescaler
+      MCO2PRE        : bits_3;   -- MCO2 prescaler
+      MCO2           : bits_2;   -- Microcontroller clock output 2
+   end record
+      with size => 32, volatile_full_access;
+
+   for t_RCC_CFGR use record
+      SW             at 0 range 0 .. 1;
+      SWS            at 0 range 2 .. 3;
+      HPRE           at 0 range 4 .. 7;
+      reserved_8_9   at 0 range 8 .. 9;
+      PPRE1          at 0 range 10 .. 12;
+      PPRE2          at 0 range 13 .. 15;
+      RTCPRE         at 0 range 16 .. 20;
+      MCO1           at 0 range 21 .. 22;
+      I2SSCR         at 0 range 23 .. 23;
+      MCO1PRE        at 0 range 24 .. 26;
+      MCO2PRE        at 0 range 27 .. 29;
+      MCO2           at 0 range 30 .. 31;
+   end record;
+
+   ------------------------------------------------------
+   -- RCC AHB1 peripheral clock register (RCC_AHB1ENR) --
+   ------------------------------------------------------
 
    type t_RCC_AHB1ENR is record
       GPIOAEN        : boolean;   -- IO port A clock enable
@@ -105,25 +163,32 @@ is
    end record
       with pack, size => 32, volatile_full_access;
 
-   -----------------
-   -- RCC_AHB2ENR --
-   -----------------
+   -------------------------------------------------------------
+   -- RCC AHB2 peripheral clock enable register (RCC_AHB2ENR) --
+   -------------------------------------------------------------
 
    type t_RCC_AHB2ENR is record
       DCMIEN         : boolean;   -- DCMI clock enable
-      reserved_3     : bits_3;
+      reserved_1_3   : bits_3;
       CRYPEN         : boolean;   -- CRYP clock enable
       HASHEN         : boolean;   -- HASH clock enable
       RNGEN          : boolean;   -- RNG clock enable
       OTGFSEN        : boolean;   -- USB OTG Full Speed clock enable
-      reserved_8_15  : byte;
-      reserved_16_31 : unsigned_16;
    end record
-      with pack, size => 32, volatile_full_access;
+      with size => 32, volatile_full_access;
 
-   -----------------
-   -- RCC_APB1ENR --
-   -----------------
+   for t_RCC_AHB2ENR use record
+      DCMIEN         at 0 range 0 .. 0;
+      reserved_1_3   at 0 range 1 .. 3;
+      CRYPEN         at 0 range 4 .. 4;
+      HASHEN         at 0 range 5 .. 5;
+      RNGEN          at 0 range 6 .. 6;
+      OTGFSEN        at 0 range 7 .. 7;
+   end record;
+
+   -------------------------------------------------------------
+   -- RCC APB1 peripheral clock enable register (RCC_APB1ENR) --
+   -------------------------------------------------------------
 
    type t_RCC_APB1ENR is record
       TIM2EN         : boolean;  -- TIM2 clock enable
@@ -159,12 +224,9 @@ is
    end record
       with pack, size => 32, volatile_full_access;
 
-   -----------------
-   -- RCC_APB2ENR --
-   -----------------
-
-   -- RCC APB2 peripheral clock enable register
-   -- Ref. : RM0090, p. 248
+   -------------------------------------------------------------
+   -- RCC APB2 peripheral clock enable register (RCC_APB2ENR) --
+   -------------------------------------------------------------
 
    type t_RCC_APB2ENR is record
       TIM1EN         : boolean;  -- TIM1 clock enable
@@ -193,27 +255,28 @@ is
    --------------------
    -- RCC peripheral --
    --------------------
-   type t_RCC_bus is
-     (RCC_AHB1_BUS,
-      RCC_AHB2_BUS,
-      RCC_APB1_BUS,
-      RCC_APB2_BUS);
 
    type t_RCC_peripheral is record
-      CR    : t_RCC_CR;
-      AHB1  : t_RCC_AHB1ENR;
-      AHB2  : t_RCC_AHB2ENR;
-      APB1  : t_RCC_APB1ENR;
-      APB2  : t_RCC_APB2ENR;
+      CR       : t_RCC_CR;
+      PLLCFGR  : t_RCC_PLLCFGR;
+      CFGR     : t_RCC_CFGR;
+      CIR      : unsigned_32;
+      AHB1ENR  : t_RCC_AHB1ENR;
+      AHB2ENR  : t_RCC_AHB2ENR;
+      APB1ENR  : t_RCC_APB1ENR;
+      APB2ENR  : t_RCC_APB2ENR;
    end record
       with volatile;
 
    for t_RCC_peripheral use record
-      CR    at 16#00# range 0 .. 31;
-      AHB1  at 16#30# range 0 .. 31;
-      AHB2  at 16#34# range 0 .. 31;
-      APB1  at 16#40# range 0 .. 31;
-      APB2  at 16#44# range 0 .. 31;
+      CR       at 16#00# range 0 .. 31;
+      PLLCFGR  at 16#04# range 0 .. 31;
+      CFGR     at 16#08# range 0 .. 31;
+      CIR      at 16#0C# range 0 .. 31;
+      AHB1ENR  at 16#30# range 0 .. 31;
+      AHB2ENR  at 16#34# range 0 .. 31;
+      APB1ENR  at 16#40# range 0 .. 31;
+      APB2ENR  at 16#44# range 0 .. 31;
    end record;
 
    RCC   : t_RCC_peripheral
@@ -221,5 +284,21 @@ is
          import,
          volatile,
          address => system'to_address(16#4002_3800#);
+
+
+   procedure reset
+      with
+         convention     => c,
+         export         => true,
+         external_name  => "soc_rcc_reset";
+
+   function init
+     (enable_hse  : in  types.c.bool;
+      enable_pll  : in  types.c.bool)
+      return types.c.t_retval
+      with
+         convention     => c,
+         export         => true,
+         external_name  => "soc_rcc_setsysclock";
 
 end soc.rcc;

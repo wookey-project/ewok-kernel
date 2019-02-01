@@ -57,13 +57,25 @@ void set_vtor(uint32_t addr)
  */
 void system_init(uint32_t addr)
 {
+#ifdef PROD_ENABLE_HSE
+    bool enable_hse = true;
+#else
+    bool enable_hse = false;
+#endif
+
+#ifdef PROD_ENABLE_PLL
+    bool enable_pll = true;
+#else
+    bool enable_hse = false;
+#endif
+
 #ifdef CONFIG_STM32F4
     soc_rcc_reset();
     /*
      * Configure the System clock source, PLL Multiplier and Divider factors,
      * AHB/APBx prescalers and Flash settings
      */
-    soc_rcc_setsysclock();
+    soc_rcc_setsysclock(enable_hse, enable_pll);
 #endif
 
     //set_vtor(FLASH_BASE|VECT_TAB_OFFSET);

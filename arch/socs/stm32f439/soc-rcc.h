@@ -746,6 +746,6 @@ void soc_rcc_reset(void);
  * is reset to the default reset state (done in SystemInit() function).
  *
  */
-void soc_rcc_setsysclock(void);
+void soc_rcc_setsysclock(bool enable_hse, bool enable_pll);
 
 #endif /*!SOC_RCC_H */

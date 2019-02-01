@@ -32,7 +32,7 @@ is
    is
    begin
       deinit;
-      soc.rcc.RCC.APB2.SYSCFGEN := true;
+      soc.rcc.RCC.APB2ENR.SYSCFGEN := true;
    end init;
 
    procedure deinit

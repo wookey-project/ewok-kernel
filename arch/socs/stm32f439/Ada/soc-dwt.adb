@@ -20,7 +20,6 @@
 --
 --
 
-with ada.unchecked_conversion;
 with m4.systick;
 
 package body soc.dwt
