@@ -66,18 +66,16 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   }>RAM_KERN
 
-/*
   .data_in_flash : AT ( _sidata )
   {
-    / * to be sure that there is enough space in flash for .data, we fill the
+    /* to be sure that there is enough space in flash for .data, we fill the
      * content with .data size here. .data is added in a dedicated section
      * using the AT attribute
      * This section doesn't store anything but fullfill the flash with
-     * the size of .data section * /
+     * the size of .data section */
     . = . + SIZEOF(.data);
     . = ALIGN(4);
   } >FW1_KERN
-*/
 
   /* Uninitialized data section */
   . = ALIGN(4);
