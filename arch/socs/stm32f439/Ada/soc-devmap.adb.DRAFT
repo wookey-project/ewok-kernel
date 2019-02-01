@@ -3,20 +3,19 @@ package body soc_devmap
 is
 
    function find_device
-      (addr  : in physaddr_t,
-      size   : in uint32_t size)
+     (addr  : in physaddr_t,
+      size  : in uint32_t size)
       return device_soc_info_t_access
    is
-      device   : devmap.device_soc_info_t;
-      device_a : devmap.device_soc_info_t_access;
    begin
       for device in soc_devices_list'range loop
-         if device.address = addr and then device.size = size then
-            device_a := device'access;
-            return device_a;
+         if device.address = addr and device.size = size then
+            return device'access;
+         end if;
       end loop;
-      return null;
+      return NULL;
    end find_device;
+
 
    procedure enable_clock (device : in device_soc_info_t_access)
    is
@@ -24,13 +23,15 @@ is
       -- TODO: depend on soc-rcc API
    end;
 
+
 #if CONFIG_KERNEL_DMA_ENABLE
    function get_dma
-      (id     : in soc.dma.t_dma_periph_index,
+     (id     : in soc.dma.t_dma_periph_index,
       stream : in soc.dma.t_stream_index)
       return device_soc_info_t_access
    is
    begin
+
       case id is
          when ID_DMA1:
             case stream is
