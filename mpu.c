@@ -121,7 +121,18 @@ uint8_t mpu_kernel_init(void)
     dbg_flush();
 
     /* SHR */
+    /* FIXME: is this region really needed ?
+     * The kernel never access directly the SHR, which is
+     * under the control of:
+     * - the bootloader
+     * - the dfusmart app
+     *
+     *  Here, SHR_BASE no more exists, as there is one SHR
+     *  per bank (SHR_FLIP_BASE & SHR_FLOP_BASE)
+     */
+#if 0
     my_region.region_number = 0;
+    /* FIXME: should be defined in app_layout */
     my_region.addr = SHR_BASE;
     my_region.size = MPU_REGION_SIZE_32Kb;
     my_region.access_perm = MPU_REGION_RO_RO;
@@ -134,6 +145,7 @@ uint8_t mpu_kernel_init(void)
         ERROR("Unable to map SHR !\n");
         return 1;
     }
+#endif
 
     /* Current kernel code */
     my_region.region_number = 1;
