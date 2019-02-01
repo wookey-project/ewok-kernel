@@ -103,7 +103,7 @@ SECTIONS
     . = . + 4096; /* kernel idle thread stack */
     . = . + 4096; /* kernel initial thread stack */
     . = . + 4096; /* softirq thread stack */
-    . = . + 1024; /* kernel initial transient stack is not counted as it
+    . = . + 4096; /* kernel initial transient stack is not counted as it
                      is used only at early boot. We just give little space
                      to avoid .data+.bss collision with this stack at boot
                      time */

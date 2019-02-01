@@ -66,17 +66,18 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   }>RAM_KERN
 
+/*
   .data_in_flash : AT ( _sidata )
   {
-    /* to be sure that there is enough space in flash for .data, we fill the
+    / * to be sure that there is enough space in flash for .data, we fill the
      * content with .data size here. .data is added in a dedicated section
      * using the AT attribute
      * This section doesn't store anything but fullfill the flash with
-     * the size of .data section */
+     * the size of .data section * /
     . = . + SIZEOF(.data);
     . = ALIGN(4);
   } >FW1_KERN
-
+*/
 
   /* Uninitialized data section */
   . = ALIGN(4);
@@ -104,7 +105,7 @@ SECTIONS
     . = . + 4096; /* kernel idle thread stack */
     . = . + 4096; /* softirq thread stack */
     . = . + 4096; /* user ISR stack (remapped region) */
-    . = . + 1024; /* kernel initial transient stack is not counted as it
+    . = . + 4096; /* kernel initial transient stack is not counted as it
                      is used only at early boot. We just give little space
                      to avoid .data+.bss collision with this stack at boot
                      time */
