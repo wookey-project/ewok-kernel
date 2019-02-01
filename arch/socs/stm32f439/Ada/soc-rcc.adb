@@ -66,7 +66,7 @@ is
       -- This bit controls the main internal voltage regulator output voltage
       -- to achieve a trade-off between performance and power consumption when
       -- the device does not operate at the maximum frequency.
-      soc.pwr.PWR.CR.VOS := 2#11#; -- Scale 1 mode
+      soc.pwr.PWR.CR.VOS := soc.pwr.VOS_SCALE1;
 
       if enable_hse then
          RCC.CR.HSEON   := true;

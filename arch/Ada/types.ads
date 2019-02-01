@@ -70,12 +70,16 @@ is
    type bits_5  is mod 2**5  with size => 5;
    type bits_6  is mod 2**6  with size => 6;
    type bits_7  is mod 2**7  with size => 7;
-
+   --
    type bits_9  is mod 2**9  with size => 9;
    type bits_10 is mod 2**10 with size => 10;
-
+   type bits_11 is mod 2**11 with size => 11;
+   type bits_12 is mod 2**12 with size => 12;
+   --
+   type bits_17 is mod 2**17 with size => 17;
+   --
    type bits_24 is mod 2**24 with size => 24;
-
+   --
    type bits_27 is mod 2**27 with size => 27;
 
    type bool is new boolean with size => 1;

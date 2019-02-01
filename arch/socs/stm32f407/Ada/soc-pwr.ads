@@ -23,16 +23,15 @@ with system;
 
 package soc.pwr is
 
-   -----------------------------------------
-   -- PWR power control register (PWR_CR) --
-   -- for STM32F42xxx and STM32F43xxx     --
-   -----------------------------------------
+   -------------------------------------------
+   -- PWR power control register (PWR_CR)   --
+   -- STM32F405xx/07xx and STM32F415xx/17xx --
+   -------------------------------------------
 
-   type t_vos is (VOS_SCALE3, VOS_SCALE2, VOS_SCALE1) with size => 2;
+   type t_vos is (VOS_SCALE2, VOS_SCALE1) with size => 1;
    for t_vos use
-     (VOS_SCALE3 => 2#01#,
-      VOS_SCALE2 => 2#10#,
-      VOS_SCALE1 => 2#11#);
+     (VOS_SCALE2 => 0,
+      VOS_SCALE1 => 1);
 
    type t_PWR_CR is record
       LPDS           : bit;
@@ -43,15 +42,9 @@ package soc.pwr is
       PLS            : bits_3;
       DBP            : bit;
       FPDS           : bit;
-      LPUDS          : bit;
-      MRUDS          : bit;
-      reserved_12_12 : bit;
-      ADCDC1         : bit;
+      reserved_10_13 : bits_4;
       VOS            : t_vos;
-      ODEN           : bit;
-      ODSWEN         : bit;
-      UDEN           : bits_2;
-      reserved_20_31 : bits_12;
+      reserved_15_31 : bits_17;
    end record
      with volatile_full_access, size => 32;
 
@@ -64,15 +57,9 @@ package soc.pwr is
       PLS            at 0 range 5 .. 7;
       DBP            at 0 range 8 .. 8;
       FPDS           at 0 range 9 .. 9;
-      LPUDS          at 0 range 10 .. 10;
-      MRUDS          at 0 range 11 .. 11;
-      reserved_12_12 at 0 range 12 .. 12;
-      ADCDC1         at 0 range 13 .. 13;
-      VOS            at 0 range 14 .. 15;
-      ODEN           at 0 range 16 .. 16;
-      ODSWEN         at 0 range 17 .. 17;
-      UDEN           at 0 range 18 .. 19;
-      reserved_20_31 at 0 range 20 .. 31;
+      reserved_10_13 at 0 range 10 .. 13;
+      VOS            at 0 range 14 .. 14;
+      reserved_15_31 at 0 range 15 .. 31;
    end record;
 
    --------------------

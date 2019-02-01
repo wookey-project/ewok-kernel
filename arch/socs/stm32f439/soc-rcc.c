@@ -108,10 +108,10 @@ void soc_rcc_setsysclock(bool enable_hse, bool enable_pll)
                     | (((PROD_PLL_P >> 1) - 1) << 16)
                     | (RCC_PLLCFGR_PLLSRC_HSI) | (PROD_PLL_Q << 24));
             }
-    
+
             /* Enable the main PLL */
             set_reg_bits(r_CORTEX_M_RCC_CR, RCC_CR_PLLON);
-    
+
             /* Wait till the main PLL is ready */
             while ((read_reg_value(r_CORTEX_M_RCC_CR) & RCC_CR_PLLRDY) == 0)
                 continue;

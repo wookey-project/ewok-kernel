@@ -31,11 +31,11 @@ package soc.flash is
    type t_FLASH_ACR is record
       LATENCY        : bits_4;
       -- reserved_04_07
-      PRFTEN         : boolean;
-      ICEN           : boolean;
-      DCEN           : boolean;
-      ICRST          : boolean;
-      DCRST          : boolean;
+      PRFTEN         : boolean;  -- Prefetch enable
+      ICEN           : boolean;  -- Instruction cache enable
+      DCEN           : boolean;  -- Data cache enable
+      ICRST          : boolean;  -- Instruction cache reset
+      DCRST          : boolean;  -- Data cache reset
       -- reserved_13_31
    end record
      with volatile_full_access, size => 32;
