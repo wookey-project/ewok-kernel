@@ -38,8 +38,7 @@ is
      (DEV_STATE_UNUSED,
       DEV_STATE_RESERVED,
       DEV_STATE_REGISTERED,
-      DEV_STATE_ENABLED,
-      DEV_STATE_REG_FAILED);
+      DEV_STATE_ENABLED);
 
    type t_checked_user_device is new ewok.exported.devices.t_user_device;
    type t_checked_user_device_access is access all t_checked_user_device;

@@ -94,9 +94,9 @@ is
       for id in applications.list'range loop
          if TSK.tasks_list(id).mode = TASK_MODE_ISRTHREAD
             and then
-            ewok.tasks.get_state(id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
+            ewok.tasks.get_state (id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
             and then
-            ewok.tasks.get_state(id, TASK_MODE_MAINTHREAD) /= TASK_STATE_LOCKED
+            ewok.tasks.get_state (id, TASK_MODE_MAINTHREAD) /= TASK_STATE_LOCKED
          then
             elected := id;
             goto ok_return;
@@ -125,7 +125,7 @@ is
 
          if TSK.tasks_list(id).mode = TASK_MODE_ISRTHREAD
             and then
-            ewok.tasks.get_state(id, TASK_MODE_ISRTHREAD) = TASK_STATE_ISR_DONE
+            ewok.tasks.get_state (id, TASK_MODE_ISRTHREAD) = TASK_STATE_ISR_DONE
          then
             ewok.tasks.set_state
               (id, TASK_MODE_ISRTHREAD, TASK_STATE_IDLE);
@@ -397,19 +397,16 @@ is
    is
    begin
 
-      sched_period := 0;
-
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and
+      -- Keep ISR threads running until they finish
+      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and then
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
-         -- Keep ISR threads running until they finish
          return frame_a;
       end if;
 
       -- Save current context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
-         -- ISR is done here. We don't really need to save its context.
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
          TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
@@ -456,7 +453,7 @@ is
       ewok.sleep.check_is_awoke;
 
       -- Keep ISR threads running until they finish
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and
+      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and then
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
@@ -465,8 +462,6 @@ is
 
       -- Save current context
       if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
-         -- ISR is done here. We don't really need to save its context.
-         -- FIXME -- Really ???
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
          TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;

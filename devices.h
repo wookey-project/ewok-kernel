@@ -37,8 +37,7 @@ typedef enum {
         DEV_STATE_NONE,
         DEV_STATE_RESERVED,
         DEV_STATE_REGISTERED,
-        DEV_STATE_ENABLED,
-        DEV_STATE_REG_FAIL,
+        DEV_STATE_ENABLED
 } e_dev_state;
 
 typedef struct {

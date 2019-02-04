@@ -193,7 +193,7 @@ is
             udev := ewok.devices.get_user_device
                        (TSK.tasks_list(caller_id).device_id(i));
             if udev.all.map_mode = DEV_MAP_AUTO then
-               -- FIXME - Should create new syscalls for enabling/disabling devices
+               -- FIXME - Create new syscalls for enabling/disabling devices?
                ewok.devices.enable_device
                   (TSK.tasks_list(caller_id).device_id(i), ok);
                if not ok then
