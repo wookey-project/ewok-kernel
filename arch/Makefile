@@ -86,7 +86,6 @@ endif
 
 ifeq ($(ADAKERNEL),y)
 # to finish with Ada, declare the location of the Ada lib
-ALIB = $(APP_BUILD_DIR)/Ada/lib/libabsp.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
 endif
 
@@ -149,11 +148,6 @@ ifeq ($(ADAKERNEL),y)
 $(ADIR):
 	$(call cmd,mkdir)
 
-$(ALIB): libabsp $(ADIR)
-	$(call cmd,ada_lib)
-
-libabsp: libabsp.gpr
-
 endif
 
 
@@ -176,8 +170,8 @@ $(APP_BUILD_DIR)/soc/%.o: $(SOC_DIR)/%.s
 $(APP_BUILD_DIR)/board/%.o: $(BOARD_DIR)/%.c
 	$(call if_changed,cc_o_c)
 
-# lib
-$(APP_BUILD_DIR)/$(LIB_FULL_NAME): $(OBJ) $(AOBJ) $(ROBJ) $(SOC_OBJ) $(BOARD_OBJ) $(CORE_OBJ) $(ALIB)
+# lib (C content only, for loader libbsp)
+$(APP_BUILD_DIR)/$(LIB_FULL_NAME): $(OBJ) $(AOBJ) $(ROBJ) $(SOC_OBJ) $(BOARD_OBJ) $(CORE_OBJ)
 	$(call if_changed,mklib)
 	$(call if_changed,ranlib)
 
