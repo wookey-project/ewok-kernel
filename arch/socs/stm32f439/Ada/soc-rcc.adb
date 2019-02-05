@@ -102,8 +102,8 @@ is
       -- Configuring flash (prefetch, instruction cache, data cache, wait state)
       soc.flash.FLASH.ACR.ICEN      := true; -- Instruction cache enable
       soc.flash.FLASH.ACR.DCEN      := true; -- Data cache is enabled
-      soc.flash.FLASH.ACR.PRFTEN    := false; -- Prefetch is disabled to avoid 
-                                              -- spectre/meltdown like attacks
+      soc.flash.FLASH.ACR.PRFTEN    := false; -- Prefetch is disabled to avoid
+                                              -- SPA or DPA side channel attacks
       soc.flash.FLASH.ACR.LATENCY   := 5;    -- Latency = 5 wait states
 
       -- Set clock dividers
