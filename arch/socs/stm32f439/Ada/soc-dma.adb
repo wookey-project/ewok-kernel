@@ -85,14 +85,28 @@ is
       (intr : soc.interrupts.t_interrupt)
       return boolean
    is
-      dma_id   : soc.dma.t_dma_periph_index;
-      stream   : soc.dma.t_stream_index;
-      pragma unreferenced (dma_id);
-      pragma unreferenced (stream);
-      ok       : boolean;
    begin
-      soc.dma.get_dma_stream_from_interrupt (intr, dma_id, stream, ok);
-      return ok;
+      case intr is
+         when INT_DMA1_STREAM0 |
+              INT_DMA1_STREAM1 |
+              INT_DMA1_STREAM2 |
+              INT_DMA1_STREAM3 |
+              INT_DMA1_STREAM4 |
+              INT_DMA1_STREAM5 |
+              INT_DMA1_STREAM6 |
+              INT_DMA1_STREAM7 |
+              INT_DMA2_STREAM0 |
+              INT_DMA2_STREAM1 |
+              INT_DMA2_STREAM2 |
+              INT_DMA2_STREAM3 |
+              INT_DMA2_STREAM4 |
+              INT_DMA2_STREAM5 |
+              INT_DMA2_STREAM6 |
+              INT_DMA2_STREAM7 =>
+            return true;
+         when others =>
+            return false;
+      end case;
    end soc_is_dma_irq;
 
 
