@@ -534,6 +534,7 @@ is
 
          ewok.ipc.get_endpoint (ep, ok);
          if not ok then
+            -- FIXME
             debug.panic ("ipc_do_send(): EndPoint starvation !O_+");
          end if;
 
