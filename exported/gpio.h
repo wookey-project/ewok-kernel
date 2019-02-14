@@ -172,8 +172,13 @@ typedef enum {
   GPIO_EXTI_TRIGGER_BOTH
 } gpio_exti_trigger_t;
 
+/*
+ * Lock EXTI line when the EXTI interrupt arrise ?
+ */
 typedef enum {
+  /** Don't lock EXTI line, other EXTI interrupts can continue to arrise */
   GPIO_EXTI_UNLOCKED = 0,
+  /** Lock EXTI line at handler time, the ISR has to voluntary re-enable it */
   GPIO_EXTI_LOCKED
 } gpio_exti_lock_t;
 
@@ -208,7 +213,7 @@ typedef struct {
     gpio_mask_t mask;
 
     /**< GPIO kernel reference
-     *   = concatenation of the GPIO port (4 bits) and the pin number (4 bits) 
+     *   = concatenation of the GPIO port (4 bits) and the pin number (4 bits)
      *
      *   If set at 1 before registration, the kernel will dynamicaly allocate
      *   a free port/pin and update kref accordingly.
