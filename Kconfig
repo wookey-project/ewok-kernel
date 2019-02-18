@@ -1,6 +1,6 @@
 menu "Board Support Package"
 
-source "kernel/arch/Kconfig"
+source "kernel/src/arch/Kconfig"
 
 endmenu
 
@@ -121,7 +121,7 @@ choice
     bool "Round Robin scheduler"
     ---help---
     This is a classical Round Robin scheduler. ISR are still
-    executed with a higher priority than the tasks. 
+    executed with a higher priority than the tasks.
   config SCHED_MLQ_RR
     bool "Multilevel Queue Round Robin"
     ---help---
@@ -204,7 +204,7 @@ choice
   config KERN_OPTIM_OS
     bool "Optimization for size, debug keeped"
 endchoice
-  
+
 config KERN_CFLAGS
   string
   default "-O1" if KERN_OPTIM_O1

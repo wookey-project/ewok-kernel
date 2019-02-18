@@ -1,0 +1,189 @@
+# This is the arch-specific / board-specific configuration file.
+# This file describes all the configuration menu "Target configuration".
+#
+
+menu "Board setup"
+
+choice
+  prompt "Target board"
+  config DISCO407
+    bool "Support for 32F429IDISCOVERY board"
+    select STACK_PROT_FLAG
+    select STM32F407
+    help
+      Compile for the Discovery 32F407I board.
+      No Cryp support, 1MB flash bank.
+  config DISCO429
+    bool "Support for 32F407IDISCOVERY board"
+    select STACK_PROT_FLAG
+    select STM32F429
+    help
+      Compile for the Discovery 32F429I board.
+      Cryp support, 1MB flash bank.
+  config WOOKEY
+    bool "Support for WOOKEY board"
+    select STACK_PROT_FLAG
+    select STM32F439
+    help
+      Compile for the Disco board.
+endchoice
+
+endmenu
+
+menu "SoC and Core setup"
+
+# most of kernel code is generic to multiple SoC familly, such as STM32F4 in this
+# case. When there is a specificity (for e.g. flash layout), please use STM32F429 or
+# STM32F439 config unit to differenciate
+config STM32F4
+  bool
+  default n
+
+
+# hierarchical selection from board selection. Silent config
+config STM32F407
+    bool
+    select STM32F4_SPI
+    select ARCH_ARMV7M
+    select ARCH_CORTEX_M4
+    select STM32F4
+
+config STM32F429
+    bool
+    select STM32F4_SPI
+    select ARCH_ARMV7M
+    select ARCH_CORTEX_M4
+    select STM32F4
+
+config STM32F439
+    bool
+    select STM32F4_SPI
+    select ARCH_ARMV7M
+    select ARCH_CORTEX_M4
+    select STM32F4
+
+if DISCO407
+source "kernel/src/arch/socs/stm32f407/Kconfig"
+endif
+
+if DISCO429
+source "kernel/src/arch/socs/stm32f429/Kconfig"
+endif
+
+if WOOKEY
+source "kernel/src/arch/socs/stm32f439/Kconfig"
+endif
+
+
+config FPU_ENABLE
+  bool "Enable Hardware Floating point unit (FPU)"
+  default n
+  help
+    Enable the hardware FPU support. Caution: no FPU context save
+    is supported by now.
+
+choice
+  prompt "FPU access rights"
+  depends on FPU_ENABLE
+config FPU_ENABLE_ALL
+    bool "Allow FPU for all (privilegied and unprivilegied)"
+    help
+      Any task can use the hardware floating point unit.
+config FPU_ENABLE_PRIVILEGIED
+    bool "Allow FPU for privilegied only"
+    help
+      Only privilegied (i.e. supervisor) task can use hardware
+      floating point unit.
+endchoice
+
+choice
+  prompt "FPU context management"
+  depends on FPU_ENABLE
+config FPU_NOSAVE
+    bool "No context saving support"
+    help
+      No context save. FPU must be used only in unpreemptive part of the code.
+config FPU_LAZY
+    bool "Lazy saving (EXPERIMENTAL)"
+    help
+      Lazy context save. FPU can be used in preemptive mode but with reduced
+      register set.
+endchoice
+
+
+config CORE_FREQUENCY
+  int "Target core frequency"
+  depends on STM32F4 || STM32F2
+  default 168000
+  help
+    Specify the Cortex-M core frequency
+
+endmenu
+
+# hidden config, selected by others
+# This configurations are not visible to user and are automaticaly set at configuration
+# time, depending on the choices above.
+# all these generates Makefile helper variables
+
+config ARCH_ARMV7M
+    bool
+    default n
+
+config ARCH_CORTEX_M4
+    bool
+    default n
+
+config ARCH_CORTEX_M3
+    bool
+    default n
+
+config ARCH
+    string
+    default "armv7-m" if STM32F4 || STM32F2
+
+config ADA_ARCH
+    string
+    depends on ADAKERNEL
+    default "arm-eabi" if ARCH_ARMV7M
+
+config ADA_PROFILE
+    string
+    depends on ADAKERNEL
+    default "zfp-stm32f4" if STM32F4 || STM32F2
+    default "zfp-rpi2" if RPI2
+
+config BOARDNAME
+    string
+    default "wookey" if WOOKEY
+    default "32f407discovery" if DISCO407
+    default "32f429discovery" if DISCO429
+
+config SOCNAME
+    string
+    default "stm32f429" if STM32F429
+    default "stm32f439" if STM32F439
+    default "stm32f407" if STM32F407
+
+config CORENAME
+    string
+    default "cortex-m4" if STM32F4
+    default "cortex-m3" if STM32F2
+
+# define the max number of task slots
+config MAXTASKS
+    int
+    default 8 if STM32F4
+    default 8 if STM32F2
+
+config AFLAGS_GCC
+    string
+    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F4
+    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F2
+
+config AFLAGS_LLVM
+    string
+    default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -m32 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F4
+    default "--target=arm-none-eabi -mcpu=cortex-m4 -m32 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F2
+
+
+

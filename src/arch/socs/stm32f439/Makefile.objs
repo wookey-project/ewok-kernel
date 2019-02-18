@@ -1,0 +1,43 @@
+SOC_DIR = $(PROJ_FILES)kernel/src/arch/socs/stm32f439
+
+CFLAGS += -I$(PROJ_FILES)/kernel/src/arch/socs
+CFLAGS += -I$(PROJ_FILES)/kernel/src/arch/socs/stm32f439
+
+socdrv-y :=
+socdrv-bsp-y :=
+
+# this is the Board Support package content
+socdrv-bsp-y += soc-rcc.c
+socdrv-bsp-y += soc-rng.c
+socdrv-bsp-y += soc-interrupts.c
+socdrv-bsp-y += soc-gpio.c
+socdrv-bsp-y += soc-usart.c
+socdrv-bsp-y += soc-exti.c
+socdrv-bsp-y += soc-init.c
+socdrv-bsp-y += soc-devmap.c
+socdrv-bsp-y += default_handlers.c
+socdrv-bsp-y += postpone.c
+# mutually exclusive
+socdrv-bsp-$(CONFIG_KERNEL_DMA_ENABLE) += soc-dma.c
+socdrv-bsp-$(CONFIG_KERNEL_UNSAFE_DMA_ENABLE) += soc-dma.c
+
+socdrv-bsp-y += soc-dwt.c
+
+ifeq ($(CONFIG_ADAKERNEL),y)
+# for Ada equivalent
+socdrv-ada-bsp-y += Ada/soc-rcc.adb
+#socdrv-ada-bsp-y += Ada/soc-rng.adb
+socdrv-ada-bsp-y += Ada/soc-interrupts.adb
+socdrv-ada-bsp-y += Ada/soc-gpio.adb
+socdrv-ada-bsp-y += Ada/soc-gpio-interfaces.adb
+#socdrv-ada-bsp-y += Ada/soc-usart.adb
+socdrv-ada-bsp-y += Ada/soc-exti.adb
+#socdrv-ada-bsp-y += Ada/soc-init.adb
+socdrv-ada-bsp-y += Ada/default_handlers.adb
+#socdrv-ada-bsp-y += Ada/postpone.adb
+socdrv-ada-bsp-y += Ada/soc-dma.adb
+socdrv-ada-bsp-y += Ada/soc-dwt.adb
+#socdrv-ada_bsp-y += Ada/soc-devmap.adb
+socdrv-ada-bsp-y += Ada/soc-nvic.adb
+socdrv-ada-bsp-y += Ada/soc-syscfg.adb
+endif

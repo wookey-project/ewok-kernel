@@ -1,0 +1,60 @@
+library project Libabsp is
+
+   for Languages use ("Ada");
+
+   for Source_Dirs use
+     ("Ada",
+      "../../../kernel/src/arch/cores/" & external("ARCH") & "/Ada",
+      "../../../kernel/src/arch/socs/" & external("SOCNAME") & "/Ada");
+
+   for Library_Dir   use   external("BUILD_DIR") & "/Ada/lib";
+   for Object_Dir    use  external("BUILD_DIR") & "/Ada";
+   for Target        use  external("ADA_ARCH");
+   for Runtime ("ada") use external("ADA_PROFILE");
+   for Library_Name  use "absp";
+   for Library_Kind  use "static";
+
+   package Compiler is
+
+      basic :=
+        ("-fstack-usage",  -- Generate .su file with informations about the
+                           -- amount of stack used
+         "-gnateG",        -- Generate preprocessed source
+         "-gnatec=" & Libabsp'Project_Dir & "libabsp.adc",
+         "-gnatn",         -- Enable pragma Inline
+         "-gnatwa",        -- Turn on all warnings
+         "-gnatw.X",       -- Turn off warnings for export/import
+         "-gnatwe");       -- Treat all warnings as errors
+
+      verif :=
+        ("-gnato",         -- Turn on all checks
+         "-gnatVa");       -- Turn on all validity checks
+
+      no_verif :=
+        ("-gnatp",         -- Turn off all checks
+         "-gnatVn");       -- Turn off all validity checks
+
+      for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
+
+      --for Switches ("soc-nvic.adb")             use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-dma.adb")              use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio.adb")             use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio-interfaces.adb")  use ("-O2", "-g") & basic & verif;
+
+      -- Proved SPARK code
+      for Switches ("soc-interrupts.adb")       use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-mpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu-instructions.adb")  use ("-O2", "-g") & basic & no_verif;
+
+      for Switches ("m4-systick.adb")           use ("-Os", "-g") & basic & no_verif;
+      for Switches ("soc-dwt.adb")              use ("-Os", "-g") & basic & no_verif;
+      for Switches ("m4-scb.adb")               use ("-Os", "-g") & basic & no_verif;
+
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-n");
+   end Binder;
+
+end Libabsp;

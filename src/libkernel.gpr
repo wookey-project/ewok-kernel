@@ -1,0 +1,166 @@
+library project Libkernel is
+
+   for Languages use ("Ada");
+
+   for Source_Dirs use
+     ("arch/Ada",
+      "arch/cores/" & external("ARCH") & "/Ada",
+      "arch/socs/" & external("SOCNAME") & "/Ada",
+      "Ada",
+      "Ada/syscalls",
+      "Ada/exported",
+      "../generated/Ada");
+
+   for Library_Dir   use external("BUILD_DIR") & "/Ada/lib";
+   for Object_Dir    use external("BUILD_DIR") & "/Ada";
+   for Target        use external("ADA_ARCH");
+   for Runtime ("ada") use external("ADA_PROFILE");
+   for Library_Name  use "kernel";
+   for Library_Kind  use "static";
+
+   for Library_Interface use
+     ("applications",
+      "c",
+      "c.kernel",
+      "c.socinfo",
+      "debug",
+      "ewok",
+      "ewok.devices",
+      "ewok.devices.interfaces",
+      "ewok.devices_shared",
+      "ewok.dma",
+      "ewok.dma.interfaces",
+      "ewok.dma_shared",
+      "ewok.exported",
+      "ewok.exported.devices",
+      "ewok.exported.dma",
+      "ewok.exported.gpios",
+      "ewok.exported.interrupts",
+      "ewok.exported.sleep",
+      "ewok.exti",
+      "ewok.exti.handler",
+      "ewok.exti.interfaces",
+      "ewok.gpio",
+      "ewok.interrupts",
+      "ewok.interrupts.handler",
+      "ewok.interrupts.interfaces",
+      "ewok.ipc",
+      "ewok.isr",
+      "ewok.layout",
+      "ewok.mpu",
+      "ewok.mpu.handler",
+      "ewok.mpu.interfaces",
+      "ewok.perm",
+      "ewok.perm_auto",
+      "ewok.sanitize",
+      "ewok.sched",
+      "ewok.sched.interfaces",
+      "ewok.softirq",
+      "ewok.syscalls",
+      "ewok.syscalls.cfg",
+      "ewok.syscalls.cfg.dev",
+      "ewok.syscalls.cfg.gpio",
+      "ewok.syscalls.dma",
+      "ewok.syscalls.gettick",
+      "ewok.syscalls.handler",
+      "ewok.syscalls.init",
+      "ewok.syscalls.ipc",
+      "ewok.syscalls.log",
+      "ewok.syscalls.sleep",
+      "ewok.syscalls.yield",
+      "ewok.tasks",
+      "ewok.tasks_shared",
+      "ewok.sleep",
+      "ewok.posthook",
+      "soc.dma",
+      "soc.dma.interfaces",
+      "soc.dwt",
+      "soc.dwt.interfaces",
+      "soc.exti",
+      "soc.gpio",
+      "soc.gpio.interfaces",
+      "soc.interrupts",
+      "soc.layout",
+      "soc.layout.stm32f42x",
+      "soc.layout.stm32f4",
+      "soc.nvic",
+      "soc.rcc",
+      "soc.syscfg",
+      "soc",
+      "m4.cpu",
+      "m4.cpu.instructions",
+      "m4.layout",
+      "m4.mpu",
+      "m4.scb",
+      "m4.systick",
+      "m4",
+      "types",
+      "types.c",
+      "processor",
+      "rings",
+      "sections");
+
+
+   Local_Path := ".";
+
+   package Compiler is
+
+      basic :=
+        ("-fstack-usage",  -- Generate .su file with informations about the
+                           -- amount of stack used
+         "-gnateG",        -- Generate preprocessed source
+         "-gnatep=" & Libkernel'Project_Dir & "gnatprep.def", -- Preprocessing data file
+         "-gnatet=target.atp",
+         "-gnatec=" & Libkernel'Project_Dir & "libkernel.adc",
+         "-gnatn",         -- Enable pragma Inline
+         "-gnatwa",        -- Turn on all warnings
+         "-gnatw.X",       -- Turn off warnings for export/import
+         "-gnatwe");       -- Treat all warnings as errors
+
+      verif :=
+        ("-gnato",         -- Turn on all checks
+         "-gnatVa");       -- Turn on all validity checks
+
+      no_verif :=
+        ("-gnatp",         -- Turn off all checks
+         "-gnatVn");       -- Turn off all validity checks
+
+      -- Ada code
+      for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
+
+      for Switches ("ewok-sched.adb")              use ("-O3", "-g") & basic & verif;
+      for Switches ("ewok-tasks.adb")              use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-interrupts-handler.adb") use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-syscalls-handler.adb")   use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-syscalls-ipc.adb")       use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-isr.adb")                use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-posthook.adb")           use ("-O2", "-g") & basic & verif;
+      for Switches ("ewok-softirq.adb")            use ("-O2", "-g") & basic & verif;
+
+      --for Switches ("soc-nvic.adb")                use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-dma.adb")                 use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio.adb")                use ("-O2", "-g") & basic & verif;
+      --for Switches ("soc-gpio-interfaces.adb")     use ("-O2", "-g") & basic & verif;
+
+      -- Proved SPARK code
+      for Switches ("ewok-perm.adb")            use ("-O2", "-g") & basic & no_verif;
+
+      for Switches ("soc-interrupts.adb")       use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-mpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu.adb")               use ("-O2", "-g") & basic & no_verif;
+      for Switches ("m4-cpu-instructions.adb")  use ("-O2", "-g") & basic & no_verif;
+
+      for Switches ("m4-systick.adb")           use ("-Os", "-g") & basic & no_verif;
+      for Switches ("soc-dwt.adb")              use ("-Os", "-g") & basic & no_verif;
+      for Switches ("m4-scb.adb")               use ("-Os", "-g") & basic & no_verif;
+
+
+   end Compiler;
+
+
+   package Binder is
+      for Default_Switches ("ada") use ("-n");
+   end Binder;
+
+end Libkernel;
+
