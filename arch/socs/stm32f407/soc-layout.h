@@ -30,9 +30,11 @@
 ** This mapping is feasable for mono-bank, mono-bank with DFU.
 **
 **     +----------------+0x0800 0000
-**     |  LDR (64k)     |
+**     |  LDR (32k)     |
+**     +----------------+0x0800 8000
+**     |  SHR (32k)     |
 **     +----------------+0x0801 0000
-**     |  SHR (64k)     |
+**     |################|
 **     +----------------+0x0802 0000
 **     |   FW_k  (64k)  |
 **     +----------------+0x0803 0000
@@ -61,7 +63,7 @@
  * Mapping
  */
 #define LDR_BASE        0x08000000  /* loader */
-#define SHR_BASE        0x08008000  /* shared memory */
+#define SHR_FLIP_BASE   0x08008000  /* shared memory */
 
 #define RAM2_BASE       0x10000000
 #define RAM_KERN_BASE   0x10000000  /* 96k user RAM (div by 8 subregions, 12*8, 24*4), starting at RAM size + 32k */
@@ -154,7 +156,7 @@
 
 
 #define FW1_START       FW1_KERN_BASE + VTORS_SIZE + 1
-#define DFU1_START      DFU1_BASE + VTORS_SIZE + 1
+#define DFU1_START      DFU1_KERN_BASE + VTORS_SIZE + 1
 
 
 #define FW_MAX_USER_SIZE 64*KBYTE

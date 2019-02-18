@@ -172,7 +172,7 @@ $(APP_BUILD_DIR)/asm/%.o: $(SOC_DIR)/$(SOC_SRC)
 	$(call if_changed,cc_o_c)
 
 # LDSCRIPT. All are built in one time
-$(LDSCRIPT_NAME):
+$(LDSCRIPT_NAME): $(APP_NAME).ld.in
 	$(call if_changed,k_ldscript)
 
 # ELF

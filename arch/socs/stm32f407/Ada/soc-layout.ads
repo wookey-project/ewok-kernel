@@ -38,6 +38,13 @@ is
    RAM_BASE          : constant system_address := 16#2000_0000#; -- SRAM
    RAM_SIZE          : constant := 128 * KBYTE;
 
+   USER_RAM_BASE     : constant system_address := 16#2000_0000#; -- SRAM
+   USER_RAM_SIZE     : constant := 128 * KBYTE;
+
+   KERNEL_RAM_BASE   : constant system_address := 16#1000_0000#;
+   KERNEL_RAM_SIZE   : constant := 64 * KBYTE;
+
+
    PERIPH_BASE       : constant system_address := 16#4000_0000#;
    MEMORY_BANK1_BASE : constant system_address := 16#6000_0000#;
    MEMORY_BANK2_BASE : constant system_address := MEMORY_BANK1_BASE;
@@ -99,7 +106,7 @@ is
    DFU1_USER_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
 
-   -- STM32F429 has 1MB flash that can be mapped at a time, which forbid
+   -- STM32F407 has 1MB flash that can be mapped at a time, which forbid
    -- the usage of efficient dual banking.
    -- This layout does not declare the complete dual bank
 
