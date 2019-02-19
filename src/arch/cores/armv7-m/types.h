@@ -36,6 +36,9 @@ typedef uint8_t logsize_t;
 typedef enum {false = 0, true = 1} bool;
 typedef enum {SUCCESS, FAILURE} retval_t;
 
+/* Secure boolean against fault injections for critical tests */
+typedef enum {secfalse = 0x55aa55aa, sectrue = 0xaa55aa55} secbool;
+
 #define KBYTE 1024
 #define MBYTE 1048576
 #define GBYTE 1073741824
