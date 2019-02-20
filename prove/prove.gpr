@@ -4,7 +4,7 @@ project Prove is
      ("../src/Ada",
       "../src/Ada/exported",
       "../src/Ada/syscalls",
-      "../src/Ada/generated",
+      "../generated/Ada",
       "../src/arch/Ada",
       "../src/arch/cores/armv7-m/Ada",
       "../src/arch/socs/stm32f439/Ada");
