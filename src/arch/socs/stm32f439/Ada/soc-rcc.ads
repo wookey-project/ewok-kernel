@@ -24,7 +24,7 @@ with system;
 with types.c;
 
 package soc.rcc
-   with spark_mode => on
+   with spark_mode => off
 is
 
    -----------------------------------------
