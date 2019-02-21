@@ -7,6 +7,8 @@ src/Ada/libgnat/gnat/s-imguns.ads
 src/Ada/libgnat/gnat/s-memmov.adb
 src/Ada/libgnat/gnat/s-memmov.ads
 src/Ada/libgnat/gnat/system.ads
+src/Ada/libgnat/gnat/ada.ads
+src/Ada/libgnat/gnat/gnat.ads
 src/arch/auto.cgpr
 prove/gnatprove
 generated
