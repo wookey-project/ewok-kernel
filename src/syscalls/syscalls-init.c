@@ -145,6 +145,10 @@ void init_do_reg_devaccess(e_task_id caller_id, __user regval_t *regs, e_task_mo
             KERNLOG(DBG_ERR, "invalid device datas or permission is denied\n");
             goto ret_denied;
         }
+    } else {
+        if (!udev || !descriptor) {
+            goto ret_inval;
+        }
     }
 
     /* Enough place */
