@@ -88,8 +88,10 @@ void usart_init(void)
     kusart_dev.gpios[1].speed = GPIO_PIN_VERY_HIGH_SPEED;
     kusart_dev.gpios[1].lck = 0;
 
+    int descriptor = 0;
     /* Kernel task is hosting the kernel devices list */
     args[1] = (uint32_t)&kusart_dev;
+    args[2] = (uint32_t)&descriptor;
     init_do_reg_devaccess(ID_KERNEL, args, TASK_MODE_MAINTHREAD);
 #endif
 }
