@@ -162,15 +162,6 @@ uint32_t soc_exti_get_pending_lines(uint8_t irq)
     }
 }
 
-bool soc_exti_is_line_pending (uint8_t line)
-{
-    if (get_reg_value(EXTI_PR, 0x1 << line, line) > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 /*
  * From the pin number, return the corresponding EXTI line configured GPIO
  * port.

@@ -29,6 +29,7 @@
 #include "sleep.h"
 #include "sanitize.h"
 #include "sched.h"
+#include "default_handlers.h"
 
 void sys_sleep(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {
@@ -39,7 +40,7 @@ void sys_sleep(task_t *caller, __user regval_t *regs, e_task_mode mode)
     uint32_t            sleeptime = (uint32_t)        regs[0];
     sleep_mode_t        sleepmode = (sleep_mode_t)    regs[1];
 
-    sleeping(caller->id, sleeptime, sleepmode); 
+    sleeping(caller->id, sleeptime, sleepmode);
 
     /* Set caller as SLEEPING */
     syscall_r0_update(caller, mode, SYS_E_DONE);

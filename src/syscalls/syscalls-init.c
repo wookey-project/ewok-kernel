@@ -40,6 +40,7 @@
 #include "syscalls-dma.h"
 #include "dma.h"
 #include "sanitize.h"
+#include "default_handlers.h"
 
 
 void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)

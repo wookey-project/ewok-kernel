@@ -50,17 +50,14 @@ typedef struct {
     logsize_t               size;               /* Must be < MAX_IPC_MSG */
 } ipc_endpoint_t;
 
-/* Global array of IPC EndPoints */
-ipc_endpoint_t ipc_endpoints[MAX_IPC_ENDPOINTS];
-
 /* Init IPC endpoints */
-void ipc_init_endpoints (void);
+void ipc_init_endpoints(void);
 
 /* Get a free IPC endpoint */
-ipc_endpoint_t* ipc_get_endpoint (void);
+ipc_endpoint_t* ipc_get_endpoint(void);
 
 /* Release a used IPC endpoint */
-void ipc_release_endpoint (ipc_endpoint_t *ep);
+void ipc_release_endpoint(ipc_endpoint_t *ep);
 
 
 

@@ -26,6 +26,7 @@
 #include "syscalls-yield.h"
 #include "tasks.h"
 #include "sched.h"
+#include "default_handlers.h"
 
 /*
  * The task requires to terminate its current execution. The task is set

@@ -52,6 +52,9 @@ void *memcpy(void *dest, const void *src, uint32_t n)
 uint32_t strlen(const char *s)
 {
     uint32_t i = 0;
+    if (!s) {
+        return 0;
+    }
     while (*s) {
         i++;
         s++;
@@ -63,6 +66,9 @@ char *strncpy(char *dest, const char *src, uint32_t n)
 {
     char *return_value = dest;
 
+    if (!src || !dest) {
+        return return_value;
+    }
     while (n && *src) {
         *dest = *src;
         dest++;
@@ -82,6 +88,18 @@ char *strncpy(char *dest, const char *src, uint32_t n)
 int8_t strcmp(const char *a, const char *b)
 {
     unsigned char len = 0;
+
+    if (!a || !b) {
+       if (!a && !b) {
+           return 0;
+       }
+       if (!a) {
+           return -1;
+       }
+       if (!b) {
+           return 1;
+       }
+    }
     while (1) {
         if (a[len] != b[len] || a[len] == '\0' || b[len] == '\0') {
             return a[len] - b[len];
@@ -102,6 +120,18 @@ int8_t strcasecmp(const char *a, const char *b)
 {
     char c1, c2;
     uint8_t len = 0;
+
+    if (!a || !b) {
+       if (!a && !b) {
+           return 0;
+       }
+       if (!a) {
+           return -1;
+       }
+       if (!b) {
+           return 1;
+       }
+    }
 
     while (1) {
         c1 = tolower(a[len]);

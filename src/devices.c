@@ -76,7 +76,7 @@ e_task_id  dev_get_task_from_id (e_device_id dev_id)
 }
 
 
-inline device_t* dev_get_device_from_id (e_device_id dev_id)
+device_t* dev_get_device_from_id (e_device_id dev_id)
 {
     return &device_tab[dev_id].udev;
 }
@@ -86,7 +86,7 @@ uint32_t dev_get_device_size (e_device_id dev_id)
     return device_tab[dev_id].udev.size;
 }
 
-inline physaddr_t dev_get_device_addr (e_device_id dev_id)
+physaddr_t dev_get_device_addr (e_device_id dev_id)
 {
     return device_tab[dev_id].udev.address;
 }
@@ -307,7 +307,7 @@ uint8_t dev_disable_device(e_task_id task_id,
 */
 uint8_t dev_enable_device(e_device_id  dev_id)
 {
-    if ( device_tab[dev_id].status != DEV_STATE_ENABLED) {
+    if ( device_tab[dev_id].status == DEV_STATE_ENABLED) {
         /* remapping case, device has been previously mapped and enabled */
         return 0;
     }

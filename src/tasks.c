@@ -111,6 +111,10 @@ static void task_finish(void)
 void task_create_stack(task_context_t * ctx, physaddr_t sp, physaddr_t pc,
                        physaddr_t * args)
 {
+    /* INFO: this test should be replaced by Frama-C precondition checking
+     * that sp is in RAM */
+    assert(sp > sizeof(stack_frame_t));
+
     ctx->frame = (stack_frame_t *) ((uint32_t) sp - sizeof(stack_frame_t));
 
     if (args) {
@@ -393,6 +397,7 @@ void task_init(void)
         dbg_flush();
         panic("Unable to prepare for creating user tasks.\n");
     }
+    ipc_init_endpoints();
     task_map_data();
     KERNLOG(DBG_NOTICE,
             "data sections of userspace tasks mapped in user RAM slots\n");

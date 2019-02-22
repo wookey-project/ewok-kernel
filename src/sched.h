@@ -12,8 +12,6 @@
 
 #include "kernel.h"
 
-void request_schedule(void);
-
 void schedule(void);
 
 void sched_init(void);

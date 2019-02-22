@@ -24,6 +24,9 @@
 #include "ipc.h"
 #include "tasks.h"
 
+/* Global array of IPC EndPoints, should be initialized */
+static ipc_endpoint_t ipc_endpoints[MAX_IPC_ENDPOINTS];
+
 void ipc_init_endpoint (ipc_endpoint_t *ep)
 {
     ep->from  = ID_UNUSED;

@@ -251,10 +251,10 @@ uint8_t dma_reconf_dma(__user dma_t *dma,
  *
  * \return 0 if the structure is good, or non-zero
  */
-inline uint8_t dma_sanitize_dma(dma_t      *dma,
-                                e_task_id   caller,
-                                uint8_t     mask,
-                                e_task_mode mode)
+uint8_t dma_sanitize_dma(dma_t      *dma,
+                         e_task_id   caller,
+                         uint8_t     mask,
+                         e_task_mode mode)
 {
     /********************************************
      * Sanitize for DMA declaration
@@ -450,7 +450,8 @@ void dma_init(void)
     set_reg_bits(devinfo->rcc_enr, devinfo->rcc_enb);
     devinfo = soc_devices_get_dma(2, 0);
     set_reg_bits(devinfo->rcc_enr, devinfo->rcc_enb);
-    //soc_dma_reset();
+    /* full DMA reset (all controllers) */
+    soc_dma_reset();
 }
 
 /****************************************************

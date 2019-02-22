@@ -28,38 +28,34 @@ static uint32_t last_dwt = 0;
 
 static volatile uint64_t cyccnt_loop = 0;
 
-static volatile physaddr_t DWT_CONTROL = (physaddr_t) 0xE0001000;
-static volatile physaddr_t SCB_DEMCR = (physaddr_t) 0xE000EDFC;
-static volatile physaddr_t LAR = (physaddr_t) 0xE0001FB0;
+static volatile uint32_t* DWT_CONTROL = (volatile uint32_t*) 0xE0001000;
+static volatile uint32_t* SCB_DEMCR = (volatile uint32_t*) 0xE000EDFC;
+static volatile uint32_t* LAR = (volatile uint32_t*) 0xE0001FB0;
+static volatile uint32_t *DWT_CYCCNT = (volatile uint32_t *) 0xE0001004;
 
 void soc_dwt_reset_timer(void)
 {
-    *(volatile uint32_t *)SCB_DEMCR = *(uint32_t *) SCB_DEMCR | 0x01000000;
-    *(volatile uint32_t *)LAR = 0xC5ACCE55;
-    *(volatile uint32_t *)DWT_CYCCNT = 0;   // reset the counter
-    *(volatile uint32_t *)DWT_CONTROL = 0;
+    *SCB_DEMCR = *(uint32_t *) SCB_DEMCR | 0x01000000;
+    *LAR = 0xC5ACCE55;
+    *DWT_CYCCNT = 0;   // reset the counter
+    *DWT_CONTROL = 0;
    full_memory_barrier();
 }
 
 void soc_dwt_start_timer(void)
 {
-    *(volatile uint32_t *)DWT_CONTROL = *(uint32_t *) DWT_CONTROL | 1;  // enable the counter
+    *DWT_CONTROL = *DWT_CONTROL | 1;  // enable the counter
    full_memory_barrier();
-}
-
-void soc_dwt_stop_timer(void)
-{
-    *(volatile uint32_t *)DWT_CONTROL = *(uint32_t *) DWT_CONTROL | 0;  // disable the counter
 }
 
 uint32_t soc_dwt_getcycles(void)
 {
-    return *(uint32_t *) DWT_CYCCNT;
+    return *DWT_CYCCNT;
 }
 
 uint64_t soc_dwt_getcycles_64(void)
 {
-    uint64_t val = *(uint32_t *) DWT_CYCCNT;
+    uint64_t val = *DWT_CYCCNT;
     val += cyccnt_loop << 32;
     return val;
 }

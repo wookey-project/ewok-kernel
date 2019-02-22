@@ -226,7 +226,7 @@
 #define GPIOG_ODR_RESET       ((uint32_t)0x00000000)
 #define GPIOH_ODR_RESET       ((uint32_t)0x00000000)
 #define GPIOI_ODR_RESET       ((uint32_t)0x00000000)
-     
+
 #define GPIOA_BSRR_RESET      ((uint32_t)0x00000000)
 #define GPIOB_BSRR_RESET      ((uint32_t)0x00000000)
 #define GPIOC_BSRR_RESET      ((uint32_t)0x00000000)
@@ -236,7 +236,7 @@
 #define GPIOG_BSRR_RESET      ((uint32_t)0x00000000)
 #define GPIOH_BSRR_RESET      ((uint32_t)0x00000000)
 #define GPIOI_BSSR_RESET      ((uint32_t)0x00000000)
- 
+
 #define GPIOA_LCKR_RESET      ((uint32_t)0x00000000)
 #define GPIOB_LCKR_RESET      ((uint32_t)0x00000000)
 #define GPIOC_LCKR_RESET      ((uint32_t)0x00000000)
@@ -246,7 +246,7 @@
 #define GPIOG_LCKR_RESET      ((uint32_t)0x00000000)
 #define GPIOH_LCKR_RESET      ((uint32_t)0x00000000)
 #define GPIOI_LCKR_RESET      ((uint32_t)0x00000000)
-     
+
 #define GPIOA_AFRL_RESET      ((uint32_t)0x00000000)
 #define GPIOB_AFRL_RESET      ((uint32_t)0x00000000)
 #define GPIOC_AFRL_RESET      ((uint32_t)0x00000000)
@@ -256,7 +256,7 @@
 #define GPIOG_AFRL_RESET      ((uint32_t)0x00000000)
 #define GPIOH_AFRL_RESET      ((uint32_t)0x00000000)
 #define GPIOI_AFRL_RESET      ((uint32_t)0x00000000)
-     
+
 #define GPIOA_AFRH_RESET      ((uint32_t)0x00000000)
 #define GPIOB_AFRH_RESET      ((uint32_t)0x00000000)
 #define GPIOC_AFRH_RESET      ((uint32_t)0x00000000)
@@ -266,7 +266,7 @@
 #define GPIOG_AFRH_RESET      ((uint32_t)0x00000000)
 #define GPIOH_AFRH_RESET      ((uint32_t)0x00000000)
 #define GPIOI_AFRH_RESET      ((uint32_t)0x00000000)
-     
+
 /* Definition of the alternate functions used
  * for GPIOs. See Figure 14 "Selecting an alternate function"
  * in the datasheet.
@@ -366,10 +366,6 @@ uint8_t soc_gpio_configure
 void    soc_gpio_set_value(gpioref_t   kref,
                            uint8_t   value);
 
-void    soc_gpio_set(gpioref_t   kref);
-
 uint8_t soc_gpio_get(gpioref_t   kref);
-
-void    soc_gpio_clear(gpioref_t kref);
 
 #endif/*!SOC_GPIO_H */

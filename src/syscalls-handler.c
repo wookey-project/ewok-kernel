@@ -31,6 +31,7 @@
 #include "syscalls-cfg.h"
 #include "syscalls-dma.h"
 #include "syscalls-rng.h"
+#include "default_handlers.h"
 
 static inline bool svc_is_synchronous_syscall(task_t * caller)
 {

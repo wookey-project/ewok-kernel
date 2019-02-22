@@ -243,16 +243,6 @@ void soc_gpio_set_value(gpioref_t kref, uint8_t value)
     soc_gpio_set_od(GPIO_ODR(portaddr), kref.pin, !!value);
 }
 
-void soc_gpio_set(gpioref_t kref)
-{
-    soc_gpio_set_value(kref, 1);
-}
-
-void soc_gpio_clear(gpioref_t kref)
-{
-    soc_gpio_set_value(kref, 0);
-}
-
 uint8_t soc_gpio_get(gpioref_t kref)
 {
     physaddr_t portaddr = soc_gpio_get_port_base(kref);

@@ -55,14 +55,14 @@ typedef void (*cb_usart_data_received_t) (void);
 typedef char (*cb_usart_getc_t) (void);
 typedef void (*cb_usart_putc_t) (char);
 
-/* Defines the USART mode that we consider 
+/* Defines the USART mode that we consider
  * [RB] TODO: to be completed with other USART modes if/when needed! (IrDA, LIN, ...)
  * For now, only the classical UART console mode and the SMARTCARD modes are
  * implemented.
  */
 typedef enum { UART, SMARTCARD, CUSTOM } usart_mode;
 
-/* [RB] TODO: add some magic initialization values and assert to avoid manipulation 
+/* [RB] TODO: add some magic initialization values and assert to avoid manipulation
  * of uninitialized structures!
  */
 typedef struct __packed {
@@ -203,29 +203,6 @@ char soc_usart_getc(uint8_t usart);
  * @len: Number of characters to read.
  */
 uint32_t soc_usart_read(uint8_t usart, char *buf, uint32_t len);
-
-/**
- * usart_disable_dma - Enable the DMA for USART
- *
- * Disable for transmit only.
- * See also usart_enable_dma.
- */
-void soc_usart1_disable_dma(uint8_t usart);
-
-/**
- * usart_enable_dma - Enable the DMA for USART
- *
- * Enable for transmit only.
- * See also usart_disable_dma.
- */
-void soc_usart_enable_dma(uint8_t usart);
-
-/**
- * usart_get_data_addr - Getter for the USART's data register address
- * Return: The address of the USART's data register where the data should be
- * written.
- */
-volatile uint32_t *soc_usart_get_data_addr(uint8_t usart);
 
 /* Get the clock frequency value of the APB bus driving the USART */
 uint32_t soc_usart_get_bus_clock(usart_config_t * config);

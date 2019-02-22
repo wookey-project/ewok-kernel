@@ -22,6 +22,10 @@
  */
 #include "soc-interrupts.h"
 
+/*
+ * This is a *weak* function that is used in the libbsp while the effective
+ * kernel postponing function is registered.
+ */
 static void empty_postpone(void)
 {
     for (;;)

@@ -24,6 +24,18 @@
 #ifndef DEFAULT_HANDLERS_H_
 # define DEFAULT_HANDLERS_H_
 
+#include "soc-scb.h"
+
+/*
+ * Set PENDSVSET = 1 to generate a PENDSV interrupt that will call the
+ * scheduler
+ */
+static inline void request_schedule(void)
+{
+    set_reg_bits(r_CORTEX_M_SCB_ICSR, (1<<28));
+}
+
+
 stack_frame_t *WWDG_IRQ_Handler(stack_frame_t * stack_frame);
 
 stack_frame_t *HardFault_Handler(stack_frame_t * frame);

@@ -55,6 +55,4 @@
 
 int soc_rng_manager(uint32_t * random);
 
-int soc_rng_getrng(uint32_t * random);
-
 #endif                          /* _SOC_RNG_H */

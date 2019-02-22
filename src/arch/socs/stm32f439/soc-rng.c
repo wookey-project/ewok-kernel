@@ -73,17 +73,6 @@ static int soc_rng_init(void)
     return 0;
 }
 
-int soc_rng_getrng(uint32_t * random)
-{
-    int ret = 0;
-    if (rng_enabled == 0) {
-        return soc_rng_init();
-        ret = 1;
-    }
-    *random = read_reg_value(r_CORTEX_M_RNG_DR);
-    return 0;
-}
-
 static uint8_t rng_run(uint32_t * random)
 {
     /* Enable RNG clock if needed */

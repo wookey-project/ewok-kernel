@@ -46,6 +46,8 @@
 #include "soc-dma.h"
 #include "sleep.h"
 
+#include "default_handlers.h"
+
 /*
 ** max IRQ waiting
 */

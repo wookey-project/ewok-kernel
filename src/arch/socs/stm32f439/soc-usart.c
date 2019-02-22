@@ -96,22 +96,6 @@ uint32_t soc_usart_read(uint8_t usart, char *buf, uint32_t len)
     return start_len - len;
 }
 
-/**** DMA ****/
-void soc_usart_disable_dma(uint8_t usart)
-{
-    clear_reg_bits(r_CORTEX_M_USART_CR3(usart), USART_CR3_DMAT_Msk);
-}
-
-void soc_usart_enable_dma(uint8_t usart)
-{
-    set_reg_bits(r_CORTEX_M_USART_CR3(usart), USART_CR3_DMAT_Msk);
-}
-
-volatile uint32_t *soc_usart_get_data_addr(uint8_t usart)
-{
-    return r_CORTEX_M_USART_DR(usart);
-}
-
 void soc_usart_set_baudrate(usart_config_t * config)
 {
     uint32_t divider = 0;
@@ -120,7 +104,7 @@ void soc_usart_set_baudrate(usart_config_t * config)
 
     /* FIXME we should check CR1 in order to get the OVER8 configuration */
 
-    /* Compute the divider using the baudrate and the APB bus clock 
+    /* Compute the divider using the baudrate and the APB bus clock
      * (APB1 or APB2) depending on the considered USART */
     divider = soc_usart_get_bus_clock(config) / config->baudrate;
 
@@ -317,8 +301,8 @@ USART_IRQHANDLER(1, S)
 static void soc_usart_callbacks_init(usart_config_t * config)
 {
     if (config->callback_data_received) {
-        /* A reception callback has been provided: enable interrupts 
-         * for RX using the control register 
+        /* A reception callback has been provided: enable interrupts
+         * for RX using the control register
          */
         set_reg_bits(r_CORTEX_M_USART_CR1(config->usart), USART_CR1_RXNEIE_Msk);
     }

@@ -35,13 +35,6 @@ void core_systick_init(void)
                  STK_CLKSOURCE_Msk | STK_TICKINT_Msk | STK_ENABLE_Msk);
 }
 
-void core_systick_delay(uint32_t delay)
-{
-    unsigned long long start = ticks;
-    while (start + delay > ticks)
-        continue;
-}
-
 unsigned long long core_systick_get_ticks(void)
 {
     return ticks;

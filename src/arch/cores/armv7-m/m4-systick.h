@@ -35,12 +35,6 @@
 void core_systick_init(void);
 
 /**
- * delay
- * @ms: Number of milliseconds to wait
- */
-void core_systick_delay(uint32_t delay);
-
-/**
  * get_ticks - Get the number of ticks elapsed since the card boot
  * Return: Number of ticks.
  */

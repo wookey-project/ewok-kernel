@@ -37,6 +37,9 @@
 #include "sched.h"
 #include "layout.h"
 #endif
+#include "default_handlers.h"
+
+
 
 #define HANDLERLOG(fmt, ...) \
     dbg_log(ANSI_COLOR_RED fmt ANSI_COLOR_RESET, ##__VA_ARGS__)

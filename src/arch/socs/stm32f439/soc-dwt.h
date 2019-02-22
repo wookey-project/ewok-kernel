@@ -25,9 +25,6 @@
 
 #include "types.h"
 
-
-static volatile physaddr_t DWT_CYCCNT = (physaddr_t) 0xE0001004;
-
 void soc_dwt_init(void);
 
 void soc_dwt_reset_timer(void);

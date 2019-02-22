@@ -24,6 +24,7 @@
 #include "devices.h"
 #include "sched.h"
 #include "debug.h"
+#include "default_handlers.h"
 
 void sys_cfg_dev_map(task_t *caller, __user regval_t *regs, e_task_mode mode)
 {

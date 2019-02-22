@@ -32,8 +32,8 @@
 #include "layout.h"
 #include "libc.h"
 #include "debug.h"
-#include "soc-scb.h"
 #include "sleep.h"
+#include "default_handlers.h"
 
 #if CONFIG_SCHED_RAND
 #include "soc-rng.h"
@@ -92,15 +92,6 @@ static void push_sched_info(uint32_t ts, uint8_t id, uint8_t mode)
 #endif
 
 static uint32_t sched_period = 0;
-
-/*
- * Set PENDSVSET = 1 to generate a PENDSV interrupt that will call the
- * scheduler
- */
-inline void request_schedule(void)
-{
-    set_reg_bits(r_CORTEX_M_SCB_ICSR, (1<<28));
-}
 
 task_t *sched_get_current(void)
 {

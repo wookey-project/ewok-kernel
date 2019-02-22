@@ -102,6 +102,7 @@ int main(int argc, char *args[])
     kernelinit();
     interrupts_init();
 #endif
+    core_systick_init();
 
     /* Configure the USART in UART mode, this is the kernel console initialization */
     debug_console_init();
