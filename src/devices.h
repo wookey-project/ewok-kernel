@@ -64,8 +64,6 @@ uint32_t dev_get_device_size (e_device_id dev_id);
 
 physaddr_t dev_get_device_addr (e_device_id dev_id);
 
-bool dev_is_mapped_voluntary (e_device_id dev_id);
-
 bool dev_is_device_region_ro (e_device_id dev_id);
 
 uint8_t dev_get_device_region_mask (e_device_id dev_id);

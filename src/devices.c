@@ -81,7 +81,7 @@ inline device_t* dev_get_device_from_id (e_device_id dev_id)
     return &device_tab[dev_id].udev;
 }
 
-inline uint32_t dev_get_device_size (e_device_id dev_id)
+uint32_t dev_get_device_size (e_device_id dev_id)
 {
     return device_tab[dev_id].udev.size;
 }
@@ -96,17 +96,12 @@ bool dev_is_mapped(e_device_id dev_id)
     return device_tab[dev_id].is_mapped;
 }
 
-inline bool dev_is_mapped_voluntary (e_device_id dev_id)
-{
-    return device_tab[dev_id].udev.map_mode;
-}
-
-inline bool dev_is_device_region_ro (e_device_id dev_id)
+bool dev_is_device_region_ro (e_device_id dev_id)
 {
     return device_tab[dev_id].devinfo->ro;
 }
 
-inline uint8_t dev_get_device_region_mask (e_device_id dev_id)
+uint8_t dev_get_device_region_mask (e_device_id dev_id)
 {
     return device_tab[dev_id].devinfo->mask;
 }
