@@ -32,7 +32,11 @@ CFLAGS += -ffreestanding
 CFLAGS += -MMD -MP
 
 # Needed to optimize libc.c builtins
+ifeq ($(USE_LLVM),y)
+CFLAGS += -Os
+else
 CFLAGS += -O3
+endif
 
 LDFLAGS += -fno-builtin -nostdlib -nostartfiles
 LD_LIBS +=

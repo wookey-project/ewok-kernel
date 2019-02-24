@@ -182,8 +182,8 @@ config AFLAGS_GCC
 
 config AFLAGS_LLVM
     string
-    default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -m32 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F4
-    default "--target=arm-none-eabi -mcpu=cortex-m4 -m32 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F2
+    default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F4
+    default "--target=arm-none-eabi -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F2
 
 
 

@@ -10,7 +10,7 @@
 #ifndef SOC_ISR_
 #define SOC_ISR_
 
-stack_frame_t *postpone_isr
+__ISR_HANDLER stack_frame_t *postpone_isr
     (uint8_t irq, s_irq *cell, stack_frame_t * stack_frame);
 
 #endif

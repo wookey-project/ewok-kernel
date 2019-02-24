@@ -89,7 +89,13 @@ extern void interrupts_init(void);
  * We use the local -fno-stack-protector flag for main because
  * the stack protection has not been initialized yet.
  */
+#if __GNUC__
+#if __clang__
+# pragma clang optimize off
+#else
 __attribute__ ((optimize("-fno-stack-protector")))
+#endif
+#endif
 int main(int argc, char *args[])
 {
     char *base_address = 0;
@@ -235,3 +241,6 @@ int main(int argc, char *args[])
 
     return 0;
 }
+#if __clang__
+# pragma clang optimize on
+#endif

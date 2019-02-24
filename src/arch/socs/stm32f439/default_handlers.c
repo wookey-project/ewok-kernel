@@ -115,6 +115,16 @@ stack_frame_t *HardFault_Handler(stack_frame_t * frame)
  * fail), all the default handler algorithmic MUST be done in a subframe (i.e.
  * in a child function)
  */
+/* [RB] FIXME: clang's warning about called function from IRQ could hide something ...
+ * [RB] TODO: investigate, related to https://bugs.llvm.org/show_bug.cgi?id=35527
+ *            https://bugs.llvm.org/show_bug.cgi?id=35528
+ *            https://reviews.llvm.org/D28820
+ */
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wextra"
+# pragma clang optimize off
+#endif
 __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
 {
     uint8_t         int_num;
@@ -184,4 +194,7 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
     return new_frame;
 
 }
-
+#ifdef __clang__
+# pragma clang optimize on
+# pragma clang diagnostic pop
+#endif

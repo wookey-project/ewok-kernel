@@ -37,7 +37,7 @@ CLANG_CFLAGS := -I../../include/generated -I. -Isyscalls -I../generated  -I$(COR
 # varous ldscripts, this variable has to be passed to the Makefile commandline
 EXTRA_LDFLAGS ?= -Tkernel.ld
 
-LDFLAGS += $(EXTRA_LDFLAGS) -L$(APP_BUILD_DIR) $(AFLAGS) -fno-builtin -nostdlib -nostartfiles -Xlinker
+LDFLAGS += $(EXTRA_LDFLAGS) -L$(APP_BUILD_DIR) $(AFLAGS_GCC) -fno-builtin -nostdlib -nostartfiles -Xlinker
 
 # --unresolved-symbols=ignore-in-object-files
 LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp

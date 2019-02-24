@@ -59,7 +59,11 @@ typedef uint8_t svcnum_t;
 #elif defined(__GNUC__)
 # define __ASM            __asm  /* asm keyword for GNU Compiler    */
 # define __INLINE        static inline
-# define __ISR_HANDLER   __attribute__((optimize("-fomit-frame-pointer")))
+#ifdef __clang__
+  # define __ISR_HANDLER  __attribute__((interrupt("IRQ")))
+#else
+  # define __ISR_HANDLER   __attribute__((optimize("-fomit-frame-pointer")))
+#endif
 # define __NAKED         __attribute__((naked))
 # define __UNUSED        __attribute__((unused))
 # define __WEAK          __attribute__((weak))

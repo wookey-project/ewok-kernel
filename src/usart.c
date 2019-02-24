@@ -28,7 +28,7 @@
 #include "soc-usart.h"
 #include "syscalls.h"
 
-device_t kusart_dev = { 0 };
+device_t kusart_dev;
 
 void usart_init(void)
 {
@@ -36,13 +36,13 @@ void usart_init(void)
     uint32_t    args[4] = { 0 };
     char       *name;
 
+    memset(&kusart_dev, 0, sizeof(device_t));
     /*
      * First registering device and gpio (this will only register
      * a kernel device and lock the associated IP as the kernel
      * as no INIT_DONE principle. IRQ handlers are executed
      * in handler mode.
      */
-
     kusart_dev.irq_num = 1;
     kusart_dev.size = 0x400;
     kusart_dev.irqs[0].irq = soc_usarts[CONFIG_KERNEL_USART].irq;

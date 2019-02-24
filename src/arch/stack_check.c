@@ -30,7 +30,14 @@ volatile uint32_t __stack_chk_guard = 0;
  * Note: of course, this function must NOT be enforced
  * with stack protection! Hence the specific optimization attribute.
  */
-__attribute__((optimize("-fno-stack-protector","-O0"))) void init_stack_chk_guard(void){
+#if __GNUC__
+#if __clang__
+# pragma clang optimize off
+#else
+__attribute__((optimize("-fno-stack-protector","-O0")))
+#endif
+#endif
+void init_stack_chk_guard(void){
 	uint32_t random;
 	if (get_random((unsigned char*)&random, sizeof(uint32_t)) != SUCCESS) {
 		panic("Failed to initialize the check guard ...");
@@ -41,10 +48,11 @@ __attribute__((optimize("-fno-stack-protector","-O0"))) void init_stack_chk_guar
 	 */
 	__stack_chk_guard = random;
 
-	LOG("The new stack canary is %x\n", __stack_chk_guard);
-
 	return;
 }
+#if __clang__
+# pragma clang optimize on
+#endif
 
 void __stack_chk_fail(void){
 	/* We have failed to check our stack canary */
