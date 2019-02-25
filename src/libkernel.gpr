@@ -1,5 +1,52 @@
 library project Libkernel is
 
+   type Build_Size is ("size", "hybrid", "perf");
+   Kernel_Build_Size : Build_Size := external("Build_Size");
+
+   size_switches := ();
+   perfo_switches := ();
+   default_proven_switches := ();
+   perfo_proven_switches := ();
+
+   basic :=
+      ("-fstack-usage",  -- Generate .su file with informations about the
+      -- amount of stack used
+      "-gnateG",        -- Generate preprocessed source
+      "-gnatep=" & Libkernel'Project_Dir & "gnatprep.def", -- Preprocessing data file
+      "-gnatet=target.atp",
+      "-gnatec=" & Libkernel'Project_Dir & "libkernel.adc",
+      "-gnatn",         -- Enable pragma Inline
+      "-gnatwa",        -- Turn on all warnings
+      "-gnatw.X",       -- Turn off warnings for export/import
+      "-gnatwe");       -- Treat all warnings as errors
+
+   verif :=
+      ("-gnato",         -- Turn on all checks
+      "-gnatVa");       -- Turn on all validity checks
+
+   no_verif :=
+      ("-gnatp",         -- Turn off all checks
+      "-gnatVn");       -- Turn off all validity checks
+
+   -- Ada code
+   case Kernel_Build_Size is
+      when "size" =>
+         size_switches := ("-Os", "-g") & basic & verif;
+         perfo_switches := ("-Os", "-g") & basic & verif;
+         default_proven_switches := ("-Os", "-g") & basic & no_verif;
+         perfo_proven_switches := ("-Os", "-g") & basic & no_verif;
+      when "hybrid" =>
+         size_switches := ("-Os", "-g") & basic & verif;
+         perfo_switches := ("-O2", "-g") & basic & verif;
+         default_proven_switches := ("-Os", "-g") & basic & no_verif;
+         perfo_proven_switches := ("-O2", "-g") & basic & no_verif;
+      when "perf" =>
+         size_switches := ("-O2", "-g") & basic & verif;
+         perfo_switches := ("-O2", "-g") & basic & verif;
+         default_proven_switches := ("-O2", "-g") & basic & no_verif;
+         perfo_proven_switches := ("-O2", "-g") & basic & no_verif;
+   end case;
+
    for Languages use ("Ada");
 
    for Source_Dirs use
@@ -104,84 +151,33 @@ library project Libkernel is
    Local_Path := ".";
 
    package Compiler is
+      for Default_Switches ("ada") use size_switches;
 
-      basic :=
-        ("-fstack-usage",  -- Generate .su file with informations about the
-                           -- amount of stack used
-         "-gnateG",        -- Generate preprocessed source
-         "-gnatep=" & Libkernel'Project_Dir & "gnatprep.def", -- Preprocessing data file
-         "-gnatet=target.atp",
-         "-gnatec=" & Libkernel'Project_Dir & "libkernel.adc",
-         "-gnatn",         -- Enable pragma Inline
-         "-gnatwa",        -- Turn on all warnings
-         "-gnatw.X",       -- Turn off warnings for export/import
-         "-gnatwe");       -- Treat all warnings as errors
+      for Switches ("ewok-sched.adb")              use perfo_switches;
+      for Switches ("ewok-tasks.adb")              use perfo_switches;
+      for Switches ("ewok-interrupts-handler.adb") use perfo_switches;
+      for Switches ("ewok-syscalls-handler.adb")   use perfo_switches;
+      for Switches ("ewok-syscalls-ipc.adb")       use perfo_switches;
+      for Switches ("ewok-isr.adb")                use perfo_switches;
+      for Switches ("ewok-posthook.adb")           use perfo_switches;
+      for Switches ("ewok-softirq.adb")            use perfo_switches;
 
-      verif :=
-        ("-gnato",         -- Turn on all checks
-         "-gnatVa");       -- Turn on all validity checks
-
-      no_verif :=
-        ("-gnatp",         -- Turn off all checks
-         "-gnatVn");       -- Turn off all validity checks
-
-      -- Ada code
-      for Default_Switches ("ada") use ("-Os", "-g") & basic & verif;
-
-      --for Switches ("ewok-sched.adb")              use ("-O3", "-g") & basic & verif;
-      --for Switches ("ewok-tasks.adb")              use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-interrupts-handler.adb") use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-syscalls-handler.adb")   use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-syscalls-ipc.adb")       use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-isr.adb")                use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-posthook.adb")           use ("-O2", "-g") & basic & verif;
-      --for Switches ("ewok-softirq.adb")            use ("-O2", "-g") & basic & verif;
-
-      ----for Switches ("soc-nvic.adb")                use ("-O2", "-g") & basic & verif;
-      ----for Switches ("soc-dma.adb")                 use ("-O2", "-g") & basic & verif;
-      ----for Switches ("soc-gpio.adb")                use ("-O2", "-g") & basic & verif;
-      ----for Switches ("soc-gpio-interfaces.adb")     use ("-O2", "-g") & basic & verif;
+      for Switches ("soc-nvic.adb")                use perfo_switches;
+      for Switches ("soc-dma.adb")                 use perfo_switches;
+      for Switches ("soc-gpio.adb")                use perfo_switches;
+      for Switches ("soc-gpio-interfaces.adb")     use perfo_switches;
 
       -- Proved SPARK code
-      --for Switches ("ewok-perm.adb")            use ("-O2", "-g") & basic & no_verif;
+      for Switches ("ewok-perm.adb")            use perfo_proven_switches;
 
-      --for Switches ("soc-interrupts.adb")       use ("-O2", "-g") & basic & no_verif;
-      --for Switches ("m4-mpu.adb")               use ("-O2", "-g") & basic & no_verif;
-      --for Switches ("m4-cpu.adb")               use ("-O2", "-g") & basic & no_verif;
-      --for Switches ("m4-cpu-instructions.adb")  use ("-O2", "-g") & basic & no_verif;
+      for Switches ("soc-interrupts.adb")       use perfo_proven_switches;
+      for Switches ("m4-mpu.adb")               use perfo_proven_switches;
+      for Switches ("m4-cpu.adb")               use perfo_proven_switches;
+      for Switches ("m4-cpu-instructions.adb")  use perfo_proven_switches;
 
-      --for Switches ("m4-systick.adb")           use ("-Os", "-g") & basic & no_verif;
-      --for Switches ("soc-dwt.adb")              use ("-Os", "-g") & basic & no_verif;
-      --for Switches ("m4-scb.adb")               use ("-Os", "-g") & basic & no_verif;
-
-      --------------------------------------------------------------------------------
-      for Switches ("ewok-sched.adb")              use ("-O3", "-g") & basic & verif;
-      for Switches ("ewok-tasks.adb")              use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-interrupts-handler.adb") use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-syscalls-handler.adb")   use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-syscalls-ipc.adb")       use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-isr.adb")                use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-posthook.adb")           use ("-Os", "-g") & basic & verif;
-      for Switches ("ewok-softirq.adb")            use ("-Os", "-g") & basic & verif;
-
-      --for Switches ("soc-nvic.adb")                use ("-Os", "-g") & basic & verif;
-      --for Switches ("soc-dma.adb")                 use ("-Os", "-g") & basic & verif;
-      --for Switches ("soc-gpio.adb")                use ("-Os", "-g") & basic & verif;
-      --for Switches ("soc-gpio-interfaces.adb")     use ("-Os", "-g") & basic & verif;
-
-      -- Proved SPARK code
-      for Switches ("ewok-perm.adb")            use ("-Os", "-g") & basic & no_verif;
-
-      for Switches ("soc-interrupts.adb")       use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-mpu.adb")               use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-cpu.adb")               use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-cpu-instructions.adb")  use ("-Os", "-g") & basic & no_verif;
-
-      for Switches ("m4-systick.adb")           use ("-Os", "-g") & basic & no_verif;
-      for Switches ("soc-dwt.adb")              use ("-Os", "-g") & basic & no_verif;
-      for Switches ("m4-scb.adb")               use ("-Os", "-g") & basic & no_verif;
-
-
+      for Switches ("m4-systick.adb")           use perfo_proven_switches;
+      for Switches ("soc-dwt.adb")              use perfo_proven_switches;
+      for Switches ("m4-scb.adb")               use perfo_proven_switches;
 
    end Compiler;
 

@@ -175,43 +175,31 @@ config SCHED_SUPPORT_FIPC
   This execution slot can still be preempted by a physical IRQ or another
   ISR scheduling.
 
-if KERNEL_EXPERT_MODE
-
-config ISR_REACTIVITY
-  bool "Optimize for ISR reactivity"
-  default y
-  ---help---
-  If you say y here, the softirq will force its own scheduling when
-  an ISR is waiting for schedule, even if there is also syscalls to
-  execute. ISR are executed faster, but there is more scheduling of
-  softirq in comparison with standard task's main threads.
-
-endif
-
 endmenu
 
 choice
-  prompt "Kernel specific optimization flags"
-  default KERN_OPTIM_NONE
-  config KERN_OPTIM_NONE
-    bool "Same optimization as the other parts (see Kernel hacking)"
-  config KERN_OPTIM_O1
-    bool "Optimization with -O1, debug keeped"
-  config KERN_OPTIM_O2
-    bool "Optimization with -O2, debug keeped"
-  config KERN_OPTIM_O3
-    bool "Optimization with -O3, debug keeped"
-  config KERN_OPTIM_OS
-    bool "Optimization for size, debug keeped"
+  prompt "Kernel specific build size selection"
+  default KERN_OPTIM_SIZE
+  config KERN_OPTIM_SIZE
+    bool "Optimization for size"
+  config KERN_OPTIM_PERF
+    bool "Optimization for perf, may be very size consuming"
+  config KERN_OPTIM_HYBRID
+    bool "Optimization for size with performanced keeped for some critical modules"
 endchoice
 
 config KERN_CFLAGS
   string
-  default "-O1" if KERN_OPTIM_O1
-  default "-O2" if KERN_OPTIM_O2
-  default "-O3" if KERN_OPTIM_O3
-  default "-Os" if KERN_OPTIM_OS
-  default "" if KERN_OPTIM_NONE
+  default "-O2" if KERN_OPTIM_PERF
+  default "-Os" if KERN_OPTIM_HYBRID
+  default "-Os" if KERN_OPTIM_SIZE
+
+config KERNEL_ADA_BUILDSIZE
+  string
+  default "perf" if KERN_OPTIM_PERF
+  default "hybrid" if KERN_OPTIM_HYBRID
+  default "size" if KERN_OPTIM_SIZE
+
 
 
 menu "Kernel hacking"

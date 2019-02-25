@@ -376,11 +376,9 @@ void task_softirq(void)
                         sfq->state = SFQ_DONE;
                         full_memory_barrier();
                         enable_irq();
-#ifdef CONFIG_ISR_REACTIVITY
                         // ISR should be executed fastly, softirq let them being
                         // executed now, syscalls are delayed
                         request_schedule();
-#endif
                     } else {
                         // while task is locked, postponing the ISR
                         uint32_t args[2] = { sfq->status, sfq->data };
