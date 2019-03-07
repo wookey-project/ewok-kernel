@@ -25,7 +25,14 @@ choice
     select STACK_PROT_FLAG
     select STM32F439
     help
-      Compile for the Disco board.
+      Compile for the Wookey v1 board.
+  config WOOKEY2
+    bool "Support for WOOKEY2 board"
+    select STACK_PROT_FLAG
+    select STM32F439
+    help
+      Compile for the Wookey v2 board.
+
 endchoice
 
 endmenu
@@ -71,6 +78,10 @@ source "kernel/src/arch/socs/stm32f429/Kconfig"
 endif
 
 if WOOKEY
+source "kernel/src/arch/socs/stm32f439/Kconfig"
+endif
+
+if WOOKEY2
 source "kernel/src/arch/socs/stm32f439/Kconfig"
 endif
 
@@ -155,6 +166,7 @@ config ADA_PROFILE
 config BOARDNAME
     string
     default "wookey" if WOOKEY
+    default "wookey2" if WOOKEY2
     default "32f407discovery" if DISCO407
     default "32f429discovery" if DISCO429
 

@@ -1,4 +1,4 @@
-/* \file boards.h
+/* \file product.h
  *
  * Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
  *   - Ryad     Benadjila
@@ -20,17 +20,29 @@
  *     limitations under the License.
  *
  */
-#ifndef _BOARDS_H
-#define _BOARDS_H
-    #if defined(CONFIG_WOOKEY)
-        #include "wookey/wookey.h"
-    #elif defined(CONFIG_WOOKEY2)
-        #include "wookey2/wookey2.h"
-    #elif defined(CONFIG_DISCO407)
-        #include "32f407discovery/disco.h"
-    #elif defined(CONFIG_DISCO429)
-        #include "32f439discovery/disco.h"
-    #else
-        #error "You must define a board type"
-    #endif
-#endif /* _BOARDS_H */
+#ifndef PRODUCT_H
+# define PRODUCT_H
+#include "soc-rcc.h"
+#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
+                                  This value must be a multiple of 0x200. */
+
+#define STM32F429
+
+//#define PROD_ENABLE_HSE
+#define PROD_ENABLE_PLL 1
+
+#define PROD_PLL_M     16
+#define PROD_PLL_N     336
+#define PROD_PLL_P     2
+#define PROD_PLL_Q     7
+
+#define PROD_HCLK      RCC_CFGR_HPRE_DIV1
+#define PROD_PCLK2     RCC_CFGR_HPRE2_DIV2
+#define PROD_PCLK1     RCC_CFGR_HPRE1_DIV4
+
+#define PROD_CLOCK_APB1  42000000 // MHz
+#define PROD_CLOCK_APB2  84000000 // MHz
+
+#define PROD_CORE_FREQUENCY 168000
+
+#endif /*!PRODUCT_H */
