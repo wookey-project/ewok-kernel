@@ -252,9 +252,14 @@ def lookahead(iterable):
 
 def generate_c():
     for device in data:
+        dev = data[device];
+        # peripherals (accessible only through block devices) are not listed
+        # in the kernel devmap, as they are accessible only through declared
+        # block devices
+        if dev["type"] != "block":
+            continue;
         # device name
         print("  { \"%s\", " % device, end='');
-        dev = data[device];
         # device address
         print("%s, " % dev["address"], end='');
         # device control register
