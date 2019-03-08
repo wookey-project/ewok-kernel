@@ -57,8 +57,8 @@ libbsp:
 clean_headers:
 	$(Q)$(MAKE) -C src clean_headers
 
-clean:
+__clean:
 	$(Q)$(MAKE) -C src clean
 
-distclean:
+__distclean:
 	$(Q)$(MAKE) -C src distclean

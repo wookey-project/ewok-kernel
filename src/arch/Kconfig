@@ -26,16 +26,33 @@ choice
     select STM32F439
     help
       Compile for the Wookey v1 board.
-  config WOOKEY2
-    bool "Support for WOOKEY2 board"
-    select STACK_PROT_FLAG
-    select STM32F439
-    help
-      Compile for the Wookey v2 board.
-
 endchoice
 
+if WOOKEY
+
+choice
+  prompt "Wookey board release"
+  config WOOKEY_V1
+    bool "Support for Wookey v1 layout"
+    help
+      Select Wookey v1 layouting (GPIO mapping, peripheral listing...)
+  config WOOKEY_V2
+    bool "Support for Wookey v2 layout"
+    help
+      Select Wookey v2 layouting (GPIO mapping, peripheral listing...)
+endchoice
+
+endif
+
 endmenu
+
+# defining board release suffix. Used for Wookey as the wookey board as
+# multiple releases. Discovery boards haven't.
+config BOARD_RELEASE
+   string
+   default "v1" if WOOKEY_V1
+   default "v2" if WOOKEY_V2
+   default "" if DISCO407 || DISCO429
 
 menu "SoC and Core setup"
 
@@ -80,11 +97,6 @@ endif
 if WOOKEY
 source "kernel/src/arch/socs/stm32f439/Kconfig"
 endif
-
-if WOOKEY2
-source "kernel/src/arch/socs/stm32f439/Kconfig"
-endif
-
 
 config FPU_ENABLE
   bool "Enable Hardware Floating point unit (FPU)"
@@ -166,7 +178,6 @@ config ADA_PROFILE
 config BOARDNAME
     string
     default "wookey" if WOOKEY
-    default "wookey2" if WOOKEY2
     default "32f407discovery" if DISCO407
     default "32f429discovery" if DISCO429
 
