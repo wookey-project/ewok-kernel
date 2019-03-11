@@ -278,12 +278,19 @@ def generate_c():
         # device memory mapping mask
         print("%s, " % dev["memory_subregion_mask"], end='');
         # device irq
-        irqs = dev["irqs"];
-        print("{ ", end='');
-        print(irqs[0], end='');
-        for irq in irqs[1:]:
-            print(", %s" % irq, end='');
-        print(" }, ", end='');
+        if 'irqs' in dev:
+            irqs = dev["irqs"];
+            print("{ ", end='');
+            print(irqs[0]["value"], end='');
+            for irq in irqs[1:]:
+                print(", %s" % irq["value"], end='');
+            if len(irqs) < 4:
+                for i in range(len(irqs), 4):
+                    print(", 0", end='');
+            print(" }, ", end='');
+        else:
+            print("{ 0, 0, 0, 0 }, ", end='');
+
         # device mapping ro ?
         print("%s, " % dev["read_only"], end='');
         # device permissions
