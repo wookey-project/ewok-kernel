@@ -252,20 +252,20 @@ def lookahead(iterable):
 
 def generate_c():
     for device in data:
-        dev = data[device];
+        dev = device["name"];
         # peripherals (accessible only through block devices) are not listed
         # in the kernel devmap, as they are accessible only through declared
         # block devices
-        if dev["type"] != "block":
+        if device["type"] != "block":
             continue;
         # device name
-        print("  { \"%s\", " % device, end='');
+        print("  { \"%s\", " % device["name"], end='');
         # device address
-        print("%s, " % dev["address"], end='');
+        print("%s, " % device["address"], end='');
         # device control register
-        print("%s, " % dev["enable_register"], end='');
+        print("%s, " % device["enable_register"], end='');
         # device control register bit(s)
-        enbrbits = dev["enable_register_bits"];
+        enbrbits = device["enable_register_bits"];
 
         print("%s" % enbrbits[0], end='');
         if len(enbrbits) > 1: # other bits ?
@@ -274,12 +274,12 @@ def generate_c():
         print(", ", end='');
 
         # device size
-        print("%s, " % dev["size"], end='');
+        print("%s, " % device["size"], end='');
         # device memory mapping mask
-        print("%s, " % dev["memory_subregion_mask"], end='');
+        print("%s, " % device["memory_subregion_mask"], end='');
         # device irq
-        if 'irqs' in dev:
-            irqs = dev["irqs"];
+        if 'irqs' in device:
+            irqs = device["irqs"];
             print("{ ", end='');
             print(irqs[0]["value"], end='');
             for irq in irqs[1:]:
@@ -292,33 +292,38 @@ def generate_c():
             print("{ 0, 0, 0, 0 }, ", end='');
 
         # device mapping ro ?
-        print("%s, " % dev["read_only"], end='');
+        print("%s, " % device["read_only"], end='');
         # device permissions
-        print("%s }," %  dev["permission"]);
+        print("%s }," %  device["permission"]);
 
 
 def generate_ada():
+    # not yet operational:
+    # we do not print out peripheral, and as is, last devices may be
+    # unprinted ones
     print("   type t_device_id is (");
     for device, has_more in lookahead(data):
-        dev_id = device.upper();
+        if device["type"] != "block":
+            continue;
+        dev_id = device["name"].upper();
         dev_id = re.sub(r'-', '_', dev_id);
-        if has_more:
-            print("      %s," % dev_id);
-        else:
-            print("      %s);\n\n" % dev_id);
+        print("      %s," % dev_id);
+
+    print("   );\n\n");
 
 
     print("   soc_devices_list : constant array (t_device_id'range) of device_soc_info_t := (");
     for device, has_more in lookahead(data):
+        if device["type"] != "block":
+            continue;
         # device name
-        print("      ( \"%s\", " % device, end='');
-        dev = data[device];
+        print("      ( \"%s\", " % device["name"], end='');
         # device address
-        print("%s, " % hex_to_adahex(dev["address"]), end='');
+        print("%s, " % hex_to_adahex(device["address"]), end='');
         # device control register
-        print("%s, " % dev["enable_register"], end='');
+        print("%s, " % device["enable_register"], end='');
         # device control register bit(s)
-        enbrbits = dev["enable_register_bits"];
+        enbrbits = device["enable_register_bits"];
 
         print("%s" % enbrbits[0], end='');
         if len(enbrbits) > 1: # other bits ?
@@ -327,23 +332,26 @@ def generate_ada():
         print(", ", end='');
 
         # device size
-        print("%s, " % hex_to_adahex(dev["size"]), end='');
+        print("%s, " % hex_to_adahex(device["size"]), end='');
         # device memory mapping mask
-        print("%s, " % bin_to_adabin(dev["memory_subregion_mask"]), end='');
+        print("%s, " % bin_to_adabin(device["memory_subregion_mask"]), end='');
         # device irq
-        irqs = dev["irqs"];
-        print("( ", end='');
-        print(irqs[0], end='');
-        for irq in irqs[1:]:
-            print(", %s" % irq, end='');
-        print(" ), ", end='');
-        # device mapping ro ?
-        print("%s, " % dev["read_only"], end='');
-        # device permissions
-        if has_more:
-            print("%s )," %  dev["permission"]);
+        if 'irqs' in device:
+           irqs = device["irqs"];
+           print("( ", end='');
+           print(irqs[0]["value"], end='');
+           for irq in irqs[1:]:
+               print(", %s" % irq["value"], end='');
+           if len(irqs) < 4:
+               for i in range(len(irqs), 4):
+                   print(", 0", end='');
+           print(" ), ", end='');
         else:
-            print("%s )" %  dev["permission"], end='');
+           print("( 0, 0, 0, 0 ), ", end='');
+        # device mapping ro ?
+        print("%s, " % device["read_only"], end='');
+        # device permissions
+        print("%s )," %  device["permission"]);
 
 
 
