@@ -155,16 +155,16 @@ is
          to_syscall_parameters_access (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
 
       if params_a = NULL then
-         debug.log (debug.ERROR, "(task"
-            & ewok.tasks_shared.t_task_id'image (req.caller_id)
-            & ") syscall with no parameters");
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(req.caller_id).name
+            & ": syscall with no parameters");
          return;
       end if;
 
       if not params_a.all.syscall_type'valid then
-         debug.log (debug.ERROR, "(task"
-            & ewok.tasks_shared.t_task_id'image (req.caller_id)
-            & ") unknown syscall" &
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(req.caller_id).name
+            & ": unknown syscall " &
             ewok.syscalls.t_syscall_type'image (params_a.all.syscall_type));
          return;
       end if;

@@ -83,6 +83,12 @@ config KERNEL_CONSOLE_TXT
   is no specific behavior behind this (no protocol, shell or others),
   only a character echo in the ISR.
 
+config KERNEL_PANIC_ON_ERROR
+  bool "Panic on error"
+  default y
+  ---help---
+  Can help debugging tasks by freezing the kernel on errors.
+
 endif
 
 config KERNEL_DMA_ENABLE

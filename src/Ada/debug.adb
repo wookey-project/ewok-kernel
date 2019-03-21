@@ -67,44 +67,49 @@ is
    is
    begin
       case level is
-         when DEBUG => 
+         when DEBUG =>
             log (BG_COLOR_ORANGE & s & BG_COLOR_BLACK);
          when INFO   =>
             log (BG_COLOR_BLUE & s & BG_COLOR_BLACK);
          when WARNING         =>
             log (BG_COLOR_ORANGE & s & BG_COLOR_BLACK);
          when ERROR .. ALERT  =>
+#if CONFIG_KERNEL_PANIC_ON_ERROR
+            panic (s);
+#else
             log (BG_COLOR_RED & s & BG_COLOR_BLACK);
+#end if;
       end case;
    end log;
 
 
    procedure panic (s : string)
    is
-#if CONFIG_KERNEL_PANIC_WIPE
-      sram : array (0 .. soc.layout.USER_RAM_SIZE) of types.byte
-         with address => to_address(USER_RAM_BASE);
-#end if;
    begin
       log (BG_COLOR_RED & "panic: " & s & BG_COLOR_BLACK);
+
 #if CONFIG_KERNEL_PANIC_FREEZE
       loop null; end loop;
 #end if;
+
 #if CONFIG_KERNEL_PANIC_REBOOT
-      -- reseting right now...
       m4.scb.reset;
 #end if;
+
 #if CONFIG_KERNEL_PANIC_WIPE
-      -- wiping the user applications RAM before reseting
-      -- kernel data and bss are not cleared as:
-      -- 1) it is currently used
-      -- 2) there is, normally, no interresting content in the kernel data
-      --    as secrets (Pin, etc. are contents hold in the user
-      -- TODO: Although: the IPC content should be cleared as they may hold some
-      -- secrets.
-      sram := (others => 0);
-      m4.scb.reset;
+      declare
+         sram : array (0 .. soc.layout.USER_RAM_SIZE) of types.byte
+            with address => to_address(USER_RAM_BASE);
+      begin
+         -- Wiping the user applications in RAM before reseting. Kernel data
+         -- and bss are not cleared because the are in use and there should
+         -- be no sensible content in kernel data (secrets are hold by user tasks).
+         -- TODO: Clearing IPC content
+         sram := (others => 0);
+         m4.scb.reset;
+      end;
 #end if;
+
    end panic;
 
 end debug;

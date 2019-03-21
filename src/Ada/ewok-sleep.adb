@@ -22,7 +22,6 @@
 
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
-with debug;
 
 package body ewok.sleep
    with spark_mode => off
@@ -46,10 +45,6 @@ is
       else
          sleep_info(task_id).interruptible   := false;
          TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING_DEEP);
-         debug.log (debug.INFO, "["
-           & ewok.tasks_shared.t_task_id'image (task_id)
-           & "] going into deep sleep");
-
       end if;
 
    end sleeping;

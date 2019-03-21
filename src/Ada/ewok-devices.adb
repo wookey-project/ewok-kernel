@@ -586,8 +586,7 @@ is
          end if;
 
          if not ewok.perm.ressource_is_granted (devinfo.minperm, task_id) then
-            debug.log (debug.ERROR, "Task" & t_task_id'image (task_id) &
-               " has not access to device " & name);
+            debug.log (debug.ERROR, "No access to device " & name);
             return false;
          end if;
       end if;
@@ -611,8 +610,7 @@ is
 
       if udev.all.map_mode = DEV_MAP_VOLUNTARY then
          if not ewok.perm.ressource_is_granted (PERM_RES_MEM_DYNAMIC_MAP, task_id) then
-            debug.log (debug.ERROR, "Task" & t_task_id'image (task_id) &
-               " voluntary mapped device " & name & " not permited");
+            debug.log (debug.ERROR, " Voluntary mapping device " & name & " not permited");
             return false;
         end if;
       end if;

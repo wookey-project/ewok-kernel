@@ -26,9 +26,7 @@ with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices_shared;     use ewok.devices_shared;
 with ewok.devices;
 
-#if CONFIG_DEBUG_SYS_CFG_MEM
 with debug;
-#end if;
 
 package body ewok.syscalls.cfg.dev
    with spark_mode => off
@@ -59,30 +57,26 @@ is
       --    are not technical. An ISR *must* be a minimal piece of code that
       --    manage only the interrupts provided by a specific hardware.
       if mode = ewok.tasks_shared.TASK_MODE_ISRTHREAD then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-           & ewok.tasks_shared.t_task_id'image (caller_id)
-           & "] sys_cfg(CFG_DEV_MAP): forbidden in ISR mode");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): forbidden in ISR mode");
          goto ret_denied;
       end if;
 
       -- No map/unmap before end of initialization
       if not is_init_done (caller_id) then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): forbidden during init sequence");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): forbidden during init sequence");
          goto ret_denied;
       end if;
 
       -- Valid device descriptor ?
       if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
       then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "invalid device descriptor");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): invalid device descriptor");
          goto ret_inval;
       end if;
 
@@ -90,11 +84,9 @@ is
 
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] sys_cfg(CFG_DEV_MAP): unused device");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): unused device");
          goto ret_inval;
       end if;
 
@@ -108,21 +100,17 @@ is
       dev      := ewok.devices.get_user_device (dev_id);
 
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
             & "] sys_cfg(CFG_DEV_MAP): not a DEV_MAP_VOLUNTARY device");
-#end if;
          goto ret_denied;
       end if;
 
       -- Verifying that the device is not already mapped
       if TSK.is_mounted (caller_id, dev_id) then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] CFG_DEV_MAP: the device is already mapped");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): the device is already mapped");
          goto ret_denied;
       end if;
 
@@ -133,11 +121,9 @@ is
       TSK.mount_device (caller_id, dev_id, ok);
 
       if not ok then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] CFG_DEV_MAP: mount_device() failed (no free region left to map the device?)");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_map(): mount_device() failed (no free region?)");
          goto ret_busy;
       end if;
 
@@ -193,30 +179,26 @@ is
       --    are not technical. An ISR *must* be a minimal piece of code that
       --    manage only the interrupts provided by a specific hardware.
       if mode = ewok.tasks_shared.TASK_MODE_ISRTHREAD then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-           & ewok.tasks_shared.t_task_id'image (caller_id)
-           & "] dev_unmap(): forbidden in ISR mode");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): forbidden in ISR mode");
          goto ret_denied;
       end if;
 
       -- No unmap before end of initialization
       if not is_init_done (caller_id) then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_unmap(): forbidden during init sequence");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): forbidden during init sequence");
          goto ret_denied;
       end if;
 
       -- Valid device descriptor ?
       if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
       then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "invalid device descriptor");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): invalid device descriptor");
          goto ret_inval;
       end if;
 
@@ -224,11 +206,9 @@ is
 
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_unmap(): unused device");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): unused device");
          goto ret_inval;
       end if;
 
@@ -242,11 +222,9 @@ is
       dev      := ewok.devices.get_user_device (dev_id);
 
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_unmap(): not a DEV_MAP_VOLUNTARY device");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): not a DEV_MAP_VOLUNTARY device");
          goto ret_denied;
       end if;
 
@@ -257,11 +235,9 @@ is
       TSK.unmount_device (caller_id, dev_id, ok);
 
       if not ok then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_unmap(): device is not mapped");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): device is not mapped");
          goto ret_denied;
       end if;
 
@@ -295,20 +271,18 @@ is
 
       -- No release before end of initialization
       if not is_init_done (caller_id) then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_release(): forbidden during init sequence");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_release(): forbidden during init sequence");
          goto ret_denied;
       end if;
 
       -- Valid device descriptor ?
       if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
       then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "invalid device descriptor");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_release(): invalid device descriptor");
          goto ret_inval;
       end if;
 
@@ -316,11 +290,9 @@ is
 
       -- Used device descriptor ?
       if dev_id = ID_DEV_UNUSED then
-#if CONFIG_DEBUG_SYS_CFG_MEM
-         debug.log (debug.ERROR, "["
-            & ewok.tasks_shared.t_task_id'image (caller_id)
-            & "] dev_release(): unused device");
-#end if;
+         debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_release(): unused device");
          goto ret_inval;
       end if;
 
