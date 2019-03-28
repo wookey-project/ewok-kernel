@@ -74,11 +74,7 @@ is
          when WARNING         =>
             log (BG_COLOR_ORANGE & s & BG_COLOR_BLACK);
          when ERROR .. ALERT  =>
-#if CONFIG_KERNEL_PANIC_ON_ERROR
-            panic (s);
-#else
             log (BG_COLOR_RED & s & BG_COLOR_BLACK);
-#end if;
       end case;
    end log;
 
