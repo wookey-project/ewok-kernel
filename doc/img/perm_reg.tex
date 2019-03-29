@@ -1,0 +1,76 @@
+\documentclass{minimal}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\newcommand{\bitrect}[2]{
+  \begin{pgfonlayer}{foreground}
+    \draw [thick] (0,0) rectangle (#1,1);
+    \pgfmathsetmacro\result{#1-1}
+    \foreach \x in {1,...,\result}
+      \draw [thick] (\x,1) -- (\x, 0.8);
+  \end{pgfonlayer}
+%  \node [below left, align=right] at (0,0) {Type \\ Reset};
+  \bitlabels{#1}{#2}
+}
+\newcommand{\rwbits}[3]{
+  \draw [thick] (#1,0) rectangle ++(#2,1) node[pos=0.5]{#3};
+  \pgfmathsetmacro\start{#1+0.5}
+  \pgfmathsetmacro\finish{#1+#2-0.5}
+%  \foreach \x in {\start,...,\finish}
+%    \node [below, align=center] at (\x, 0) {R/W \\ 0};
+}
+\newcommand{\robits}[3]{
+  \begin{pgfonlayer}{background}
+    \draw [thick, fill=gray!40] (#1,0) rectangle ++(#2,1) node[pos=0.5]{#3};
+  \end{pgfonlayer}
+  \pgfmathsetmacro\start{#1+0.5}
+  \pgfmathsetmacro\finish{#1+#2-0.5}
+%  \foreach \x in {\start,...,\finish}
+%    \node [below, align=center] at (\x, 0) {RO \\ 0};
+}
+\newcommand{\bitlabels}[2]{
+  \foreach \bit in {1,...,#1}{
+     \pgfmathsetmacro\result{#2}
+     \node [above] at (\bit-0.5, 1) {\pgfmathprintnumber{\result}};
+   }
+}
+
+\begin{document}
+\begin{tikzpicture}
+\draw [|-|,very thick] (0,2) -- (7.9,2) node[midway,above] {$dev$};
+\draw [|-|,very thick] (8.1,2) -- (16,2) node[midway,above] {$time$};
+% make sure to uncomment \foreach loops in \robits and \rwbits, and last node in \bitrect
+% 16 bits, indices decreasing from 31...16
+\bitrect{16}{32-\bit} % {length}{index label expression}
+\rwbits{0}{1}{DMA} % {start bit}{length}{label}
+\rwbits{1}{2}{CRYPTO}
+\rwbits{3}{1}{BUS}
+\rwbits{4}{1}{EXTI}
+\rwbits{5}{1}{TIM}
+\robits{6}{2}{reserved}
+\rwbits{8}{2}{TIME}
+\robits{10}{6}{reserved}
+\end{tikzpicture}
+\begin{tikzpicture}
+\draw [|-|,very thick] (0,2) -- (7.9,2) node[midway,above] {$tasking$};
+\draw [|-|,very thick] (8.1,2) -- (16,2) node[midway,above] {$memory$};
+% make sure to uncomment \foreach loops in \robits and \rwbits, and last node in \bitrect
+% 16 bits, indices decreasing from 31...16
+\bitrect{16}{16-\bit} % {length}{index label expression}
+\rwbits{0}{1}{FISR}
+\rwbits{1}{1}{FIPC}
+\rwbits{2}{1}{RST}
+\rwbits{3}{1}{UPG}
+\rwbits{4}{1}{RNG}
+\robits{5}{3}{reserved}
+\rwbits{8}{1}{DMAP}
+\robits{9}{7}{reserved}
+\end{tikzpicture}
+\end{document}

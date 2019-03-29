@@ -1,0 +1,40 @@
+\documentclass{minimal}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{tikz}
+%%%<
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+%%%>
+
+\begin{document}
+\begin{tikzpicture}
+% kernel
+\draw (0,2) rectangle (8.6,5);
+\draw (4.3,4.7) node {$kernel$};
+\draw (0.7,3.4) rectangle ++(1,1) node [midway] {sched};
+\draw[fill=gray!5] (1.9,3.4) rectangle ++(1,1) node [midway] {tasks};
+\draw (3.1,3.4) rectangle ++(1,1) node [midway] {syscall};
+\draw (4.3,3.4) rectangle ++(1,1) node [midway] {ipc};
+\draw[fill=gray!5] (5.5,3.4) rectangle ++(1,1) node [midway] {perm};
+\draw (6.7,3.4) rectangle ++(1,1) node [midway] {softirq};
+
+\draw (0.2,2.2) rectangle ++(1,1) node [midway] {gpio};
+\draw (1.6,2.2) rectangle ++(1,1) node [midway] {irq};
+\draw (3,2.2) rectangle ++(1,1) node [midway] {log};
+\draw (4.4,2.2) rectangle ++(1,1) node [midway] {sleep};
+\draw (5.8,2.2) rectangle ++(1,1) node [midway] {dma};
+\draw[fill=gray!15] (7.2,2.2) rectangle ++(1,1) node [midway] {mpu};
+% bsp
+\draw (0,0) rectangle (8.6,1.8);
+\draw (4.3,1.5) node {$BSP$};
+\draw[OliveGreen,fill=gray!15] (0.2,0.2) rectangle ++(1,1) node [midway] {mpu};
+\draw[OliveGreen] (1.4,0.2) rectangle ++(1,1) node [midway] {systick};
+\draw[NavyBlue] (2.6,0.2) rectangle ++(1,1) node [midway] {dma};
+\draw[NavyBlue,fill=gray!5] (3.8,0.2) rectangle ++(1,1) node [midway] {exti};
+\draw[NavyBlue] (5,0.2) rectangle ++(1,1) node [midway] {usart};
+\draw[NavyBlue] (6.2,0.2) rectangle ++(1,1) node [midway] {gpio};
+\draw[NavyBlue] (7.4,0.2) rectangle ++(1,1) node [midway] {nvic};
+\end{tikzpicture}
+\end{document}

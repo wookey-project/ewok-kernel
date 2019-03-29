@@ -1,0 +1,58 @@
+\documentclass{minimal}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+\usetikzlibrary{trees}
+\begin{document}
+\tikzstyle{every node}=[draw=black,thick, minimum height=2.2em]
+\begin{tikzpicture}[
+criteria/.style={ text centered, text width=1.8cm, fill=gray!30},
+enum/.style={%
+    rounded corners=.8ex, grow=down, xshift=0cm, anchor = west,
+    text centered, text width=2cm,
+    edge from parent path={(\tikzparentnode.225) |- (\tikzchildnode.west)}},
+first/.style    ={level distance=8ex},
+second/.style   ={level distance=16ex},
+third/.style    ={level distance=24ex},
+fourth/.style   ={level distance=32ex},
+fifth/.style    ={level distance=40ex},
+level 1/.style={sibling distance=28em},
+level 2/.style={sibling distance=7em}]
+    % Main Goal
+    \node[anchor=south]{EwoK permissions}
+    [edge from parent fork down]
+
+    % Criteria and Attributes
+        %
+    child {node [criteria] {dev}
+        child{node [criteria]  {{dma}}}
+        child{node [criteria] {{crypto}}
+            child[enum,first]  {node {none}}
+            child[enum,second]  {node {user}}
+            child[enum,third]  {node {cfg}}}
+        child{node [criteria]  {{buses}}}
+        child{node [criteria] {{exti}}}
+        child{node [criteria] {{tim}}}}
+    %
+    child{node [criteria] {time}
+        child[enum,first]  {node {none}}
+        child[enum,second] {node {tick}}
+        child[enum,third]  {node {micro}}
+        child[enum,fourth]  {node {cycle}}}
+        %
+    child{node [criteria] {ipc}
+        child{node [criteria] {send}}
+        child{node [criteria] {recv}}
+        child{node [criteria] {dma shm dec}}
+        child{node [criteria] {dma shm rcv}}}
+    child{node [criteria] {task}
+        child{node [criteria] {force isr}}
+        child{node [criteria] {force ipc}}
+        child{node [criteria] {force rst}}
+        child{node [criteria] {upgrade}}}
+    child{node [criteria] {mem}
+        child{node [criteria] {dyn map}}};
+\end{tikzpicture}
+\end{document}

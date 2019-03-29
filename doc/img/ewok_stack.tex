@@ -1,0 +1,27 @@
+\documentclass{minimal}
+\usepackage{tikz}
+%%%<
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+%%%>
+
+\begin{document}
+\begin{tikzpicture}
+% app
+\draw (0,4.2) rectangle (4,6) node [midway] {$application$};
+% libs
+\draw (4.2,5.2) rectangle (8,6) node [midway] {libs};
+%drivers
+\draw (4.2,4.2) rectangle (8,5) node [midway] {drivers};
+% libstd
+\draw (0,3.2) rectangle (8,4) node [midway] {libstd};
+%%% user / supervisor separation
+\draw[red,dashed] (0,3.1) -- (8,3.1);
+% kernel
+\draw (0,1.2) rectangle (8,3) node [midway] {kernel};
+% bsp
+\draw (0,0) rectangle (8,1) node [midway] {BSP};
+\end{tikzpicture}
+\end{document}

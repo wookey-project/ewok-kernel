@@ -1,0 +1,28 @@
+\documentclass{minimal}
+\usepackage{xcolor}
+\usepackage{tikz}
+%%%<
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+%%%>
+
+\begin{document}
+\begin{tikzpicture}
+% C module B
+\draw[very thick] (10.4,0) -- (12,0) -- (12,6.4) -- (7.1,6.4) -- (7.1,4.4)
+-- (10.4,4.4) -- (10.4,0);
+\draw (9.7,5.4) node {Spark module};
+% C module A
+\draw[] (2,0) -- (3.6,0) -- (3.6,4.4) -- (6.9,4.4) -- (6.9,6.4) --
+(2,6.4) -- (2,0);
+\draw (4.3,5.4) node {Ada module};
+% Ada interface
+\draw (3.8,0) -- ++(1,0) -- ++(0,3.2) -- ++(4.4,0) -- ++(0,-3.2) -- ++(1,0) --
+++(0,4.2) -- ++(-6.4,0) -- ++(0,-4.2);
+\draw (7,3.7) node {Ada/C interface};
+% Ada
+\draw[fill=gray!15] (5,0) rectangle (9,3) node [midway] {C module};
+\end{tikzpicture}
+\end{document}
