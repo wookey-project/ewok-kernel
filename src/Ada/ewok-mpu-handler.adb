@@ -78,13 +78,8 @@ is
          debug.panic ("MPU error: No current task.");
       end if;
 
-      declare
-      begin
-         debug.log (debug.ERROR,
-            "MPU error: task: " & current.all.name &
-            ", id:"  & ewok.tasks_shared.t_task_id'image (current.all.id) &
-            ", PC:"  & system_address'image (frame_a.all.PC));
-      end;
+      debug.log (debug.ERROR, "MPU error: task: " & current.all.name);
+      ewok.tasks.crashdump (frame_a);
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state

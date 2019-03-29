@@ -311,4 +311,7 @@ is
       dev_id   : in  ewok.devices_shared.t_device_id;
       success  : out boolean);
 
+   procedure crashdump
+     (frame_a  : in  ewok.t_stack_frame_access);
+
 end ewok.tasks;
