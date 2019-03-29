@@ -42,14 +42,14 @@ code that has been correctly proven. We also use it to validate some specific
 security-oriented behaviors.
 
 A typical example is to prove that the kernel never maps a memory region which
-can be both writeable and executable (aka W⊕X proof).
+can be both writeable and executable (aka W^X proof).
 
 For this, we use ghost functions and preconditions. The ghost function checks
 the wanted properties, the precondition is checked at build time by the
 prover. If the prover can't prove it at build time (e.g. when inputs depend on dynamic
 content, lazy checks, etc.) the prover refuses to validate the precondition.
 
-Here is the ghost function checking the W⊕X conditions on the STM32 MPU::
+Here is the ghost function checking the W^X conditions on the STM32 MPU::
 
    -- Only used by SPARK prover
    function region_not_rwx(region : t_region_config) return boolean

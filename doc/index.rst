@@ -34,7 +34,7 @@ EwoK supports the following properties:
    * Kernel Random Number Generation support (based on True RNG HW on STM32)
    * Stack smashing protection in both kernel and userspace tasks
    * Userspace Heap/Stack smashing protection
-   * Proved W⊕X memory mappings
+   * Proved W^X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
 Ewok provides to the userspace drivers a specific interface to allow them to use the DMA engines.

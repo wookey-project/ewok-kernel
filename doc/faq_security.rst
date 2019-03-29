@@ -15,10 +15,10 @@ Another solution would be to copy .rodata content into RAM, but this
 suffers from the same MPU limitations issues, with the additional drawback
 of reducing the available task volatile memory.
 
-Is the W⊕X principle supported?
+Is the W^X principle supported?
 --------------------------------
 
-The EwoK kernel enforces the W⊕X mapping restriction principle, which is
+The EwoK kernel enforces the W^X mapping restriction principle, which is
 a strong defense in depth mitigation against userland exploitable vulnerabilities.
 
 Moreover, the Ada kernel integrates SPARK proofs that verify at that there is no

@@ -21,8 +21,8 @@ EwoK, various packages and subpackages are used.
      Cortex-M4)
 
 As the EwoK kernel is an hybrid C/Ada/SPARK kernel, some packages require
-an external interface with the C code. For a given package ̀`foo` interacting
-with external C code, a `foo_interface` package must exist.
+an external interface with the C code. For a given package *foo* interacting
+with external C code, a *foo_interface* package must exist.
 
 In the same way, as some various C types (structures, union, enumerates, etc.)
 have to be used in the interfaces packages, the following C-specific packages
