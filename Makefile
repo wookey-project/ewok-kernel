@@ -24,7 +24,7 @@ APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 BUILD_DIR ?= $(PROJ_FILE)build
 GENDIR     = generated/Ada
 
-.PHONY: __clean __distclean $(GENDIR)
+.PHONY: __clean __distclean $(GENDIR) doc
 
 default: all
 
@@ -43,6 +43,9 @@ all: prepare
 	$(Q)$(MAKE) -C src all
 
 endif
+
+doc:
+	$(Q)$(MAKE) BUILDDIR=../$(APP_BUILD_DIR)/doc  -C doc html latexpdf
 
 prepare:
 	@mkdir -p generated
