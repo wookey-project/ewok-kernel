@@ -56,12 +56,8 @@ is
          when LOCK_EXIT  =>
             set_return_value (caller_id, mode, SYS_E_DONE);
             ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-            -- when unlocking a task, it is highly probable that an ISR is
-            -- waiting and need to be executed. To avoid scheduling latency
-            -- associated to the fact that this syscall is synchronous, we
-            -- request a schedule here, to request the scheduler to check if
-            -- softirq thread is runnable, meaning that there is ISR waiting
-            -- This behavior globally increases the task reactivity.
+            -- When unlocking a task, it is highly probable that an ISR is
+            -- waiting and need to be executed.
             ewok.sched.request_schedule;
       end case;
    end sys_lock;

@@ -50,16 +50,24 @@ is
          goto ret_inval;
       end if;
 
+      if ewok.tasks.is_ipc_waiting (caller_id) then
+         goto ret_busy;
+      end if;
+
       ewok.sleep.sleeping (caller_id, milliseconds (sleep_time), sleep_mode);
 
-      -- Ok return
+      -- Note: state set by ewok.sleep.sleeping procedure
       set_return_value (caller_id, mode, SYS_E_DONE);
-      -- Note: sleeping state set by ewok.sleep.sleeping procedure
       ewok.sched.request_schedule;
       return;
 
    <<ret_inval>>
       set_return_value (caller_id, mode, SYS_E_INVAL);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      return;
+
+   <<ret_busy>>
+      set_return_value (caller_id, mode, SYS_E_BUSY);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 

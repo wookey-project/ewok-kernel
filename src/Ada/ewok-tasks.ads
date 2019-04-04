@@ -258,6 +258,10 @@ is
       inline,
       global => ( in_out => tasks_list );
 
+   function is_ipc_waiting
+     (id     : in  ewok.tasks_shared.t_task_id)
+      return boolean;
+
    -- Set return value inside a syscall
    -- Note: mode must be defined as a task can do a syscall while in ISR mode
    --       or in THREAD mode

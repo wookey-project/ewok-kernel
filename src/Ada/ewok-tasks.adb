@@ -27,6 +27,7 @@ with m4.cpu.instructions;
 with m4.mpu;
 with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
+with ewok.ipc;             use ewok.ipc;
 with ewok.softirq;
 with ewok.devices;
 with c.kernel;
@@ -505,7 +506,7 @@ is
 
    function get_mode
      (id     : in  ewok.tasks_shared.t_task_id)
-   return t_task_mode
+      return t_task_mode
    is
    begin
       return tasks_list(id).mode;
@@ -519,6 +520,25 @@ is
    begin
       tasks_list(id).mode := mode;
    end set_mode;
+
+
+   function is_ipc_waiting
+     (id     : in  ewok.tasks_shared.t_task_id)
+      return boolean
+   is
+   begin
+      for i in tasks_list(id).ipc_endpoints'range loop
+         if tasks_list(id).ipc_endpoints(i) /= NULL
+            and then
+            tasks_list(id).ipc_endpoints(i).state = ewok.ipc.WAIT_FOR_RECEIVER
+            and then
+            ewok.ipc.to_task_id (tasks_list(id).ipc_endpoints(i).to) = id
+         then
+            return true;
+         end if;
+      end loop;
+      return false;
+   end;
 
 
    procedure append_device
