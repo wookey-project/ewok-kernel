@@ -53,7 +53,7 @@ stack_frame_t *postpone_isr
      * and go back to work without requesting schedule
      */
     if (caller->type == TASK_TYPE_KERNEL) {
-        cell->irq_handler(stack_frame);
+        cell->handler.synchronous_handler(stack_frame);
         return stack_frame;
     }
 
@@ -81,7 +81,7 @@ stack_frame_t *postpone_isr
     NVIC_ClearPendingIRQ((uint32_t)(irq - 0x10));
 
     softirq_query(SFQ_USR_ISR, cell->task_id, cell->irq,
-        (physaddr_t) cell->irq_handler, regs);
+        (physaddr_t) cell->handler.postponed_handler, regs);
 
     return stack_frame;
 }

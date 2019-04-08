@@ -26,6 +26,7 @@
 #include "types.h"
 #include "../../../tasks-shared.h"
 #include "../../../devices-shared.h"
+#include "../../../exported/gpio.h"
 
 /*
 ** That structure points to the saved registers on the caller
@@ -147,12 +148,18 @@ static const e_irq_id USER_IRQ_MAX = HASH_RNG_IRQ;
 
 typedef stack_frame_t *(*irq_handler_t) (stack_frame_t *);
 
+
+typedef union {
+    irq_handler_t      synchronous_handler;
+    user_handler_t     postponed_handler;
+} interrupt_handler_u;
+
 typedef struct {
-    e_irq_id        irq;            /* IRQ number */
-    irq_handler_t   irq_handler;    /* IRQ handler */
-    e_task_id       task_id;
-    e_device_id     device_id;
-    uint32_t        count; /* How many times that IRQ interrupted the CPU ? */
+    e_irq_id              irq;            /* IRQ number */
+    interrupt_handler_u   handler;        /* IRQ handler */
+    e_task_id             task_id;
+    e_device_id           device_id;
+    uint32_t              count; /* How many times that IRQ interrupted the CPU ? */
 } s_irq;
 
 #define interrupt_get_num(intr) { asm volatile ("mrs r1, ipsr\n\t" \

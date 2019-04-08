@@ -159,10 +159,10 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
         }
         else {
             /* Kernel ISR w/o associated device (SCB ISR) */
-            if (cell->irq_handler == 0) {
+            if (cell->handler.synchronous_handler == 0) {
                 panic("Unhandled IRQ number %x\n", int_num);
             } else {
-                cell->irq_handler(stack_frame);
+                cell->handler.synchronous_handler(stack_frame);
             }
         }
         new_frame = stack_frame;
@@ -171,10 +171,10 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
      * System exceptions might switch tasks
      */
     else {
-        if (cell->irq_handler == 0) {
+        if (cell->handler.synchronous_handler == 0) {
             panic("Unhandled exception %x\n", int_num);
         }
-        new_frame = cell->irq_handler(stack_frame);
+        new_frame = cell->handler.synchronous_handler(stack_frame);
     }
 
 #ifdef KERNEL

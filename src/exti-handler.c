@@ -75,7 +75,7 @@ static inline void exti_handle_line(uint8_t        exti_line,
     } else {
         s_irq cell = {
             .irq = irq,
-            .irq_handler = (irq_handler_t) gpio->exti_handler,
+            .handler.postponed_handler = gpio->exti_handler,
             .task_id = dev_get_task_from_gpio_kref(gpio->kref),
             .count = 0 };
         /* We keep the task_frame transmission from postpone_isr...
