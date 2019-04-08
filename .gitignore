@@ -12,3 +12,11 @@ src/Ada/libgnat/gnat/gnat.ads
 src/arch/auto.cgpr
 prove/gnatprove
 generated
+doc/img/ada_c.png
+doc/img/ada_c_2.png
+doc/img/ewok_irq_handling.png
+doc/img/ewok_precise_arch.png
+doc/img/ewok_stack.png
+doc/img/perm.png
+doc/img/perm_reg-0.png
+doc/img/perm_reg-1.png
