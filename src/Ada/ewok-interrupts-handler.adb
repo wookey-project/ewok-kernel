@@ -36,6 +36,15 @@ package body ewok.interrupts.handler
    with spark_mode => off
 is
 
+   function usagefault_handler
+     (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
+   is
+   begin
+      debug.log (debug.ERROR, "UsageFault");
+      return hardfault_handler (frame_a);
+   end usagefault_handler;
+
+
    function hardfault_handler
      (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
    is
@@ -90,10 +99,54 @@ is
       current_id  : ewok.tasks_shared.t_task_id;
       new_frame_a : t_stack_frame_access;
       ttype       : t_task_type;
-
    begin
 
       it := soc.interrupts.get_interrupt;
+
+      --
+      -- Nested exceptions
+      --
+
+      if frame_a.all.exc_return = 16#FFFF_FFF1# then
+         --debug.log (debug.DEBUG, "Nested interrupt: " & t_interrupt'image (it));
+
+         -- System exceptions
+         if it < INT_WWDG then
+            case it is
+               when INT_PENDSV  => debug.panic ("Nested PendSV not handled.");
+               when INT_SYSTICK => null;
+               when others      =>
+                  if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+                     new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
+                  else
+                     debug.panic ("Unhandled exception " & t_interrupt'image (it));
+                  end if;
+            end case;
+
+         else
+         -- External interrupts
+            -- Execute kernel ISR
+            if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+               interrupt_table(it).handler (frame_a);
+
+            -- User ISR are postponed (asynchronous execution)
+            elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
+               ewok.isr.postpone_isr
+                 (it,
+                  interrupt_table(it).handler,
+                  interrupt_table(it).task_id);
+            else
+               debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
+            end if;
+
+         end if;
+
+         return frame_a;
+      end if;
+
+      --
+      -- Normal case
+      --
 
       -- System exceptions
       if it < INT_WWDG then
@@ -104,7 +157,7 @@ is
          end if;
 
       else
-      -- External interrupt
+      -- External interrupts
          -- Execute kernel ISR
          if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
             interrupt_table(it).handler (frame_a);
@@ -120,7 +173,6 @@ is
          else
             debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
          end if;
-
       end if;
 
       -- Task's execution mode must be transmitted to the Default_Handler

@@ -34,6 +34,8 @@ is
    is
    begin
 
+      m4.scb.SCB.SHCSR.USGFAULTENA := true;
+
       for i in interrupt_table'range loop
          interrupt_table(i) :=
            (htype     => DEFAULT_HANDLER,
@@ -42,13 +44,19 @@ is
             device_id => ewok.devices_shared.ID_DEV_UNUSED);
       end loop;
 
+      interrupt_table(soc.interrupts.INT_USAGEFAULT) :=
+           (htype     => TASK_SWITCH_HANDLER,
+            task_switch_handler =>
+               ewok.interrupts.handler.usagefault_handler'access,
+            task_id   => ewok.tasks_shared.ID_KERNEL,
+            device_id => ewok.devices_shared.ID_DEV_UNUSED);
+
       interrupt_table(soc.interrupts.INT_HARDFAULT) :=
            (htype     => TASK_SWITCH_HANDLER,
             task_switch_handler =>
                ewok.interrupts.handler.hardfault_handler'access,
             task_id   => ewok.tasks_shared.ID_KERNEL,
             device_id => ewok.devices_shared.ID_DEV_UNUSED);
-
 
       interrupt_table(soc.interrupts.INT_SYSTICK) :=
            (htype     => TASK_SWITCH_HANDLER,
