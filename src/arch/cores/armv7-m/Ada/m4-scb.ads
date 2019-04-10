@@ -19,7 +19,6 @@
 --     limitations under the License.
 --
 --
-
 with ada.unchecked_conversion;
 with m4.layout;
 
@@ -30,6 +29,9 @@ is
    ------------------------------------------
    -- Interrupt Control and State Register --
    ------------------------------------------
+
+   -- Provides software control of the NMI, PendSV, and SysTick exceptions, and
+   -- provides interrupt status information (ARMv7-M Arch. Ref. Manual, p.655).
 
    type t_SCB_ICSR is record
       VECTACTIVE  : bits_9;
