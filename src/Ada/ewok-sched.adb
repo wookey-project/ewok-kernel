@@ -532,9 +532,9 @@ is
          "bx r1",
          inputs   =>
            (system_address'asm_input
-              ("r",to_system_address (idle_task.ctx.frame_a)),
+              ("r", to_system_address (idle_task.ctx.frame_a)),
             system_address'asm_input
-              ("r",idle_task.entry_point)),
+              ("r", idle_task.entry_point)),
          clobber  => "r0, r1",
          volatile => true);
 
