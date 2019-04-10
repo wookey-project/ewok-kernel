@@ -136,10 +136,16 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
 #else
     uint8_t         current_type;
 #endif
+    bool            is_nested;
 
     /* Getting the IRQ number */
     interrupt_get_num(int_num);
     int_num &= 0x1ff;
+    if (stack_frame->lr == 0xfffffff1) {
+        is_nested = true;
+    } else {
+        is_nested = false;
+    }
 
     /*
      * The 'cell' in the IRQ table contains, for each IRQ, the related task
@@ -151,7 +157,7 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
     /*
      * External interrupts don't switch tasks
      */
-    if (int_num > 15) {
+    if (int_num > SYSTICK_IRQ) {
 
         if (cell->task_id != ID_UNUSED) {
             /* User or kernel ISR */
@@ -174,7 +180,22 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
         if (cell->handler.synchronous_handler == 0) {
             panic("Unhandled exception %x\n", int_num);
         }
-        new_frame = cell->handler.synchronous_handler(stack_frame);
+        if (!is_nested) {
+            new_frame = cell->handler.synchronous_handler(stack_frame);
+        } else {
+            /* in nested mode, system exceptions that impact scheduling and
+             * frame content should not be executed. They may impact the global
+             * kernel state improperly.
+             * As nested interrupts arrise only in high load cases, the next
+             * pendsv IRQ will happen shortly. The systick is periodic. */
+            if (int_num == SYSTICK_IRQ || int_num == PENDSV_IRQ) {
+                goto nested_return;
+            }
+        }
+    }
+    /* in nested mode, there is no scheduling logic */
+    if (is_nested) {
+        goto nested_return;
     }
 
 #ifdef KERNEL
@@ -192,6 +213,8 @@ __ISR_HANDLER stack_frame_t *Default_SubHandler(stack_frame_t * stack_frame)
        ("mov r1, %0" :: "r" (current_type) : "r1");
 
     return new_frame;
+nested_return:
+    return stack_frame;
 
 }
 #ifdef __clang__
