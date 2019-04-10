@@ -175,15 +175,15 @@ is
       with inline;
 
    -- Get the IPSR register.
-   function get_ipsr_register return t_ipsr_register
+   function get_ipsr_register return t_IPSR_register
       with inline;
 
    -- Get the APSR register.
-   function get_apsr_register return t_apsr_register
+   function get_apsr_register return t_APSR_register
       with inline;
 
    -- Get the EPSR register.
-   function get_epsr_register return t_epsr_register
+   function get_epsr_register return t_EPSR_register
       with inline;
 
    -- Get the LR register

@@ -68,37 +68,37 @@ is
    end set_control_register;
 
 
-   function get_ipsr_register return t_ipsr_register
+   function get_ipsr_register return t_IPSR_register
    is
-      ipsr : t_ipsr_register;
+      ipsr : t_IPSR_register;
    begin
       system.machine_code.asm
         ("mrs %0, ipsr",
-         outputs  => t_ipsr_register'asm_output ("=r", ipsr),
+         outputs  => t_IPSR_register'asm_output ("=r", ipsr),
          volatile => true);
       return ipsr;
    end get_ipsr_register;
 
 
-   function get_apsr_register return t_apsr_register
+   function get_apsr_register return t_APSR_register
    is
-      apsr : t_apsr_register;
+      apsr : t_APSR_register;
    begin
       system.machine_code.asm
         ("mrs %0, apsr",
-         outputs  => t_apsr_register'asm_output ("=r", apsr),
+         outputs  => t_APSR_register'asm_output ("=r", apsr),
          volatile => true);
       return apsr;
    end get_apsr_register;
 
 
-   function get_epsr_register return t_epsr_register
+   function get_epsr_register return t_EPSR_register
    is
-      epsr : t_epsr_register;
+      epsr : t_EPSR_register;
    begin
       system.machine_code.asm
         ("mrs %0, epsr",
-         outputs  => t_epsr_register'asm_output ("=r", epsr),
+         outputs  => t_EPSR_register'asm_output ("=r", epsr),
          volatile => true);
       return epsr;
    end get_epsr_register;

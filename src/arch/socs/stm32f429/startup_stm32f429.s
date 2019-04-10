@@ -165,6 +165,8 @@ Default_Handler:
      * R0 is passed as a parameter. It still points to the saved registers.
      * In case of task switching, R0 returned by `Default_SubHandler' might be
      * different.
+     * R1 is returned by `Default_SubHandler' and it contains the task type.
+     * Valid R1 values are privileged (0) or unprivileged (1).
      */
 
     bl      Default_SubHandler
@@ -172,18 +174,24 @@ Default_Handler:
     /* Registers LR, R4-R11 are restored */
     ldmfd   r0!, {r4-r11, lr}
 
-    /* Adjusting PSP/MSP so that the NVIC can restore the remaining registers */
+    /*
+     * Adjusting PSP/MSP so that the NVIC can restore the remaining registers
+     * and setting the execution mode (privileged or unprivileged)
+     */
 
     tst     lr, #4      /* bit 2: (0) MSP (1) PSP stack      */
     bne     psp_use     /* if not equal 0                    */
 
 msp_use:
-    msr     msp, r0     /* MSP <- r0                         */
+    /* That branch should never be executed as every task use the PSP */
+    msr     msp, r0     /* MSP <- r0 */
     cpsie   i
     bx      lr
 
 psp_use:
-    msr     psp, r0     /* PSP <- r0                         */
+    msr     psp, r0     /* PSP <- r0 */
+
+    /* Is it an unprivileged task ? */
     cmp     r1, #1
     bne     kern_mode
 
