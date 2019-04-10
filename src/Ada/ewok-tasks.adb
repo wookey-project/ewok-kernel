@@ -753,6 +753,9 @@ is
          ", PC " & unsigned_32'image (frame_a.all.PC) &
          ", LR " & unsigned_32'image (frame_a.all.LR));
 
+      debug.log (debug.ERROR,
+         "PSR " & unsigned_32'image (m4.cpu.to_unsigned_32 (frame_a.all.PSR)));
+
    end crashdump;
 
 
