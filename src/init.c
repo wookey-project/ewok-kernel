@@ -115,7 +115,7 @@ int main(int argc, char *args[])
     dbg_log(YELLOW "EWOK - Embedded lightWeight Opensource Kernel" WHITE "\n\n");
     dbg_flush();
 
-    KERNLOG(DBG_INFO, "booting...\n");
+    KERNLOG(DBG_INFO, "Booting...\n");
 
     /*
      * Initialization of DWT. This is required for time measurement
@@ -130,7 +130,7 @@ int main(int argc, char *args[])
     if (get_random_u32(&seed) != SUCCESS) {
         ERROR("Call to the TRNG failed !\n");
         dbg_flush();
-        panic("halting.\n");
+        panic("Halting.\n");
     }
 
     /*
