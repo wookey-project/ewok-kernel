@@ -104,10 +104,63 @@ is
       it := soc.interrupts.get_interrupt;
 
       --
-      -- Nested exceptions
+      -- Exceptions (not nested)
       --
+      if frame_a.all.exc_return = 16#FFFF_FFFD# then
 
-      if frame_a.all.exc_return = 16#FFFF_FFF1# then
+         -- System exceptions
+         if it < INT_WWDG then
+            if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+               new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
+            else
+               debug.panic ("Unhandled exception " & t_interrupt'image (it));
+            end if;
+   
+         else
+         -- External interrupts
+            -- Execute kernel ISR
+            if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+               interrupt_table(it).handler (frame_a);
+               new_frame_a := frame_a;
+   
+            -- User ISR are postponed (asynchronous execution)
+            elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
+               ewok.isr.postpone_isr
+                 (it,
+                  interrupt_table(it).handler,
+                  interrupt_table(it).task_id);
+               new_frame_a := ewok.sched.do_schedule (frame_a);
+            else
+               debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
+            end if;
+         end if;
+   
+         -- Task's execution mode must be transmitted to the Default_Handler
+         -- to run it with the proper privilege (set in the CONTROL register).
+         -- The current function uses R0 and R1 registers to return the
+         -- following values:
+         --    R0 - address of the task frame
+         --    R1 - execution mode
+   
+         current_id := ewok.sched.get_current;
+         if current_id /= ID_UNUSED then
+            ttype := ewok.tasks.tasks_list(current_id).ttype;
+         else
+            ttype := TASK_TYPE_KERNEL;
+         end if;
+   
+         system.machine_code.asm
+           ("mov r1, %0",
+            inputs   => t_task_type'asm_input ("r", ttype),
+            clobber  => "r1",
+            volatile => true);
+   
+         return new_frame_a;
+
+      -- 
+      -- Nested exceptions
+      -- 
+      elsif frame_a.all.exc_return = 16#FFFF_FFF1# then
          --debug.log (debug.DEBUG, "Nested interrupt: " & t_interrupt'image (it));
 
          -- System exceptions
@@ -142,60 +195,15 @@ is
          end if;
 
          return frame_a;
-      end if;
 
-      --
-      -- Normal case
-      --
-
-      -- System exceptions
-      if it < INT_WWDG then
-         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
-            new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
-         else
-            debug.panic ("Unhandled exception " & t_interrupt'image (it));
-         end if;
-
+      -- 
+      -- Unsupported EXC_RETURN
+      -- 
       else
-      -- External interrupts
-         -- Execute kernel ISR
-         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
-            interrupt_table(it).handler (frame_a);
-            new_frame_a := frame_a;
-
-         -- User ISR are postponed (asynchronous execution)
-         elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
-            ewok.isr.postpone_isr
-              (it,
-               interrupt_table(it).handler,
-               interrupt_table(it).task_id);
-            new_frame_a := ewok.sched.do_schedule (frame_a);
-         else
-            debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
-         end if;
+         debug.panic ("EXC_RETURN not supported");
+         return frame_a;
       end if;
 
-      -- Task's execution mode must be transmitted to the Default_Handler
-      -- to run it with the proper privilege (set in the CONTROL register).
-      -- The current function uses R0 and R1 registers to return the
-      -- following values:
-      --    R0 - address of the task frame
-      --    R1 - execution mode
-
-      current_id := ewok.sched.get_current;
-      if current_id /= ID_UNUSED then
-         ttype := ewok.tasks.tasks_list(current_id).ttype;
-      else
-         ttype := TASK_TYPE_KERNEL;
-      end if;
-
-      system.machine_code.asm
-        ("mov r1, %0",
-         inputs   => t_task_type'asm_input ("r", ttype),
-         clobber  => "r1",
-         volatile => true);
-
-      return new_frame_a;
 
    end default_sub_handler;
 
