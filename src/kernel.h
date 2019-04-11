@@ -31,15 +31,15 @@
 
 #define __KERNEL
 
-#define ANSI_COLOR_BLUE    "\x1b[37;44m"
-#define ANSI_COLOR_RED     "\x1b[37;41m"
-#define ANSI_COLOR_RESET   "\x1b[37;40m"
+#define ANSI_COLOR_BLUE    "\033[44m"
+#define ANSI_COLOR_RED     "\033[41m"
+#define ANSI_COLOR_RESET   "\033[0m"
 
 #define KERNLOG(level, fmt, ...)    \
     if (level <= DBG_ERR) {         \
-        DEBUG(level, ANSI_COLOR_RED "[%ld] kernel: " fmt ANSI_COLOR_RESET, (unsigned long) core_systick_get_ticks(), ##__VA_ARGS__); \
+        DEBUG(level, ANSI_COLOR_RED "[%ld] Kernel: " fmt "" ANSI_COLOR_RESET, (unsigned long) core_systick_get_ticks(), ##__VA_ARGS__); \
     } else {                         \
-        DEBUG(level, ANSI_COLOR_BLUE "[%ld] kernel: " fmt ANSI_COLOR_RESET, (unsigned long) core_systick_get_ticks(), ##__VA_ARGS__); \
+        DEBUG(level, ANSI_COLOR_BLUE "[%ld] Kernel: " fmt "" ANSI_COLOR_RESET, (unsigned long) core_systick_get_ticks(), ##__VA_ARGS__); \
     }
 
 /* for visibility purpose, to mark all userspace variable in kernel code */
