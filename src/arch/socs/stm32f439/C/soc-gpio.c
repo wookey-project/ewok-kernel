@@ -21,8 +21,8 @@
  *
  */
 #include "types.h"
-#include "exported/devices.h"
-#include "exported/gpio.h"
+#include "C/exported/devices.h"
+#include "C/exported/gpio.h"
 #include "soc-gpio.h"
 
 /*

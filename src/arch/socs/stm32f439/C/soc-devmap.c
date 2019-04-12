@@ -21,9 +21,9 @@
  *
  */
 #include "types.h"
-#include "devmap.h"
+#include "C/generated/devmap.h"
 #include "m4-cpu.h"
-#include "regutils.h"
+#include "C/regutils.h"
 
 struct device_soc_infos* soc_devmap_find_device
     (physaddr_t addr, uint32_t size)

@@ -1,4 +1,4 @@
-/* \file types.h
+/* \file m4-systick.c
  *
  * Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
  *   - Ryad     Benadjila
@@ -20,15 +20,33 @@
  *     limitations under the License.
  *
  */
-#ifndef TYPES_H_
-#define TYPES_H_
+#include "m4-systick.h"
+#include "m4-systick-regs.h"
+#include "C/regutils.h"
+#include "product.h"
 
-#include "autoconf.h"
+volatile unsigned long long ticks;
 
-#ifdef CONFIG_ARCH_ARMV7M
-# include "arch/cores/armv7-m/types.h"
-#else
-# error "architecture not yet supported"
-#endif
+void core_systick_init(void)
+{
+    set_reg(r_CORTEX_M_STK_LOAD, PROD_CORE_FREQUENCY, STK_RELOAD);
+    set_reg(r_CORTEX_M_STK_VAL, 0, STK_CURRENT);
+    set_reg_bits(r_CORTEX_M_STK_CTRL,
+                 STK_CLKSOURCE_Msk | STK_TICKINT_Msk | STK_ENABLE_Msk);
+}
 
-#endif/*!TYPES_H_*/
+unsigned long long core_systick_get_ticks(void)
+{
+    return ticks;
+}
+
+unsigned long long core_ms_to_ticks(unsigned long long ms)
+{
+    return ms * TICKS_PER_SECOND / 1000;
+}
+
+stack_frame_t *core_systick_handler(stack_frame_t * stack_frame)
+{
+    ticks++;
+    return stack_frame;
+}

@@ -24,10 +24,10 @@
 #define SOC_USART_H
 
 #include "types.h"
-#include "regutils.h"
+#include "C/regutils.h"
 #include "soc-interrupts.h"
 #include "soc-usart-regs.h"
-#include "exported/gpio.h"
+#include "C/exported/gpio.h"
 
 // TODO: differenciate tx_port and rx_port that may differs
 static const struct {

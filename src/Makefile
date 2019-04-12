@@ -23,15 +23,15 @@ APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
 CFLAGS += $(EXTRA_CFLAGS)
 CFLAGS += $(DEBUG_CFLAGS) -Wconversion
-CFLAGS += -I. -Isyscalls -I../generated -I$(CORE_DIR) -Iarch
+CFLAGS += -I. -IC -IC/syscalls -IC/generated -I$(CORE_DIR) -Iarch
 CFLAGS += -MMD -MP
 CFLAGS += $(KERN_CFLAGS)
 CFLAGS += -fstack-protector-strong
 CFLAGS += -I$(PROJ_FILES)/kernel/src/arch
-CFLAGS += -I$(CORE_DIR) -Iarch -Iarch/cores/$(CONFIG_ARCH) -Iarch/socs/$(CONFIG_SOCNAME) -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
+CFLAGS += -I$(CORE_DIR) -Iarch -Iarch/cores/$(CONFIG_ARCH)/C -Iarch/socs/$(CONFIG_SOCNAME)/C -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
 
 
-CLANG_CFLAGS := -I../../include/generated -I. -Isyscalls -I../generated  -I$(CORE_DIR) -Iarch -Iarch/cores/$(ARCH) -Iarch/socs/$(SOC) -Iarch/boards/$(BOARD) -Iarch/boards
+CLANG_CFLAGS := -I../../include/generated -I. -Isyscalls -I../src/generated  -I$(CORE_DIR) -Iarch -Iarch/cores/$(ARCH)/C -Iarch/socs/$(SOC)/C -Iarch/boards/$(BOARD) -Iarch/boards
 
 # if no specific ldscript is specified, using default one, if the SDK want to relink successively with
 # varous ldscripts, this variable has to be passed to the Makefile commandline
@@ -50,7 +50,7 @@ endif
 
 BUILD_DIR ?= $(PROJ_FILE)build
 
-SRC = $(wildcard *.c) $(wildcard syscalls/*.c)
+SRC = $(wildcard C/*.c) $(wildcard C/syscalls/*.c)
 OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
 DEP := $(OBJ:%.o=%.d)
 
@@ -63,15 +63,15 @@ ALIB = $(APP_BUILD_DIR)/Ada/lib/libkernel.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
 
 # deleting C files having their Ada equivalent from the C/obj list
-ADACEQ  = $(patsubst Ada/ewok-%.adb,%.c,$(ASRC))
-ADACEQ += $(patsubst Ada/syscalls/ewok-%.adb,syscalls/%.c,$(ASRC))
+ADACEQ  = $(patsubst Ada/ewok-%.adb,C/%.c,$(ASRC))
+ADACEQ += $(patsubst Ada/syscalls/ewok-%.adb,C/syscalls/%.c,$(ASRC))
 SRC_TMP = $(filter-out $(ADACEQ),$(SRC))
 SRC := $(SRC_TMP)
 OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
 DEP := $(OBJ:%.o=%.d)
 endif
 
-SOC_DIR := $(PROJ_FILES)/kernel/src/arch/socs/$(SOC)/
+SOC_DIR := $(PROJ_FILES)/kernel/src/arch/socs/$(SOC)
 SOC_SRC := startup_$(SOC).s
 SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/asm/%.o,$(SOC_SRC))
 
@@ -194,8 +194,8 @@ $(APP_BUILD_DIR):
 ifeq ($(CONFIG_ADAKERNEL),y)
 __clean: libkernel.gpr
 	$(call cmd,ada_clean)
-	-rm ../generated/*
-	-rm generated/Ada/*
+	-rm C/generated/*
+	-rm Ada/generated/*
 	-rm $(APP_BUILD_DIR)/$(BIN_NAME) $(HEX_NAME) $(OBJ) $(DEP)
 
 __distclean: libkernel.gpr
@@ -210,8 +210,8 @@ endif
 # account in the kernel
 #
 clean_headers: check_paradigm_switch
-	rm -rf ../generated/Ada/*
-	rm -rf ../generated/*
+	-rm C/generated/*
+	-rm Ada/generated/*
 	rm -rf $(APP_BUILD_DIR)/kernel.*.hex
 	rm -rf $(APP_BUILD_DIR)/*.elf
 

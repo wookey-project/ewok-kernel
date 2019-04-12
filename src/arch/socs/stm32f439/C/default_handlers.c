@@ -26,16 +26,16 @@
 #include "soc-dwt.h"
 #include "soc-nvic.h"
 #include "soc-scb.h"
-#include "devices-shared.h"
+#include "C/devices-shared.h"
 #include "debug.h"
-#include "kernel.h"
-#include "isr.h"
+#include "C/kernel.h"
+#include "C/isr.h"
 
 #ifdef KERNEL
-#include "tasks.h"
-#include "tasks-shared.h"
-#include "sched.h"
-#include "layout.h"
+#include "C/tasks.h"
+#include "C/tasks-shared.h"
+#include "C/sched.h"
+#include "C/layout.h"
 #endif
 #include "default_handlers.h"
 

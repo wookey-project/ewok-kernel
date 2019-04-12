@@ -26,7 +26,7 @@
 
 #include "soc-core.h"
 #include "soc-syscfg.h"
-#include "exported/gpio.h"
+#include "C/exported/gpio.h"
 
 /*
  * Return the bit (or the bitfield) of the pending IT lines of the

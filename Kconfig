@@ -6,12 +6,11 @@ endmenu
 
 config ADAKERNEL
   bool "Ada & SPARK kernel implementation"
-  default n
+  default y
   ---help---
-  This option activate the usage of Ada and Spark sources in
-  replacement of C code for the kernel runtime. This permits
-  to compile an hardened kernel based on the efficient properties
-  of the Ada language, mixed with residual C code for libbsp.
+  Use Ada and SPARK language.
+  Disable this option to build the C version of EwoK is not recommended.
+  C version is deprecated and should never be used in production.
 
 config KERNEL_NOSERIAL
   bool "No kernel serial interface (production mode)"

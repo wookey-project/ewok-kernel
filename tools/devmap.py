@@ -47,11 +47,11 @@ c_header = """
 #define DEVMAP_H_
 
 #include "types.h"
-#include "perm.h"
+#include "C/perm.h"
 #include "soc-rcc.h"
 #include "soc-interrupts.h"
 #include "soc-dma.h"
-#include "regutils.h"
+#include "C/regutils.h"
 
 
 /*

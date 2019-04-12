@@ -24,9 +24,9 @@
 #define SOC_IRQ_
 
 #include "types.h"
-#include "../../../tasks-shared.h"
-#include "../../../devices-shared.h"
-#include "../../../exported/gpio.h"
+#include "C/tasks-shared.h"
+#include "C/devices-shared.h"
+#include "C/exported/gpio.h"
 
 /*
 ** That structure points to the saved registers on the caller

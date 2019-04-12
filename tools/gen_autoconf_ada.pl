@@ -12,7 +12,7 @@ $,=' ';
 @ARGV == 1 or usage();
 ( -f "$ARGV[0]" ) or die "$ARGV[0] is not a regular as is ought to be";
 
-my $out_header_ada = "kernel/generated/Ada/config.def";
+my $out_header_ada = "kernel/src/Ada/generated/config.def";
 open my $OUTHDR_ADA, ">", "$out_header_ada" or die "unable to open $out_header_ada";
 
 my %hash;

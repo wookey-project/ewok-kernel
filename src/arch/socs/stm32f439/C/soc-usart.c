@@ -23,14 +23,14 @@
 #include "autoconf.h"
 #include "debug.h"
 #include "soc-gpio.h"
-#include "exported/devices.h"
+#include "C/exported/devices.h"
 #include "soc-exti.h"
 #include "soc-nvic.h"
 #include "soc-rcc.h"
 #include "soc-interrupts.h"
 #include "soc-usart.h"
 #include "soc-usart-regs.h"
-#include "gpio.h"
+#include "C/gpio.h"
 
 /**** USART basic Read / Write ****/
 void soc_usart_putc(uint8_t usart, char c)

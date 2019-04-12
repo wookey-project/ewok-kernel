@@ -504,8 +504,8 @@ sub main
   # We shift the config file from argv as it has been parsed
   shift @ARGV;
 
-  my $c_header = "kernel/generated/gen_perms.h";
-  my $ada_header = "kernel/generated/Ada/ewok-perm_auto.ads";
+  my $c_header = "kernel/src/C/generated/gen_perms.h";
+  my $ada_header = "kernel/src/Ada/generated/ewok-perm_auto.ads";
 
   #
   # C & Ada header file generation

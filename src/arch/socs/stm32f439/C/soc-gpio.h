@@ -23,11 +23,11 @@
 #ifndef SOC_GPIO_H
 #define SOC_GPIO_H
 
-#include "regutils.h"
+#include "C/regutils.h"
 #include "soc-core.h"
 #include "soc-rcc.h"
-#include "exported/devices.h"
-#include "exported/gpio.h"
+#include "C/exported/devices.h"
+#include "C/exported/gpio.h"
 
 #define GPIO_MODER(g)         REG_ADDR(g + 0x00)    /*!< GPIO port mode register                      */
 #define GPIO_OTYPER(g)        REG_ADDR(g + 0x04)    /*!< GPIO port output type register               */

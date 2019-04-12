@@ -22,9 +22,8 @@ VERSION = 1
 APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
 BUILD_DIR ?= $(PROJ_FILE)build
-GENDIR     = generated/Ada
 
-.PHONY: __clean __distclean $(GENDIR) doc
+.PHONY: __clean __distclean doc
 
 default: all
 
@@ -48,8 +47,8 @@ doc:
 	$(Q)$(MAKE) BUILDDIR=../$(APP_BUILD_DIR)/doc  -C doc html latexpdf
 
 prepare:
-	@mkdir -p generated
-	@mkdir -p generated/Ada
+	@mkdir -p src/C/generated
+	@mkdir -p src/Ada/generated
 
 show:
 	$(Q)$(MAKE) -C src show

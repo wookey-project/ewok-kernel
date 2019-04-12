@@ -20,7 +20,7 @@
  *     limitations under the License.
  *
  */
-#include "regutils.h"
+#include "C/regutils.h"
 #include "autoconf.h"
 #include "soc-rcc.h"
 #include "soc-pwr.h"

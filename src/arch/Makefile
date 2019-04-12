@@ -23,11 +23,9 @@ endif
 CFLAGS += $(EXTRA_CFLAGS)
 CFLAGS += $(DEBUG_CFLAGS)
 CFLAGS += -I.
-CFLAGS += -Isocs/$(CONFIG_SOCNAME)
-CFLAGS += -Icores/$(CONFIG_ARCH)
 CFLAGS += -I..
-CFLAGS += -I../../generated
-CFLAGS += -I$(CORE_DIR) -Icore/$(CONFIG_ARCH) -Isocs/$(CONFIG_SOCNAME) -Iboards/$(CONFIG_BOARDNAME) -Iboards
+CFLAGS += -I../../src/
+CFLAGS += -I$(CORE_DIR) -Icores/$(CONFIG_ARCH)/C -Isocs/$(CONFIG_SOCNAME)/C -Iboards/$(CONFIG_BOARDNAME) -Iboards
 CFLAGS += -ffreestanding
 CFLAGS += -MMD -MP
 

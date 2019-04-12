@@ -25,11 +25,11 @@
 
 #include "autoconf.h"
 #ifdef CONFIG_ARCH_CORTEX_M4
-#include "m4-systick.h"
+#include "C/m4-systick.h"
 #else
 #error "no systick support for other by now!"
 #endif
-#include "soc-usart.h"
+#include "C/soc-usart.h"
 
 /**
  * This is the DBGLOG log levels definition. This is syslog compatible

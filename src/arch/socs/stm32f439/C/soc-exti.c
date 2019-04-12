@@ -24,7 +24,7 @@
 #include "soc-nvic.h"
 #include "soc-interrupts.h"
 #include "soc-rcc.h"
-#include "exported/devices.h"
+#include "C/exported/devices.h"
 
 #define EXTI               REG_ADDR(EXTI_BASE)
 #define EXTI_IMR           REG_ADDR(EXTI_BASE + 0x00)   /*!< Interrupt mask register            */

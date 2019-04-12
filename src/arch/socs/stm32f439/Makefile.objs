@@ -2,26 +2,27 @@ SOC_DIR = $(PROJ_FILES)kernel/src/arch/socs/stm32f439
 
 CFLAGS += -I$(PROJ_FILES)/kernel/src/arch/socs
 CFLAGS += -I$(PROJ_FILES)/kernel/src/arch/socs/stm32f439
+CFLAGS += -I$(PROJ_FILES)/kernel/src/arch/socs/stm32f439/C
 
 socdrv-y :=
 socdrv-bsp-y :=
 
 # this is the Board Support package content
-socdrv-bsp-y += soc-rcc.c
-socdrv-bsp-y += soc-rng.c
-socdrv-bsp-y += soc-interrupts.c
-socdrv-bsp-y += soc-gpio.c
-socdrv-bsp-y += soc-usart.c
-socdrv-bsp-y += soc-exti.c
-socdrv-bsp-y += soc-init.c
-socdrv-bsp-y += soc-devmap.c
-socdrv-bsp-y += default_handlers.c
-socdrv-bsp-y += postpone.c
+socdrv-bsp-y += C/soc-rcc.c
+socdrv-bsp-y += C/soc-rng.c
+socdrv-bsp-y += C/soc-interrupts.c
+socdrv-bsp-y += C/soc-gpio.c
+socdrv-bsp-y += C/soc-usart.c
+socdrv-bsp-y += C/soc-exti.c
+socdrv-bsp-y += C/soc-init.c
+socdrv-bsp-y += C/soc-devmap.c
+socdrv-bsp-y += C/default_handlers.c
+socdrv-bsp-y += C/postpone.c
 # mutually exclusive
-socdrv-bsp-$(CONFIG_KERNEL_DMA_ENABLE) += soc-dma.c
-socdrv-bsp-$(CONFIG_KERNEL_UNSAFE_DMA_ENABLE) += soc-dma.c
+socdrv-bsp-$(CONFIG_KERNEL_DMA_ENABLE) += C/soc-dma.c
+socdrv-bsp-$(CONFIG_KERNEL_UNSAFE_DMA_ENABLE) += C/soc-dma.c
 
-socdrv-bsp-y += soc-dwt.c
+socdrv-bsp-y += C/soc-dwt.c
 
 ifeq ($(CONFIG_ADAKERNEL),y)
 # for Ada equivalent

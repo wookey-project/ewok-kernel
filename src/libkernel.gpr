@@ -1,7 +1,7 @@
 library project Libkernel is
 
    type Build_Size is ("size", "hybrid", "perf");
-   Kernel_Build_Size : Build_Size := external("Build_Size");
+   Kernel_Build_Size : Build_Size := external("KERNEL_ADA_BUILDSIZE");
 
    size_switches := ();
    perfo_switches := ();
@@ -56,7 +56,7 @@ library project Libkernel is
       "Ada",
       "Ada/syscalls",
       "Ada/exported",
-      "../generated/Ada");
+      "Ada/generated");
 
    for Library_Dir   use external("BUILD_DIR") & "/Ada/lib";
    for Object_Dir    use external("BUILD_DIR") & "/Ada";

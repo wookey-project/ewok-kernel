@@ -25,7 +25,7 @@
 
 #include "autoconf.h"
 #include "types.h"
-#include "exported/dmas.h"
+#include "C/exported/dmas.h"
 #include "soc-interrupts.h"
 
 enum dma_controller {

@@ -1,4 +1,4 @@
 KERNEL_DIR := $(PROJ_FILES)/kernel
 
-CFLAGS += -I$(KERNEL_DIR)/src
+CFLAGS += -I$(KERNEL_DIR)/src/C
 

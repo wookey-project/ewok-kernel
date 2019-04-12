@@ -23,7 +23,7 @@
 #ifndef SOC_SCB_H
 #define SOC_SCB_H
 
-#include "regutils.h"
+#include "C/regutils.h"
 #include "soc-core.h"
 
 /* System control block design hints and tips
