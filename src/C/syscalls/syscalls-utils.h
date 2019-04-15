@@ -27,14 +27,6 @@
 #include "exported/syscalls.h"
 #include "tasks.h"
 
-/**
- * Syscall mode (syscall (svc 0) or fastcall (svc 3))
- */
-typedef enum {
-    SYS_CALL_MODE,
-    FAST_CALL_MODE
-} t_call_mode;
-
 /*
  * This function update the target task's state.
  *
