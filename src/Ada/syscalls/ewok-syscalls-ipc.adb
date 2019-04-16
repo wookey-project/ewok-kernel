@@ -29,8 +29,8 @@ with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.sanitize;
 with ewok.perm;
 with ewok.sleep;
+with ewok.debug;
 with types.c;           use types.c;
-with debug;
 
 
 package body ewok.syscalls.ipc

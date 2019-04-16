@@ -20,13 +20,13 @@
 --
 --
 
+with ewok.debug;
 with ewok.tasks;              use ewok.tasks;
 with ewok.tasks_shared;       use ewok.tasks_shared;
 with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices_shared;     use ewok.devices_shared;
 with ewok.devices;
 
-with debug;
 
 package body ewok.syscalls.cfg.dev
    with spark_mode => off

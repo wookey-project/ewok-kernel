@@ -26,8 +26,8 @@ with ada.unchecked_conversion;
 with m4.mpu;   use m4.mpu;
 with ewok.mpu.handler;
 with ewok.layout;
+with ewok.debug;
 with soc.layout;
-with debug;
 with applications; -- generated
 
 package body ewok.mpu

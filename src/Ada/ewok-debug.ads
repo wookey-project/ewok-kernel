@@ -21,8 +21,7 @@
 --
 
 
-
-package debug
+package ewok.debug
    with spark_mode => off
 is
 
@@ -37,4 +36,4 @@ is
    procedure log (level : t_level; s : string);
    procedure panic (s : string);
 
-end debug;
+end ewok.debug;

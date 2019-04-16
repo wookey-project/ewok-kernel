@@ -34,9 +34,8 @@ with m4;
 with m4.scb;
 #end if;
 
-with types;
 
-package body debug
+package body ewok.debug
    with spark_mode => off
 is
 
@@ -108,4 +107,4 @@ is
 
    end panic;
 
-end debug;
+end ewok.debug;

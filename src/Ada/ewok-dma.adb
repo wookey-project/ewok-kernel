@@ -25,6 +25,7 @@ with ewok.sanitize;
 with ewok.tasks;
 with ewok.interrupts;
 with ewok.devices_shared;
+with ewok.debug;
 
 #if CONFIG_KERNEL_DOMAIN
 with ewok.perm;
@@ -34,7 +35,6 @@ with soc.dma;              use soc.dma;
 with soc.dma.interfaces;   use soc.dma.interfaces;
 with soc.nvic;
 with c.socinfo;   use type c.socinfo.t_device_soc_infos_access;
-with debug;
 
 package body ewok.dma
    with spark_mode => off

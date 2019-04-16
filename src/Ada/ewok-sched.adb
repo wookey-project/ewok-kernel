@@ -31,13 +31,13 @@ with ewok.syscalls.handler;
 with ewok.mpu;
 with ewok.layout;
 with ewok.interrupts;
+with ewok.debug;
 with soc.layout;
 with soc.interrupts;
 with soc.dwt;
 with m4.scb;
 with m4.mpu;
 with m4.systick;
-with debug;
 with applications; -- Automatically generated
 
 

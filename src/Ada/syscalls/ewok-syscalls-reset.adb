@@ -23,7 +23,7 @@
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.perm;         use ewok.perm;
-with debug;
+with ewok.debug;
 with m4.scb;
 
 package body ewok.syscalls.reset

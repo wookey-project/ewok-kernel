@@ -22,7 +22,7 @@
 
 with ewok.tasks;        use ewok.tasks;
 with ewok.sanitize;
-with debug;
+with ewok.debug;
 
 package body ewok.syscalls.log
    with spark_mode => off

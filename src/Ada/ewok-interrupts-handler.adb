@@ -24,9 +24,10 @@ with system.machine_code;
 
 with m4.scb;
 with m4.systick;
-with debug;
 with soc.interrupts;       use soc.interrupts;
+with ewok.debug;
 with ewok.tasks;           use ewok.tasks;
+with ewok.tasks.debug;
 with ewok.sched;
 with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use type ewok.devices_shared.t_device_id;
@@ -73,7 +74,7 @@ is
       if cfsr.UFSR.UNALIGNED  then debug.log (debug.ERROR, "+cfsr.UFSR.UNALIGNED"); end if;
       if cfsr.UFSR.DIVBYZERO  then debug.log (debug.ERROR, "+cfsr.UFSR.DIVBYZERO"); end if;
 
-      ewok.tasks.crashdump (frame_a);
+      ewok.tasks.debug.crashdump (frame_a);
       debug.panic ("panic!");
 
       return frame_a;
@@ -115,14 +116,14 @@ is
             else
                debug.panic ("Unhandled exception " & t_interrupt'image (it));
             end if;
-   
+
          else
          -- External interrupts
             -- Execute kernel ISR
             if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
                interrupt_table(it).handler (frame_a);
                new_frame_a := frame_a;
-   
+
             -- User ISR are postponed (asynchronous execution)
             elsif interrupt_table(it).task_id /= ewok.tasks_shared.ID_UNUSED then
                ewok.isr.postpone_isr
@@ -134,32 +135,32 @@ is
                debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
             end if;
          end if;
-   
+
          -- Task's execution mode must be transmitted to the Default_Handler
          -- to run it with the proper privilege (set in the CONTROL register).
          -- The current function uses R0 and R1 registers to return the
          -- following values:
          --    R0 - address of the task frame
          --    R1 - execution mode
-   
+
          current_id := ewok.sched.get_current;
          if current_id /= ID_UNUSED then
             ttype := ewok.tasks.tasks_list(current_id).ttype;
          else
             ttype := TASK_TYPE_KERNEL;
          end if;
-   
+
          system.machine_code.asm
            ("mov r1, %0",
             inputs   => t_task_type'asm_input ("r", ttype),
             clobber  => "r1",
             volatile => true);
-   
+
          return new_frame_a;
 
-      -- 
+      --
       -- Nested exceptions
-      -- 
+      --
       elsif frame_a.all.exc_return = 16#FFFF_FFF1# then
          --debug.log (debug.DEBUG, "Nested interrupt: " & t_interrupt'image (it));
 
@@ -196,9 +197,9 @@ is
 
          return frame_a;
 
-      -- 
+      --
       -- Unsupported EXC_RETURN
-      -- 
+      --
       else
          debug.panic ("EXC_RETURN not supported");
          return frame_a;

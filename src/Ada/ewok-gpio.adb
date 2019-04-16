@@ -20,7 +20,7 @@
 --
 --
 
-with debug;
+with ewok.debug;
 with ewok.exported.gpios; use ewok.exported.gpios;
 with soc.gpio;            use type soc.gpio.t_gpio_pin_index;
                           use type soc.gpio.t_gpio_port_index;

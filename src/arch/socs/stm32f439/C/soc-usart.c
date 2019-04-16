@@ -223,7 +223,6 @@ static void soc_usart_init_gpio(usart_config_t * config)
             rx_config->pupd,
             rx_config->afr);
 
-        /* Configure the */
         break;
     default:
         panic("Wrong usart mode %d.", config->mode);
@@ -271,8 +270,9 @@ void U##type##ART##num##_IRQ_Handler(stack_frame_t *sf __attribute__((unused)))\
 	}\
 }
 
-/* Instantiate the IRQs for the 6 USARTs
- * The weird second macro argument handles the fact that USART 4 and 5 are in
+/*
+ * Instantiate the IRQs for the 6 USARTs
+ * Note: The 2nd macro argument handles the fact that USART 4 and 5 are in
  * UARTs.
  */
 USART_IRQHANDLER(1, S)

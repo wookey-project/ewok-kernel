@@ -23,6 +23,7 @@
 
 with ewok.syscalls;     use ewok.syscalls;
 with ewok.tasks;        use ewok.tasks;
+with ewok.debug;
 with ewok.devices;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
@@ -43,7 +44,6 @@ with soc.interrupts; use type soc.interrupts.t_interrupt;
 with soc.nvic;
 with m4.cpu;
 with m4.cpu.instructions;
-with debug;
 
 #if CONFIG_DBGLEVEL >= 7
 with types.c; use types.c;

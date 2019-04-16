@@ -27,7 +27,7 @@ with ewok.dma_shared;
 with ewok.dma;
 with ewok.perm;
 with ewok.sanitize;
-with debug;
+with ewok.debug;
 
 package body ewok.syscalls.dma
    with spark_mode => off

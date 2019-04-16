@@ -21,10 +21,10 @@
 --
 
 
-with debug;
 with m4.cpu;
 with m4.cpu.instructions;
 with m4.mpu;
+with ewok.debug;
 with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.ipc;             use ewok.ipc;
@@ -720,43 +720,6 @@ is
    begin
       return tasks_list(id).init_done;
    end is_init_done;
-
-
-   procedure crashdump (frame_a : in ewok.t_stack_frame_access)
-   is
-   begin
-      debug.log (debug.ERROR,
-         "registers (frame at " &
-         system_address'image (to_system_address (frame_a)) &
-         ", EXC_RETURN " & unsigned_32'image (frame_a.all.exc_return) & ")");
-
-      debug.log (debug.ERROR,
-         "R0 " & unsigned_32'image (frame_a.all.R0) &
-         ", R1 " & unsigned_32'image (frame_a.all.R1) &
-         ", R2 " & unsigned_32'image (frame_a.all.R2) &
-         ", R3 " & unsigned_32'image (frame_a.all.R3));
-
-      debug.log (debug.ERROR,
-         "R4 " & unsigned_32'image (frame_a.all.R4) &
-         ", R5 " & unsigned_32'image (frame_a.all.R5) &
-         ", R6 " & unsigned_32'image (frame_a.all.R6) &
-         ", R7 " & unsigned_32'image (frame_a.all.R7));
-
-      debug.log (debug.ERROR,
-         "R8 " & unsigned_32'image (frame_a.all.R8) &
-         ", R9 " & unsigned_32'image (frame_a.all.R9) &
-         ", R10 " & unsigned_32'image (frame_a.all.R10) &
-         ", R11 " & unsigned_32'image (frame_a.all.R11));
-
-      debug.log (debug.ERROR,
-         "R12 " & unsigned_32'image (frame_a.all.R12) &
-         ", PC " & unsigned_32'image (frame_a.all.PC) &
-         ", LR " & unsigned_32'image (frame_a.all.LR));
-
-      debug.log (debug.ERROR,
-         "PSR " & unsigned_32'image (m4.cpu.to_unsigned_32 (frame_a.all.PSR)));
-
-   end crashdump;
 
 
 end ewok.tasks;

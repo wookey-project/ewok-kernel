@@ -29,12 +29,12 @@ with ewok.sanitize;
 with ewok.gpio;
 with ewok.exti;
 with ewok.mpu;
+with ewok.debug;
 with soc.nvic;
 with soc.gpio;
 with soc.interrupts;             use soc.interrupts;
 with c.socinfo; use type c.socinfo.t_device_soc_infos_access; use type c.socinfo.t_dev_interrupt_range;
 with types.c;
-with debug;
 
 package body ewok.devices
    with spark_mode => off

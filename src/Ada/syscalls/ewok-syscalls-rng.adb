@@ -20,12 +20,12 @@
 --
 --
 
+with ewok.tasks;        use ewok.tasks;
 with ewok.sanitize;
 with ewok.perm;
-with ewok.tasks;        use ewok.tasks;
+with ewok.debug;
 with types.c;           use type types.c.t_retval;
 with c.kernel;
-with debug;
 
 package body ewok.syscalls.rng
    with spark_mode => off

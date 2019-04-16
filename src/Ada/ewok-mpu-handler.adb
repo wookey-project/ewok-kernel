@@ -23,13 +23,14 @@
 
 with ada.unchecked_conversion;
 with ewok.tasks;           use ewok.tasks;
+with ewok.tasks.debug;
 with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sched;
+with ewok.debug;
 with ewok.interrupts;
 with soc.interrupts;
 with m4.scb;
-with debug;
 
 package body ewok.mpu.handler
    with spark_mode => off
@@ -79,7 +80,7 @@ is
       end if;
 
       debug.log (debug.ERROR, "MPU: task: " & current.all.name);
-      ewok.tasks.crashdump (frame_a);
+      ewok.tasks.debug.crashdump (frame_a);
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state

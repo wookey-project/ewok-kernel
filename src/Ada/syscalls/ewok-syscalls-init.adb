@@ -31,7 +31,7 @@ with ewok.syscalls.dma;
 with ewok.mpu;
 with ewok.perm;
 with ewok.sched;
-with debug;
+with ewok.debug;
 
 package body ewok.syscalls.init
    with spark_mode => off

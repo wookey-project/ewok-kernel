@@ -32,7 +32,7 @@ with ewok.gpio;
 with ewok.tasks_shared;
 with ewok.devices_shared;
 with ewok.isr;
-with debug;
+with ewok.debug;
 
 package body ewok.exti.handler
    with spark_mode => off
