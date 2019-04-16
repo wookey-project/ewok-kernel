@@ -78,7 +78,7 @@ is
    begin
       p_isr_requests.write (isr_queue, req, ok);
       if not ok then
-         debug.panic ("ewok.softirq.push_isr() failed. "
+         debug.panic ("push_isr() failed. "
             & p_isr_requests.ring_state'image
                  (p_isr_requests.state (isr_queue)));
       end if;
@@ -95,7 +95,7 @@ is
    begin
       p_syscall_requests.write (syscall_queue, req, ok);
       if not ok then
-         debug.panic ("ewok.softirq.push_syscall() failed. "
+         debug.panic ("push_syscall() failed. "
             & p_syscall_requests.ring_state'image
                  (p_syscall_requests.state (syscall_queue)));
       end if;
@@ -191,7 +191,7 @@ is
       --
 
       if svc /= SVC_SYSCALL then
-         debug.panic ("ewok.softirq.syscall_handler(): wrong SVC"
+         debug.panic ("syscall_handler(): wrong SVC"
             & ewok.syscalls.t_svc_type'image (svc));
       end if;
 
@@ -339,7 +339,7 @@ is
                   p_isr_requests.write (isr_queue, isr_req, ok);
                   if not ok then
                      debug.panic
-                       ("softirq.main_task() failed to add ISR request");
+                       ("SOFTIRQ failed to add ISR request");
                   end if;
                   ewok.sched.request_schedule;
                   m4.cpu.enable_irq;

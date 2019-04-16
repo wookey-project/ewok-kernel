@@ -48,37 +48,37 @@ is
    begin
 
       if m4.scb.SCB.CFSR.MMFSR.MMARVALID then
-         debug.log (debug.ERROR, "MPU error: MMFAR.ADDRESS = " &
+         debug.log (debug.ERROR, "MPU: MMFAR.ADDRESS = " &
             system_address'image (m4.scb.SCB.MMFAR.ADDRESS));
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MLSPERR then
-         debug.log (debug.ERROR, "MPU error: a MemManage fault occurred during floating-point lazy state preservation");
+         debug.log (debug.ERROR, "MPU: MemManage fault during floating-point lazy state preservation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MSTKERR then
-         debug.log (debug.ERROR, "MPU error: stacking for an exception entry has caused one or more access violation");
+         debug.log (debug.ERROR, "MPU: stacking for an exception entry has caused access violation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.MUNSTKERR then
-         debug.log (debug.ERROR, "MPU error: unstack for an exception return has caused one or more access violation");
+         debug.log (debug.ERROR, "MPU: unstack for an exception return has caused access violation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.DACCVIOL then
-         debug.log (debug.ERROR, "MPU error: the processor attempted a load or store at a location that does not permit the operation");
+         debug.log (debug.ERROR, "MPU: the processor attempted a load or store at a location that does not permit the operation");
       end if;
 
       if m4.scb.SCB.CFSR.MMFSR.IACCVIOL then
-         debug.log (debug.ERROR, "MPU error: the processor attempted an instruction fetch from a location that does not permit execution");
+         debug.log (debug.ERROR, "MPU: the processor attempted an instruction fetch from a location that does not permit execution");
       end if;
 
       current  := ewok.tasks.get_task (ewok.sched.get_current);
 
       if current = NULL then
-         debug.panic ("MPU error: No current task.");
+         debug.panic ("MPU: No current task.");
       end if;
 
-      debug.log (debug.ERROR, "MPU error: task: " & current.all.name);
+      debug.log (debug.ERROR, "MPU: task: " & current.all.name);
       ewok.tasks.crashdump (frame_a);
 
       -- On memory fault, the task is not scheduled anymore
