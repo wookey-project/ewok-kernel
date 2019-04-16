@@ -174,19 +174,19 @@ is
 
          -- Is the sender in the same domain?
 #if CONFIG_KERNEL_DOMAIN
-	      if not ewok.perm.is_same_domain (id_sender, caller_id) then
+         if not ewok.perm.is_same_domain (id_sender, caller_id) then
             debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-	            & ": ipc_do_recv(): sender's domain not granted");
-	         goto ret_denied;
-	      end if;
+               & ": ipc_do_recv(): sender's domain not granted");
+            goto ret_denied;
+         end if;
 #end if;
 
          -- Are ipc granted?
          if not ewok.perm.ipc_is_granted (id_sender, caller_id) then
             debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-	            & ": ipc_do_recv(): not granted to listen task "
+               & ": ipc_do_recv(): not granted to listen task "
                & ewok.tasks.tasks_list(id_sender).name);
             goto ret_denied;
          end if;
@@ -464,7 +464,7 @@ is
       if not ewok.perm.ipc_is_granted (caller_id, id_receiver) then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-	         & ": ipc_do_send() to "
+            & ": ipc_do_send() to "
             & ewok.tasks.tasks_list(id_receiver).name
             & " not granted");
          goto ret_denied;
@@ -538,7 +538,7 @@ is
       if ep.all.state /= ewok.ipc.READY then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-	         & ": ipc_do_send(): invalid endpoint state - maybe a dead lock");
+            & ": ipc_do_send(): invalid endpoint state - maybe a dead lock");
          goto ret_denied;
       end if;
 

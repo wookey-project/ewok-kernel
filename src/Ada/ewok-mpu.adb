@@ -109,7 +109,7 @@ is
 
       m4.mpu.configure_region (region_config);
 
-	   -- Devices
+      -- Devices
       region_config :=
         (region_number  => DEVICES_REGION,
          addr           => soc.layout.PERIPH_BASE,
@@ -122,7 +122,7 @@ is
 
       m4.mpu.configure_region (region_config);
 
-	   -- kernel data + stacks
+      -- kernel data + stacks
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
          debug.log (debug.ERROR, "MPU error: invalid 'KERNEL DATA' region size");
          return;
@@ -140,7 +140,7 @@ is
 
       m4.mpu.configure_region (region_config);
 
-	   -- User data
+      -- User data
       if get_region_size (REGION_SIZE_128KB) /= ewok.layout.USER_RAM_SIZE then
          debug.log (debug.ERROR, "MPU error: invalid 'USER DATA' region size");
          return;
@@ -158,7 +158,7 @@ is
 
       m4.mpu.configure_region (region_config);
 
-	   -- USER code area
+      -- USER code area
       -- Note: This is for the whole area. Each task will use only a fixed
       --       number of sub-regions
       if get_region_size (REGION_SIZE_256KB) /= ewok.layout.FW1_USER_SIZE then

@@ -30,13 +30,6 @@
 
 #define BUF_SIZE	512
 #define BUF_MAX		(BUF_SIZE - 1)
-#define PUT_CHAR(c)					\
-	ring_buffer.buf[ring_buffer.end++] = c;		\
-	ring_buffer.end %= BUF_MAX;			\
-	if (ring_buffer.end == ring_buffer.start) {	\
-		ring_buffer.start++;			\
-		ring_buffer.start %= BUF_MAX;		\
-	}
 
 #ifndef CONFIG_KERNEL_NOSERIAL
 volatile int logging = CONFIG_KERNEL_CONSOLE_TXT;
@@ -114,13 +107,24 @@ void debug_console_init(void)
 #endif
 }
 
+static void PUT_CHAR(const char c)
+{
+	ring_buffer.buf[ring_buffer.end++] = c;
+	ring_buffer.end %= BUF_MAX;
+	if (ring_buffer.end == ring_buffer.start) {
+		ring_buffer.start++;
+		ring_buffer.start %= BUF_MAX;
+	}
+}
+
 /* functions implemented only when serial is activated */
 static void write_digit(uint8_t digit)
 {
-    if (digit < 0xa)
+    if (digit < 0xa) {
         digit += '0';
-    else
+    } else {
         digit += 'a' - 0xa;
+    }
     PUT_CHAR(digit);
 }
 
@@ -169,7 +173,6 @@ void dbg_flush(void)
     ring_buffer.start = ring_buffer.end;
 }
 #endif
-
 
 static void print(const char *fmt, va_list args)
 {

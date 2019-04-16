@@ -96,7 +96,7 @@ is
    FW2_USER_BASE  : constant system_address := FW2_BASE;
    FW2_USER_SIZE  : constant := 256 * KBYTE;
    FW2_KERN_BASE  : constant system_address := FW2_USER_BASE + FW2_USER_SIZE;
-   FW2_START	   : constant system_address := FW2_KERN_BASE + VTORS_SIZE + 1;
+   FW2_START      : constant system_address := FW2_KERN_BASE + VTORS_SIZE + 1;
    FW2_KERN_SIZE  : constant := 64 * KBYTE;
 
 

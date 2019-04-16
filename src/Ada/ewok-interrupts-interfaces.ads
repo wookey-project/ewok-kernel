@@ -26,9 +26,9 @@ package ewok.interrupts.interfaces
 is
 
    procedure init
-	   with
-	      convention     => c,
-	      export         => true,
-	      external_name  => "interrupts_init";
+      with
+         convention     => c,
+         export         => true,
+         external_name  => "interrupts_init";
 
 end ewok.interrupts.interfaces;

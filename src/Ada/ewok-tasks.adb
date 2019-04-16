@@ -88,16 +88,16 @@ is
       frame_a.all.LR    := to_system_address (finished_task'address);
       frame_a.all.PC    := pc;
       frame_a.all.PSR   := m4.cpu.t_PSR_register'
-	     (ISR_NUMBER     => 0,
-	      ICI_IT_lo      => 0,
-	      GE             => 0,
-	      Thumb          => 1,
-	      ICI_IT_hi      => 0,
-	      DSP_overflow   => 0,
-	      Overflow       => 0,
-	      Carry          => 0,
-	      Zero           => 0,
-	      Negative       => 0);
+        (ISR_NUMBER     => 0,
+         ICI_IT_lo      => 0,
+         GE             => 0,
+         Thumb          => 1,
+         ICI_IT_hi      => 0,
+         DSP_overflow   => 0,
+         Overflow       => 0,
+         Carry          => 0,
+         Zero           => 0,
+         Negative       => 0);
 
    end create_stack;
 
@@ -287,23 +287,23 @@ is
 
          set_default_values (tasks_list(id));
 
-	      tasks_list(id).name := applications.list(id).name;
+         tasks_list(id).name := applications.list(id).name;
 
-	      tasks_list(id).entry_point  :=
+         tasks_list(id).entry_point  :=
             user_base
             + to_unsigned_32 (applications.list(id).slot - 1)
                * applications.txt_user_size / 8; -- this is MPU specific
 
-	      if tasks_list(id).entry_point mod 2 = 0 then
-	         tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
-	      end if;
+         if tasks_list(id).entry_point mod 2 = 0 then
+            tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
+         end if;
 
-	      tasks_list(id).ttype := TASK_TYPE_USER;
-	      tasks_list(id).mode  := TASK_MODE_MAINTHREAD;
-	      tasks_list(id).id    := id;
+         tasks_list(id).ttype := TASK_TYPE_USER;
+         tasks_list(id).mode  := TASK_MODE_MAINTHREAD;
+         tasks_list(id).id    := id;
 
-	      tasks_list(id).slot      := applications.list(id).slot;
-	      tasks_list(id).num_slots := applications.list(id).num_slots;
+         tasks_list(id).slot      := applications.list(id).slot;
+         tasks_list(id).num_slots := applications.list(id).num_slots;
 
          tasks_list(id).prio  := applications.list(id).priority;
 
@@ -363,9 +363,9 @@ is
          tasks_list(id).state       := TASK_STATE_RUNNABLE;
          tasks_list(id).isr_state   := TASK_STATE_IDLE;
 
-	      for i in tasks_list(id).ipc_endpoints'range loop
-	         tasks_list(id).ipc_endpoints(i)   := NULL;
-	      end loop;
+         for i in tasks_list(id).ipc_endpoints'range loop
+            tasks_list(id).ipc_endpoints(i)   := NULL;
+         end loop;
 
          -- Zeroing the stack
          declare
@@ -378,7 +378,7 @@ is
          end;
 
          --
-	      -- Create the initial stack frame and set the stack pointer
+         -- Create the initial stack frame and set the stack pointer
          --
 
          -- Getting the stack "canary"
@@ -388,11 +388,11 @@ is
 
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
 
-	      create_stack
-	        (tasks_list(id).stack_top,
-	         tasks_list(id).entry_point,
-	         params,
-	         tasks_list(id).ctx.frame_a);
+         create_stack
+           (tasks_list(id).stack_top,
+            tasks_list(id).entry_point,
+            params,
+            tasks_list(id).ctx.frame_a);
 
          tasks_list(id).isr_ctx.entry_point := applications.list(id).start_isr;
 
