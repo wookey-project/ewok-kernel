@@ -88,15 +88,14 @@ is
       if mode /= TASK_MODE_MAINTHREAD then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): making IPCs while in ISR mode is not allowed!");
+            & ": ipc_do_recv(): IPCs in ISR mode not allowed!");
          goto ret_denied;
       end if;
 
       if not expected_sender'valid then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): invalid id_sender ("
-            & unsigned_32'image (params(1)) & ")");
+            & ": ipc_do_recv(): invalid id_sender");
          goto ret_inval;
       end if;
 
@@ -388,8 +387,7 @@ is
       if not id_receiver'valid then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid id_receiver ("
-            & unsigned_32'image (params(1)) & ")");
+            & ": ipc_do_send(): invalid id_receiver");
          goto ret_inval;
       end if;
 
@@ -415,9 +413,7 @@ is
       if not ewok.tasks.is_real_user (id_receiver) then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid id_receiver ("
-            & unsigned_32'image (params(1))
-            & ")");
+            & ": ipc_do_send(): id_receiver must be a user task");
          goto ret_inval;
       end if;
 

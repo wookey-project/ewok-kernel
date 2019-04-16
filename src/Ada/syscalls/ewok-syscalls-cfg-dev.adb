@@ -102,7 +102,7 @@ is
       if dev.map_mode /= ewok.exported.devices.DEV_MAP_VOLUNTARY then
          debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & "] sys_cfg(CFG_DEV_MAP): not a DEV_MAP_VOLUNTARY device");
+            & ": dev_map(): not a DEV_MAP_VOLUNTARY device");
          goto ret_denied;
       end if;
 

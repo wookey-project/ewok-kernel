@@ -61,11 +61,7 @@ is
    begin
       p_isr_requests.init (isr_queue);
       p_syscall_requests.init (syscall_queue);
-#if CONFIG_DBGLEVEL >= 7
-      debug.log
-        (debug.INFO,
-         "SOFTIRQ initialized");
-#end if;
+      debug.log (debug.INFO, "SOFTIRQ initialized");
    end init;
 
 
@@ -78,9 +74,7 @@ is
    begin
       p_isr_requests.write (isr_queue, req, ok);
       if not ok then
-         debug.panic ("push_isr() failed. "
-            & p_isr_requests.ring_state'image
-                 (p_isr_requests.state (isr_queue)));
+         debug.panic ("push_isr() failed.");
       end if;
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -95,9 +89,7 @@ is
    begin
       p_syscall_requests.write (syscall_queue, req, ok);
       if not ok then
-         debug.panic ("push_syscall() failed. "
-            & p_syscall_requests.ring_state'image
-                 (p_syscall_requests.state (syscall_queue)));
+         debug.panic ("push_syscall() failed.");
       end if;
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -135,7 +127,7 @@ is
             val      : unsigned_8 with address => inst.svc_num'address;
          begin
             if not svc_type'valid then
-               debug.log (debug.ERROR, "invalid SVC: "
+               debug.log (debug.ERROR, "Invalid SVC: "
                   & unsigned_8'image (val));
                ewok.tasks.set_state
                  (req.caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FAULT);
@@ -179,7 +171,7 @@ is
          name : string (1 .. len);
       begin
          to_ada (name, TSK.tasks_list(req.caller_id).name.all);
-         debug.log (debug.INFO, "[" & name & "] svc"
+         debug.log (debug.INFO, name & ": svc"
             & ewok.syscalls.t_svc_type'image (svc)
             & ", syscall" & ewok.syscalls.t_syscall_type'image
             (params_a.all.syscall_type));
@@ -338,8 +330,7 @@ is
                   m4.cpu.disable_irq;
                   p_isr_requests.write (isr_queue, isr_req, ok);
                   if not ok then
-                     debug.panic
-                       ("SOFTIRQ failed to add ISR request");
+                     debug.panic ("SOFTIRQ failed to add ISR request");
                   end if;
                   ewok.sched.request_schedule;
                   m4.cpu.enable_irq;

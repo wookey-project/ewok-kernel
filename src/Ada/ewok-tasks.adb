@@ -396,7 +396,7 @@ is
 
          tasks_list(id).isr_ctx.entry_point := applications.list(id).start_isr;
 
-         debug.log (debug.INFO, "created task " & tasks_list(id).name
+         debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
             & ", sp: " & system_address'image
                            (to_system_address (tasks_list(id).ctx.frame_a))
