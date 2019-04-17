@@ -2,8 +2,8 @@ LIB_NAME ?= libgnat
 PROJ_FILES = ../../../../
 LIB_FULL_NAME = $(LIB_NAME).a
 
-include $(PROJ_FILES)/Makefile.conf
-include $(PROJ_FILES)/Makefile.gen
+include $(PROJ_FILES)/m_config.mk
+include $(PROJ_FILES)/m_generic.mk
 
 APP_BUILD_DIR = $(BUILD_DIR)/kernel/$(LIB_NAME)
 GNATLIB = $(APP_BUILD_DIR)/libabsp.a

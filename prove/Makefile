@@ -1,6 +1,6 @@
 PROJ_FILES = ../../
 
--include $(PROJ_FILES)/Makefile.conf
+-include $(PROJ_FILES)/m_config.mk
 
 all:
 	gnatprove -P prove.gpr --RTS=$(ADA_RUNTIME)/arm-eabi/lib/gnat/zfp-stm32f4 --mode=all -U

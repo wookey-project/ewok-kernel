@@ -6,8 +6,8 @@ LIB_FULL_NAME = $(LIB_NAME).a
 VERSION = 1
 #############################
 
--include $(PROJ_FILES)/Makefile.conf
--include $(PROJ_FILES)/Makefile.gen
+-include $(PROJ_FILES)/m_config.mk
+-include $(PROJ_FILES)/m_generic.mk
 
 -include $(PROJ_FILES)/kernel/src/arch/socs/$(SOC)/Makefile.objs
 -include $(PROJ_FILES)/kernel/src/arch/cores/$(ARCH)/Makefile.objs
