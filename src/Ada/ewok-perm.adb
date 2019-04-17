@@ -29,7 +29,6 @@ package body ewok.perm
   with spark_mode => on
 is
 
-
    function dmashm_is_granted
      (from    : in t_real_task_id;
       to      : in t_real_task_id)
@@ -39,7 +38,7 @@ is
       -- Assertion on the statically built com_dmashm_perm:
       -- a task is not allowed to declare a DMA_SHM to itself
       -- This assertion is a DMA_SHM matrix sanitation
-      pragma Assert
+      pragma assert
          (for all x in t_real_task_id =>
             (not ewok.perm_auto.com_dmashm_perm(x,x)));
       return ewok.perm_auto.com_dmashm_perm (from, to);
@@ -55,7 +54,7 @@ is
       -- Assertion on the statically built com_ipc_perm:
       -- a task is not allowed to declare an IPC channel to itself
       -- This assertion is an IPC matrix sanitation
-      pragma Assert
+      pragma assert
          (for all x in t_real_task_id =>
             (not ewok.perm_auto.com_ipc_perm(x,x)));
       return ewok.perm_auto.com_ipc_perm (from, to);

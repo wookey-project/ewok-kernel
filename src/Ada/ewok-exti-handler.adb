@@ -131,9 +131,9 @@ is
 
       if conf = NULL then
          soc.nvic.clear_pending_irq (soc.nvic.to_irq_number (interrupt));
-         debug.log (debug.ERROR, "unable to find GPIO informations for port" &
+         pragma DEBUG (debug.log (debug.ERROR, "unable to find GPIO informations for port" &
             t_gpio_port_index'image (ref.port) & ", pin" &
-            t_gpio_pin_index'image (ref.pin));
+            t_gpio_pin_index'image (ref.pin)));
       else
          task_id  := ewok.gpio.get_task_id (ref);
 

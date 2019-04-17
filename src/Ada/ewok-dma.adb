@@ -270,18 +270,18 @@ is
    begin
 
       if not ewok.tasks.is_real_user (shm.granted_id) then
-         debug.log (debug.ERROR, "sanitize_dma_shm(): wrong target");
+         pragma DEBUG (debug.log (debug.ERROR, "sanitize_dma_shm(): wrong target"));
          return false;
       end if;
 
       if shm.accessed_id /= caller_id then
-         debug.log (debug.ERROR, "sanitize_dma_shm(): wrong caller");
+         pragma DEBUG (debug.log (debug.ERROR, "sanitize_dma_shm(): wrong caller"));
          return false;
       end if;
 
 #if CONFIG_KERNEL_DOMAIN
       if not ewok.perm.is_same_domain (shm.granted_id, shm.accessed_id) then
-         debug.log (debug.ERROR, "sanitize_dma_shm(): not same domain");
+         pragma DEBUG (debug.log (debug.ERROR, "sanitize_dma_shm(): not same domain"));
          return false;
       end if;
 #end if;
@@ -291,7 +291,7 @@ is
          not ewok.sanitize.is_range_in_devices_slot
               (shm.base, shm.size, caller_id)
       then
-         debug.log (debug.ERROR, "sanitize_dma_shm(): shm not in range");
+         pragma DEBUG (debug.log (debug.ERROR, "sanitize_dma_shm(): shm not in range"));
          return false;
       end if;
 
@@ -339,9 +339,9 @@ is
                   user_config.in_priority;
 
             when MEMORY_TO_MEMORY      =>
-               debug.log
+               pragma DEBUG (debug.log
                  (debug.ERROR,
-                  "reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
+                  "reconfigure_stream(): MEMORY_TO_MEMORY not implemented"));
                success := false;
                return;
          end case;
@@ -384,7 +384,7 @@ is
                end if;
 
             when MEMORY_TO_MEMORY      =>
-               debug.log (debug.ERROR, "reconfigure_stream(): MEMORY_TO_MEMORY not implemented");
+               pragma DEBUG (debug.log (debug.ERROR, "reconfigure_stream(): MEMORY_TO_MEMORY not implemented"));
                success := false;
                return;
          end case;
@@ -426,7 +426,7 @@ is
       -- Find a free entry in the registered_dma array
       get_registered_dma_entry (index, ok);
       if not ok then
-         debug.log ("dma.init(): no DMA entry available");
+         pragma DEBUG (debug.log ("dma.init(): no DMA entry available"));
          success := false;
          return;
       end if;
@@ -458,7 +458,7 @@ is
            (user_config.controller, user_config.stream);
 
       if registered_dma(index).devinfo = NULL then
-         debug.log ("dma.init(): unknown DMA device");
+         pragma DEBUG (debug.log ("dma.init(): unknown DMA device"));
          success := false;
          return;
       end if;
@@ -494,7 +494,7 @@ is
             end if;
 
          when MEMORY_TO_MEMORY      =>
-            debug.log ("dma.init(): MEMORY_TO_MEMORY not implemented");
+            pragma DEBUG (debug.log ("dma.init(): MEMORY_TO_MEMORY not implemented"));
             success := false;
             return;
       end case;

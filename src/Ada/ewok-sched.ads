@@ -27,6 +27,8 @@ package ewok.sched
    with spark_mode => on
 is
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    -- SPARK/ghost specific function
    function current_task_is_valid
       return boolean

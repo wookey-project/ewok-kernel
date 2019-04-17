@@ -40,6 +40,8 @@ package body ewok.devices
    with spark_mode => off
 is
 
+   --pragma debug_policy (IGNORE);
+
    procedure init
    is begin
       for i in registered_device'range loop
@@ -177,7 +179,7 @@ is
          devinfo := c.socinfo.soc_devmap_find_device
            (udev.all.base_addr, udev.all.size);
          if devinfo = NULL then
-            debug.log (debug.ERROR, "Device not existing: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "Device not existing: " & name));
             success := false;
             return;
          end if;
@@ -191,7 +193,7 @@ is
             registered_device(id).devinfo /= NULL and then
             registered_device(id).devinfo = devinfo
          then
-            debug.log (debug.ERROR, "Device already used: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "Device already used: " & name));
             success := false;
             return;
          end if;
@@ -200,7 +202,7 @@ is
       -- Are the GPIOs already used ?
       for i in 1 .. udev.gpio_num loop
          if ewok.gpio.is_used (udev.gpios(i).kref) then
-            debug.log (debug.ERROR, "GPIOs already used: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "GPIOs already used: " & name));
             success := false;
             return;
          end if;
@@ -211,7 +213,7 @@ is
          if boolean (udev.gpios(i).settings.set_exti) and then
             ewok.exti.is_used (udev.gpios(i).kref)
          then
-            debug.log (debug.ERROR, "EXTIs already used: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "EXTIs already used: " & name));
             success := false;
             return;
          end if;
@@ -233,7 +235,7 @@ is
          end loop inner_loop;
 
          if not found then
-            debug.log (debug.ERROR, "Invalid interrupts: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "Invalid interrupts: " & name));
             success := false;
             return;
          end if;
@@ -244,7 +246,7 @@ is
          if ewok.interrupts.is_interrupt_already_used
               (udev.interrupts(i).interrupt)
          then
-            debug.log (debug.ERROR, "Interrupts already used: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "Interrupts already used: " & name));
             success := false;
             return;
          end if;
@@ -254,13 +256,13 @@ is
       get_registered_device_entry (dev_id, success);
 
       if not success then
-         debug.log (debug.ERROR, "register_device(): no free slot!");
+         pragma DEBUG (debug.log (debug.ERROR, "register_device(): no free slot!"));
          return;
       end if;
 
       -- Registering the device
-      debug.log (debug.INFO, "Registered device: " & name & " (0x" &
-         system_address'image (udev.all.base_addr) & ")");
+      pragma DEBUG (debug.log (debug.INFO, "Registered device: " & name &
+         " (0x" & system_address'image (udev.all.base_addr) & ")"));
 
       registered_device(dev_id).udev      := t_checked_user_device (udev.all);
       registered_device(dev_id).task_id   := task_id;
@@ -278,11 +280,11 @@ is
             raise program_error;
          end if;
 
-         debug.log (debug.INFO,
+         pragma DEBUG (debug.log (debug.INFO,
             "Registered GPIO port" &
             soc.gpio.t_gpio_port_index'image (udev.gpios(i).kref.port) &
             " pin " &
-            soc.gpio.t_gpio_pin_index'image (udev.gpios(i).kref.pin));
+            soc.gpio.t_gpio_pin_index'image (udev.gpios(i).kref.pin)));
       end loop;
 
       -- Registering EXTIs
@@ -378,7 +380,7 @@ is
          interrupt := registered_device(dev_id).udev.interrupts(i).interrupt;
          irq       := soc.nvic.to_irq_number (interrupt);
          soc.nvic.enable_irq (irq);
-         debug.log (debug.INFO, "IRQ enabled: " & soc.nvic.t_irq_index'image (irq));
+         pragma DEBUG (debug.log (debug.INFO, "IRQ enabled: " & soc.nvic.t_irq_index'image (irq)));
       end loop;
 
       -- Enable device's clock
@@ -398,7 +400,7 @@ is
             name : string (1 .. types.c.len (udev.name));
          begin
             types.c.to_ada (name, udev.name);
-            debug.log (debug.INFO, "Enabled device: " & name);
+            pragma DEBUG (debug.log (debug.INFO, "Enabled device: " & name));
          end;
       end if;
 
@@ -418,20 +420,20 @@ is
       if not ewok.sanitize.is_word_in_txt_slot
             (to_system_address (config.handler), task_id)
       then
-         debug.log (debug.ERROR, "Handler not in .text section");
+         pragma DEBUG (debug.log (debug.ERROR, "Handler not in .text section"));
          return false;
       end if;
 
       if config.interrupt not in INT_WWDG .. INT_HASH_RNG
       then
-         debug.log (debug.ERROR, "Interrupt not in range");
+         pragma DEBUG (debug.log (debug.ERROR, "Interrupt not in range"));
          return false;
       end if;
 
       if config.mode = ISR_FORCE_MAINTHREAD and then
          not ewok.perm.ressource_is_granted (PERM_RES_TSK_FISR, task_id)
       then
-         debug.log (debug.ERROR, "ISR_FORCE_MAINTHREAD not allowed");
+         pragma DEBUG (debug.log (debug.ERROR, "ISR_FORCE_MAINTHREAD not allowed"));
          return false;
       end if;
 
@@ -442,7 +444,7 @@ is
       for i in 1 .. MAX_POSTHOOK_INSTR loop
 
          if not config.posthook.action(i).instr'valid then
-            debug.log (debug.ERROR, "Posthook: invalid action requested");
+            pragma DEBUG (debug.log (debug.ERROR, "Posthook: invalid action requested"));
             return false;
          end if;
 
@@ -453,7 +455,7 @@ is
                if config.posthook.action(i).read.offset > udev.all.size - 4 or
                   (config.posthook.action(i).read.offset and 2#11#) > 0
                then
-                  debug.log (debug.ERROR, "Posthook: wrong READ offset");
+                  pragma DEBUG (debug.log (debug.ERROR, "Posthook: wrong READ offset"));
                   return false;
                end if;
 
@@ -461,7 +463,7 @@ is
                if config.posthook.action(i).write.offset > udev.all.size - 4 or
                   (config.posthook.action(i).write.offset and 2#11#) > 0
                then
-                  debug.log (debug.ERROR, "Posthook: wrong WRITE offset");
+                  pragma DEBUG (debug.log (debug.ERROR, "Posthook: wrong WRITE offset"));
                   return false;
                end if;
 
@@ -475,7 +477,7 @@ is
                   or (config.posthook.action(i).write_reg.offset_src and 2#11#)
                         > 0
                then
-                  debug.log (debug.ERROR, "Posthook: wrong AND offset");
+                  pragma DEBUG (debug.log (debug.ERROR, "Posthook: wrong AND offset"));
                   return false;
                end if;
 
@@ -494,7 +496,7 @@ is
                   or (config.posthook.action(i).write_mask.offset_mask and 2#11#)
                         > 0
                then
-                  debug.log (debug.ERROR, "Posthook: wrong MASK offset");
+                  pragma DEBUG (debug.log (debug.ERROR, "Posthook: wrong MASK offset"));
                   return false;
                end if;
          end case;
@@ -518,20 +520,20 @@ is
       if config.exti_trigger /= GPIO_EXTI_TRIGGER_NONE and then
          not ewok.perm.ressource_is_granted (PERM_RES_DEV_EXTI, task_id)
       then
-         debug.log (debug.ERROR, "PERM_RES_DEV_EXTI not allowed");
+         pragma DEBUG (debug.log (debug.ERROR, "PERM_RES_DEV_EXTI not allowed"));
          return false;
       end if;
 
       if config.exti_handler /= 0 and then
          not ewok.sanitize.is_word_in_txt_slot (config.exti_handler, task_id)
       then
-         debug.log (debug.ERROR, "EXTI handler not in .text section");
+         pragma DEBUG (debug.log (debug.ERROR, "EXTI handler not in .text section"));
          return false;
       end if;
 
       if not config.exti_lock'valid
       then
-         debug.log (debug.ERROR, "EXTI invalid lock mode");
+         pragma DEBUG (debug.log (debug.ERROR, "EXTI invalid lock mode"));
          return false;
       end if;
 
@@ -554,7 +556,7 @@ is
 
       if udev.all.name(t_device_name'last) /= ASCII.NUL then
          types.c.to_ada (name, udev.all.name(1 .. t_device_name'length));
-         debug.log (debug.ERROR, "Out-of-bound device name: " & name);
+         pragma DEBUG (debug.log (debug.ERROR, "Out-of-bound device name: " & name));
          return false;
       else
          types.c.to_ada (name, udev.all.name);
@@ -565,14 +567,14 @@ is
             c.socinfo.soc_devmap_find_device (udev.all.base_addr, udev.all.size);
 
          if devinfo = NULL then
-            debug.log (debug.ERROR, "Device at addr" & system_address'image
+            pragma DEBUG (debug.log (debug.ERROR, "Device at addr" & system_address'image
                (udev.all.base_addr) & " with size" & unsigned_32'image (udev.all.size) &
-               ": not found");
+               ": not found"));
             return false;
          end if;
 
          if not ewok.perm.ressource_is_granted (devinfo.minperm, task_id) then
-            debug.log (debug.ERROR, "No access to device: " & name);
+            pragma DEBUG (debug.log (debug.ERROR, "No access to device: " & name));
             return false;
          end if;
       end if;
@@ -581,7 +583,7 @@ is
          ok := sanitize_user_defined_interrupt
                  (udev, udev.all.interrupts(i), task_id);
          if not ok then
-            debug.log (debug.ERROR, name & ": invalid udev.interrupts parameter");
+            pragma DEBUG (debug.log (debug.ERROR, name & ": invalid udev.interrupts parameter"));
             return false;
          end if;
       end loop;
@@ -589,14 +591,14 @@ is
       for i in 1 .. udev.all.gpio_num loop
          ok := sanitize_user_defined_gpio (udev, udev.all.gpios(i), task_id);
          if not ok then
-            debug.log (debug.ERROR, name & ": invalid udev.gpios parameter");
+            pragma DEBUG (debug.log (debug.ERROR, name & ": invalid udev.gpios parameter"));
             return false;
          end if;
       end loop;
 
       if udev.all.map_mode = DEV_MAP_VOLUNTARY then
          if not ewok.perm.ressource_is_granted (PERM_RES_MEM_DYNAMIC_MAP, task_id) then
-            debug.log (debug.ERROR, name & ": voluntary mapping not permited");
+            pragma DEBUG (debug.log (debug.ERROR, name & ": voluntary mapping not permited"));
             return false;
         end if;
       end if;
@@ -618,7 +620,7 @@ is
    begin
 
       if dev_id = ID_DEV_UNUSED then
-         debug.log ("mpu_mapping_device(): unused device");
+         pragma DEBUG (debug.log ("mpu_mapping_device(): unused device"));
          success := false;
          return;
       end if;
@@ -626,7 +628,7 @@ is
       dev_size := get_user_device_size (dev_id);
 
       if dev_size = 0 then
-         debug.log ("mpu_mapping_device(): device size = 0");
+         pragma DEBUG (debug.log ("mpu_mapping_device(): device size = 0"));
          success := false;
          return;
       end if;
@@ -635,7 +637,8 @@ is
         (dev_size, mpu_region_size, ok);
 
       if not ok then
-         debug.log ("mpu_mapping_device(): bytes_to_region_size() failed!");
+         pragma DEBUG
+           (debug.log ("mpu_mapping_device(): bytes_to_region_size() failed!"));
          success := false;
          return;
       end if;

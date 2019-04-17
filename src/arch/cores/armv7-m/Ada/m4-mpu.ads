@@ -128,6 +128,10 @@ is
       is (2**(natural (size) + 1) - 1)
       with ghost;
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+   pragma warnings (off, "explicit membership test may be optimized");
+   pragma warnings (off, "condition can only be False if invalid values present");
+
    procedure configure_region
      (region   : in t_region_config)
       with
@@ -156,6 +160,7 @@ is
             (region.addr and get_region_size_mask(region.size)) = 0)
             and region_not_rwx (region);
 
+   pragma warnings (on);
 
    -----------------------
    -- MPU Type Register --

@@ -55,6 +55,8 @@ is
    -- Functions --
    ---------------
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    --
    -- \brief test if a task is allow to declare a DMA SHM with another task
    --

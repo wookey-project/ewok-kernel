@@ -217,6 +217,8 @@ is
    -- Methods --
    -------------
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    function to_irq_number
      (intr : soc.interrupts.t_interrupt)
       return t_irq_index

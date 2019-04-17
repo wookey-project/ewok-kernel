@@ -63,9 +63,9 @@ is
       ref : constant ewok.exported.gpios.t_gpio_ref := conf_a.all.kref;
    begin
       if gpio_points(ref.port, ref.pin).used then
-         debug.log (debug.ERROR, "Registering GPIO: port" &
+         pragma DEBUG (debug.log (debug.ERROR, "Registering GPIO: port" &
             soc.gpio.t_gpio_port_index'image (ref.port) & ", pin" &
-            soc.gpio.t_gpio_pin_index'image (ref.pin) & " is already used.");
+            soc.gpio.t_gpio_pin_index'image (ref.pin) & " is already used."));
          success := false;
       else
          gpio_points(ref.port, ref.pin).used       := true;

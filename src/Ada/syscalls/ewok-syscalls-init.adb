@@ -78,8 +78,8 @@ is
                 udev'size/8,
                 caller_id))
       then
-         debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): udev not in task's memory space");
+         pragma DEBUG (debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): udev not in task's memory space"));
          goto ret_denied;
       end if;
 
@@ -87,15 +87,15 @@ is
          not ewok.sanitize.is_word_in_data_slot
                (to_system_address (descriptor'address), caller_id, mode)
       then
-         debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): descriptor not in task's memory space");
+         pragma DEBUG (debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): descriptor not in task's memory space"));
          goto ret_denied;
       end if;
 
       -- Ada based sanitization
       if not udev'valid_scalars
       then
-         debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev scalars");
+         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev scalars"));
          goto ret_inval;
       end if;
 
@@ -103,13 +103,13 @@ is
          not ewok.devices.sanitize_user_defined_device
                  (udev'unchecked_access, caller_id)
       then
-         debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev");
+         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev"));
          goto ret_inval;
       end if;
 
       if TSK.tasks_list(caller_id).num_devs = TSK.MAX_DEVS_PER_TASK then
-         debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): no space left to register the device");
+         pragma DEBUG (debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): no space left to register the device"));
          goto ret_busy;
       end if;
 
@@ -117,8 +117,8 @@ is
          udev.map_mode = DEV_MAP_AUTO  and
          TSK.tasks_list(caller_id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS
       then
-         debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): no free region left to map the device");
+         pragma DEBUG (debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): no free region left to map the device"));
          goto ret_busy;
       end if;
 
@@ -129,8 +129,8 @@ is
       ewok.devices.register_device (caller_id, udev'unchecked_access, dev_id, ok);
 
       if not ok then
-         debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): failed to register the device");
+         pragma DEBUG (debug.log (debug.ERROR,
+            "init_do_reg_devaccess(): failed to register the device"));
          goto ret_denied;
       end if;
 

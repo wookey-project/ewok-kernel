@@ -58,6 +58,8 @@ is
    -- Functions --
    ---------------
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    -- Initialize the MPU
    procedure init
      (success : out boolean)
@@ -67,6 +69,8 @@ is
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
       is (2**(natural (size) + 1) - 1)
       with ghost;
+
+   pragma warnings (off, "condition can only be False if invalid values present");
 
    procedure regions_schedule
      (region_number  : in  m4.mpu.t_region_number;
@@ -84,6 +88,8 @@ is
             size >= 4
             and
             (addr and get_region_size_mask(size)) = 0);
+
+   pragma warnings (on);
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;

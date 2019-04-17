@@ -34,7 +34,6 @@ package body ewok.mpu
   with spark_mode => on
 is
 
-
    procedure init
      (success : out boolean)
      with spark_mode => off  -- handler is not SPARK compatible
@@ -54,7 +53,7 @@ is
       m4.mpu.is_mpu_available (success);
 
       if not success then
-         debug.log (debug.ERROR, "No MPU!");
+         pragma DEBUG (debug.log (debug.ERROR, "No MPU!"));
          return;
       end if;
 
@@ -74,7 +73,7 @@ is
 
       -- SHR
       if get_region_size (REGION_SIZE_32KB) /= ewok.layout.SHR_SIZE then
-         debug.log (debug.ERROR, "MPU: invalid 'SHARED' size");
+         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'SHARED' size"));
          return;
       end if;
 
@@ -93,7 +92,7 @@ is
 
       -- Kernel code
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.FW1_KERN_SIZE then
-         debug.log (debug.ERROR, "MPU: invalid 'KERNEL CODE' size");
+         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'KERNEL CODE' size"));
          return;
       end if;
 
@@ -124,7 +123,7 @@ is
 
       -- kernel data + stacks
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
-         debug.log (debug.ERROR, "MPU: invalid 'KERNEL DATA' size");
+         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'KERNEL DATA' size"));
          return;
       end if;
 
@@ -142,7 +141,7 @@ is
 
       -- User data
       if get_region_size (REGION_SIZE_128KB) /= ewok.layout.USER_RAM_SIZE then
-         debug.log (debug.ERROR, "MPU: invalid 'USER DATA' size");
+         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'USER DATA' size"));
          return;
       end if;
 
@@ -162,7 +161,7 @@ is
       -- Note: This is for the whole area. Each task will use only a fixed
       --       number of sub-regions
       if get_region_size (REGION_SIZE_256KB) /= ewok.layout.FW1_USER_SIZE then
-         debug.log (debug.ERROR, "MPU: invalid 'USER CODE' size");
+         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'USER CODE' size"));
          return;
       end if;
 
@@ -191,9 +190,9 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      debug.log (debug.INFO, "MPU is configured");
+      pragma DEBUG (debug.log (debug.INFO, "MPU is configured"));
       m4.mpu.enable;
-      debug.log (debug.INFO, "MPU is enabled");
+      pragma DEBUG (debug.log (debug.INFO, "MPU is enabled"));
 
    end init;
 

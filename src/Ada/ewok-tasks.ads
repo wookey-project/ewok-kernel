@@ -182,6 +182,8 @@ is
    -- Functions --
    ---------------
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    procedure idle_task with no_return;
    procedure finished_task with no_return;
 

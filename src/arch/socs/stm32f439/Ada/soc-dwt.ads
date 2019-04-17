@@ -38,6 +38,8 @@ package soc.dwt
       initializes => (Ctrl, Cnt, Dem, Ini_F) -- assumed as initialized
 is
 
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    -----------------------------------------------------
    -- SPARK ghost functions and procedures
    -----------------------------------------------------

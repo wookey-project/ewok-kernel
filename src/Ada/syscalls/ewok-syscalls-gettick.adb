@@ -52,9 +52,9 @@ is
       if not ewok.sanitize.is_range_in_data_slot
                (to_system_address (value'address), 8, caller_id, mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_gettick(): 'value' parameter not in caller space");
+            & ": sys_gettick(): 'value' parameter not in caller space"));
          goto ret_inval;
       end if;
 

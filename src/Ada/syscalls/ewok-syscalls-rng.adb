@@ -62,9 +62,9 @@ is
                   caller_id,
                   mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): 'value' parameter not in caller space");
+            & ": sys_get_random(): 'value' parameter not in caller space"));
          goto ret_inval;
       end if;
 
@@ -78,9 +78,9 @@ is
       if not ewok.perm.ressource_is_granted
                (ewok.perm.PERM_RES_TSK_RNG, caller_id)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): permission not granted");
+            & ": sys_get_random(): permission not granted"));
          goto ret_denied;
       end if;
 
@@ -93,9 +93,9 @@ is
       --       syscall to avoid using weak random content
 
       if c.kernel.get_random (buffer, length) /= types.c.SUCCESS then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): weak seed");
+            & ": sys_get_random(): weak seed"));
          goto ret_busy;
       end if;
 

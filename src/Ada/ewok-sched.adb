@@ -258,10 +258,7 @@ is
       elected := ID_KERNEL;
 
    <<ok_return>>
-
-#if CONFIG_DBGLEVEL > 6
-      debug.log (debug.DEBUG, "task " & t_task_id'image (elected) & " elected");
-#end if;
+      --pragma DEBUG (debug.log (debug.DEBUG, "task " & t_task_id'image (elected) & " elected"));
       return elected;
 
    end task_elect;

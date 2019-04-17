@@ -43,7 +43,7 @@ is
    procedure idle_task
    is
    begin
-      debug.log (debug.INFO, "IDLE thread");
+      pragma DEBUG (debug.log (debug.INFO, "IDLE thread"));
       m4.cpu.enable_irq;
       loop
          m4.cpu.instructions.wait_for_interrupt;
@@ -64,7 +64,6 @@ is
       params   : in  ewok.t_parameters;
       frame_a  : out ewok.t_stack_frame_access)
    is
-      pragma Assertion_Policy (Pre  => Check);
    begin
 
       frame_a := to_stack_frame_access (sp - (t_stack_frame'size / 8));
@@ -204,11 +203,11 @@ is
          tasks_list(ID_SOFTIRQ).ipc_endpoints(i)   := NULL;
       end loop;
 
-      debug.log (debug.INFO, "Created SOFTIRQ context (pc: "
+      pragma DEBUG (debug.log (debug.INFO, "Created SOFTIRQ context (pc: "
          & system_address'image (tasks_list(ID_SOFTIRQ).entry_point)
          & ") sp: "
          & system_address'image
-            (to_system_address (tasks_list(ID_SOFTIRQ).ctx.frame_a)));
+            (to_system_address (tasks_list(ID_SOFTIRQ).ctx.frame_a))));
 
    end init_softirq_task;
 
@@ -261,11 +260,11 @@ is
          tasks_list(ID_KERNEL).ipc_endpoints(i)   := NULL;
       end loop;
 
-      debug.log (debug.INFO, "Created context for IDLE task (pc: "
+      pragma DEBUG (debug.log (debug.INFO, "Created context for IDLE task (pc: "
          & system_address'image (tasks_list(ID_KERNEL).entry_point)
          & ") sp: "
          & system_address'image
-            (to_system_address (tasks_list(ID_KERNEL).ctx.frame_a)));
+            (to_system_address (tasks_list(ID_KERNEL).ctx.frame_a))));
 
    end init_idle_task;
 
@@ -396,11 +395,11 @@ is
 
          tasks_list(id).isr_ctx.entry_point := applications.list(id).start_isr;
 
-         debug.log (debug.INFO, "Created task " & tasks_list(id).name
+         pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
             & ", sp: " & system_address'image
                            (to_system_address (tasks_list(id).ctx.frame_a))
-            & ", ID" & t_task_id'image (id) & ")");
+            & ", ID" & t_task_id'image (id) & ")"));
       end loop;
 
    end init_apps;
@@ -547,7 +546,6 @@ is
       descriptor  : out unsigned_8;
       success     : out boolean)
    is
-      pragma Assertion_Policy (Post => Check);
    begin
 
       if tasks_list(id).num_devs = MAX_DEVS_PER_TASK then

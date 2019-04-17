@@ -34,6 +34,7 @@ is
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean;
 
+   pragma warnings (off, "explicit membership test may be optimized");
 
    function is_word_in_data_slot
      (ptr      : system_address;
@@ -110,5 +111,7 @@ is
          -- there is now hypothesis on input values, yet we impose some
          -- specific behavior for various overflows
          post       => (if (ptr + size not in system_address'range) then is_range_in_dma_shm'result = false);
+
+   pragma warnings (on);
 
 end ewok.sanitize;

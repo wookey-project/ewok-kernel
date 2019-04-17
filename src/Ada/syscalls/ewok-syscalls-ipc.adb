@@ -37,6 +37,8 @@ package body ewok.syscalls.ipc
    with spark_mode => off
 is
 
+   --pragma debug_policy (IGNORE);
+
    procedure ipc_do_recv
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
@@ -73,10 +75,10 @@ is
    begin
 
       --if expected_sender = ewok.ipc.ANY_APP then
-      --   debug.log (debug.DEBUG, "ipc_do_recv(): "
+      --   pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_recv(): "
       --      & ewok.tasks.tasks_list(caller_id).name & " <- ANY");
       --else
-      --   debug.log (debug.DEBUG, "ipc_do_recv(): "
+      --   pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_recv(): "
       --      & ewok.tasks.tasks_list(caller_id).name & " <- "
       --      & ewok.tasks.tasks_list(ewok.ipc.to_task_id(expected_sender)).name);
       --end if;
@@ -86,24 +88,24 @@ is
       --------------------------
 
       if mode /= TASK_MODE_MAINTHREAD then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): IPCs in ISR mode not allowed!");
+            & ": ipc_do_recv(): IPCs in ISR mode not allowed!"));
          goto ret_denied;
       end if;
 
       if not expected_sender'valid then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): invalid id_sender");
+            & ": ipc_do_recv(): invalid id_sender"));
          goto ret_inval;
       end if;
 
       -- Task initialization is complete ?
       if not ewok.tasks.is_init_done (caller_id) then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): initialization not completed");
+            & ": ipc_do_recv(): initialization not completed"));
          goto ret_denied;
       end if;
 
@@ -111,9 +113,9 @@ is
       if not ewok.sanitize.is_word_in_data_slot
                (to_system_address (size'address), caller_id, mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'size' parameter not in task's address space");
+            & ": ipc_do_recv(): 'size' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -121,9 +123,9 @@ is
       if not ewok.sanitize.is_word_in_data_slot
                (to_system_address (expected_sender'address), caller_id, mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'expected_sender' parameter not in task's address space");
+            & ": ipc_do_recv(): 'expected_sender' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -131,9 +133,9 @@ is
       if not ewok.sanitize.is_range_in_data_slot
                (to_system_address (buf'address), unsigned_32 (size), caller_id, mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'buffer' parameter not in task's address space");
+            & ": ipc_do_recv(): 'buffer' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -150,9 +152,9 @@ is
 
          -- Is the sender is an existing user task?
          if not ewok.tasks.is_real_user (id_sender) then
-            debug.log (debug.ERROR,
+            pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): invalid id_sender");
+               & ": ipc_do_recv(): invalid id_sender"));
             goto ret_inval;
          end if;
 
@@ -165,28 +167,28 @@ is
 
          -- A task can't send a message to itself
          if caller_id = id_sender then
-            debug.log (debug.ERROR,
+            pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): sender and receiver are the same");
+               & ": ipc_do_recv(): sender and receiver are the same"));
             goto ret_inval;
          end if;
 
          -- Is the sender in the same domain?
 #if CONFIG_KERNEL_DOMAIN
          if not ewok.perm.is_same_domain (id_sender, caller_id) then
-            debug.log (debug.ERROR,
+            pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): sender's domain not granted");
+               & ": ipc_do_recv(): sender's domain not granted"));
             goto ret_denied;
          end if;
 #end if;
 
          -- Are ipc granted?
          if not ewok.perm.ipc_is_granted (id_sender, caller_id) then
-            debug.log (debug.ERROR,
+            pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
                & ": ipc_do_recv(): not granted to listen task "
-               & ewok.tasks.tasks_list(id_sender).name);
+               & ewok.tasks.tasks_list(id_sender).name));
             goto ret_denied;
          end if;
 
@@ -281,9 +283,9 @@ is
 
       -- Copying the message in the receiver's buffer
       if ep.all.size > size then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): IPC message overflows, buffer is too small");
+            & ": ipc_do_recv(): IPC message overflows, buffer is too small"));
          goto ret_inval;
       end if;
 
@@ -369,7 +371,7 @@ is
 
    begin
 
-      --debug.log (debug.DEBUG, "ipc_do_send(): "
+      --pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_send(): "
       --   & ewok.tasks.tasks_list(caller_id).name & " -> "
       --   & ewok.tasks.tasks_list(id_receiver).name);
 
@@ -378,24 +380,24 @@ is
       --------------------------
 
       if mode /= TASK_MODE_MAINTHREAD then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): making IPCs while in ISR mode is not allowed!");
+            & ": ipc_do_send(): making IPCs while in ISR mode is not allowed!"));
          goto ret_denied;
       end if;
 
       if not id_receiver'valid then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid id_receiver");
+            & ": ipc_do_send(): invalid id_receiver"));
          goto ret_inval;
       end if;
 
       -- Task initialization is complete ?
       if not is_init_done (caller_id) then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): initialization not completed");
+            & ": ipc_do_send(): initialization not completed"));
          goto ret_denied;
       end if;
 
@@ -403,17 +405,17 @@ is
       if not ewok.sanitize.is_range_in_data_slot
                (to_unsigned_32 (buf'address), unsigned_32 (size), caller_id, mode)
       then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): 'buffer' not in caller space");
+            & ": ipc_do_send(): 'buffer' not in caller space"));
          goto ret_inval;
       end if;
 
       -- Verifying that the receiver id corresponds to a user application
       if not ewok.tasks.is_real_user (id_receiver) then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): id_receiver must be a user task");
+            & ": ipc_do_send(): id_receiver must be a user task"));
          goto ret_inval;
       end if;
 
@@ -428,17 +430,17 @@ is
 
       -- A task can't send a message to itself
       if caller_id = id_receiver then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): receiver and sender are the same");
+            & ": ipc_do_send(): receiver and sender are the same"));
          goto ret_inval;
       end if;
 
       -- Is size valid ?
       if size > ewok.ipc.MAX_IPC_MSG_SIZE then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid size");
+            & ": ipc_do_send(): invalid size"));
          goto ret_inval;
       end if;
 
@@ -448,21 +450,21 @@ is
 
 #if CONFIG_KERNEL_DOMAIN
       if not ewok.perm.is_same_domain (id_receiver, caller_id) then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": ipc_do_send() to "
             & ewok.tasks.tasks_list(id_receiver).name
-            & ": domain not granted");
+            & ": domain not granted"));
          goto ret_denied;
       end if;
 #end if;
 
       if not ewok.perm.ipc_is_granted (caller_id, id_receiver) then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": ipc_do_send() to "
             & ewok.tasks.tasks_list(id_receiver).name
-            & " not granted");
+            & " not granted"));
          goto ret_denied;
       end if;
 
@@ -532,9 +534,9 @@ is
       end if;
 
       if ep.all.state /= ewok.ipc.READY then
-         debug.log (debug.ERROR,
+         pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid endpoint state - maybe a dead lock");
+            & ": ipc_do_send(): invalid endpoint state - maybe a dead lock"));
          goto ret_denied;
       end if;
 
