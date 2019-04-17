@@ -20,12 +20,13 @@ else
 APP_BUILD_DIR = $(BUILD_DIR)/loader/$(LIB_NAME)
 endif
 
+CFLAGS := $(KERN_CFLAGS)
 CFLAGS += $(EXTRA_CFLAGS)
-CFLAGS += $(DEBUG_CFLAGS)
 CFLAGS += -I.
 CFLAGS += -I..
 CFLAGS += -I../../src/
 CFLAGS += -I$(CORE_DIR) -Icores/$(CONFIG_ARCH)/C -Isocs/$(CONFIG_SOCNAME)/C -Iboards/$(CONFIG_BOARDNAME) -Iboards
+CFLAGS += -I$(PROJ_FILES)/include/generated
 CFLAGS += -ffreestanding
 CFLAGS += -MMD -MP
 

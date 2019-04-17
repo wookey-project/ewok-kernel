@@ -26,7 +26,7 @@
 #include "debug.h"
 #include "libc.h"
 #include "product.h"
-#include "C/soc-usart.h"
+#include "soc-usart.h"
 
 #define BUF_SIZE	512
 #define BUF_MAX		(BUF_SIZE - 1)

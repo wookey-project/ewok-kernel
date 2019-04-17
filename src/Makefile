@@ -21,14 +21,14 @@ VERSION = 1
 # use an app-specific build dir
 APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
+CFLAGS := $(KERN_CFLAGS)
 CFLAGS += $(EXTRA_CFLAGS)
-CFLAGS += $(DEBUG_CFLAGS) -Wconversion
 CFLAGS += -I. -IC -IC/syscalls -IC/generated -I$(CORE_DIR) -Iarch
 CFLAGS += -MMD -MP
-CFLAGS += $(KERN_CFLAGS)
 CFLAGS += -fstack-protector-strong
 CFLAGS += -I$(PROJ_FILES)/kernel/src/arch
 CFLAGS += -I$(CORE_DIR) -Iarch -Iarch/cores/$(CONFIG_ARCH)/C -Iarch/socs/$(CONFIG_SOCNAME)/C -Iarch/boards/$(CONFIG_BOARDNAME) -Iarch/boards
+CFLAGS += -I$(PROJ_FILES)/include/generated
 
 
 CLANG_CFLAGS := -I../../include/generated -I. -Isyscalls -I../src/generated  -I$(CORE_DIR) -Iarch -Iarch/cores/$(ARCH)/C -Iarch/socs/$(SOC)/C -Iarch/boards/$(BOARD) -Iarch/boards
