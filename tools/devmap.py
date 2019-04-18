@@ -19,7 +19,7 @@ filename = sys.argv[2];
 
 # print type:
 c_header = """
-/* \\file devmap.h
+/* @file devmap.h
  *
  * Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
  *   - Ryad     Benadjila
@@ -63,8 +63,8 @@ c_header = """
 ** This file may be completed by a bord specific file for board devices
 */
 
-/*!
-** \\brief Structure defining the STM32 device map
+/*
+** Structure defining the STM32 device map
 **
 ** This table is based on doc STMicro RM0090 Reference manual memory map
 ** Only devices that may be registered by userspace are mapped here
@@ -87,8 +87,8 @@ struct device_soc_infos {
 
 
 /**
-** \\var struct device_soc_infos *soc_device_list
-** \\brief STM32F4 devices map
+** @var struct device_soc_infos *soc_device_list
+** @brief STM32F4 devices map
 **
 ** This structure define all available devices and associated informations. This
 ** informations are separated in two parts:
@@ -125,7 +125,7 @@ struct device_soc_infos *soc_devices_get_dma // FIXME rename
 ########################################################
 # print type:
 ada_header = """
--- \\file devmap.ads
+-- @file devmap.ads
 --
 -- Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
 --   - Ryad     Benadjila
@@ -160,7 +160,7 @@ is
 
    type rcc_enable_bit_t is integer range 0..31;
    --
-   -- Structure defining the STM32 device map
+   -- Structure defining the STM32 device map
    --
    -- This table is based on doc STMicro RM0090 Reference manual memory map
    -- Only devices that may be registered by userspace are mapped here
