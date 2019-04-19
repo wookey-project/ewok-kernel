@@ -1,1 +1,1 @@
-../stm32f439/soc-flash.h
+../../stm32f439/C/soc-flash.h

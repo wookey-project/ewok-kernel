@@ -1,1 +1,1 @@
-../stm32f439/soc-nvic.h
+../../stm32f439/C/soc-nvic.h

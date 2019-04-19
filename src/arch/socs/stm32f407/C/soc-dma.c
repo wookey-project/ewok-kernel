@@ -1,1 +1,1 @@
-../stm32f439/soc-dma.c
+../../stm32f439/C/soc-dma.c

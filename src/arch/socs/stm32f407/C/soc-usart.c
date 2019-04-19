@@ -1,1 +1,1 @@
-../stm32f439/soc-usart.c
+../../stm32f439/C/soc-usart.c

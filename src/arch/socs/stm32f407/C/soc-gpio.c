@@ -1,1 +1,1 @@
-../stm32f439/soc-gpio.c
+../../stm32f439/C/soc-gpio.c

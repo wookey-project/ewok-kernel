@@ -1,1 +1,1 @@
-../stm32f439/soc-pwr.h
+../../stm32f439/C/soc-pwr.h

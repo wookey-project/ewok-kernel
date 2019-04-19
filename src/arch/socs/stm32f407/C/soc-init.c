@@ -1,1 +1,1 @@
-../stm32f439/soc-init.c
+../../stm32f439/C/soc-init.c

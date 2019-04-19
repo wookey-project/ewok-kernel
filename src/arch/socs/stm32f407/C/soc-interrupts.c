@@ -1,1 +1,1 @@
-../stm32f439/soc-interrupts.c
+../../stm32f439/C/soc-interrupts.c

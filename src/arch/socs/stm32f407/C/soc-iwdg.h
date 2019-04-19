@@ -1,1 +1,1 @@
-../stm32f439/soc-iwdg.h
+../../stm32f439/C/soc-iwdg.h

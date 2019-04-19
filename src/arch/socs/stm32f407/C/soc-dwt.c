@@ -1,1 +1,1 @@
-../stm32f439/soc-dwt.c
+../../stm32f439/C/soc-dwt.c

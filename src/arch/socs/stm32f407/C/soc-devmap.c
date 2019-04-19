@@ -1,1 +1,1 @@
-../stm32f439/soc-devmap.c
+../../stm32f439/C/soc-devmap.c
