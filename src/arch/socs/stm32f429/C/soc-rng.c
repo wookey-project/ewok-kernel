@@ -1,1 +1,1 @@
-../stm32f439/soc-rng.c
+../../stm32f439/C/soc-rng.c

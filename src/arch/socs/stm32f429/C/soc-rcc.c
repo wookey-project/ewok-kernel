@@ -1,1 +1,1 @@
-../stm32f439/soc-rcc.c
+../../stm32f439/C/soc-rcc.c

@@ -1,1 +1,1 @@
-../stm32f439/soc-core.h
+../../stm32f439/C/soc-core.h

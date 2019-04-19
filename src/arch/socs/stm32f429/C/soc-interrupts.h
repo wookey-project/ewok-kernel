@@ -1,1 +1,1 @@
-../stm32f439/soc-interrupts.h
+../../stm32f439/C/soc-interrupts.h

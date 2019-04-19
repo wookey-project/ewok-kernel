@@ -1,1 +1,1 @@
-../stm32f439/soc-scb.h
+../../stm32f439/C/soc-scb.h

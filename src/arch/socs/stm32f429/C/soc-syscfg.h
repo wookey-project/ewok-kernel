@@ -1,1 +1,1 @@
-../stm32f439/soc-syscfg.h
+../../stm32f439/C/soc-syscfg.h

@@ -1,1 +1,1 @@
-../stm32f439/default_handlers.c
+../../stm32f439/C/default_handlers.c

@@ -1,1 +1,1 @@
-../stm32f439/soc-exti.c
+../../stm32f439/C/soc-exti.c

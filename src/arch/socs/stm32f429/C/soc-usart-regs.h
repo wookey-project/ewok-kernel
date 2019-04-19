@@ -1,1 +1,1 @@
-../stm32f439/soc-usart-regs.h
+../../stm32f439/C/soc-usart-regs.h
