@@ -284,6 +284,8 @@ config KERNEL_EXPERT_MODE
 
 endmenu
 
+# Ewok kernel. Require its stdlib
 config KERNEL_EWOK
    bool
+   select USR_LIB_STD
    default y
