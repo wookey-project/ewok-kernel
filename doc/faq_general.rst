@@ -19,8 +19,8 @@ following prototypes::
   int main(void);
   int main(int argc, char **argv);
 
-As EwoK doesn't generate such a prototype, the ``main`` symbol cannot be
-used, explaining why ``_main`` is used instead. The generated ldscript automatically
+As EwoK doesn't generate such a prototype, the ``main`` symbol cannot be used,
+explaining why ``_main`` is used instead. The generated ldscript automatically
 uses it as the application entry point and the application developer has
 nothing to do other than to name its main function properly.
 
@@ -67,13 +67,14 @@ A basic, generic main function looks like the following::
 Syscall API is complex: why?
 ----------------------------
 
-EwoK syscalls is a fully driver-oriented API. Efforts have been put in providing
-various userspace abstractions to help application developers in using
-generic devices through a higher level API.
+EwoK syscalls is a fully driver-oriented API. Efforts have been put in
+providing various userspace abstractions to help application developers in
+using generic devices through a higher level API.
 
 These abstractions are separated in:
 
    * userspace drivers
+
        These drivers supply a higher level, easier API to applications
        and manage a given device by using the syscall API and configuring
        the corresponding registers for memory-mapped devices. Drivers API
@@ -81,6 +82,7 @@ These abstractions are separated in:
        CRYP, USB, SDIO, etc.)
 
    * userspace libraries
+
        These libraries implement various hardware-independent features, but
        may depend on a given userspace driver. They supply a functional API
        for a given service (serial console, AES implementation, etc.), and
@@ -102,28 +104,32 @@ heap overflow detection. Such a layout, pushing the heap on the top of the layou
 and the stack on the bottom help in detecting such overflows.
 
 .. hint::
-   You can use your compiler to detect the amount of stack needed, as most compilers are
-   able to calculate the effective used stack size based on the compiled code
+   You can use your compiler to detect the amount of stack needed, as most
+   compilers are able to calculate the effective used stack size based on the
+   compiled code
 
 .. danger::
-   Do **not** use recursive code on userspace applications. Embedded systems are not
-   recursive friendly, as the amount of stack memory is highly reduced
+   Do **not** use recursive code on userspace applications. Embedded systems
+   are not recursive friendly, as the amount of stack memory is highly reduced
 
 What is NUMSLOTS and how to know the number of slots an application needs?
 --------------------------------------------------------------------------
 
-The NUMSLOTS option of an application specify the number of memory slots of the flash section dedicated
-to userspace applications is requested by the application.
+The NUMSLOTS option of an application specify the number of memory slots of the
+flash section dedicated to userspace applications is requested by the
+application.
 
-In both DFU and FW mode, there is 8 memory slots, as the MPU is able to handle 8 subregions for a given memory region.
-As a consequence, the total number of slots of the total number of applications of a given mode (DFU or FW) must not
+In both DFU and FW mode, there is 8 memory slots, as the MPU is able to handle
+8 subregions for a given memory region.  As a consequence, the total number of
+slots of the total number of applications of a given mode (DFU or FW) must not
 exceed 8.
 
 .. hint::
    This is specific to STM32 MPU and may vary on other SoCs MPU
 
-The slot size depend on the selected SoC (as the amount of accessible flash memory may vary) and
-the mode in which your application is executed (nominal -aka FW- or DFU).
+The slot size depend on the selected SoC (as the amount of accessible flash
+memory may vary) and the mode in which your application is executed (nominal
+-aka FW- or DFU).
 
 This information can be found in the following file:
 
@@ -134,13 +140,17 @@ The slot size values are the following::
    #define  FW_MAX_USER_SIZE   64*KBYTE
    #define  DFU_MAX_USER_SIZE  32*KBYTE
 
-FW_MAX_USER_SIZE define the slot size for FW mode and DFU_MAX_USER_SIZE define the slot size for DFU mode.
+FW_MAX_USER_SIZE define the slot size for FW mode and DFU_MAX_USER_SIZE define
+the slot size for DFU mode.
 
-Memory slots hold .text, .got, .rodata and .data content of the application. .data section will be copied into
-RAM in the application memory layout later at boot time.
+Memory slots hold .text, .got, .rodata and .data content of the application.
+.data section will be copied into RAM in the application memory layout later at
+boot time.
 
-As a consequence, depending on the size of these sections, the number of required slots may vary. You can use
-objdump or readelf tool to get back the effective size of your application and calculate the effective number of slots needed::
+As a consequence, depending on the size of these sections, the number of
+required slots may vary. You can use objdump or readelf tool to get back the
+effective size of your application and calculate the effective number of slots
+needed::
 
    $ arm-none-eabi-objdump -h build/armv7-m/wookey/apps/myapp/myapp.elf
 
@@ -159,11 +169,15 @@ objdump or readelf tool to get back the effective size of your application and c
     4 .bss          0000428c  20009aa0  00000000  00009aa0  2**2
                      ALLOC
 
-Here, the application request 0x2b68 + 0x24 + 0x10 = 0x2b9c, which means 11.164 bytes. For this task, one slot is enough in both modes.
+Here, the application request 0x2b68 + 0x24 + 0x10 = 0x2b9c, which means 11.164
+bytes. For this task, one slot is enough in both modes.
 
 .. hint::
-   The Tataouine SDK helps when a task is too big for its configured number of slots, and specify which section is problematic. You can let it detect slots overlap if you whish
+   The Tataouine SDK helps when a task is too big for its configured number of
+   slots, and specify which section is problematic. You can let it detect slots
+   overlap if you whish
 
 .. hint::
-   The tataouine SDK calculates both flash memory and RAM consumption of each task, which also permit to detect RAM overlap
+   The tataouine SDK calculates both flash memory and RAM consumption of each
+   task, which also permit to detect RAM overlap
 

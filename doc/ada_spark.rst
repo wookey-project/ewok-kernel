@@ -27,12 +27,14 @@ Here is an example of such usage::
 
 This specification uses various SPARK properties:
 
-   * Global usage declaration, which allows to specify that the function is using a global
-     variable of the ewok.perm_auto package as read only.
-   * Postcondition specification, requiring that for the specific use case where from and to are
-     equal, the result of the function must be false, whatever the table content is.
-   * A contract case, that describes the contract of the function as a fixed length list of possible
-     values. This list is the exhaustive list of the possible results.
+   * Global usage declaration, which allows to specify that the function is
+     using a global variable of the ewok.perm_auto package as read only.
+   * Postcondition specification, requiring that for the specific use case
+     where from and to are equal, the result of the function must be false,
+     whatever the table content is.
+   * A contract case, that describes the contract of the function as a fixed
+     length list of possible values. This list is the exhaustive list of the
+     possible results.
 
 Impact of SPARK
 ---------------
@@ -45,8 +47,8 @@ A typical example is to prove that the kernel never maps a memory region which
 can be both writeable and executable (aka W^X proof).
 
 For this, we use ghost functions and preconditions. The ghost function checks
-the wanted properties, the precondition is checked at build time by the
-prover. If the prover can't prove it at build time (e.g. when inputs depend on dynamic
+the wanted properties, the precondition is checked at build time by the prover.
+If the prover can't prove it at build time (e.g. when inputs depend on dynamic
 content, lazy checks, etc.) the prover refuses to validate the precondition.
 
 Here is the ghost function checking the W^X conditions on the STM32 MPU::

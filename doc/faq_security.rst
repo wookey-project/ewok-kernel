@@ -18,32 +18,36 @@ of reducing the available task volatile memory.
 Is the W^X principle supported?
 --------------------------------
 
-The EwoK kernel enforces the W^X mapping restriction principle, which is
-a strong defense in depth mitigation against userland exploitable vulnerabilities.
+The EwoK kernel enforces the W^X mapping restriction principle, which is a
+strong defense in depth mitigation against userland exploitable
+vulnerabilities.
 
-Moreover, the Ada kernel integrates SPARK proofs that verify at that there is no
-region that can be mapped W and X at the same time.
+Moreover, the Ada kernel integrates SPARK proofs that verify at that there is
+no region that can be mapped W and X at the same time.
 
 Is there SSP mechanism?
 -----------------------
 
 Yes, the kernel handle KRNG source and generates seeds for each task stack
-smashing protection mechanism. All functions, starting with _main(), are protected.
+smashing protection mechanism. All functions, starting with _main(), are
+protected.
 
 
 Is there ASLR?
 --------------
 
-There is no ASLR as the amount of accessible memory is too small to generate enough
-entropy for userspace task memory mapping randomization. Each task has access to
-approximatively 32KB of memory, which is too few for an effective ASLR mechanism.
+There is no ASLR as the amount of accessible memory is too small to generate
+enough entropy for userspace task memory mapping randomization. Each task has
+access to approximatively 32KB of memory, which is too few for an effective
+ASLR mechanism.
 
 Are there any shared libraries?
 -------------------------------
 
-There is no such mechanism, as shared libraries requires shared .text memory including
-memory abstraction that only a real MMU can bring efficiently.
+There is no such mechanism, as shared libraries requires shared .text memory
+including memory abstraction that only a real MMU can bring efficiently.
 
-In microcontrolers, there is no memory abstraction, and as a consequence, no shared executable content.
+In microcontrolers, there is no memory abstraction, and as a consequence, no
+shared executable content.
 
 

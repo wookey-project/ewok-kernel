@@ -46,8 +46,8 @@ The permission API defines a list of ressource name:
 | PERM_RES_MEM_DYNAMIC_MAP| task is able to (un)map its own devices declared as voluntary mapped  |
 +-------------------------+-----------------------------------------------------------------------+
 
-Ressource names are define using the preprocessor in C, mapped as an uint32_t. In Ada, the permission name
-has its own type.
+Ressource names are define using the preprocessor in C, mapped as an uint32_t.
+In Ada, the permission name has its own type.
 
 The permission API also export the following prototypes::
 
@@ -60,12 +60,14 @@ The permission API also export the following prototypes::
    bool perm_same_ipc_domain(e_task_id      src,
                              e_task_id      dst);
 
-Through this API, it is possible to control all accesses to ressources and tasks. This API abstract the permission memory model described below.
+Through this API, it is possible to control all accesses to ressources and
+tasks. This API abstract the permission memory model described below.
 
 Memory representation of permissions in EwoK
 --------------------------------------------
 
-As shown in :ref:`Ewok permissions API <ewok-perm>`, permissions are based on a tree hierarchy.
+As shown in :ref:`Ewok permissions API <ewok-perm>`, permissions are based on a
+tree hierarchy.
 
 Permissions are splitted into two main categories:
 
@@ -76,13 +78,14 @@ Permissions are splitted into two main categories:
 ressource access permissions memory model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ressource access permissions correspond to all permissions associated to
-an access to a hardware ressource (core timeslot, device, current cycle count, etc.).
+Ressource access permissions correspond to all permissions associated to an
+access to a hardware ressource (core timeslot, device, current cycle count,
+etc.).
 
-In order to optimize ressources access permissions check at runtime,
-they are mapped as a *ressource permission register*, for each application.
-This ressource permission register works in the same way as any hardware
-register, with bit fields and masks.
+In order to optimize ressources access permissions check at runtime, they are
+mapped as a *ressource permission register*, for each application.  This
+ressource permission register works in the same way as any hardware register,
+with bit fields and masks.
 
 The C implementation of such permission check is not easy as C doesn't manage
 easily bitfields, but Ada is clearly efficient for such a check.
@@ -119,15 +122,17 @@ Cryptographic IP access mapping (2 bits)
    * 0b10 : configuration access (key injection, RNG access)
    * 0b11 : both accesses
 
-The permission register is based on each application permission declaration in the
-configuration of Tataouine. The register is created by Tataouine in include/generated/app_layout.h
-(for C code) and in include/generated/Ada/app_layout.ads (for Ada code).
+The permission register is based on each application permission declaration in
+the configuration of Tataouine. The register is created by Tataouine in
+include/generated/app_layout.h (for C code) and in
+include/generated/Ada/app_layout.ads (for Ada code).
 
-The permission register is generated as a static const array of bits denoted 0b110010011100...0001110000
-in a dedicated ressource permission table in include/generated/gen_perms.h by tools/apps/permissions.pl script.
+The permission register is generated as a static const array of bits denoted
+0b110010011100...0001110000 in a dedicated ressource permission table in
+include/generated/gen_perms.h by tools/apps/permissions.pl script.
 
-The kernel perm.c/perm.h (for C) and perm.adb/perm.ads file manage the permission register read
-and return the task permissions based on it.
+The kernel perm.c/perm.h (for C) and perm.adb/perm.ads file manage the
+permission register read and return the task permissions based on it.
 
 
 Communication access permissions memory model
@@ -135,11 +140,13 @@ Communication access permissions memory model
 
 Communications permissions is based on two matrices:
 
-   * An IPC matrix, defining which task is able to communicate with which through IPC calls
-   * A DMA SHM matrix, defining which task is able to share a DMA buffer with which peer
+   * An IPC matrix, defining which task is able to communicate with which
+     through IPC calls
+   * A DMA SHM matrix, defining which task is able to share a DMA buffer with
+     which peer
 
-These matrices are generated in include/generated/gen_perms.h by tools/apps/permissions.pl script.
-
+These matrices are generated in include/generated/gen_perms.h by
+tools/apps/permissions.pl script.
 
 Here is a typical gen_perms.h content::
 
@@ -175,9 +182,10 @@ Here is a typical gen_perms.h content::
        {0, 1, 0, 0, 0, 0}
    };
 
-
-The Ada implementation of the permissions is using a strictly typed register instead of a uint32_t bitfield for the ressources permissions register.
-The Ada implementation of EwoK is also using SPARK in order to valid its data flow.
+The Ada implementation of the permissions is using a strictly typed register
+instead of a uint32_t bitfield for the ressources permissions register.
+The Ada implementation of EwoK is also using SPARK in order to valid its data
+flow.
 
 .. highlight:: vhdl
 

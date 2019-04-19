@@ -15,7 +15,8 @@ sys_get_systick()
 .. note::
    Synchronous syscall, executable in ISR mode
 
-EwoK returns the current timestamp in a uint64_t value, with one of the following unit:
+EwoK returns the current timestamp in a uint64_t value, with one of the
+following unit:
 
    * milliseconds
    * microseconds
@@ -35,4 +36,6 @@ The time measurement syscall has the following API::
    e_syscall_ret sys_get_systick(uint64_t *val, e_tick_type mode);
 
 .. important::
-  The time measurement access and permission is restricted to EwoK time permissions, as high precision time measurement is an efficient tool for side channel attacks
+  The time measurement access and permission is restricted to EwoK time
+  permissions, as high precision time measurement is an efficient tool for side
+  channel attacks

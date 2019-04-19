@@ -50,7 +50,8 @@ EwoK syscalls have all the same return values::
 Syscalls and the task lifecycle
 -------------------------------
 
-Ewok follows a specific life cycle for userspace tasks, based on two sequential states:
+Ewok follows a specific life cycle for userspace tasks, based on two sequential
+states:
 
    * an initialization state
    * a nominal state
@@ -67,61 +68,76 @@ this state, the task is able to:
    * requesting a DMA shared memory with another task
    * log messages into the kernel log console
 
-All these actions are conditioned on EwoK permissions as defined in :ref:`Ewok pemission model <ewok-perm>`.
+All these actions are conditioned on EwoK permissions as defined in :ref:`Ewok
+pemission model <ewok-perm>`.
 
-During the initialization phase, no physical resource (devices, DMA) is enabled.
-The link between the task and the resource is stored in the kernel task context and the
-resource is reserved, but the task is not able to use the resource yet. Any memory-mapped resource
-(like memory mapped devices) are **not yet** mapped in the task memory space.
-
-.. danger::
-   Don't try to access any registered device memory during the initialization phase, this will result
-   into a memory fault
-
-All the declarations of the initialization phase are done using the sys_init() syscall family.
+During the initialization phase, no physical resource (devices, DMA) is
+enabled.  The link between the task and the resource is stored in the kernel
+task context and the resource is reserved, but the task is not able to use the
+resource yet. Any memory-mapped resource (like memory mapped devices) are **not
+yet** mapped in the task memory space.
 
 .. danger::
-   No other syscall (IPCs, configuration, etc.) is allowed during this state, they will return SYS_E_DENIED.
+   Don't try to access any registered device memory during the initialization
+   phase, this will result into a memory fault
 
-The end of the initialization phase is asked by a specific syscall of the sys_init() family::
+All the declarations of the initialization phase are done using the sys_init()
+syscall family.
+
+.. danger::
+   No other syscall (IPCs, configuration, etc.) is allowed during this state,
+   they will return SYS_E_DENIED.
+
+The end of the initialization phase is asked by a specific syscall of the
+sys_init() family::
 
    sys_init(INIT_DONE);
 
 .. note::
-   Keeping a strict separation between an initialization and a nominal state is an efficient way
-   of avoiding any invalid resource request until the task is connected to potentially
-   unsafe external elements (e.g. through an USB channel, etc.)
+   Keeping a strict separation between an initialization and a nominal state is
+   an efficient way of avoiding any invalid resource request until the task is
+   connected to potentially unsafe external elements (e.g. through an USB
+   channel, etc.)
 
 .. note::
-   When the task has started its nominal phase, it has no way to modify its profile (list of devices,
-   informations about other tasks, etc.)
+   When the task has started its nominal phase, it has no way to modify its
+   profile (list of devices, informations about other tasks, etc.)
 
 
 About the nominal state
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-When the task executes the ``sys_init(INIT_DONE)`` syscall, the task is rescheduled and all declared resources are
-configured and enabled. From now one, all memory mapped devices are mapped with the correct MPU permissions
-in order to allow direct memory access.
+When the task executes the ``sys_init(INIT_DONE)`` syscall, the task is
+rescheduled and all declared resources are configured and enabled. From now
+one, all memory mapped devices are mapped with the correct MPU permissions in
+order to allow direct memory access.
 
 .. warning::
-   If the task has declared devices as voluntary mapped (see :ref:`device declaration <ewok-devices>`), the device is not mapped. The task needs to voluntary map it before using it.
-   This is a way of limiting the usage of some devices to the strict minimum.
+   If the task has declared devices as voluntary mapped (see :ref:`device
+   declaration <ewok-devices>`), the device is not mapped. The task needs to
+   voluntary map it before using it.  This is a way of limiting the usage of some
+   devices to the strict minimum.
 
-From now on, the task is no more authorized to execute any of the ``sys_init()`` syscalls family. Other syscalls can
-be used:
+From now on, the task is no more authorized to execute any of the
+``sys_init()`` syscalls family. Other syscalls can be used:
 
    * ``sys_log()`` to transmit a message on the kernel logging facility
-   * ``sys_ipc()`` syscalls family, to communicate through kernel IPC with other tasks
-   * ``sys_cfg()`` syscalls family, to (re)configure previously declared devices and DMA
+   * ``sys_ipc()`` syscalls family, to communicate through kernel IPC with
+     other tasks
+   * ``sys_cfg()`` syscalls family, to (re)configure previously declared
+     devices and DMA
    * ``sys_get_systick()`` to get time stamping information
-   * ``sys_yield()`` to voluntary release the CPU core and sleep until an external event arises (IRQ or IPC targeting the task)
-   * ``sys_sleep()`` to voluntary release the CPU core and sleep for a given number of milliseconds
+   * ``sys_yield()`` to voluntary release the CPU core and sleep until an
+     external event arises (IRQ or IPC targeting the task)
+   * ``sys_sleep()`` to voluntary release the CPU core and sleep for a given
+     number of milliseconds
    * ``sys_reset()`` to voluntary reset the SoC
-   * ``sys_lock()`` to voluntary lock a critical section and postpone the task's ISR for some time
+   * ``sys_lock()`` to voluntary lock a critical section and postpone the
+     task's ISR for some time
 
 .. warning::
-   Most of these syscalls are associated to permissions. See below for more information.
+   Most of these syscalls are associated to permissions. See below for more
+   information.
 
 Overview of the syscalls
 ---------------------------

@@ -6,11 +6,16 @@ EwoK RNG accessor
 Synopsis
 """"""""
 
-The random number generator (RNG) of the board is hold by the EwoK kernel as it is use to initialize the user and kernel tasks canary seed value.
-This entropy source may be implemented in the kernel as:
+The random number generator (RNG) of the board is hold by the EwoK kernel as it
+is use to initialize the user and kernel tasks canary seed value.  This entropy
+source may be implemented in the kernel as:
 
-   * a true random number generator (TRNG) when the corresponding IP exists and its driver is implemented in EwoK. This is the case of the STM32F4 SoCs for which a TRNG IP exists and is supported
-   * a pseudo-random number generator, implemented as a full software algorithm. This entropy source can't be considered with the same security properties as the TRNG one
+   * a true random number generator (TRNG) when the corresponding IP exists and
+     its driver is implemented in EwoK. This is the case of the STM32F4 SoCs
+     for which a TRNG IP exists and is supported
+   * a pseudo-random number generator, implemented as a full software
+     algorithm. This entropy source can't be considered with the same security
+     properties as the TRNG one
 
 As the RNG support is hosted in the EwoK kernel, a specific syscall exists to
 get back a random content from the kernel. This content can be used as a

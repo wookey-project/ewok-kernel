@@ -1,12 +1,46 @@
-Ada code architecture
-=====================
-
 Ewok implementation
--------------------
+===================
 
 The EwoK microkernel is an hybrid C/Ada kernel. It can be compiled as a
 full-C kernel or as a better certified C/Ada/SPARK microkernel using
 a single configuration option in the Tataouine SDK menuconfig.
+
+About the chosen programming languages
+--------------------------------------
+
+Most of microkernels have been written in C and assembly. Some use less
+error-prone languages such as Rust, and only a very few have been formally
+validated (SeL4, written in C and formally validated using Isabelle) or
+ProvenCore (using its own formal language).
+
+Ewok is based on the following considerations:
+
+   * A fully formalized microkernel is too costly for an Open-Source project
+   * A C-based microkernel is clearly too error-prone and even with high level
+     of compilation hardening and tests, C language is not that adapted to very
+     low level safe development (no strict typing, unsafe bitfields management,
+     too many compiler dependent behavior, etc.). Nevertheless, C is still a
+     language highly understood by most of the developers community.
+
+We first have implemented an EwoK prototype in full C with few Assembly. Then,
+to limit the risk associated with the C language, we have decided to replace
+all the safety critical or security critical part of the kernel by Ada and
+SPARK.  Nevertheless, we have not deleted the corresponding C part but modified
+the compilation system to support file by file substitution between C and Ada
+reference implementations.
+
+EwoK can then be compiled as a full C/ASM kernel or an hybrid Ada/SPARK - C/ASM
+kernel, reducing the C and ASM part to the most basic and easy part of the
+kernel. Any component requiring external inputs (like syscalls) or critical for
+the security (like memory management) is written in Ada or SPARK, depending on
+the level of formalism required.
+
+.. note::
+   The Ada/SPARK kernel is based on about 10 Klines of Ada and
+   about 500 lines of C and assembly.
+
+Ada kernel
+----------
 
 .. image:: img/mc_ada.png
    :width: 500 px
@@ -18,20 +52,33 @@ When activating this option, the following elements are setup:
 
    * For the kernel sources:
 
-      * a complete libada for the kernel (named libkernel) is built, using all Ada packages in the kernel/Ada directory
-      * all C files named <module>.c in kernel/ directory for which an Ada file named 'ewok-<module>.adb' exists in kernel/Ada directory are removed from the list of compiled C files
+      * a complete libada for the kernel (named libkernel) is built, using all
+        Ada packages in the kernel/Ada directory
+      * all C files named <module>.c in kernel/ directory for which an Ada file
+        named 'ewok-<module>.adb' exists in kernel/Ada directory are removed
+        from the list of compiled C files
+
    * For the libbsp
 
-      * a complete Ada bsp lib (named libabsp) is build, using all Ada packages in arch/ directory
-      * all C files named <module>.c in various arch directories for which an Ada file named 'arch-<module>.adb' exists in the Ada directory of the same place are removed from the list of compiled C files
-   * libkernel and libabsp are linked together. As it is still a full Ada code, SPARK checks and Ada type checking between the two libraries are still operational
+      * a complete Ada bsp lib (named libabsp) is build, using all Ada packages
+        in arch/ directory
+      * all C files named <module>.c in various arch directories for which an
+        Ada file named 'arch-<module>.adb' exists in the Ada directory of the
+        same place are removed from the list of compiled C files
+
+   * libkernel and libabsp are linked together. As it is still a full Ada code,
+     SPARK checks and Ada type checking between the two libraries are still
+     operational
    * The residual C code of arch/ is linked into a smaller libbsp
-   * The residual C code of the kernel is compiled to generate the remaining C object files
-   * Everything is linked into one single ELF binary, symbols are resolved and C and Ada code can call each-other
+   * The residual C code of the kernel is compiled to generate the remaining C
+     object files
+   * Everything is linked into one single ELF binary, symbols are resolved and
+     C and Ada code can call each-other
 
 .. highlight:: make
 
-Deleting the C equivalent of Ada files is done in various Makefiles using the same GNU Make code::
+Deleting the C equivalent of Ada files is done in various Makefiles using the
+same GNU Make code::
 
    # deleting C files having their Ada equivalent from the C/obj list
    ADACEQ = $(patsubst Ada/ewok-%.adb,%.c,$(ASRC))
@@ -40,21 +87,28 @@ Deleting the C equivalent of Ada files is done in various Makefiles using the sa
    OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(SRC))
 
 
-All the autonomous Ada implementations help to guarantee higher safety and security thanks to the Ada language properties. However, all the interactions with the residual C code loose these properties,
-this is why such interactions between C and Ada are kept to a minimum.
+All the autonomous Ada implementations help to guarantee higher safety and
+security thanks to the Ada language properties. However, all the interactions
+with the residual C code loose these properties, this is why such interactions
+between C and Ada are kept to a minimum.
 
 From C to Ada paradigm
 ----------------------
 
-Development paradigms between Ada and C may be quite different. To allow an implementation of interchangeable Ada and C modules, Ada modules are decomposed in two main blocks:
+Development paradigms between Ada and C may be quite different. To allow an
+implementation of interchangeable Ada and C modules, Ada modules are decomposed
+in two main blocks:
 
-   * A small interface design pattern which helps to abstract the Ada part of the module and serves the same API as the equivalent C module
-
-       * This interface has nearly no intelligence at all and export all its types, functions and procedures to C code
+   * A small interface design pattern which helps to abstract the Ada part of
+     the module and serves the same API as the equivalent C module
+       * This interface has nearly no intelligence at all and export all its
+         types, functions and procedures to C code
    * The Ada module itself, which is free to use an Ada-oriented paradigm
 
-The EwoK kernel supports a dual implementation (C & Ada). Each module Ada/Spark implementation replaces the C implementation in the Ada version of the kernel.
-The Ada/Spark port with API compatible support of each module has been done progressively, by integrating the first Ada/Spark modules as exceptions, then
+The EwoK kernel supports a dual implementation (C & Ada). Each module Ada/Spark
+implementation replaces the C implementation in the Ada version of the kernel.
+The Ada/Spark port with API compatible support of each module has been done
+progressively, by integrating the first Ada/Spark modules as exceptions, then
 reducing the C interface to the residual C modules only.
 
 *initial Ada/Spark integration*
@@ -150,7 +204,7 @@ Exporting Ada symbols to C is done using the same philosophy::
       export => true,
       external_name => "soc_dwt_init";
 
-Nevertheless, there are some cases that require extra care and attention: 
+Nevertheless, there are some cases that require extra care and attention:
 **when specific types are handled differently in Ada and C**.
 This is the case of strings, which are more complex and **not**
 null-terminated in Ada, or boolean, which are encoded on 8-bits fields.
