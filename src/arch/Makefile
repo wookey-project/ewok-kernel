@@ -56,34 +56,32 @@ OBJ = $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(SRC))
 DEP = $(OBJ:.o=.d)
 
 CORE_SRC = $(core-bsp-y)
-CORE_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
+CORE_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
 CORE_DEP := $(CORE_OBJ:.o=.d)
 
 ifeq ($(ADAKERNEL),y)
 # substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
 CORE_ASRC = $(core-ada-bsp-y)
 
-ADACEQ = $(patsubst Ada/%.adb,%.c,$(core-ada-bsp-y))
-SRC_TMP = $(filter-out $(ADACEQ),$(core-bsp-y))
-CORE_SRC := $(SRC_TMP)
-CORE_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
+CORE_ADACEQ = $(patsubst Ada/%.adb,C/%.c,$(core-ada-bsp-y))
+CORE_SRC := $(filter-out $(CORE_ADACEQ),$(core-bsp-y))
+CORE_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
 CORE_DEP := $(CORE_OBJ:.o=.d)
 endif
 
 
 SOC_SRC = $(socdrv-bsp-y)
-SOC_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
-SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/soc/%.o,$(SOC_OBJ))
+SOC_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
+SOC_OBJ := $(patsubst C/%.s,$(APP_BUILD_DIR)/soc/%.o,$(SOC_OBJ))
 SOC_DEP := $(SOC_OBJ:.o=.d)
 
 ifeq ($(ADAKERNEL),y)
 # substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
 SOC_ASRC = $(socdrv-ada-bsp-y)
 
-ADACEQ = $(patsubst Ada/%.adb,%.c,$(socdrv-ada-bsp-y))
-SRC_TMP = $(filter-out $(ADACEQ),$(socdrv-bsp-y))
-SOC_SRC := $(SRC_TMP)
-SOC_OBJ := $(patsubst %.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
+SOC_ADACEQ = $(patsubst Ada/%.adb,C/%.c,$(socdrv-ada-bsp-y))
+SOC_SRC = $(filter-out $(SOC_ADACEQ),$(socdrv-bsp-y))
+SOC_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
 SOC_DEP := $(SOC_OBJ:.o=.d)
 endif
 
@@ -164,15 +162,15 @@ $(APP_BUILD_DIR)/%.o: %.c
 	$(call if_changed,cc_o_c)
 
 # Core C sources files
-$(APP_BUILD_DIR)/core/%.o: $(CORE_DIR)/%.c
+$(APP_BUILD_DIR)/core/%.o: $(CORE_DIR)/C/%.c
 	$(call if_changed,cc_o_c)
 
 # SoC C sources files
-$(APP_BUILD_DIR)/soc/%.o: $(SOC_DIR)/%.c
+$(APP_BUILD_DIR)/soc/%.o: $(SOC_DIR)/C/%.c
 	$(call if_changed,cc_o_c)
 
 # SoC ASM sources files
-$(APP_BUILD_DIR)/soc/%.o: $(SOC_DIR)/%.s
+$(APP_BUILD_DIR)/soc/%.o: $(SOC_DIR)/C/%.s
 	$(call if_changed,cc_o_c)
 
 # Board C sources files
