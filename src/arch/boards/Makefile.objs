@@ -5,7 +5,3 @@ CFLAGS += -I$(BOARD_DIR)/..
 
 board-bsp-y :=
 
-# per-board drivers
-ifneq ($(BOARD),)
-include $(PROJ_FILES)kernel/src/arch/boards/$(BOARD)/Makefile.objs
-endif
