@@ -1,3 +1,5 @@
+.. _sys_ipc:
+
 sys_ipc
 -------
 EwoK Inter-Proccess Communication API

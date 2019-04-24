@@ -52,20 +52,19 @@ When activating this option, the following elements are setup:
 
    * For the kernel sources:
 
-      * a complete libada for the kernel (named libkernel) is built, using all
-        Ada packages in the kernel/Ada directory
-      * all C files named <module>.c in kernel/ directory for which an Ada file
-        named 'ewok-<module>.adb' exists in kernel/Ada directory are removed
-        from the list of compiled C files
+   * a complete libada for the kernel (named libkernel) is built, using all Ada
+     packages in the kernel/Ada directory
+   * all C files named <module>.c in kernel/ directory for which an Ada file
+     named 'ewok-<module>.adb' exists in kernel/Ada directory are removed from
+     the list of compiled C files
 
-   * For the libbsp
+   * For the libbsp:
 
-      * a complete Ada bsp lib (named libabsp) is build, using all Ada packages
-        in arch/ directory
-      * all C files named <module>.c in various arch directories for which an
-        Ada file named 'arch-<module>.adb' exists in the Ada directory of the
-        same place are removed from the list of compiled C files
-
+   * a complete Ada bsp lib (named libabsp) is build, using all Ada packages in
+     arch/ directory
+   * all C files named <module>.c in various arch directories for which an Ada
+     file named 'arch-<module>.adb' exists in the Ada directory of the same
+     place are removed from the list of compiled C files
    * libkernel and libabsp are linked together. As it is still a full Ada code,
      SPARK checks and Ada type checking between the two libraries are still
      operational
@@ -101,6 +100,7 @@ in two main blocks:
 
    * A small interface design pattern which helps to abstract the Ada part of
      the module and serves the same API as the equivalent C module
+
        * This interface has nearly no intelligence at all and export all its
          types, functions and procedures to C code
    * The Ada module itself, which is free to use an Ada-oriented paradigm

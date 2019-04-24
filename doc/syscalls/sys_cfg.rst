@@ -1,3 +1,5 @@
+.. _sys_cfg:
+
 sys_cfg
 -------
 EwoK ressource reconfiguration API
