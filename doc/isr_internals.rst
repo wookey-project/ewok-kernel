@@ -1,3 +1,5 @@
+.. _isr_internals:
+
 About EwoK IRQ and ISR internals
 ================================
 

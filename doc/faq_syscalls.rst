@@ -1,3 +1,5 @@
+.. _faq_syscalls:
+
 Syscalls FAQ
 ============
 
@@ -34,13 +36,10 @@ Returning invalid may be the consequence of various causes:
       using the Ada kernel, be sure to memset to 0 the structure before using
       it, the kernel is very strict with the user entries (for obvious security
       reasons)
-   2. You try to map a device that is not in the supported device map (see
-      :ref:`EwoK device map <technical-docs>` for information)
+   2. You try to map a device that is not in the supported device map
    3. You try to map a device with an invalid size
-      (see :ref:`EwoK device map <technical-docs>` for information)
    4. You have set more IRQ or more GPIOs than the maximum supported in the
-      ``device_t`` structure (see :ref:`EwoK kernel API <technical-docs>` for
-      information)
+      ``device_t`` structure
 
 .. hint::
    It is a good idea to memset to 0 a device_t structure before configuring it

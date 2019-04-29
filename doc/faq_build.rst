@@ -1,3 +1,5 @@
+.. _faq_build:
+
 EwoK build process
 ==================
 

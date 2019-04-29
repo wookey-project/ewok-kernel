@@ -1,3 +1,5 @@
+.. _faq_general:
+
 General FAQ
 ===========
 
@@ -6,7 +8,7 @@ General FAQ
 Why applications main function is named _main?
 -----------------------------------------------
 
-EwoK applications entry points have the following prototype::
+EwoK applications entry points have the following prototype ::
 
    int function(uint32_t task_id):
 
@@ -14,7 +16,7 @@ There is an unsigned int argument passed to the main function, giving it the
 current task identifier.
 
 When using the ``main`` symbol, the compiler requires one of the
-following prototypes::
+following prototypes ::
 
   int main(void);
   int main(int argc, char **argv);
@@ -25,7 +27,7 @@ uses it as the application entry point and the application developer has
 nothing to do other than to name its main function properly.
 
 What is a typical generic task's main() function?
------------------------------------------------------------
+-------------------------------------------------
 
 A basic main function should have the following content:
 
@@ -33,7 +35,7 @@ A basic main function should have the following content:
    * A call to sys_init(INIT_DONE) to finish the initialization phase
    * A nominal phase
 
-A basic, generic main function looks like the following::
+A basic, generic main function looks like the following ::
 
    int _main(uint32_t task_id)
    {
@@ -135,7 +137,7 @@ This information can be found in the following file:
 
 kernel/src/arch/soc/<target_soc>/soc-layout.h
 
-The slot size values are the following::
+The slot size values are the following ::
 
    #define  FW_MAX_USER_SIZE   64*KBYTE
    #define  DFU_MAX_USER_SIZE  32*KBYTE
@@ -150,12 +152,10 @@ boot time.
 As a consequence, depending on the size of these sections, the number of
 required slots may vary. You can use objdump or readelf tool to get back the
 effective size of your application and calculate the effective number of slots
-needed::
+needed ::
 
    $ arm-none-eabi-objdump -h build/armv7-m/wookey/apps/myapp/myapp.elf
-
    build/armv7-m/wookey/apps/sdio/sdio.fw1.elf:     file format elf32-littlearm
-
    Sections:
    Idx Name          Size      VMA       LMA       File off  Algn
     0 .text         00002b68  080a0000  080a0000  00010000  2**2

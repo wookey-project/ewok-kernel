@@ -1,7 +1,7 @@
-EwoK syscalls: the complete API explanation
-===========================================
+.. _syscalls_complete:
 
-.. _ewok-devices:
+EwoK syscalls: the complete API
+===============================
 
 .. contents::
 

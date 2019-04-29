@@ -1,6 +1,7 @@
-About EwoK syscalls internals
-=============================
+.. _syscalls_internals:
 
+EwoK syscalls internals
+=======================
 
 About EwoK syscall gate
 -----------------------

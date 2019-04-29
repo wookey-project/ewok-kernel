@@ -1,8 +1,10 @@
-About EwoK syscalls
-===================
+.. _syscalls:
+
+EwoK syscalls
+=============
 
 Syscalls API is fully described, with all associated structures and enumerates,
-in the :ref:`Ewok kernel API <technical-docs>`. This page is an introduction to
+in the :ref:`syscalls_internals`. This page is an introduction to
 EwoK syscall usage and principles.
 
 Some syscalls are executed synchronously, others asynchronously,
@@ -113,8 +115,8 @@ one, all memory mapped devices are mapped with the correct MPU permissions in
 order to allow direct memory access.
 
 .. warning::
-   If the task has declared devices as voluntary mapped (see :ref:`device
-   declaration <ewok-devices>`), the device is not mapped. The task needs to
+   If the task has declared devices as voluntary mapped
+   the device is not mapped. The task needs to
    voluntary map it before using it.  This is a way of limiting the usage of some
    devices to the strict minimum.
 

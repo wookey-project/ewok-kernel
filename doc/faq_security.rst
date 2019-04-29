@@ -1,3 +1,5 @@
+.. _faq_security:
+
 Ewok Security
 =============
 

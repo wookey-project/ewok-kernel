@@ -1,3 +1,5 @@
+.. _ada_arch:
+
 Ewok implementation
 ===================
 
@@ -129,7 +131,7 @@ reducing the C interface to the residual C modules only.
 Importing C symbols
 """""""""""""""""""
 
-.. highlight:: vhdl
+.. highlight:: ada
 
 Importing a C symbol in an Ada program is done using the following directive::
 
@@ -159,16 +161,16 @@ overtyped C arguments when using C symbols.
 
 .. highlight:: c
 
-A typical usage would be, for the following C code::
+A typical usage would be, for the following C code ::
 
    uint8_t nvic_get_pending_irq()
    {
       ... // return the IRQ number as an uint8_t
-    }
+   }
 
-.. highlight:: vhdl
+.. highlight:: ada
 
-An Ada interface that could look like the following::
+An Ada interface that could look like the following ::
 
    with ada.unchecked_conversion;
    pragma warnings (off);
@@ -193,7 +195,7 @@ An Ada interface that could look like the following::
 Exporting Ada symbols to C
 """"""""""""""""""""""""""
 
-Exporting Ada symbols to C is done using the same philosophy::
+Exporting Ada symbols to C is done using the same philosophy ::
 
    -- initialize the DWT module
    -- This procedure is called by the kernel main() function, and as
@@ -210,7 +212,7 @@ This is the case of strings, which are more complex and **not**
 null-terminated in Ada, or boolean, which are encoded on 8-bits fields.
 
 To solve such an issue, we define for the Ada code some C-compatible
-types. Here is an example of a C compatible boolean implementation::
+types. Here is an example of a C compatible boolean implementation ::
 
    type bool is new boolean with size => 1;
    for bool use (true => 1, false => 0);
@@ -250,7 +252,7 @@ Preprocessing in Ada
 
 Ada does support preprocessing and the configuration options sometime
 use the preprocessing principle to enable or not some specific functions.
-The preprocessing usage is quite similar to C::
+The preprocessing usage is quite similar to C ::
 
    #if CONFIG_KERNEL_DOMAIN
       function is_same_domain

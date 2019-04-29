@@ -1,3 +1,5 @@
+.. _faq_perms:
+
 Permissions FAQ
 ===============
 
@@ -60,7 +62,7 @@ the driver is this very mode.
 
 .. hint::
    Such non-device related permissions are most of the time dependent on the
-driver API usage
+   driver API usage
 
 Why is there a permission for time measurement?
 -----------------------------------------------

@@ -1,3 +1,5 @@
+.. _ada_spark:
+
 About SPARK integration
 =======================
 

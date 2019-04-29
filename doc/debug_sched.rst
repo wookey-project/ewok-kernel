@@ -1,6 +1,7 @@
+.. _debug_sched:
+
 Debugging EwoK Scheduler
 ========================
-
 
 .. contents::
 

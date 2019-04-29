@@ -1,3 +1,5 @@
+.. _perms_internals:
+
 About EwoK permissions internals
 ================================
 
@@ -187,9 +189,9 @@ instead of a uint32_t bitfield for the ressources permissions register.
 The Ada implementation of EwoK is also using SPARK in order to valid its data
 flow.
 
-.. highlight:: vhdl
+.. highlight:: ada
 
-Here is the generated Ada specification::
+Here is the generated Ada specification ::
 
    package ewok.perm_auto
       with spark_mode => on

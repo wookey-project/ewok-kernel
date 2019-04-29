@@ -1,3 +1,5 @@
+.. _perms:
+
 About EwoK permissions model
 ============================
 
