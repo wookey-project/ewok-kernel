@@ -1,5 +1,7 @@
-The EwoK microkernel
-=====================
+.. _ewok_kernel:
+
+EwoK microkernel
+================
 
 .. image:: img/ewok.png
    :height: 250px

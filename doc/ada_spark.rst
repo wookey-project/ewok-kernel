@@ -60,11 +60,3 @@ Here is the ghost function checking the W^X conditions on the STM32 MPU::
        with ghost;
 
 
-EwoK proofs
-^^^^^^^^^^^
-
-The current state of the EwoK proof is the following, regularly updated as we
-include some new proofs in the EwoK source code.
-
-.. include:: ada_proof.rst
-   :start-line: 3
