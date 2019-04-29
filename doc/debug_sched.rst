@@ -9,19 +9,17 @@ Debugging EwoK Scheduler
 About Ewok schedulers
 ---------------------
 
-
-There are various scheduling schemes supported in EwoK:
+There are several scheduling schemes supported in EwoK:
 
    * Basic Round-Robin
    * Random scheduler
    * Rate-Monotonic
 
-All scheduling schemes are constrained by the following rules:
+All scheduling schemes are constrained by the following:
 
-  * ISR have a greater priority and are executed before regular threads. They
-    are executed in the same order physical interrupts arise.
+  * ISR have a greater priority and are executed before regular threads.
 
-  * softirqd, which executes asynchronous syscalls and prepares tasks to handle
+  * Softirqd, which executes asynchronous syscalls and prepares tasks to handle
     ISR, is executed with a greater priority than other tasks, but lower
     priority than ISRs.
 
@@ -30,8 +28,8 @@ All scheduling schemes are constrained by the following rules:
     scheme) on all regular threads.
 
 
-About the simple Round-Robin scheduler
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Round-Robin scheduler
+^^^^^^^^^^^^^^^^^^^^^
 
 The Round-Robin scheduler schedules each runnable task successively. Each task
 can use the core up to the configured task slot time slice. The task is
@@ -48,8 +46,8 @@ runnable.
 
 If no task at all is runnable, the idle task is executed.
 
-About the Random scheduler
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Random scheduler
+^^^^^^^^^^^^^^^^
 
 The random scheduler is using the hardware RNG to select a task in the task
 list. If the task is not runnable, the scheduler gets back another random
@@ -59,8 +57,8 @@ The scheduler tries 32 times before executing the idle task.
 
 This scheduler is mostly an example scheduling scheme.
 
-About the Rate-Monotonic scheduler
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Rate-Monotonic scheduler
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Rate-Monotonic scheduler is the only scheduling scheme of EwoK supporting
 task priorities.

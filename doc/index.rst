@@ -31,6 +31,7 @@ Security properties
 ^^^^^^^^^^^^^^^^^^^
 
 EwoK supports the following properties:
+
    * Strict memory partitioning
    * Strict partitioning of physical resources (devices, etc.)
    * Fixed permissions management, set at compile time and easily verifiable
@@ -51,28 +52,30 @@ any modification of the controller is pushed at the hardware level.
 Performances
 ^^^^^^^^^^^^
 
+TODO
+
 EwoK architecture
 -----------------
 
 Kernel architecture
 ^^^^^^^^^^^^^^^^^^^
 
-The Ewok kernel is divided into two main components: the **libbsp** and the
+Ewok architecture is divided into two main components: the **libbsp** and the
 **kernel** part.
 
 .. image:: img/ewok_precise_arch.png
    :alt: Ework kernel architecture
    :align: center
 
-The **libbsp** is the hardware abstraction layer, hosting all the low level and
+The *libbsp* is the hardware abstraction layer, hosting all the low level and
 arch-specific drivers (MPU, GPIOs, timers, DMAs, etc.).
-The **libbsp** is itself separated in two blocks:
+The *libbsp* is itself separated in two blocks:
 
    1. *SoC-specific drivers*, such as DMA or GPIO support for the STM32F407 board
    2. *Core-specific drivers*, such as MPU support for the Cortex-M4 ARMv7m
       micro-architecture
 
-The **kernel** part contains all specific high level content (scheduling, task
+The *kernel* part contains all specific high level content (scheduling, task
 management, syscalls, etc.) and uses the libbsp as a hardware abstraction for
 any low-level interaction.
 
@@ -83,20 +86,16 @@ Drivers architecture
    :alt: Ework generic software architecture
    :align: center
 
-The **libstd** is the only requested userspace library. libstd hosts the
-syscall user part (i.e. abstraction of the *svc*, aka *supervisor call*,
-assembly instruction) and some general purpose utility functions such as
-libstring and logging utility functions such as printf.
+The :ref:`lib_std` (*libstd*) is a C standard library that can be used
+by the user tasks (and hence the userspace drivers).
+Like the *libc* for *UNIX*-like systems, it implements some useful functions.
 
-The **drivers** are written as userspace libraries. They depend on the libstd,
+The **drivers** are written as userspace libraries. They depend on the *libstd*,
 and may sometimes depend on each others. Here is the list of the existing
 drivers.
 
 **Libraries** are various userspace features, arch-independent
 implementations.
-
-.. note::
-   Other drivers and libraries will be published regulary
 
 
 EwoK API
@@ -136,9 +135,11 @@ If you want to hack into the kernel, EwoK internals are described here:
 .. toctree::
    :maxdepth: 1
 
-   EwoK permissions internals <perms_internals>
-   EwoK syscalls internals <syscalls_internals>
-   EwoK IRQ & ISR internals <isr_internals>
+   Ada/SPARK implementation <ada_spark>
+   EwoK permissions <perms_internals>
+   EwoK syscalls <syscalls_internals>
+   EwoK IRQ & ISR <isr_internals>
+   Ewok scheduler <debug_sched>
 
 
 EwoK API FAQ
