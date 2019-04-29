@@ -3,6 +3,8 @@
 EwoK build process
 ==================
 
+.. contents::
+
 When I switch between C-based and Ada-based kernels, the compilation is not performed?
 --------------------------------------------------------------------------------------
 

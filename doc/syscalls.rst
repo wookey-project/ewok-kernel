@@ -7,9 +7,14 @@ Syscalls API is fully described, with all associated structures and enumerates,
 in the :ref:`syscalls_internals`. This page is an introduction to
 EwoK syscall usage and principles.
 
-Some syscalls are executed synchronously, others asynchronously,
-all synchronous syscalls can be executed in ISRs, other are restricted
-to main thread only.
+Almost all syscalls can be executed in main tread and in ISR context.
+The exception concerns asynchronously executed syscalls which can't be
+used in ISR context (and thus can only be executed in main thread). 
+The developer must understand in which context a piece
+of code is executed before using a syscall.
+
+Some syscalls require also specific permissions, which are statically defined,
+set at build time.
 
 See each syscall property for more information.
 

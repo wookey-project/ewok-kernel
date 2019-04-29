@@ -3,6 +3,8 @@
 General FAQ
 ===========
 
+.. contents::
+
 .. highlight:: c
 
 Why applications main function is named _main?

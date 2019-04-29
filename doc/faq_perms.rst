@@ -3,6 +3,9 @@
 Permissions FAQ
 ===============
 
+.. contents::
+
+
 When using a library or a driver, are specific permissions required?
 --------------------------------------------------------------------
 

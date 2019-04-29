@@ -3,6 +3,8 @@
 Syscalls FAQ
 ============
 
+.. contents::
+
 What is the header to include to get the syscalls prototypes?
 -------------------------------------------------------------
 

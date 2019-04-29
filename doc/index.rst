@@ -107,16 +107,12 @@ microkernel architecture and the API provided to the user tasks are
 specifically designed for such a purpose.
 
 Note that despite being a microkernel, Ewok is not full-IPC driven like L4
-family microkernels.  Beyond this, and similarly to other kernels, EwoK
-interactions with the userspace are based on syscalls.  In the particular case
-of EwoK, a main application has two execution contexts: standard thread mode
-and ISR thread mode.  Some syscalls can be executed from any context while
-others cannot. This property is described in each syscall documentation, and
-the developer will have to refer to it and understand in which context a piece
-of code is executed before calling such a syscall.
+family microkernels.
 
-Some syscalls require some specific permissions. Those permissions are
-statically defined (set at build time).
+In the particular case
+of EwoK, a main application has two execution contexts: standard thread mode
+and ISR thread mode.
+
 
 The EwoK API is fully described in the following:
 
@@ -130,8 +126,6 @@ The EwoK API is fully described in the following:
 EwoK internals
 --------------
 
-If you want to hack into the kernel, EwoK internals are described here:
-
 .. toctree::
    :maxdepth: 1
 
@@ -142,12 +136,8 @@ If you want to hack into the kernel, EwoK internals are described here:
    Ewok scheduler <debug_sched>
 
 
-EwoK API FAQ
-------------
-
-Here are the answers to (we hope) the most common questions you may have when
-using EwoK kernel. The EwoK FAQ will be regulary updated when new questions
-arrises from the community.
+EwoK FAQ
+--------
 
 .. toctree::
    :maxdepth: 1
