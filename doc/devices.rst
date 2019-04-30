@@ -1,7 +1,7 @@
-.. _syscalls_complete:
+.. _devices:
 
-EwoK syscalls: the complete API
-===============================
+Managing devices from userland
+==============================
 
 .. contents::
 
@@ -15,20 +15,18 @@ Declaring a device
 ^^^^^^^^^^^^^^^^^^
 
 Declaring a device is required for any device type other than DMA controllers.
-.. highlight:: c
 
-The device structure is the following::
+The device structure is the following ::
 
     typedef struct {
-       char            name[16];          /**< device name */
-       physaddr_t      address;           /**< device base address */
-       uint16_t        size;              /**< device size (in bytes) */
-       uint8_t         irq_num;           /**< number of device IRQs */
-       uint8_t         gpio_num;          /**< number of device associated GPIOs */
-       dev_irq_info_t  irqs[MAX_IRQS];    /**< table of IRQ management infos */
-       dev_gpio_info_t gpios[MAX_GPIOS];  /**< table of GPIO configurations */
+       char            name[16];      /**< device name */
+       physaddr_t      address;       /**< device base address */
+       uint16_t        size;          /**< device size (in bytes) */
+       uint8_t         irq_num;       /**< number of device IRQs */
+       uint8_t         gpio_num;      /**< number of device associated GPIOs */
+       dev_irq_info_t  irqs[MAX_IRQS];   /**< table of IRQ management infos */
+       dev_gpio_info_t gpios[MAX_GPIOS]; /**< table of GPIO configurations */
     } device_t;
-
 
 A device is composed of:
 
@@ -71,7 +69,7 @@ their associated configuration, and the microkernel will enable and configure
 the GPIO itself.
 .. highlight:: c
 
-The device gpio table hosts the following structure::
+The device gpio table hosts the following structure ::
 
    typedef struct {
         gpio_mask_t         mask;
@@ -95,7 +93,7 @@ of the properties (e.g. if there is no alternate function to configure).
 The GPIO structure holds a ``kref`` field. This field encodes the GPIO PORT/PIN
 couple.
 
-Here is an example of a GPIO declaration example::
+Here is an example of a GPIO declaration example ::
 
     usart_dev.gpios[0].mask =
         GPIO_MASK_SET_MODE | GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED |
@@ -169,7 +167,7 @@ The EXTI_lock is one of the following:
 Declaring a device IRQ
 """"""""""""""""""""""
 
-The device IRQ declaration structure is the following::
+The device IRQ declaration structure is the following ::
 
    typedef struct {
        user_handler_t            handler;
@@ -189,7 +187,7 @@ This function has three parameters:
    * the first register read by the IRQ posthooks, if configured (see later)
    * the second register read by the IRQ posthooks, if configured (see later)
 
-with the following prototype::
+with the following prototype ::
 
    void handler(uint8_t irq, uint32_t sr, uint32_t dr);
 
@@ -207,7 +205,7 @@ return SYS_E_DENIED.
 
 By default, ISR execution awakes the task's main thread (make it runnable).
 This behavior can be modified by modifying the ``mode`` field of the IRQ
-declaration. This flag is based on the following enumerate::
+declaration. This flag is based on the following enumerate ::
 
    typedef enum {
      IRQ_ISR_STANDARD = 0,           /**< make main thread runnable */
@@ -314,7 +312,7 @@ when they are read or that may dynamically change between posthooks time
 
 Here is the example of posthook declaration for an USART driver. USART requires
 that the device DR register is read to stop sending IRQs. SR gives the current
-device state. Posthook is then easy to declare::
+device state. Posthook is then easy to declare ::
 
     usart_dev.irqs[0].posthook.status = 0x0000; /* SR register */
     usart_dev.irqs[0].posthook.data   = 0x0004; /* DR register */
@@ -333,7 +331,7 @@ device state. Posthook is then easy to declare::
 
 For the USB Full-Speed device, the device IRQ multiplexes various events that
 need to be checked against the status registers. Some events require specific
-masking to avoid IRQ bursts. Posthook declaration is more complex::
+masking to avoid IRQ bursts. Posthook declaration is more complex ::
 
     /* getting back SR and MSK */
     dev.irqs[0].posthook.status = 0x0014; /* SR register */
@@ -400,7 +398,7 @@ controller, the stream or the channel identifier.
 
 .. highlight:: c
 
-The DMA structure is the following::
+The DMA structure is the following ::
 
    typedef struct {
    	  physaddr_t in_addr;	    /**< DMA input base address */
@@ -428,7 +426,7 @@ Most of the time, a task declaring a DMA does not fill all the fields of the
 DMA structure. Usually, the ISR handlers and buffers are set later in the
 application implementation, as they can vary during the application execution.
 
-Here is a typical declaration used in the SDIO stack::
+Here is a typical declaration used in the SDIO stack ::
 
    dma.channel = DMA2_CHANNEL_SDIO;
    dma.dir = MEMORY_TO_PERIPHERAL; /* write by default */
@@ -485,9 +483,10 @@ Reconfiguring a DMA stream most of the time requires to reconfigure
 the buffer address and size (when using flip/flop buffers, or FIFO mode).
 Only the DMA circular mode does not require any action as the DMA is fully
 autonomous until the user task requires a DMA reset to stop the DMA action.
+
 .. highlight:: c
 
-Here is a typical, easy, DMA reconfiguration::
+Here is a typical, easy, DMA reconfiguration ::
 
    dma.out_addr = (physaddr_t)buffer;
    dma.size = buf_len;
@@ -526,7 +525,7 @@ would require to stop the DMA when executing the Transfer Complete ISR, and
 reloading it later.
 
 It is then possible to stop the DMA by simply disabling the stream.
-This is done using the sys_cfg(CFG_DMA_DISABLE) syscall::
+This is done using the sys_cfg(CFG_DMA_DISABLE) syscall ::
 
    ret = sys_cfg(CFG_DMA_DISABLE, dmadesc);
 
@@ -540,7 +539,8 @@ This syscall stops the current DMA transfer by clearing the DMA stream enable bi
 
 .. hint::
    Only exceptions to explicit DMA reconf/reload at each end of DMA transfer happen when:
-      * DMA is not its own flow controller (when another device manages the DMA transfers)
+      * DMA is not its own flow controller (when another device manages the DMA
+        transfers)
       * DMA is in circular mode (the DMA is looping on a buffer content)
 
 
@@ -548,7 +548,7 @@ When the task needs to restart the DMA without modifying the content of the
 dma_t structure, it can use the DMA identifier without passing the overall
 DMA structure to the kernel.
 
-It can then use the CFG_DMA_RELOAD syscall::
+It can then use the CFG_DMA_RELOAD syscall ::
 
    ret = sys_cfg(CFG_DMA_RELOAD, dma->id);
 
@@ -557,34 +557,35 @@ The associated DMA stream is then re-enabled.
 Declaring a DMA SHM
 ^^^^^^^^^^^^^^^^^^^
 
-Sometimes, a dataplane may be implemented using multiple tasks communicating with
-each others. When the internal device dataplane is manipulating DMA streams, the
-tasks may whish to optimize the data buffer transfer by using only DMA transfer
-between them instead of using manual buffer copy through IPC. This is the case
-in the Wookey project in which data buffers are transmitted through the CRYP device
-(in order to en(de)crypt data on the go, without requiring manual data copy between
-tasks.
+Sometimes, a dataplane may be implemented using multiple tasks communicating
+with each others. When the internal device dataplane is manipulating DMA
+streams, the tasks may whish to optimize the data buffer transfer by using only
+DMA transfer between them instead of using manual buffer copy through IPC. This
+is the case in the Wookey project in which data buffers are transmitted through
+the CRYP device (in order to en(de)crypt data on the go, without requiring
+manual data copy between tasks.
 
 For this case, EwoK permits to a given tasks couple to voluntary share a memory buffer.
 One of the task (the caller) is the owner of the memory buffer region and has it mapped
 in its own slot.
 
-The other task (the receiver), will then be able to request DMA transaction *from* or
-*toward* this memory buffer and a given hardware device (e.g. CRYP, HASH, or any device
-that read data stream through DMA requests as input).
-The receiver can never access to the memory buffer directly, and the memory buffer is
-never mapped in the receiver memory slots.
+The other task (the receiver), will then be able to request DMA transaction
+*from* or *toward* this memory buffer and a given hardware device (e.g. CRYP,
+HASH, or any device that read data stream through DMA requests as input).  The
+receiver can never access to the memory buffer directly, and the memory buffer
+is never mapped in the receiver memory slots.
 
-Sharing a memory buffer as a DMA SHM is controlled by the DMA SHM permission matrix.
-This permission matrix works in the same way the IPC matrix does, by creating one way
-communication channels between two tasks.
+Sharing a memory buffer as a DMA SHM is controlled by the DMA SHM permission
+matrix.
+This permission matrix works in the same way the IPC matrix does, by creating
+one way communication channels between two tasks.
 
 .. note::
-   As DMA SHM memory buffer address is usually not fixed at compile or build time,
-   DMA SHM declaration is often associated to an IPC which inform the receiver of the
-   buffer address and size
+   As DMA SHM memory buffer address is usually not fixed at compile or build
+   time, DMA SHM declaration is often associated to an IPC which inform the
+   receiver of the buffer address and size
 
-Here is a typicall usage of DMA SHM buffer::
+Here is a typicall usage of DMA SHM buffer ::
 
    const uint32_t bufsize = 4096;
    buf[bufsize] = { 0 };
@@ -595,7 +596,7 @@ Here is a typicall usage of DMA SHM buffer::
    dmashm_rd.source = task_id;
    dmashm_rd.address = (physaddr_t)flash_buf;
    dmashm_rd.size = bufsize;
-   /* receiver can only create DMA request *from* this buffer (read only) */
+   /* Receiver can only create DMA request *from* this buffer (read only) */
    dmashm_rd.mode = DMA_SHM_ACCESS_RD;
 
    printf("Declaring DMA_SHM for read flow\n");
@@ -604,6 +605,4 @@ Here is a typicall usage of DMA SHM buffer::
 
    sys_init(INIT_DONE);
 
-   /* [...] */
-   /* Sending an IPC to the receiver giving it buf addr and size */
-   // sys_ipc(IPC_SEND_SYNC, id_receiver, ...);
+

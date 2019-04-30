@@ -119,9 +119,9 @@ The EwoK API is fully described in the following:
 .. toctree::
    :maxdepth: 1
 
-   EwoK syscalls in large <syscalls>
-   EwoK syscalls complete guide <syscalls_complete>
-   EwoK permissions model <perms>
+   Syscalls <syscalls>
+   Using devices from userland <devices>
+   Permissions <perms>
 
 EwoK internals
 --------------
@@ -131,7 +131,6 @@ EwoK internals
 
    Ada/SPARK implementation <ada_spark>
    EwoK permissions <perms_internals>
-   EwoK syscalls <syscalls_internals>
    EwoK IRQ & ISR <isr_internals>
    Ewok scheduler <debug_sched>
 

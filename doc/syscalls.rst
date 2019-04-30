@@ -3,9 +3,105 @@
 EwoK syscalls
 =============
 
-Syscalls API is fully described, with all associated structures and enumerates,
-in the :ref:`syscalls_internals`. This page is an introduction to
-EwoK syscall usage and principles.
+.. sidebar:: Syscalls for managing devices
+
+   EwoK is designed to host userspace drivers and protocol stacks. Syscalls
+   are driver-oriented and mostly propose device management. To these syscalls
+   more *usual* syscalls are also proposed, for IPC and time measurement.
+
+.. contents::
+
+Overview
+--------
+
+In Ewok, syscall parameters are passed by a structure that resides on the
+stack. The use task updates ``r0`` register with the address of that structure,
+and executes the ``svc`` opcode, which trigger the *SVC* interrupt ::
+
+   e_syscall_ret sys_cfg_CFG_GPIO_GET(uint32_t cfgtype, uint8_t gpioref,
+                                      uint8_t * value)
+   {
+       struct gen_syscall_args args =
+           { SYS_CFG, cfgtype, gpioref, (uint32_t) value, 0 };
+       return do_syscall(&args);
+   }
+
+   e_syscall_ret do_syscall(__attribute__((unused)) struct gen_syscall_args *args)
+   {
+     e_syscall_ret ret;
+     asm volatile (
+           "svc #0\n"
+           "str  r0, %[ret]\n"
+           : [ret] "=m"(ret) :: "r0");
+     return ret;
+   }
+
+SVC interrupt automatically saves some registers onto the stack,
+before switching to the MSP stack.
+The ``r0`` register has a double function here. It's used to transmit the
+address of the structure containing the syscalls parameters, but it also stores
+the value returned by the syscall.
+
+Syscalls return values
+^^^^^^^^^^^^^^^^^^^^^^
+
+Syscalls return values may be the following:
+
+.. list-table::
+   :widths: 20 80
+
+   * - ``SYS_E_DONE``
+     - Syscall has succesfully being executed
+   * - ``SYS_E_INVAL``
+     - Invalid input data
+   * - ``SYS_E_DENIED``
+     - Permission is denied
+   * - ``SYS_E_BUSY``
+     - Target is busy, not enough resources, resource is already used
+
+.. danger::
+   Never use a syscall without checking its return value, this may lead to
+   invalid behavior
+
+
+
+
+Synchronous and asynchronous syscalls
+-------------------------------------
+
+EwoK supports a **wise syscall repartition** in its configuration. This
+repartition allows to execute only some specific syscalls in handler mode, as
+others are postponed in thread mode and executed by a kernel thread: softirq.
+
+The goal is to reduce as much as possible the duration of handler mode
+execution. When the core is being executed in handler mode, there are some
+restrictions:
+
+   * If the kernel does not support nested interrupts (this is the case of
+     EwoK), the execution can't be preempted by any event (including hardware
+     interrupts)
+   * If the kernel supports nested interrupts, only IRQ of higher priority can
+     preempt the current interrupt execution
+
+When the handler mode duration is too long, this may lead to IRQ shadowing
+(multiple interrupts of the same IRQ number, but not detected as the interrupt
+controller is temporary freezed) and may generate latency problems (reactivity
+impacts for devices without flow control like smartcard on IS7816-3 USART based
+buses for example).
+
+In the same time, postponing all syscalls may lead to performance problems when
+the syscall itself requires high reactivity. A typical example is
+``sys_get_systick()``, which requires a high level of precision.
+
+As a consequence, the EwoK kernel has separated its various syscalls depending
+on:
+
+   * their execution cost
+   * their reactivity constraints
+
+
+All synchronous syscalls are explicitly declared as synchronous in this documentation.
+
 
 Almost all syscalls can be executed in main tread and in ISR context.
 The exception concerns asynchronously executed syscalls which can't be
@@ -18,40 +114,9 @@ set at build time.
 
 See each syscall property for more information.
 
-.. sidebar:: About EwoK Syscalls phylosophy
-
-   EwoK is designed to host userspace drivers and protocol stacks. Syscalls
-   are driver-oriented and mostly propose device management. To these syscalls
-   more *usual* syscalls are also proposed, for IPC and time measurement.
-
-
-.. contents::
-
-
-.. highlight:: c
 
 General principles
 ------------------
-
-Syscalls return values
-^^^^^^^^^^^^^^^^^^^^^^
-
-EwoK syscalls have all the same return values::
-
-   typedef enum {
-     /** Syscall has succesfully being executed */
-      SYS_E_DONE = 0,
-     /** Invalid input data */
-      SYS_E_INVAL,
-     /** Permission is denied */
-      SYS_E_DENIED,
-     /** Target is busy, not enough resources, resource is already used */
-      SYS_E_BUSY,
-   } e_syscall_ret;
-
-.. danger::
-   Never use a syscall without checking its return value, this may lead to
-   invalid behavior
 
 
 Syscalls and the task lifecycle
