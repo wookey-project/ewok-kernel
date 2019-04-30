@@ -13,7 +13,7 @@ There are several scheduling schemes supported in EwoK:
 
    * Basic Round-Robin
    * Random scheduler
-   * Rate-Monotonic
+   * MLQ_RR (Multi-Queue Round-Robin)
 
 All scheduling schemes are constrained by the following:
 
@@ -57,10 +57,10 @@ The scheduler tries 32 times before executing the idle task.
 
 This scheduler is mostly an example scheduling scheme.
 
-Rate-Monotonic scheduler
-^^^^^^^^^^^^^^^^^^^^^^^^
+MLQ-RR scheduler
+^^^^^^^^^^^^^^^^
 
-The Rate-Monotonic scheduler is the only scheduling scheme of EwoK supporting
+The MLQ-RR scheduler is the only scheduling scheme of EwoK supporting
 task priorities.
 This scheduler is able to schedule tasks based on their priority using the
 following rules:
