@@ -1,3 +1,5 @@
+.. _sys_lock:
+
 sys_lock
 --------
 EwoK kernel-based locking mechanism

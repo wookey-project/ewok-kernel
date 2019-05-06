@@ -1,7 +1,7 @@
 .. _ada_spark:
 
-Ewok Ada/SPARK kernel
-=====================
+Ada/SPARK for a secure kernel
+=============================
 
 The EwoK microkernel is an Ada/SPARK kernel with very few lines of C.
 
@@ -30,46 +30,9 @@ safety-critical applications and embedded systems.
 From C to Ada
 -------------
 
-Developing in C and in Ada is quite different.
-However, interoperability between these two languages is very facilitated
-by the GNAT providing a
+Interoperability between C and Ada is facilitated
+by GNAT providing a
 `full interface to C <https://docs.adacore.com/gnat_rm-docs/html/gnat_rm/gnat_rm/interfacing_to_other_languages.html#>`_.
-
-To allow an
-implementation of interchangeable Ada and C modules, Ada modules are decomposed
-in two main blocks:
-
-   * A small interface design pattern which helps to abstract the Ada part of
-     the module and serves the same API as the equivalent C module
-
-       * This interface has nearly no intelligence at all and export all its
-         types, functions and procedures to C code
-   * The Ada module itself, which is free to use an Ada-oriented paradigm
-
-.. note::
-   See also, this `website <https://learn.adacore.com/>`_ is a really valuable resource
-   for learning Ada.
-
-The EwoK kernel supports a dual implementation (C & Ada). Each module Ada/Spark
-implementation replaces the C implementation in the Ada version of the kernel.
-The Ada/Spark port with API compatible support of each module has been done
-progressively, by integrating the first Ada/Spark modules as exceptions, then
-reducing the C interface to the residual C modules only.
-
-*initial Ada/Spark integration*
-
-.. image:: img/ada_c.png
-   :width: 400 px
-   :alt: Ework Ada/C integration
-   :align: center
-
-*Finalization of Ada/Spark integration*
-
-.. image:: img/ada_c_2.png
-   :width: 400 px
-   :alt: Ework Ada/C integration
-   :align: center
-
 
 Importing C symbols in Ada
 """"""""""""""""""""""""""
@@ -179,9 +142,10 @@ EwoK, various packages and subpackages are used.
    * Core-related packages belong to the core-relative package (e.g. `m4` for
      Cortex-M4)
 
-As the EwoK kernel is an hybrid C/Ada/SPARK kernel, some packages require
+EwoK kernel is implemented wiht a little bit of C. Thus, some Ada/SPARK
+packages require
 an external interface with the C code. For a given package *foo* interacting
-with external C code, a *foo_interface* package must exist.
+with external C code, a *foo_interface* package must be defined.
 
 In the same way, as some various C types (structures, union, enumerates, etc.)
 have to be used in the interfaces packages, the following C-specific packages
@@ -225,15 +189,15 @@ tools/ directory of the SDK:
    * tools/apps/permissions.pl: generates the application permissions header
 
 
+Static verification with SPARK
+------------------------------
 
-SPARK in EwoK
-=============
+SPARK permits to prove the lack of *Run Time Errors* in some code.
 
 .. highlight:: ada
 
-EwoK uses SPARK in the modules requiring formal validation and proofs.
-
-Here is an example of such usage ::
+EwoK uses `SPARK <https://www.adacore.com/about-spark>`_ in the modules
+requiring formal validation and proofs. Exemple ::
 
    function ipc_is_granted
       (from    : in t_real_task_id;
@@ -245,38 +209,17 @@ Here is an example of such usage ::
              Contract_Cases => (ewok.perm_auto.com_ipc_perm(from,to) => ipc_is_granted'Result,
                                 others                               => not ipc_is_granted'Result);
 
-This specification uses various SPARK properties:
+This specification uses various SPARK *contracts*:
 
-   * Global usage declaration, which allows to specify that the function is
-     using a global variable of the ewok.perm_auto package as read only.
-   * Postcondition specification, requiring that for the specific use case
-     where from and to are equal, the result of the function must be false,
-     whatever the table content is.
-   * A contract case, that describes the contract of the function as a fixed
-     length list of possible values. This list is the exhaustive list of the
-     possible results.
+   * ``Contract_Case`` describes the contract that must be satisfied by
+     the subprogram
+   * ``Global`` describes the global variables used by a subprogram
+   * ``Postcondition`` indicates conditions that must be satisfied
+     when the program has completed.
 
-Impact of SPARK
----------------
+SPARK in Ewok
+"""""""""""""
 
-Spark helps to prove the absence of RTE (Run Time Errors) on the blocks of
-code that has been correctly proven. We also use it to validate some specific
-security-oriented behaviors.
-
-A typical example is to prove that the kernel never maps a memory region which
-can be both writeable and executable (aka W^X proof).
-
-For this, we use ghost functions and preconditions. The ghost function checks
-the wanted properties, the precondition is checked at build time by the prover.
-If the prover can't prove it at build time (e.g. when inputs depend on dynamic
-content, lazy checks, etc.) the prover refuses to validate the precondition.
-
-Here is the ghost function checking the W^X conditions on the STM32 MPU ::
-
-   -- Only used by SPARK prover
-   function region_not_rwx(region : t_region_config) return boolean
-       is (region.xn = true or region.access_perm = REGION_AP_RO_RO or
-           region.access_perm = REGION_AP_NO_NO)
-       with ghost;
-
+With SPARK, we proved that the kernel never maps a memory region which
+can be both writable and executable (*W^X* security principle).
 

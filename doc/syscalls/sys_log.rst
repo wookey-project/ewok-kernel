@@ -1,3 +1,5 @@
+.. _sys_log:
+
 sys_log
 -------
 EwoK serial interface logging API

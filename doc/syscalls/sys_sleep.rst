@@ -1,3 +1,5 @@
+.. _sys_sleep:
+
 sys_sleep
 ---------
 EwoK voluntary sleep API

@@ -1,3 +1,5 @@
+.. _sys_yield:
+
 sys_yield
 ---------
 EwoK time slot releasing API

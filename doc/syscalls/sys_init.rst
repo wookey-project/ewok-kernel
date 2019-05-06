@@ -1,3 +1,5 @@
+.. _sys_init:
+
 sys_init
 --------
 EwoK ressource registration API

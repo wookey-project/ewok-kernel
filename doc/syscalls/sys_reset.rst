@@ -1,3 +1,5 @@
+.. _sys_reset:
+
 sys_reset
 ---------
 EwoK SoC software reset API

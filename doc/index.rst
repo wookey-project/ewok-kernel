@@ -14,18 +14,15 @@ EwoK microkernel
 .. contents::
    :depth: 2
 
-What is Ewok ?
+What is EwoK ?
 --------------
 
-EwoK is a microkernel targeting micro-controllers and embedded systems.
-It aims to bring an efficient hardening of embedded
-devices with a reduced impact on the device performances.
+EwoK is a microkernel targeting micro-controllers and embedded systems
+aiming to build secure and trusted devices.
 
-EwoK has been designed to host complex drivers in userspace. Unlike most of
-other microkernels, the goal is to support complex software stacks (ISO7816,
-...) as well as high performance (USB, SDIO, CRYP) drivers. This makes EwoK
-valuable for multiple use cases, including high speed and security targeted
-devices.
+Drivers are hold in userspace. Unlike most of
+other microkernels, the goal is to support complex drivers (ISO7816,
+USB, CRYP, SDIO) while achieving high performances.
 
 Security properties
 ^^^^^^^^^^^^^^^^^^^
@@ -41,18 +38,16 @@ EwoK supports the following properties:
    * Proved W^X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
-Ewok provides to the userspace drivers a specific interface to allow them to
-use the DMA engines. It permits to achieve high performance, specifically with
-high speed buses.
-
-Nevertheless, DMA registers are never directly accessible to user tasks and any
-DMA configuration implies a validation of all the inputs by the kernel before
-any modification of the controller is pushed at the hardware level.
-
 Performances
 ^^^^^^^^^^^^
 
-TODO
+Unlike other microkernels, EwoK allows userland drivers to uses
+DMA, GPIOs and EXTIs with the help of some specific syscalls.
+Such interfaces are directly implemented in the kernel, in order to
+achieve better performances. Indeed, some hardware need a very
+responsive software and such responsiveness can not easily be
+achieved in a typicaly minimalistic microkernel (like the L4 family).
+
 
 EwoK architecture
 -----------------
@@ -60,11 +55,11 @@ EwoK architecture
 Kernel architecture
 ^^^^^^^^^^^^^^^^^^^
 
-Ewok architecture is divided into two main components: the **libbsp** and the
+The kernel is divided into two main components: the **libbsp** and the
 **kernel** part.
 
 .. image:: img/ewok_precise_arch.png
-   :alt: Ework kernel architecture
+   :alt: EwoK kernel architecture
    :align: center
 
 The *libbsp* is the hardware abstraction layer, hosting all the low level and
@@ -79,11 +74,11 @@ The *kernel* part contains all specific high level content (scheduling, task
 management, syscalls, etc.) and uses the libbsp as a hardware abstraction for
 any low-level interaction.
 
-Drivers architecture
-^^^^^^^^^^^^^^^^^^^^
+Drivers
+^^^^^^^
 
 .. image:: img/ewok_stack.png
-   :alt: Ework generic software architecture
+   :alt: EwoK generic software architecture
    :align: center
 
 The :ref:`lib_std` (*libstd*) is a C standard library that can be used
@@ -101,20 +96,13 @@ implementations.
 EwoK API
 --------
 
-The EwoK API is tuned for embedded systems, targeting userspace drivers
-implementation with performance and security constraints in mind. The whole
-microkernel architecture and the API provided to the user tasks are
-specifically designed for such a purpose.
+EwoK is tuned for high performance embedded systems.
+The whole microkernel architecture and the provided API are
+specifically designed for that purpose.
+Note that EwoK is not a full-IPC driven microkernel, like the L4
+family.
 
-Note that despite being a microkernel, Ewok is not full-IPC driven like L4
-family microkernels.
-
-In the particular case
-of EwoK, a main application has two execution contexts: standard thread mode
-and ISR thread mode.
-
-
-The EwoK API is fully described in the following:
+The EwoK API is described here:
 
 .. toctree::
    :maxdepth: 1
@@ -123,8 +111,8 @@ The EwoK API is fully described in the following:
    Using devices from userland <devices>
    Permissions <perms>
 
-EwoK internals
---------------
+Internals
+---------
 
 .. toctree::
    :maxdepth: 1
@@ -132,11 +120,11 @@ EwoK internals
    Ada/SPARK implementation <ada_spark>
    EwoK permissions <perms_internals>
    EwoK IRQ & ISR <isr_internals>
-   Ewok scheduler <debug_sched>
+   EwoK scheduler <debug_sched>
 
 
-EwoK FAQ
---------
+FAQ
+---
 
 .. toctree::
    :maxdepth: 1

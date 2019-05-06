@@ -1,3 +1,5 @@
+.. _sys_get_systick:
+
 sys_get_systick
 ---------------
 EwoK time measurement API

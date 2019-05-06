@@ -1,3 +1,5 @@
+.. _sys_get_random:
+
 sys_get_random
 --------------
 EwoK RNG accessor
