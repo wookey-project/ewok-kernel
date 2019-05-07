@@ -49,7 +49,7 @@ typedef enum {
  * dbg_log - log strings in ring buffer
  * @fmt: format string
  */
-void dbg_log(const char *fmt, ...);
+int dbg_log(const char *fmt, ...);
 
 /**
  * menuconfig controlled debug print

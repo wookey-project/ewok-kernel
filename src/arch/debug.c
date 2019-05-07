@@ -20,7 +20,7 @@
  *     limitations under the License.
  *
  */
-#include <stdarg.h>
+#include "stdarg.h"
 
 #include "autoconf.h"
 #include "debug.h"
@@ -28,8 +28,7 @@
 #include "product.h"
 #include "soc-usart.h"
 
-#define BUF_SIZE	512
-#define BUF_MAX		(BUF_SIZE - 1)
+#define BUF_MAX		512
 
 #ifndef CONFIG_KERNEL_NOSERIAL
 volatile int logging = CONFIG_KERNEL_CONSOLE_TXT;
@@ -41,16 +40,24 @@ cb_usart_putc_t console_putc = NULL;
 static struct {
     uint32_t start;
     uint32_t end;
-    char buf[BUF_SIZE];
+    bool     full;
+    char buf[BUF_MAX];
 } ring_buffer;
 
 void init_ring_buffer(void)
 {
-    int i = 0;
+    /* init flags */
+    int     i = 0;
+
     ring_buffer.end = 0;
     ring_buffer.start = ring_buffer.end;
+    ring_buffer.full = false;
 
-    for (i = 0; i < BUF_SIZE; i++) {
+    /* memsetting buffer
+     * NOTE: This may be useless as, in EwoK, the BSS is zeroified
+     * at boot time.
+     */
+    for (i = 0; i < BUF_MAX; i++) {
         ring_buffer.buf[i] = '\0';
     }
 }
@@ -107,52 +114,84 @@ void debug_console_init(void)
 #endif
 }
 
-static void PUT_CHAR(const char c)
+static void ring_buffer_reset(void)
 {
-	ring_buffer.buf[ring_buffer.end++] = c;
-	ring_buffer.end %= BUF_MAX;
-	if (ring_buffer.end == ring_buffer.start) {
-		ring_buffer.start++;
-		ring_buffer.start %= BUF_MAX;
-	}
+    ring_buffer.end = 0;
+    ring_buffer.start = ring_buffer.end;
+    ring_buffer.full = false;
+
+    memset(ring_buffer.buf, 0x0, BUF_MAX);
+}
+
+static inline void ring_buffer_write_char(const char c)
+{
+    /* if the ring buffer is full when we try to put char in it,
+     * the car is discared, waiting for the ring buffer to be flushed.
+     */
+    if (ring_buffer.full) {
+        goto end;
+    }
+    ring_buffer.buf[ring_buffer.end] = c;
+    if (((ring_buffer.end + 1) % BUF_MAX) != ring_buffer.start) {
+        ring_buffer.end++;
+        ring_buffer.end %= BUF_MAX;
+    } else {
+        /* full buffer detection */
+        ring_buffer.full = true;
+    }
+ end:
+    return;
 }
 
 /* functions implemented only when serial is activated */
-static void write_digit(uint8_t digit)
+static inline void ring_buffer_write_digit(uint8_t digit)
 {
     if (digit < 0xa) {
         digit += '0';
-    } else {
+        ring_buffer_write_char(digit);
+    } else if (digit <= 0xf) {
         digit += 'a' - 0xa;
-    }
-    PUT_CHAR(digit);
-}
-
-static void itoa(unsigned long long value, uint8_t base)
-{
-    if (value / base == 0) {
-        write_digit(value % base);
-    } else {
-        itoa(value / base, base);
-        write_digit(value % base);
+        ring_buffer_write_char(digit);
     }
 }
 
-static void copy_string(char *str, uint32_t len)
+static void ring_buffer_write_number(uint64_t value, uint8_t base)
 {
-    uint32_t size =
-        len < (BUF_MAX - ring_buffer.end) ? len : BUF_MAX - ring_buffer.end;
-    strncpy(ring_buffer.buf + ring_buffer.end, str, size);
-    uint32_t dist = ring_buffer.start - ring_buffer.end;
-    if (ring_buffer.end < ring_buffer.start && dist < size) {
-        ring_buffer.start += size - dist + 1;
-        ring_buffer.start %= BUF_MAX;
+    /* we define a local storage to hold the digits list
+     * in any possible base up to base 2 (64 bits) */
+    uint8_t number[64] = { 0 };
+    int     index = 0;
+
+    for (; (value / base) != 0; value /= base) {
+        number[index++] = value % base;
     }
-    ring_buffer.end += size;
-    ring_buffer.end %= BUF_MAX;
-    if (len - size)
-        copy_string(str + size, len - size);
+    /* finishing with most significant unit */
+    number[index++] = value % base;
+
+    /* Due to the last 'index++', index is targetting the first free cell.
+     * We make it points the last *used* cell instead */
+    index--;
+
+    /* now we can print out, starting with the most significant unit */
+    for (; index >= 0; index--) {
+        ring_buffer_write_digit(number[index]);
+    }
 }
+
+static inline void ring_buffer_write_string(char *str, uint32_t len)
+{
+    if (!str) {
+        goto end;
+    }
+    for (uint32_t i = 0; (i < len) && (str[i]); ++i) {
+        ring_buffer_write_char(str[i]);
+    }
+ end:
+    return;
+}
+
+
+
 
 #ifndef CONFIG_KERNEL_NOSERIAL
 /* flush behavior with activated serial... */
@@ -174,72 +213,472 @@ void dbg_flush(void)
 }
 #endif
 
-static void print(const char *fmt, va_list args)
+static uint8_t get_number_len(uint64_t value, uint8_t base)
 {
-    uint32_t i = 0;
-    char *string;
+    /* at least, if value is 0, its lenght is 1 digit */
+    uint8_t len = 1;
 
-    for (i = 0; fmt[i]; i++) {
-        if (fmt[i] == '%') {
-            i++;
-            switch (fmt[i]) {
-            case 'd':
-                itoa(va_arg(args, uint32_t), 10);
-                break;
-            case 'x':
-                PUT_CHAR('0');
-                PUT_CHAR('x');
-                itoa(va_arg(args, uint32_t), 16);
-                break;
-            case '%':
-                PUT_CHAR('%');
-                break;
-            case 's':
-                string = va_arg(args, char *);
-                copy_string(string, strlen(string));
-                break;
-            case 'l':
-                if (fmt[i + 1] == 'l' && fmt[i + 2] == 'd') {
-                    itoa(va_arg(args, unsigned long long), 10);
-                    i += 2;
-                } else if (fmt[i + 1] == 'd') {
-                    itoa(va_arg(args, unsigned long), 10);
-                    i++;
-                }
-                break;
-            case 'c':
-                PUT_CHAR((unsigned char)va_arg(args, int));
-                break;
-            default:
-                PUT_CHAR('?');
-            }
-        } else if (fmt[i] == '\n' && fmt[i + 1] != '\r') {
-            copy_string("\n\r", 2);
-        } else {
-            PUT_CHAR(fmt[i]);
-        }
+    /* now we calculate the number of digits in the number */
+    for (; (value / base) != 0; value /= base) {
+        len++;
     }
+    return len;
 }
 
-void dbg_log(const char *fmt, ...)
-{
-    va_list args;
 
+
+typedef enum {
+    FS_NUM_DECIMAL,
+    FS_NUM_HEX,
+    FS_NUM_UCHAR,
+    FS_NUM_SHORT,
+    FS_NUM_LONG,
+    FS_NUM_LONGLONG,
+    FS_NUM_UNSIGNED,
+} fs_num_mode_t;
+
+typedef struct {
+    bool    attr_0len;
+    bool    attr_size;
+    uint8_t size;
+    fs_num_mode_t numeric_mode;
+    bool    started;
+    uint8_t consumed;
+    uint32_t strlen;
+} fs_properties_t;
+
+
+
+
+static uint8_t print_handle_format_string(const char *fmt, va_list * args,
+                                          uint8_t * consumed,
+                                          uint32_t * out_str_len)
+{
+    fs_properties_t fs_prop = {
+        .attr_0len = false,
+        .attr_size = false,
+        .size = 0,
+        .numeric_mode = FS_NUM_DECIMAL, /*default */
+        .started = false,
+        .consumed = 0,
+        .strlen = 0
+    };
+
+    /*
+     * Sanitation
+     */
+    if (!fmt || !args || !consumed) {
+        return 1;
+    }
+
+    /* Let parse the format string ... */
+    do {
+        /*
+         * Handling '%' character
+         */
+        switch (fmt[fs_prop.consumed]) {
+            case '%':
+                {
+                    if (fs_prop.started == false) {
+                        /* starting string format parsing */
+                        fs_prop.started = true;
+                    } else if (fs_prop.consumed == 1) {
+                        /* detecting '%' just after '%' */
+                        ring_buffer_write_char('%');
+                        fs_prop.strlen++;
+                        /* => end of format string */
+                        goto end;
+                    } else {
+                        /* invalid: there is content before two '%' chars
+                         * in the same format_string (e.g. %02%) */
+                        goto err;
+                    }
+                    break;
+                }
+            case '0':
+                {
+                    /*
+                     * Handling '0' character
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.attr_0len = true;
+                    /* 0 must be completed with size content. We check it now */
+                    while ((fmt[fs_prop.consumed + 1] >= '0') &&
+                           (fmt[fs_prop.consumed + 1] <= '9')) {
+                        /* getting back the size. Here only decimal values are handled */
+                        fs_prop.size =
+                            (fs_prop.size * 10) +
+			    (fmt[fs_prop.consumed + 1] - '0');
+                        fs_prop.consumed++;
+                    }
+                    /* if digits have been found after the 0len format string, attr_size is
+                     * set to true
+                     */
+                    if (fs_prop.size != 0) {
+                        fs_prop.attr_size = true;
+                    }
+                    break;
+                }
+            case 'd':
+            case 'i':
+                {
+                    /*
+                     * Handling integers
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_DECIMAL;
+                    int     val = va_arg(*args, int);
+                    uint8_t len = get_number_len(val, 10);
+
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    ring_buffer_write_number(val, 10);
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'l':
+                {
+                    /*
+                     * Handling long and long long int
+                     */
+                    long    lval = 0;
+                    long long llval = 0;
+                    uint8_t len;
+
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_LONG;
+                    /* detecting long long */
+                    if (fmt[fs_prop.consumed + 1] == 'l') {
+                        fs_prop.numeric_mode = FS_NUM_LONGLONG;
+                        fs_prop.consumed++;
+                    }
+                    if (fs_prop.numeric_mode == FS_NUM_LONG) {
+                        lval = va_arg(*args, long);
+
+                        len = get_number_len(lval, 10);
+                    } else {
+                        llval = va_arg(*args, long long);
+
+                        len = get_number_len(llval, 10);
+                    }
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    if (fs_prop.numeric_mode == FS_NUM_LONG) {
+                        ring_buffer_write_number(lval, 10);
+                    } else {
+                        ring_buffer_write_number(llval, 10);
+                    }
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'h':
+                {
+                    /*
+                     * Handling long and long long int
+                     */
+                    short   s_val = 0;
+                    unsigned char uc_val = 0;
+                    uint8_t len;
+
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_SHORT;
+                    /* detecting long long */
+                    if (fmt[fs_prop.consumed + 1] == 'h') {
+                        fs_prop.numeric_mode = FS_NUM_UCHAR;
+                        fs_prop.consumed++;
+                    }
+                    if (fs_prop.numeric_mode == FS_NUM_SHORT) {
+                        s_val = (short) va_arg(*args, int);
+
+                        len = get_number_len(s_val, 10);
+                    } else {
+                        uc_val = (unsigned char) va_arg(*args, int);
+
+                        len = get_number_len(uc_val, 10);
+                    }
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    if (fs_prop.numeric_mode == FS_NUM_SHORT) {
+                        ring_buffer_write_number(s_val, 10);
+                    } else {
+                        ring_buffer_write_number(uc_val, 10);
+                    }
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'u':
+                {
+                    /*
+                     * Handling unsigned
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_UNSIGNED;
+                    uint32_t val = va_arg(*args, uint32_t);
+                    uint8_t len = get_number_len(val, 10);
+
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    ring_buffer_write_number(val, 10);
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'p':
+                {
+                    /*
+                     * Handling pointers. Include 0x prefix, as if using
+                     * %#x format string in POSIX printf.
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    uint32_t val = va_arg(*args, physaddr_t);
+                    uint8_t len = get_number_len(val, 16);
+
+                    ring_buffer_write_string("0x", 2);
+                    for (uint32_t i = len; i < fs_prop.size; ++i) {
+                        ring_buffer_write_char('0');
+                        fs_prop.strlen++;
+                    }
+                    /* now we can print the number in argument */
+                    ring_buffer_write_number(val, 16);
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+
+            case 'x':
+                {
+                    /*
+                     * Handling hexadecimal
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_UNSIGNED;
+                    uint32_t val = va_arg(*args, uint32_t);
+                    uint8_t len = get_number_len(val, 16);
+
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    ring_buffer_write_number(val, 16);
+                    fs_prop.strlen += len;
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'o':
+                {
+                    /*
+                     * Handling octal
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    fs_prop.numeric_mode = FS_NUM_UNSIGNED;
+                    uint32_t val = va_arg(*args, uint32_t);
+                    uint8_t len = get_number_len(val, 8);
+
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        /* we have to pad with 0 the number to reach
+                         * the desired size */
+                        for (uint32_t i = len; i < fs_prop.size; ++i) {
+                            ring_buffer_write_char('0');
+                            fs_prop.strlen++;
+                        }
+                    }
+                    /* now we can print the number in argument */
+                    ring_buffer_write_number(val, 8);
+                    fs_prop.strlen += len;
+
+                    /* => end of format string */
+                    goto end;
+                }
+            case 's':
+                {
+                    /*
+                     * Handling strings
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    /* no size or 0len attribute for strings */
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        goto err;
+                    }
+                    char   *str = va_arg(*args, char *);
+
+                    /* now we can print the number in argument */
+                    ring_buffer_write_string(str, strlen(str));
+                    fs_prop.strlen += strlen(str);
+
+                    /* => end of format string */
+                    goto end;
+                }
+            case 'c':
+                {
+                    /*
+                     * Handling chars
+                     */
+                    if (fs_prop.started == false) {
+                        goto err;
+                    }
+                    /* no size or 0len attribute for strings */
+                    if (fs_prop.attr_size && fs_prop.attr_0len) {
+                        goto err;
+                    }
+                    unsigned char val = (unsigned char) va_arg(*args, int);
+
+                    /* now we can print the number in argument */
+                    ring_buffer_write_char(val);
+
+                    /* => end of format string */
+                    goto end;
+                }
+
+                /* none of the above. Unsupported format */
+            default:
+                {
+                    /* should not happend, unable to parse format string */
+                    goto err;
+                    break;
+                }
+
+        }
+        fs_prop.consumed++;
+    } while (fmt[fs_prop.consumed]);
+ end:
+    *out_str_len += fs_prop.strlen;
+    *consumed = fs_prop.consumed + 1;   /* consumed is starting with 0 */
+    return 0;
+ err:
+    *out_str_len += fs_prop.strlen;
+    *consumed = fs_prop.consumed + 1;   /* consumed is starting with 0 */
+    return 1;
+}
+
+
+static int print(const char *fmt, va_list args, logsize_t *sizew)
+{
+    int     i = 0;
+    uint8_t consumed = 0;
+    uint32_t out_str_s = 0;
+
+    while (fmt[i]) {
+        if (fmt[i] == '%') {
+            if (print_handle_format_string
+                (&(fmt[i]), &args, &consumed, &out_str_s)) {
+                /* the string format parsing has failed ! */
+                goto err;
+            }
+            i += consumed;
+            consumed = 0;
+        } else if (fmt[i] == '\n') {
+		/* carriage return and line breaks are both requested
+		 * on USART line */
+		ring_buffer_write_string("\r\n", 2);
+		out_str_s += 2;
+		i++;
+	} else {
+            out_str_s++;
+            ring_buffer_write_char(fmt[i++]);
+        }
+    }
+    *sizew = out_str_s;
+    return 0;
+ err:
+    *sizew = out_str_s;
+    return -1;
+}
+
+int dbg_log(const char *fmt, ...)
+{
+    int     res = -1;
+    va_list args;
+    logsize_t  len;
+
+    /*
+     * if there is some asyncrhonous printf to pass to the kernel, do it
+     * before execute the current printf command
+     */
     va_start(args, fmt);
-    print(fmt, args);
+    res = print(fmt, args, &len);
     va_end(args);
+    if (res == -1) {
+        ring_buffer_reset();
+        goto err;
+    }
+ err:
+    return res;
 }
 
 /* WARNING: in NOSERIAL mode, panic doesn't printout any information */
 void panic(char *fmt, ...)
 {
     va_list args;
+    logsize_t  len;
 
     va_start(args, fmt);
-    print(fmt, args);
+    print(fmt, args, &len);
     va_end(args);
     dbg_flush();
-    __asm__ volatile ("bkpt\n");
+#if CONFIG_KERNEL_PANIC_FREEZE 
     while (1)
         continue;
+#elif CONFIG_KERNEL_PANIC_REBOOT
+    NVIC_SystemReset();
+    /* and wait... */
+    while (1);
+#else
+    /* fallback */
+    while (1)
+        continue;
+#endif
 }
