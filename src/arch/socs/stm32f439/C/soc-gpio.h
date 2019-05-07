@@ -368,4 +368,6 @@ void    soc_gpio_set_value(gpioref_t   kref,
 
 uint8_t soc_gpio_get(gpioref_t   kref);
 
+bool soc_gpio_exists(gpioref_t kref);
+
 #endif/*!SOC_GPIO_H */

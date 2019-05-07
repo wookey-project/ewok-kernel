@@ -513,6 +513,9 @@ retval_t dev_sanitize_user_defined_gpio
     (device_t *udev __attribute__((unused)), dev_gpio_info_t gpioinfo,
      e_task_id task_id)
 {
+    if (!soc_gpio_exists(gpioinfo.kref)) {
+        return FAILURE;
+    }
     if ((gpioinfo.exti_trigger != GPIO_EXTI_TRIGGER_NONE) &&
         (!perm_ressource_is_granted(PERM_RES_DEV_EXTI, task_id)))
     {

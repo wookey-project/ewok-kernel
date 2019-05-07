@@ -48,6 +48,14 @@ static uint32_t soc_gpio_get_port_base (gpioref_t kref)
     return port_base;
 }
 
+bool soc_gpio_exists(gpioref_t kref)
+{
+    if (soc_gpio_get_port_base(kref) == 0) {
+        return false;
+    }
+    return true;
+}
+
 void soc_gpio_set_mode(volatile uint32_t * gpioX_moder, uint8_t pin,
                        uint8_t mode)
 {
