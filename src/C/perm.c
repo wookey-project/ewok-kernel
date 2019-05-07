@@ -26,6 +26,7 @@
 #include "tasks.h"
 #include "gen_perms.h"
 #include "debug.h"
+#include "generated/apps_layout.h"
 
 /*
  * These defines are not used by now (they require the usage of a
