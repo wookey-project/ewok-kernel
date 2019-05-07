@@ -15,7 +15,7 @@
  * \brief Task table accessor naming enumerate
  */
 typedef enum {
-    ID_UNUSED,
+    ID_UNUSED = 0,
     ID_APP1,       /* User app of slot 1 */
     ID_APP2,       /* User app of slot 2 */
     ID_APP3,       /* User app of slot 3 */

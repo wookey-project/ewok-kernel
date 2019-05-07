@@ -103,6 +103,13 @@ static ressource_reg_t perm_get_ressource_register(e_task_id task_identifier)
 bool perm_dmashm_is_granted(e_task_id from,
                             e_task_id to)
 {
+    /* sanitizing */
+    if ((from == ID_UNUSED) || (to == ID_UNUSED)) {
+        return false;
+    }
+    if ((from > ID_APPMAX) || (to > ID_APPMAX)) {
+        return false;
+    }
     /*
      * In C, table rows start with 0. EwoK id start with 1,
      * we need to decrement id in consequence
@@ -127,6 +134,13 @@ bool perm_dmashm_is_granted(e_task_id from,
 bool perm_ipc_is_granted(e_task_id from,
                          e_task_id to)
 {
+    /* sanitizing */
+    if ((from == ID_UNUSED) || (to == ID_UNUSED)) {
+        return false;
+    }
+    if ((from > ID_APPMAX) || (to > ID_APPMAX)) {
+        return false;
+    }
     /*
      * In C, table rows start with 0. EwoK id start with 1,
      * we need to decrement id in consequence
