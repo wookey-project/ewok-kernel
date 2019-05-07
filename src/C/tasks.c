@@ -357,15 +357,15 @@ const char* task_get_name(e_task_id id)
 */
 uint8_t task_is_user(e_task_id id)
 {
-    if (id > ID_MAX) {
+    if (id > ID_APPMAX) {
         /* Not a valid id (generates a table overflow), may be a ANY_APP id */
-        return 0;
+        return false;
     }
     /* id higher thant MAXTASKS */
-    if (id >= ID_APP1 && id <= ID_APP1 + CONFIG_MAXTASKS - 1) {
-        return 1;
+    if (id >= ID_APP1 && id <= ID_APPMAX) {
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /************************************************************************

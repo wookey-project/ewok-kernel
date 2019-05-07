@@ -171,8 +171,13 @@ void init_do_reg_devaccess(e_task_id caller_id, __user regval_t *regs, e_task_mo
         dbg_flush();
         goto ret_busy;
     }
+    if (caller->num_devs == (MAX_DEVS_PER_TASK - 1)) {
+        KERNLOG(DBG_ERR, "No more free space in task context for device\n");
+        dbg_flush();
+        goto ret_busy;
+    }
 
-    caller->dev_id[caller->num_devs] = device_id; // FIXME - overflow
+    caller->dev_id[caller->num_devs] = device_id;
 
     if (udev->size != 0 && udev->map_mode == DEV_MAP_AUTO) {
         caller->num_devs_mmapped++;
@@ -181,7 +186,7 @@ void init_do_reg_devaccess(e_task_id caller_id, __user regval_t *regs, e_task_mo
     /* Identifier to transmit to userspace */
     *descriptor = caller->num_devs;
 
-    caller->num_devs++; // FIXME - overflow
+    caller->num_devs++;
 
     ret = dev_register_gpios(device_id, caller_id);
     if (ret == 1) {
