@@ -118,9 +118,9 @@ Internals
    :maxdepth: 1
 
    Ada/SPARK implementation <ada_spark>
-   EwoK permissions <perms_internals>
-   EwoK IRQ & ISR <isr_internals>
-   EwoK scheduler <debug_sched>
+   EwoK permission internals <perms_internals>
+   EwoK IRQ & ISR internals <isr_internals>
+   EwoK scheduler internals <debug_sched>
 
 
 FAQ
