@@ -73,7 +73,7 @@ void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)
 
     tasks_list = task_get_tasks_list();
 
-    for (e_task_id peer = ID_APP1; peer <= ID_APP7; ++peer) {
+    for (e_task_id peer = ID_APP1; peer <= ID_APPMAX; ++peer) {
         if (strcasecmp(task_name, tasks_list[peer].name) == 0) {
 #ifdef CONFIG_KERNEL_DOMAIN
             /* Checking domain */

@@ -31,6 +31,7 @@
 #include "sanitize.h"
 #include "debug.h"
 #include "sleep.h"
+#include "generated/apps_layout.h"
 
 
 void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mode mode) {
@@ -149,7 +150,7 @@ void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
      * The receiver may have already received any message. Thus,
      * we have to look for the IPC endpoints with a pending message. */
     if (*id_sender == ANY_APP) {
-        for (int i=ID_APP1; i<=ID_APP7; i++) {
+        for (int i=ID_APP1; i<=ID_APPMAX; i++) {
             if (caller->ipc_endpoint[i] != NULL &&
                 caller->ipc_endpoint[i]->state == WAIT_FOR_RECEIVER &&
                 caller->ipc_endpoint[i]->to == caller->id) {
