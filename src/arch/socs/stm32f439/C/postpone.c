@@ -26,10 +26,11 @@
  * This is a *weak* function that is used in the libbsp while the effective
  * kernel postponing function is registered.
  */
-static void empty_postpone(void)
+static stack_frame_t *empty_postpone(uint8_t a __attribute__((unused)), s_irq *b __attribute__((unused)), stack_frame_t *c __attribute__((unused)))
 {
     for (;;)
         ;
+    return NULL;
 }
 
 /* Will be replaced by official postpone_isr function */

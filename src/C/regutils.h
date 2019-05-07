@@ -136,22 +136,22 @@ __INLINE int8_t set_reg16_value(volatile uint16_t * reg, uint16_t value,
 
 __INLINE uint32_t read_reg_value(volatile uint32_t * reg)
 {
-    return get_reg_value(reg, 0xFFFFFFFF, 0);
+    return (uint32_t) (*reg);
 }
 
 __INLINE uint16_t read_reg16_value(volatile uint16_t * reg)
 {
-    return get_reg16_value(reg, 0xFFFF, 0);
+    return (uint16_t) (*reg);
 }
 
 __INLINE void write_reg_value(volatile uint32_t * reg, uint32_t value)
 {
-    set_reg_value(reg, value, 0xFFFFFFFF, 0);
+    (*reg) = value;
 }
 
 __INLINE void write_reg16_value(volatile uint16_t * reg, uint16_t value)
 {
-    set_reg16_value(reg, value, 0xFFFF, 0);
+    (*reg) = value;
 }
 
 __INLINE void set_reg_bits(volatile uint32_t * reg, uint32_t value)
