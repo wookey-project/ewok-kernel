@@ -206,7 +206,7 @@ void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
                 caller->id, ep->from);
 
             /* Free sender from it's blocking state */
-            syscall_r0_update(sender, TASK_MODE_MAINTHREAD, SYS_E_DENIED);
+            syscall_r0_update(task_get_task(ep->from), TASK_MODE_MAINTHREAD, SYS_E_DENIED);
             sender->state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
 
             /* Receiver is blocking until it receives a message or it returns

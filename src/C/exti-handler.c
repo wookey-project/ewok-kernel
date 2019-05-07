@@ -166,6 +166,9 @@ stack_frame_t *exti_handler(stack_frame_t * stack_frame)
                 }
             }
             break;
+	default:
+	    /* should not happen... */
+	    break;
     }
     return stack_frame;
 }
