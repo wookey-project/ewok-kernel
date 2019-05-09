@@ -472,7 +472,7 @@ void dma_clean_int(const e_task_id caller, uint8_t irq)
     k_dma_t *kdma;
     task_t  *caller_task = task_get_task(caller);
 
-    for (uint8_t i = 0; i < caller_task->num_dmas; ++i) {
+    for (uint32_t i = 0; i < caller_task->num_dmas; ++i) {
         kdma = &dma_tab[caller_task->dma[i]];
         if (kdma->devinfo->irq[0] == irq) {
             soc_dma_clean_int(kdma->udma.dma, kdma->udma.stream);
@@ -488,15 +488,15 @@ void dma_clean_int(const e_task_id caller, uint8_t irq)
  * \param [in] irq the IRQ number as managed in soc-irq.h
  *
  */
-uint32_t dma_get_status(e_task_id caller, uint8_t irq) // FIXME - irq or interrupt ?
+uint32_t dma_get_status(e_task_id caller, uint8_t irq) // TODO (naming) - irq or interrupt ?
 {
     k_dma_t *kdma;
     uint32_t status = 0;
     task_t  *caller_task = task_get_task(caller);
 
-    for (uint8_t i = 0; i < caller_task->num_dmas; ++i) {
-        kdma = &dma_tab[caller_task->dma[i]];   // FIXME
-        if (kdma->devinfo->irq[0] == irq) {        // FIXME
+    for (uint32_t i = 0; i < caller_task->num_dmas; ++i) {
+        kdma = &dma_tab[caller_task->dma[i]];
+        if (kdma->devinfo->irq[0] == irq) {
             status = soc_dma_get_status(kdma->udma.dma, kdma->udma.stream);
             break;
         }
