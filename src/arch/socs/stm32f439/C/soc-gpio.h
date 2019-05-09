@@ -29,17 +29,17 @@
 #include "C/exported/devices.h"
 #include "C/exported/gpio.h"
 
-#define GPIO_MODER(g)         REG_ADDR(g + 0x00)    /*!< GPIO port mode register                      */
-#define GPIO_OTYPER(g)        REG_ADDR(g + 0x04)    /*!< GPIO port output type register               */
-#define GPIO_OSPEEDR(g)       REG_ADDR(g + 0x08)    /*!< GPIO port output speed register              */
-#define GPIO_PUPDR(g)         REG_ADDR(g + 0x0C)    /*!< GPIO port pull-up/pull-down register         */
-#define GPIO_IDR(g)           REG_ADDR(g + 0x10)    /*!< GPIO port input data register                */
-#define GPIO_ODR(g)           REG_ADDR(g + 0x14)    /*!< GPIO port output data register               */
-#define GPIO_BSRR_R(g)        REG_ADDR(g + 0x18)    /*!< GPIO port bit set/reset reset register       */
-#define GPIO_BSRR_S(g)        REG_ADDR(g + 0x1A)    /*!< GPIO port bit set/reset set register         */
-#define GPIO_LCKR(g)          REG_ADDR(g + 0x1C)    /*!< GPIO port configuration lock register        */
-#define GPIO_AFR_L(g)         REG_ADDR(g + 0x20)    /*!< GPIO alternate function registers, low part */
-#define GPIO_AFR_H(g)         REG_ADDR(g + 0x24)    /*!< GPIO alternate function registers, high part  */
+#define GPIO_MODER(g)         REG_ADDR((g) + 0x00)    /*!< GPIO port mode register                      */
+#define GPIO_OTYPER(g)        REG_ADDR((g) + 0x04)    /*!< GPIO port output type register               */
+#define GPIO_OSPEEDR(g)       REG_ADDR((g) + 0x08)    /*!< GPIO port output speed register              */
+#define GPIO_PUPDR(g)         REG_ADDR((g) + 0x0C)    /*!< GPIO port pull-up/pull-down register         */
+#define GPIO_IDR(g)           REG_ADDR((g) + 0x10)    /*!< GPIO port input data register                */
+#define GPIO_ODR(g)           REG_ADDR((g) + 0x14)    /*!< GPIO port output data register               */
+#define GPIO_BSRR_R(g)        REG_ADDR((g) + 0x18)    /*!< GPIO port bit set/reset reset register       */
+#define GPIO_BSRR_S(g)        REG_ADDR((g) + 0x1A)    /*!< GPIO port bit set/reset set register         */
+#define GPIO_LCKR(g)          REG_ADDR((g) + 0x1C)    /*!< GPIO port configuration lock register        */
+#define GPIO_AFR_L(g)         REG_ADDR((g) + 0x20)    /*!< GPIO alternate function registers, low part */
+#define GPIO_AFR_H(g)         REG_ADDR((g) + 0x24)    /*!< GPIO alternate function registers, high part  */
 
 #define GPIOA                 REG_ADDR(GPIOA_BASE)
 #define GPIOA_MODER           GPIO_MODER(GPIOA_BASE)
