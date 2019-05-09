@@ -198,6 +198,7 @@ void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
 
     if (*id_sender == ANY_APP) {
 
+        sender = task_get_task(ep->from);
         /* The caller is not allowed to read a message from the sender */
         if (!perm_ipc_is_granted(ep->from, caller->id)) {
 
@@ -206,7 +207,7 @@ void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
                 caller->id, ep->from);
 
             /* Free sender from it's blocking state */
-            syscall_r0_update(task_get_task(ep->from), TASK_MODE_MAINTHREAD, SYS_E_DENIED);
+            syscall_r0_update(sender, TASK_MODE_MAINTHREAD, SYS_E_DENIED);
             sender->state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
 
             /* Receiver is blocking until it receives a message or it returns
@@ -223,7 +224,6 @@ void ipc_do_recv(task_t *caller, __user regval_t *regs, bool blocking, e_task_mo
     /* The syscall returns the sender ID */
     *id_sender = ep->from;
 
-    sender = task_get_task(ep->from);
     if (sender == NULL ||
         sender->state[TASK_MODE_MAINTHREAD] == TASK_STATE_EMPTY)
     {
