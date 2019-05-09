@@ -48,7 +48,7 @@ bool sanitize_is_pointer_in_devices_slot(__user void     *ptr,
                                           __user e_task_id caller)
 {
     const task_t *t = task_get_task(caller);
-    for (uint8_t i = 0; i < t->num_devs; ++i) {
+    for (uint32_t i = 0; i < t->num_devs; ++i) {
         e_device_id dev_id = t->dev_id[i];
         physaddr_t dev_addr = dev_get_device_addr(dev_id);
         uint32_t   dev_size = dev_get_device_size(dev_id);
@@ -195,7 +195,7 @@ bool sanitize_is_data_pointer_in_dma_shm(__user void               *ptr,
                                          __user e_task_id           caller)
 {
     const task_t *t = task_get_task(caller);
-    for (uint8_t i = 0; i < t->num_dma_shms; ++i) {
+    for (uint32_t i = 0; i < t->num_dma_shms; ++i) {
         if (t->dma_shm[i].mode == mode &&
             (physaddr_t) ptr >= t->dma_shm[i].address &&
             (physaddr_t) ptr + size >= (physaddr_t) ptr &&
