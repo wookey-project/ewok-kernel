@@ -173,7 +173,7 @@ uint32_t int_posthook_exec(uint8_t irq, uint32_t *regs)
 
     udev = dev_get_device_from_id (dev_id);
 
-    for (uint8_t i = 0; i < udev->irq_num; ++i) {
+    for (uint32_t i = 0; i < udev->irq_num; ++i) {
         if (udev->irqs[i].irq == irq) {
             int_posthook_exec_irq(dev_id, &udev->irqs[i], regs);
             break;

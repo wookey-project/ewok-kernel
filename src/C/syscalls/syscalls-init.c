@@ -66,9 +66,7 @@ void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)
 
     /* End of generic sanitation */
     if (caller->init_done == true) {
-        syscall_r0_update(caller, TASK_MODE_MAINTHREAD, SYS_E_DENIED);
-        caller->state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
-        return;
+        goto ret_denied;
     }
 
     tasks_list = task_get_tasks_list();
@@ -99,10 +97,17 @@ void init_do_get_taskid(task_t *caller, __user regval_t *regs, e_task_mode mode)
  ret_inval:
     syscall_r0_update(caller, mode, SYS_E_INVAL);
     syscall_set_target_task_runnable(caller);
+    return;
+
+ ret_denied:
+    syscall_r0_update(caller, TASK_MODE_MAINTHREAD, SYS_E_DENIED);
+    caller->state[TASK_MODE_MAINTHREAD] = TASK_STATE_RUNNABLE;
+    return;
 
  done:
     syscall_r0_update(caller, mode, SYS_E_DONE);
     syscall_set_target_task_runnable(caller);
+    return;
 }
 
 

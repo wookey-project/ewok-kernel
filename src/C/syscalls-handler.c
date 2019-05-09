@@ -257,7 +257,7 @@ stack_frame_t *svc_handler(stack_frame_t * stack_frame)
               }
               break;
 #endif
-            default:
+            default: /* this also include other mode values */
               break;
           }
         }

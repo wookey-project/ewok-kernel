@@ -48,7 +48,7 @@ void sys_cfg_gpio_set(task_t *caller, __user regval_t *regs, e_task_mode mode)
     for (int i = 0; i < caller->num_devs; ++i) {
         udev = dev_get_device_from_id (caller->dev_id[i]);
 
-        for (int j = 0; j < udev->gpio_num; ++j) {
+        for (uint32_t j = 0; j < udev->gpio_num; ++j) {
             if (udev->gpios[j].kref.val == user_gpio) {
                 gpio_set_value(udev->gpios[j].kref, gpio_value);
                 syscall_r0_update(caller, mode, SYS_E_DONE);
@@ -83,9 +83,9 @@ void sys_cfg_gpio_get(task_t *caller, __user regval_t *regs, e_task_mode mode)
     }
 
     /* validate that the GPIO is owned by the task  */
-    for (int i = 0; i < caller->num_devs; ++i) {
+    for (uint32_t i = 0; i < caller->num_devs; ++i) {
         udev = dev_get_device_from_id (caller->dev_id[i]);
-        for (int j = 0; j < udev->gpio_num; ++j) {
+        for (uint32_t j = 0; j < udev->gpio_num; ++j) {
             if (udev->gpios[j].kref.val == user_gpio) {
                 *gpio_value = gpio_get_value(udev->gpios[j].kref);
                 syscall_r0_update(caller, mode, SYS_E_DONE);
@@ -118,9 +118,9 @@ void sys_cfg_gpio_unlock_exti(task_t *caller, __user regval_t *regs, e_task_mode
     }
 
     /* validate that the GPIO is owned by the task  */
-    for (int i = 0; i < caller->num_devs; ++i) {
+    for (uint32_t i = 0; i < caller->num_devs; ++i) {
         udev = dev_get_device_from_id (caller->dev_id[i]);
-        for (int j = 0; j < udev->gpio_num; ++j) {
+        for (uint32_t j = 0; j < udev->gpio_num; ++j) {
             if (udev->gpios[j].kref.val == user_gpio) {
                 gpio = &(udev->gpios[j]);
                 found = true;
