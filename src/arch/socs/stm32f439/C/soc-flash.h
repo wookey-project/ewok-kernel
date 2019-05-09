@@ -196,13 +196,13 @@
 #define FLASH_OPTION_BYTES_BK2		((uint32_t) 0x1FFEC000) /* 16 B */
 #define FLASH_OPTION_BYTES_BK2_END	((uint32_t) 0x1FFEC00F)
 
-#define IS_IN_FLASH(addr)		(addr >= FLASH_SECTOR_0) && \
-					(addr <= FLASH_SECTOR_11_END)
+#define IS_IN_FLASH(addr)		((addr) >= FLASH_SECTOR_0) && \
+					((addr) <= FLASH_SECTOR_11_END)
 
-#define IS_IN_FLASH_DUAL(addr)		(addr >= FLASH_SECTOR_0) && \
-					(addr <= FLASH_SECTOR_11_END) || \
-					(addr >= FLASH_SECTOR_12) && \
-					(addr <= FLASH_SECTOR_19_END)
+#define IS_IN_FLASH_DUAL(addr)		((addr) >= FLASH_SECTOR_0) && \
+					((addr) <= FLASH_SECTOR_11_END) || \
+					((addr) >= FLASH_SECTOR_12) && \
+					((addr) <= FLASH_SECTOR_19_END)
 
 //#define START_SECTOR(SECTOR)          (uint32_t)FLASH_SECTOR_##SECTOR
 //#define END_SECTOR(SECTOR)            (uint32_t)FLASH_SECTOR_##SECTOR##_END
