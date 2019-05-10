@@ -116,9 +116,9 @@ Communication permissions are based on two arrays, found in plain-text files:
    * The array in ``apps/dmashm.config`` is used to set the permissions for
      using the DMA shared memory mechanism
 
-IPC array is in ``apps/ipc.config``. The sender is on the left column. A 
-mark in a box means that the task on the left is able to send a message
-using IPCs: ::
+IPC array is in ``apps/ipc.config``. The sender is on the left column. Setting
+``1`` in a box means that the task on the left is able to send a message
+using IPCs to the one above: ::
 
    comment "------ SDIO  USB CRYPTO SMART PIN"
    comment "SDIO    [#]  [1]  [ ]   [ ]  [ ]"
@@ -126,6 +126,9 @@ using IPCs: ::
    comment "CRYPTO  [ ]  [ ]  [#]   [ ]  [ ]"
    comment "SMART   [ ]  [ ]  [ ]   [#]  [ ]"
    comment "PIN     [ ]  [ ]  [ ]   [ ]  [#]"
+
+.. warning::
+   A task is not allowed to send IPC to itself
 
 DMA shared memory array is in ``apps/dmashm.config``. The "caller" is
 on the left column. A mark in a box means that the task on the left (the
@@ -151,6 +154,7 @@ modify them.
    :alt: communication permissions matrices
    :align: center
 
-
+.. warning::
+   A task is not allowed to delcare DMA SHM to itself
 
 
