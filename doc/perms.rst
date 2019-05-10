@@ -97,7 +97,10 @@ Memory management
 """""""""""""""""
 
 *Memory management* controls the capability to voluntary map or unmap a
-device in the task's address space
+device in the task's address space.
+
+This does not permit to declare a new device, but only to temporary (un)map it
+from the task's address space, if the driver supports this feature.
 
 .. image:: img/mc_app_perms_memory.png
    :alt: Task permissions configuration
