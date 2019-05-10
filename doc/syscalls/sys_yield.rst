@@ -34,5 +34,5 @@ The yield syscall has the following API::
    e_syscall_ret sys_yield()
 
 .. warning::
-   Using sys_yield is a requirement when using RMA scheduling scheme, to avoid
-   starvation.
+   Using ``sys_yield()`` should be a requirement when using MLQ_RR scheduling scheme with asynchronous
+   communication mechanisms, to avoid starvation.
