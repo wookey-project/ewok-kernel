@@ -37,3 +37,7 @@ The sleep syscall has the following API::
 
 The sleep duration is specified in miliseconds. There is no specific permission
 required to sleep.
+
+.. warning::
+   The sleep time is always a scheduler period multiple and is rounded to the
+   next scheduler execution
