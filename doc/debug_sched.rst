@@ -13,18 +13,18 @@ There are several scheduling schemes supported in EwoK:
 
    * Basic Round-Robin
    * Random scheduler
-   * MLQ_RR (Multi-Queue Round-Robin)
+   * MLQ-RR (Multi-Queue Round-Robin)
 
 All scheduling schemes are constrained by the following:
 
-  * ISR have a greater priority and are executed before regular threads.
+  * ISR have a greater priority and are executed before regular main threads.
 
   * Softirqd, which executes asynchronous syscalls and prepares tasks to handle
     ISR, is executed with a greater priority than other tasks, but lower
     priority than ISRs.
 
   * If neither an ISR nor a syscall is to be executed, the global thread
-    scheduling scheme is executed (i.e. Round-Robin, Random or Rate-Monotonic
+    scheduling scheme is executed (i.e. Round-Robin, Random or MLQ-RR
     scheme) on all regular threads.
 
 
@@ -37,7 +37,7 @@ scheduled if:
 
    * the task reaches the task slot length
    * an interrupt arises, requiring an ISR execution
-   * the task voluntary yields
+   * the task voluntarily yields
    * the task executes an asynchronous syscall (IPC or CFG)
 
 When the scheduler is executed, it selects the next task (starting with the
@@ -55,13 +55,13 @@ number and tries again.
 
 The scheduler tries 32 times before executing the idle task.
 
-This scheduler is mostly an example scheduling scheme.
+This scheduler is mostly an example of basic scheduling scheme.
 
 MLQ-RR scheduler
 ^^^^^^^^^^^^^^^^
 
 The MLQ-RR scheduler is the only scheduling scheme of EwoK supporting
-task priorities.
+tasks priorities.
 This scheduler is able to schedule tasks based on their priority using the
 following rules:
 
@@ -70,9 +70,9 @@ following rules:
    * If more than one task have the same priority, the scheduler uses a
      round-robin policy on tasks of the same priority
 
-This scheduling is efficient to prioritize tasks with high idle period and
-short (but requiring high reactivity) runnable period. The drawback of such
-efficiency is that tasks have to voluntary yield or ask for being idle (for
+This scheduling is efficient to prioritize tasks with high idle periods and
+short (but requiring high reactivity) runnable periods. The drawback of such
+efficiency is that tasks have to voluntarily yield or ask for being idle (for
 example by locking on IPC receive) to avoid starvation of lower priority tasks.
 
 
@@ -109,7 +109,7 @@ buffer is held in the kernel memory, and hence needs to fit in it. Its default
 length is 1000 entries.
 
 .. hint::
-   Tataouine will help when increasing the buffer size, returning a specific
+   Tataouine SDK will help when increasing the buffer size, returning a specific
    error in the kernel data section if it is too big.
 
 Exploiting the scheduler debug mode

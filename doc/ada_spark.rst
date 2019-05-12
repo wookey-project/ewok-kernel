@@ -5,7 +5,7 @@ Ada/SPARK for a secure kernel
 
 The EwoK microkernel is an Ada/SPARK kernel with very few lines of C.
 
-Why implementing Ewok in Ada ?
+Why implementing Ewok in Ada?
 ------------------------------
 
 Most kernels and microkernels are written in C.
@@ -19,9 +19,9 @@ use formal methods to prove the lack of runtime error.
 
 Using a safe language for implementing low-level kernel code is an
 approach that goes back to the early 1970’s.
-However, there are very few alternative and we made the choice of
+However, there are very few alternatives and we made the choice of
 `Ada <https://www.adacore.com/>`_, designed for building high-confidence and
-safety-critical applications and embedded systems.
+safety-critical applications in embedded systems.
 
 .. note::
    The Ada/SPARK kernel is based on about 10 Klines of Ada and
@@ -67,7 +67,7 @@ overtyped C arguments when using C symbols.
 
 .. highlight:: c
 
-A typical usage would be, for the following C code ::
+A typical usage would be, for the following C code::
 
    uint8_t nvic_get_pending_irq()
    {
@@ -76,7 +76,7 @@ A typical usage would be, for the following C code ::
 
 .. highlight:: ada
 
-An Ada interface that could look like the following ::
+An Ada interface that could look like the following::
 
    with ada.unchecked_conversion;
    pragma warnings (off);
@@ -101,7 +101,7 @@ An Ada interface that could look like the following ::
 Exporting Ada symbols to C
 """"""""""""""""""""""""""
 
-Exporting Ada symbols to C is done using the same philosophy ::
+Exporting Ada symbols to C is done using the same philosophy::
 
    -- initialize the DWT module
    -- This procedure is called by the kernel main() function, and as
@@ -118,7 +118,7 @@ This is the case of strings, which are more complex and **not**
 null-terminated in Ada, or boolean, which are encoded on 8-bits fields.
 
 To solve such an issue, we define for the Ada code some C-compatible
-types. Here is an example of a C compatible boolean implementation ::
+types. Here is an example of a C compatible boolean implementation::
 
    type bool is new boolean with size => 1;
    for bool use (true => 1, false => 0);
@@ -137,12 +137,12 @@ EwoK Ada sources are hosted in the following directories:
 Ada has a hierarchical scoping principle, based on packages. In the case of
 EwoK, various packages and subpackages are used.
 
-   * kernel pacakges belong to the `ewok` package
+   * kernel packages belong to the `ewok` package
    * SoC-related packages belong to the `soc` package
    * Core-related packages belong to the core-relative package (e.g. `m4` for
      Cortex-M4)
 
-EwoK kernel is implemented wiht a little bit of C. Thus, some Ada/SPARK
+EwoK kernel is implemented with a little bit of C. Thus, some Ada/SPARK
 packages require
 an external interface with the C code. For a given package *foo* interacting
 with external C code, a *foo_interface* package must be defined.
@@ -159,7 +159,7 @@ Preprocessing in Ada
 
 Ada does support preprocessing and the configuration options sometime
 use the preprocessing principle to enable or not some specific functions.
-The preprocessing usage is quite similar to C ::
+The preprocessing usage is quite similar to C::
 
    #if CONFIG_KERNEL_DOMAIN
       function is_same_domain
@@ -192,12 +192,12 @@ tools/ directory of the SDK:
 Static verification with SPARK
 ------------------------------
 
-SPARK permits to prove the lack of *Run Time Errors* in some code.
+SPARK allows to prove the lack of *Run Time Errors* in some code.
 
 .. highlight:: ada
 
 EwoK uses `SPARK <https://www.adacore.com/about-spark>`_ in the modules
-requiring formal validation and proofs. Exemple ::
+requiring formal validation and proofs. Example::
 
    function ipc_is_granted
       (from    : in t_real_task_id;

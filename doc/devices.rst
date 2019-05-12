@@ -7,62 +7,62 @@ Managing devices from userland
 
 .. highlight:: c
 
-Task lifecycle
---------------
+Task life-cycle
+---------------
 
-EwoK userspace tasks should follow a specific life cycle, based on two
+EwoK userspace tasks should follow a specific life-cycle, based on two
 sequential states:
 
    * The *initialization state*, during which devices are declared and
      initialized
-   * *Nominal state*
+   * The *Nominal state*
 
 Initialization state
 ^^^^^^^^^^^^^^^^^^^^
 
-All resources declaration is performed during the initialization state. During
+All resources declarations are performed during the initialization state. During
 this state, the task can: 
 
    * declare and initialize a device
-   * request DMA channel
-   * ask for other task's identifier
+   * request DMA channels
+   * ask for other tasks' identifiers
    * request some DMA shared memory (that will be shared with another task)
    * log messages into the kernel log console
 
 These actions depend on permissions, as defined in
 :ref:`EwoK pemission model <ewok-perm>`.
 
-During this state, the task can not use any device, nor
-interract with any other task. Trying to use a device at this state or to
+During this state, the task cannot use any device, nor
+interact with any other task. Trying to use a device at this state or to
 interact with other tasks will elicit a memory fault or a ``SYS_E_DENIED``.
 The only possible syscalls are ``sys_log()``, used by ``printf()``,
-and the ``sys_init()`` syscall family.
+and the ``sys_init()`` syscalls family.
 
 .. danger::
-   Don't try to access any registered device memory during the initialization
+   Do not try to access any registered device memory during the initialization
    phase, this will result into a memory fault
 
-Ending the initialization phase is done with the following: ::
+Ending the initialization phase is done with the following::
 
    sys_init(INIT_DONE);
 
 After that step, the task is in *nominal state*. It has no way to request some
-new hardware or software ressources.
+new hardware or software resources.
 
 Nominal state
 ^^^^^^^^^^^^^
 
-In that state, the task can use the previously declared ressources.
+In this state, the task can use the previously declared resources.
 All memory mapped devices are mapped in the task memory space, which
 can therefore access that memory area.
 
 .. warning::
    If a device is configured as a *voluntary mapped* device,
-   it's registers are not automatically mapped in the task's memory space.
-   The task needs to voluntary map it to be able to access it.
+   its registers are not automatically mapped in the task's memory space.
+   The task needs to voluntarily map it to be able to access it.
 
 The task is no more authorized to execute any ``sys_init()`` call to the
-kernel. 
+kernel.
 
 Other syscalls can be used:
 
@@ -72,12 +72,12 @@ Other syscalls can be used:
    * ``sys_cfg()`` syscalls family, to (re)configure previously declared
      devices and DMA
    * ``sys_get_systick()`` to get time stamping information
-   * ``sys_yield()`` to voluntary release the CPU core and sleep until an
+   * ``sys_yield()`` to voluntarily release the CPU core and sleep until an
      external event arises (IRQ or IPC targeting the task)
-   * ``sys_sleep()`` to voluntary release the CPU core and sleep for a given
+   * ``sys_sleep()`` to voluntarily release the CPU core and sleep for a given
      number of milliseconds
-   * ``sys_reset()`` to voluntary reset the SoC
-   * ``sys_lock()`` to voluntary lock a critical section and postpone the
+   * ``sys_reset()`` to voluntarily reset the SoC
+   * ``sys_lock()`` to voluntarily lock a critical section and postpone the
      task's ISR for some time
 
 
@@ -90,7 +90,7 @@ Declaring and initializing a device
 Before using a device, a task must declare and initialize it.
 Declaring and initializing a DMA stream is a particular case (see below).
 
-The device structure is the following ::
+The device structure is the following::
 
     typedef struct {
        char            name[16];      /**< device name */
@@ -107,7 +107,7 @@ The ``device_t`` structure is composed by:
    * The ``name`` field contains a name, used to ease debugging
    * The ``address`` and the ``size`` contains the MMIO address space, as
      defined in the datasheet
-   * The ``irqs`` and ``gpios`` define a list of IRQs and GPIO pins (see below).
+   * The ``irqs`` and ``gpios`` define a list of IRQs and GPIO pins (see below)
 
 The device is then declared and initialized by using the ``sys_init(INIT_DEVACCESS)``
 syscall (see :ref:`sys_init`). It is submitted to a set of permissions (see
@@ -130,13 +130,13 @@ Declaring a GPIO pin
 GPIOs connect the SoC to the outside world (peripherals, buttons, leds, etc.)
 Even if GPIO ports are devices per se (they are memory mapped, with their
 own registers), EwoK never allows to directly map them in the user space.
-A GPIO port controls several *pins* in a single register. A device usually need
+A GPIO port controls several *pins* in a single register. A device usually needs
 to control, at most, only some few pins. Thus, GPIO ports are shared
-ressources and the access to the pins are managed and mediated by the kernel.
+resources and the access to the pins are managed and mediated by the kernel.
 
 .. highlight:: c
 
-The ``dev_gpio_info_t`` structure is the following ::
+The ``dev_gpio_info_t`` structure is the following::
 
    typedef struct {
         gpio_mask_t         mask;
@@ -153,8 +153,8 @@ The ``dev_gpio_info_t`` structure is the following ::
    } dev_gpio_info_t;
 
 The ``mode``, ``pupd``, ``type``, ``speed`` and ``afr`` are 
-usual informations about a GPIO pin.
-The configuration ``mask`` permit to configure only some of those fields
+usual information about a GPIO pin.
+The configuration ``mask`` allows to configure only some of these fields
 (e.g. if there is no alternate function to configure).
 
 The ``kref`` field the GPIO port/pin couple.
@@ -193,13 +193,13 @@ GPIOs and external interrupts (EXTI)
 
 GPIOs can be associated to external interrupts (EXTI). This is required to
 asynchronously detect some external events based on GPIOs such as
-a button pressed, an event on the touchscreens, etc.
+a button pressed, an event on the touchscreen, etc.
 
-Those fields of the ``dev_gpio_info_t`` structure permit to configure such EXTIs:
+These fields of the ``dev_gpio_info_t`` structure permit to configure such EXTIs:
 
    * ``exti_trigger`` specifies the kind of EXTI trigger 
-   * ``exti_lock`` specifies wether the EXTI line has to be "muted" each time an EXTI
-     interrupt arrises (see ``sys_cfg(SYS_CFG_UNLOCK_EXTI)`` in :ref:`sys_cfg`)
+   * ``exti_lock`` specifies whether the EXTI line has to be masked each time an EXTI
+     interrupt arises (see ``sys_cfg(SYS_CFG_UNLOCK_EXTI)`` in :ref:`sys_cfg`)
    * ``exti_handler`` has the address of the ISR handler to execute
 
 The IRQ line associated to the EXTI must not be declared: it is already fully
@@ -248,7 +248,7 @@ structure: ::
 
 The parameters:
 
-   * ``handler`` store the address of the user defined ISR handler
+   * ``handler`` stores the address of the user defined ISR handler
    * ``irq`` is the IRQ number, given by the kernel
    * ``mode`` is a special field (described below)
    * ``posthook_status`` and ``posthook_data`` are described below
@@ -262,8 +262,8 @@ An IRQ handler takes three parameters: ::
 The IRQ handler is executed in *ISR mode*. It has access to the task content
 except for the stack.
 It has its own stack, which is erased each time the handler terminates.
-By default the termination of and ISR handler awake it's related
-task if it's sleeping or idle.
+By default the termination of an ISR handler awakes its related
+task's main thread if it's sleeping or idle.
 This behavior can be modified by modifying the ``mode`` field of the 
 ``dev_irq_info_t`` structure:
 
@@ -281,27 +281,26 @@ This behavior can be modified by modifying the ``mode`` field of the
      - Do not modify main thread's state
 
 The ``IRQ_ISR_FORCE_MAINTHREAD`` may be required by devices needing some
-highly responsive software. Because of the not so negligeable impact
-on the scheduling policy, using this value is submitted to 
-specific permissions.
+highly responsive software. Because of the not so negligible impact
+on the scheduling policy, using this value requires specific permissions.
 
 Note that user ISRs are not executed synchronously:
 
    * ISR treatment is postponed
    * Acknowledgement of the hardware device's interrupt is not executed by the
-     user ISR. It's done by the *posthooks*, described hereafter
+     user ISR. It is done by the *posthooks*, described hereafter
 
 Acknowledging interrupts with *posthooks*
 """""""""""""""""""""""""""""""""""""""""
 
-*Posthook* mechanism permits to synchronously acknowledge external interrupts,
-when their are handled by the kernel, before their management is postponed
+*Posthook* mechanism allows to synchronously acknowledge external interrupts,
+when they are handled by the kernel, before their management is postponed
 to be managed by a user ISR handler.
 
 Device interrupt acknowledgements may vary from one device to
 another. They are usually a sequence of reads, writes or masks of some
 device registers. 
-EwoK provides a small API to make the kernel managing all these in a safe way.
+EwoK provides a small API to make the kernel managing all these in generic and a safe way.
 Posthook API is mostly used to acknowledge hardware device interrupts.  
 
 .. list-table::
@@ -335,7 +334,7 @@ base of the device's memory space.
 
 .. hint::
    The posthook implementation keeps memory of the *read* in order to avoid
-   multiple read of the same register, which could lead to unexpected
+   multiple reads of the same register, which could lead to unexpected
    behaviors (e.g. ToCToU vulnerability) 
 
 
@@ -346,7 +345,7 @@ As we already see above, an IRQ handler takes three parameters: ::
 The ``posthook_status`` and ``posthook_data`` parameters may contain values
 read during the *posthook* action, and ought to be transmitted to the user handler. 
 Most of the time, ``posthook_status`` stores the value read from a status
-register while the ``posthook_data`` stores a value read from an other device's
+register while the ``posthook_data`` stores a value read from another device's
 register.
 If the device declares a posthook
 with (at least) two register read, it can also ask for getting back these
@@ -373,19 +372,20 @@ Below is an example for the USART driver: ::
 .. caution::
       * When declaring posthooks, you can only use offsets based on current device base address
       * The offsets must be a part of the device address map
-      * The posthook sanitation is done at device declaration time, posthooks can't be modified
+      * The posthook sanitation is done at device declaration time, posthooks cannot be modified
 
 Declaring and initializing a DMA stream
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A DMA controller is shared amongst several devices. Thus, its access
+A DMA controller is shared among several devices. Thus, its access
 by the tasks is mediated by the kernel.
 
 EwoK allows only *memory-to-peripheral* and *peripheral-to-memory* DMA usage.
-*Memory-to-memory* is not safe enough and is forbidden in EwoK.
+*Memory-to-memory* is not safe enough and is forbidden in EwoK (since the DMA
+controller bypasses the MPU controller, which is obviously very dangerous).
 
 A task can request multiple DMA streams.
-Note that it's possible to reconfigure the previously configured stream after
+Note that it is possible to reconfigure the previously configured stream after
 the initialization phase.
 
 .. highlight:: c
@@ -414,12 +414,12 @@ The ``dma_t`` structure is the following: ::
     } dma_t;
 
 
-A task declaring a ``dma_t`` structure doesn't have to fill all the fields.
+A task declaring a ``dma_t`` structure does not have to fill all the fields.
 The ``in_handler`, ``out_handler``, ``in_addr``, ``out_addr`` and ``size`` can be
 set later, in *nominal mode*. The reason is that a single stream
-can be used for sending or receiving datas. 
+can be used for sending or receiving data. 
 
-Here is a typical declaration used in the SDIO stack ::
+Here is a typical declaration used in the SDIO stack: ::
 
    dma.channel = DMA2_CHANNEL_SDIO;
    dma.dir = MEMORY_TO_PERIPHERAL; /* write by default */
@@ -454,7 +454,7 @@ if it is not already, but the DMA stream is **not** activated.
 To activate the DMA transfer, the task needs to call
 ``sys_cfg(CFG_DMA_RECONF)``. 
 This syscall will configure all the fields involved in the transfer
-and launch it if every required field are properly set.
+and launch it if every required field is properly set.
 This behavior allows the task to activate the DMA at will, e.g.
 when the input buffer is ready, or after receiving a dedicated IPC.
 
@@ -501,11 +501,11 @@ syscall, a mask is used to specify which fields are updated.
 Reloading a DMA stream
 """"""""""""""""""""""
 
-In DMA circular mode, the controller never stop transfering datas.  
-It is possible to stop that active stream by using
+In DMA circular mode, the controller never stops transferring data.  
+It is possible to stop this active stream by using
 the ``sys_cfg(CFG_DMA_DISABLE)`` syscall.
 
-Then, the task may reactivate that stream by using the
+Then, the task may reactivate this very same stream by using the
 ``sys_cfg(CFG_DMA_RELOAD)`` syscall.
 
 
@@ -515,18 +515,18 @@ Declaring and initializing a DMA SHM
 Sometimes, a dataplane may be implemented using multiple tasks communicating
 with each others. 
 When the internal device dataplane is manipulating DMA
-streams, the tasks may whish to optimize the data buffer transfer by using only
-DMA transfer between them instead of using manual buffer copy through IPC.
+streams, the tasks may wish to optimize the data buffer transfer by using only
+DMA transfers between them instead of using manual buffer copy through IPC.
 
-For this case, EwoK permits to tasks to voluntary share a memory
+For this case, EwoK allows tasks to voluntarily share a memory
 buffer. One of the task, the caller, owns that memory buffer, mapped in its
 address space.
 
 The other task, the receiver, will then be able to request DMA transaction
 *from* or *toward* this memory buffer, from a given hardware device (e.g. CRYP,
-HASH, or any device that read data stream through DMA requests as input). Note
+HASH, or any device that reads data stream through DMA requests as input). Note
 that this memory buffer is not mapped in the receiver's memory space and
-the receiver can therefore never reading from or writing into it.
+the receiver can therefore never read from or write to it.
 
 Sharing a memory buffer by this mean is subject to specific permissions.
 
@@ -534,7 +534,7 @@ Sharing a memory buffer by this mean is subject to specific permissions.
    DMA SHM declaration is often associated with IPCs to let the *caller*
    inform the *receiver* of the buffer address and size
 
-Here is a typicall usage of DMA SHM buffer ::
+Here is a typical usage of DMA SHM buffer: ::
 
    const uint32_t bufsize = 4096;
    buf[bufsize] = { 0 };

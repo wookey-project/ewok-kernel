@@ -10,7 +10,7 @@ General FAQ
 Why applications main function is named _main?
 -----------------------------------------------
 
-EwoK applications entry points have the following prototype ::
+EwoK applications entry points have the following prototype: ::
 
    int function(uint32_t task_id):
 
@@ -37,7 +37,7 @@ A basic main function should have the following content:
    * A call to sys_init(INIT_DONE) to finish the initialization phase
    * A nominal phase
 
-A basic, generic main function looks like the following ::
+A basic, generic main function looks like the following: ::
 
    int _main(uint32_t task_id)
    {
@@ -71,7 +71,7 @@ A basic, generic main function looks like the following ::
 Syscall API is complex: why?
 ----------------------------
 
-EwoK syscalls is a fully driver-oriented API. Efforts have been put in
+EwoK syscalls is a fully driver-oriented API. Efforts have been made in
 providing various userspace abstractions to help application developers in
 using generic devices through a higher level API.
 
@@ -99,13 +99,14 @@ Why should I define a stack size?
 
 This is due to the way EwoK handles the userspace layout. In EwoK userspace
 mapping, the userspace stack is on the bottom of the user memory map. If
-the userspace task overflow its own stack, it generates immediatly a memory
+the userspace task overflows its own stack, it immediately generates a memory
 exception error.
 
 This behavior is due to the fact that on MPU-based systems, the page-guard mechanism
-can't be used to detect heap/stack smashing, making harder stack overflow or
-heap overflow detection. Such a layout, pushing the heap on the top of the layout
-and the stack on the bottom help in detecting such overflows.
+cannot be used to detect heap/stack smashing, making it harder to detect stack overflow or
+heap overflow events. Such a layout, pushing the heap on the top addresses
+and the stack on the bottom helps in detecting such overflows (the heap grows
+upwards and the stacks grows downwards).
 
 .. hint::
    You can use your compiler to detect the amount of stack needed, as most
@@ -113,17 +114,17 @@ and the stack on the bottom help in detecting such overflows.
    compiled code
 
 .. danger::
-   Do **not** use recursive code on userspace applications. Embedded systems
-   are not recursive friendly, as the amount of stack memory is highly reduced
+   Do **not** use recursive code in userspace applications. Embedded systems
+   are not friendly with recursion, as the amount of stack memory is highly reduced
 
 What is NUMSLOTS and how to know the number of slots an application needs?
 --------------------------------------------------------------------------
 
-The NUMSLOTS option of an application specify the number of memory slots of the
-flash section dedicated to userspace applications is requested by the
+The NUMSLOTS option of an application specifies the number of memory slots of the
+flash section dedicated to userspace applications that are required by the
 application.
 
-In both DFU and FW mode, there is 8 memory slots, as the MPU is able to handle
+In both DFU and FW mode, there are 8 memory slots, as the MPU is able to handle
 8 subregions for a given memory region.  As a consequence, the total number of
 slots of the total number of applications of a given mode (DFU or FW) must not
 exceed 8.
@@ -131,7 +132,7 @@ exceed 8.
 .. hint::
    This is specific to STM32 MPU and may vary on other SoCs MPU
 
-The slot size depend on the selected SoC (as the amount of accessible flash
+The slot size depends on the selected SoC (as the amount of accessible flash
 memory may vary) and the mode in which your application is executed (nominal
 -aka FW- or DFU).
 
@@ -139,12 +140,12 @@ This information can be found in the following file:
 
 kernel/src/arch/soc/<target_soc>/soc-layout.h
 
-The slot size values are the following ::
+The slot size values are the following: ::
 
    #define  FW_MAX_USER_SIZE   64*KBYTE
    #define  DFU_MAX_USER_SIZE  32*KBYTE
 
-FW_MAX_USER_SIZE define the slot size for FW mode and DFU_MAX_USER_SIZE define
+FW_MAX_USER_SIZE defines the slot size for FW mode and DFU_MAX_USER_SIZE defines
 the slot size for DFU mode.
 
 Memory slots hold .text, .got, .rodata and .data content of the application.
@@ -152,9 +153,9 @@ Memory slots hold .text, .got, .rodata and .data content of the application.
 boot time.
 
 As a consequence, depending on the size of these sections, the number of
-required slots may vary. You can use objdump or readelf tool to get back the
+required slots may vary. You can use objdump or readelf tools to get back the
 effective size of your application and calculate the effective number of slots
-needed ::
+needed: ::
 
    $ arm-none-eabi-objdump -h build/armv7-m/wookey/apps/myapp/myapp.elf
    build/armv7-m/wookey/apps/sdio/sdio.fw1.elf:     file format elf32-littlearm
@@ -171,15 +172,15 @@ needed ::
     4 .bss          0000428c  20009aa0  00000000  00009aa0  2**2
                      ALLOC
 
-Here, the application request 0x2b68 + 0x24 + 0x10 = 0x2b9c, which means 11.164
+Here, the application requires 0x2b68 + 0x24 + 0x10 = 0x2b9c, which means 11.164
 bytes. For this task, one slot is enough in both modes.
 
 .. hint::
    The Tataouine SDK helps when a task is too big for its configured number of
-   slots, and specify which section is problematic. You can let it detect slots
-   overlap if you whish
+   slots, and specifies which section is problematic. You can let it detect slots
+   overlap if needed
 
 .. hint::
-   The tataouine SDK calculates both flash memory and RAM consumption of each
-   task, which also permit to detect RAM overlap
+   The Tataouine SDK calculates both flash memory and RAM consumption of each
+   task, which also allows to detect RAM overlap
 

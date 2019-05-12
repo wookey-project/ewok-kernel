@@ -22,7 +22,7 @@ Denying may be the consequence of various causes:
       permission
    4. If you require a forced execution of the main thread for one more more
       ISR, you must have the corresponding permission
-   5. You have left a field unconfigured with a value that means something not
+   5. You have left a field non-configured with a value that means something not
       permitted in your case (for example EXTI access request for GPIO)
 
 .. hint::

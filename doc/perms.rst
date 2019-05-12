@@ -11,9 +11,9 @@ General principle
 -----------------
 
 Permissions are statically set at configuration time,
-before building the firmware, and can't be updated during the device life
-cycle. Each application permissions are stored in a *.rodata* part of the kernel,
-reducing the risk of any tampering.
+before building the firmware, and cannot be updated during the device life-cycle.
+Each application permission is stored in a *.rodata* part of the kernel,
+reducing the risk of any tampering with.
 
 Configuring the permissions
 ---------------------------
@@ -22,7 +22,7 @@ Permissions are configured by using two complementary means:
 
    * The whole permissions, except IPCs, are set using ``menuconfig``
    * IPCs are configured by editing ``apps/ipc.config`` and
-     ``apps/dmashm.config`` file
+     ``apps/dmashm.config`` files
 
 Menuconfig
 ^^^^^^^^^^
@@ -49,7 +49,7 @@ Devices
 *Devices* permissions controls the capability to:
    * Use DMA streams
    * Use the hardware cryptographic module
-   * Use buses (SPI, I2C...)
+   * Use buses (SPI, I2C, etc.)
    * Use EXTIs
    * Use a hardware timer
 
@@ -66,7 +66,7 @@ Time
    :alt: Task permissions configuration
    :align: center
 
-This option permit to specify the granted granularity of the timestamp
+This option allows to specify the granted granularity of the timestamp
 returned by the kernel:
 
    * No time measurement is possible
@@ -81,7 +81,7 @@ Tasking
 *Tasking* controls the capability to:
    * When an ISR exit, its main thread is scheduled, bypassing the default
      scheduling policy. This is needed by devices requiring a high
-     responsiveness (e.g. smartcards over IS7816-3 buses)
+     responsiveness (e.g. smart cards over IS7816-3 buses)
    * When the task sends an IPC, if the target task is idle or runnable, it is
      immediately scheduled, bypassing the scheduling policy
    * Reset the board
@@ -143,8 +143,8 @@ space for DMA transfers: ::
    comment "SMART   [ ]  [ ]  [ ]   [#]  [ ]"
    comment "PIN     [ ]  [ ]  [ ]   [ ]  [#]"
 
-Note that menuconfig display those arrays, but without the possibility to
-modify them.
+Note that menuconfig displays those arrays, but without the possibility to
+modify them: you will have to edit the associated files manually.
 
 .. image:: img/mc_com_perm.png
    :alt: communication permissions menu

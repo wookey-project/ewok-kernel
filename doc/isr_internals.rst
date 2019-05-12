@@ -3,8 +3,8 @@
 About EwoK IRQ and ISR internals
 ================================
 
-About IRQ, ISR, and userspace confinment
-----------------------------------------
+About IRQ, ISR, and userspace confinement
+-----------------------------------------
 
 Some hardware devices such as the smart card generate interrupts that must be
 acknowledged within a very tight time frame to avoid timeouts.  Other
@@ -26,14 +26,14 @@ About ISR postponing versus task scheduling
 -------------------------------------------
 
 It should be highlighted that a user ISR is scheduled with the highest
-priority.  As a consequence, it must be fast enough to avoid hindering
-treatment of subsequent hardware interrupts. In that way, it is very similar to
+priority. As a consequence, it must be fast enough to avoid hindering
+treatment of subsequent hardware interrupts. In this way, it is very similar to
 the *bottom-half* part of interrupt handlers found in monolithic kernels.
 
 When a hardware interrupt is triggered, the kernel traps it and checks if it
-must be handled by a user task. If that is the case, the kernel updates a queue
+must be handled by a user task. If this is the case, the kernel updates a queue
 structure, managed by the so-called *softirq* module, so that the related user
-ISR can be scheduled afterward.  If an interrupt is triggered while a user ISR
+ISR can be scheduled afterward. If an interrupt is triggered while a user ISR
 is already executing, this interrupt is not lost thanks to the *softirq*
 queueing mechanism that defers its treatment.
 
@@ -52,10 +52,8 @@ The *posthook* mechanism has been introduced to address this issue.
 IRQ, ISR and Posthooks
 ----------------------
 
-Posthook instructions define a restricted high level language that allow to
+Posthook instructions define a restricted high level language that allows to
 read or to set some bits in specific hardware registers when an interrupt
-occurs.  For each kind of interrupt, a driver can use such \textit{posthook}
+occurs. For each kind of interrupt, a driver can use such posthook
 instructions, that are synchronously interpreted and executed by the kernel, in
 order to quickly acknowledge hardware interrupts.
-
-

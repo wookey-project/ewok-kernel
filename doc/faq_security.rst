@@ -9,7 +9,7 @@ Ewok Security
 Why flash is mapped RX and not Execute only for both user and kernel?
 ----------------------------------------------------------------------
 
-This is a constraint due .rodata (read only data sections).
+This is a constraint due to .rodata (read only data sections).
 
 Since .rodata must be readable, executable code and such data have to
 live together in the same flash area. Using different MPU regions to split
@@ -33,8 +33,8 @@ no region that can be mapped W and X at the same time.
 Is there SSP mechanism?
 -----------------------
 
-Yes, the kernel handle KRNG source and generates seeds for each task stack
-smashing protection mechanism. All functions, starting with _main(), are
+Yes, the kernel handles KRNG source and generates seeds for each task stack
+smashing protection mechanism. All functions (starting with the _main() one) are
 protected.
 
 
@@ -43,16 +43,16 @@ Is there ASLR?
 
 There is no ASLR as the amount of accessible memory is too small to generate
 enough entropy for userspace task memory mapping randomization. Each task has
-access to approximatively 32KB of memory, which is too few for an effective
+access to approximately 32KB of memory, which is too few for an effective
 ASLR mechanism.
 
 Are there any shared libraries?
 -------------------------------
 
-There is no such mechanism, as shared libraries requires shared .text memory
+There is no such mechanism, as shared libraries require shared .text memory
 including memory abstraction that only a real MMU can bring efficiently.
 
-In microcontrolers, there is no memory abstraction, and as a consequence, no
+In microcontrollers, there is no memory abstraction, and as a consequence, no
 shared executable content.
 
 

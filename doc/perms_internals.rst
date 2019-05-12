@@ -8,11 +8,11 @@ About EwoK permissions internals
 EwoK permissions kernel API
 ---------------------------
 
-Inside the kernel, the permission module expose a very simple API, in order
-to support permission management modularity. This permits, in a future work
-to add various permission model using the same API to other parts of the kernel.
+Inside the kernel, the permission module exposes a very simple API, in order
+to support permission management modularity. This permits, in a future work,
+to add various permission models using the same API to other parts of the kernel.
 
-The permission API defines a list of ressource name:
+The permission API defines a list of resource names:
 
 +-------------------------+-----------------------------------------------------------------------+
 | Permission name         | Description                                                           |
@@ -48,10 +48,10 @@ The permission API defines a list of ressource name:
 | PERM_RES_MEM_DYNAMIC_MAP| task is able to (un)map its own devices declared as voluntary mapped  |
 +-------------------------+-----------------------------------------------------------------------+
 
-Ressource names are define using the preprocessor in C, mapped as an uint32_t.
+Resource names are define using the preprocessor in C, mapped as an uint32_t.
 In Ada, the permission name has its own type.
 
-The permission API also export the following prototypes::
+The permission API also exports the following prototypes::
 
    bool perm_ipc_is_granted(e_task_id from,
                             e_task_id to);
@@ -62,8 +62,8 @@ The permission API also export the following prototypes::
    bool perm_same_ipc_domain(e_task_id      src,
                              e_task_id      dst);
 
-Through this API, it is possible to control all accesses to ressources and
-tasks. This API abstract the permission memory model described below.
+Through this API, it is possible to control all accesses to resources and
+tasks. This API abstracts the permission memory model described below.
 
 Memory representation of permissions in EwoK
 --------------------------------------------
@@ -71,28 +71,28 @@ Memory representation of permissions in EwoK
 As shown in :ref:`Ewok permissions API <ewok-perm>`, permissions are based on a
 tree hierarchy.
 
-Permissions are splitted into two main categories:
+Permissions are split into two main categories:
 
-   * ressources access permissions
+   * resources access permissions
    * communication access permissions
 
 
-ressource access permissions memory model
+Resource access permissions memory model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ressource access permissions correspond to all permissions associated to an
-access to a hardware ressource (core timeslot, device, current cycle count,
+Resource access permissions correspond to all permissions associated to an
+access to a hardware resource (core timeslot, device, current cycle count,
 etc.).
 
-In order to optimize ressources access permissions check at runtime, they are
-mapped as a *ressource permission register*, for each application.  This
-ressource permission register works in the same way as any hardware register,
+In order to optimize resources access permissions check at runtime, they are
+mapped as a *resource permission register*, for each application.  This
+resource permission register works the same way as any hardware register,
 with bit fields and masks.
 
-The C implementation of such permission check is not easy as C doesn't manage
-easily bitfields, but Ada is clearly efficient for such a check.
+The C implementation of such permissions check is not easy as C does not easily manage
+bitfields, but Ada is clearly more efficient for such checks.
 
-The ressource permission register is 32bits length and has the following mapping:
+The resource permission register is 32-bit long and has the following mapping:
 
 .. image:: img/perm_reg-0.png
    :width: 500 px
@@ -104,10 +104,10 @@ The ressource permission register is 32bits length and has the following mapping
    :alt: permissions register
    :align: center
 
-Checking permissions at run time is done using masks, which permit to optimize
+Checking permissions at run time is done using masks, which allows to optimize
 permission check time and use boolean constructions.
 
-Booleans are directly mapped as a register bit. Enumerate respect the following
+Booleans are directly mapped as a register bit. Enumerate respects the following
 structure:
 
 Time permission mapping (2 bits):
@@ -125,12 +125,12 @@ Cryptographic IP access mapping (2 bits)
    * 0b11 : both accesses
 
 The permission register is based on each application permission declaration in
-the configuration of Tataouine. The register is created by Tataouine in
+the configuration of the Tataouine SDK. The register is created by Tataouine in
 include/generated/app_layout.h (for C code) and in
 include/generated/Ada/app_layout.ads (for Ada code).
 
 The permission register is generated as a static const array of bits denoted
-0b110010011100...0001110000 in a dedicated ressource permission table in
+0b110010011100...0001110000 in a dedicated resource permission table in
 include/generated/gen_perms.h by tools/apps/permissions.pl script.
 
 The kernel perm.c/perm.h (for C) and perm.adb/perm.ads file manage the
@@ -140,7 +140,7 @@ permission register read and return the task permissions based on it.
 Communication access permissions memory model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Communications permissions is based on two matrices:
+Communications permissions are based on two matrices:
 
    * An IPC matrix, defining which task is able to communicate with which
      through IPC calls
@@ -185,8 +185,8 @@ Here is a typical gen_perms.h content::
    };
 
 The Ada implementation of the permissions is using a strictly typed register
-instead of a uint32_t bitfield for the ressources permissions register.
-The Ada implementation of EwoK is also using SPARK in order to valid its data
+instead of a uint32_t bitfield for the resources permissions register.
+The Ada implementation of EwoK is also using SPARK in order to validate its data
 flow.
 
 .. highlight:: ada
