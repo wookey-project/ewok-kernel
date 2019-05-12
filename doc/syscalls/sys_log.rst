@@ -8,7 +8,7 @@ EwoK serial interface logging API
 Synopsis
 """"""""
 
-EwoK provide a kernel-controlled logging facility on which any userspace task
+EwoK provides a kernel-controlled logging facility with which any userspace task
 can communicate. This kernel-controlled logging interface is used for debugging
 and/or informational purpose and is accessible through the configured kernel
 U(S)ART.
@@ -16,7 +16,9 @@ U(S)ART.
 .. important::
   When the kernel is configured in KERNEL_NOSERIAL mode, the kernel doesn't
   print out any log. The U(S)ART line isn't even activated. Although, the
-  sys_log() behavior stays unchanged.
+  sys_log() behavior stays unchanged. This is particularly useful in a paranoid
+  mode when generating 'production' firmwares: we are ensured that no information
+  leak through serial debug can be exploited by an attacker.
 
 sys_log()
 """""""""
@@ -25,7 +27,7 @@ sys_log()
    Asynchronous syscall, not executable in ISR mode
 
 This syscall permits to transmit a logging message on the kernel-handled serial
-interface. The message must be short enought (less than 128 bytes). Any longer
+interface. The message must be short enough (less than 128 bytes). Any longer
 message is truncated.
 
 Message printing is not synchronous and is handled by a kernel thread. As a
