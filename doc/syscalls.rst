@@ -10,18 +10,18 @@ General principles
 ------------------
 
 EwoK is designed to host userspace drivers and protocol stacks. Syscalls
-are driver-oriented and mostly propose device management. Some
+are driver-oriented and mostly expose device management primitives. Some
 more *usual* syscalls, like IPC, are also proposed.
 
 Triggering a syscall from userland
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In EwoK, syscall parameters are passed by a structure that resides on the
-stack. The task write the address of that structure in the ``r0`` register
-and executes the ``svc`` instruction, which trigger the *SVC interrupt*.
-The *SVC interrupt* automatically saves registers onto the stack,
+stack. The task writes the address of this structure in the ``r0`` register
+and executes the ``svc`` instruction, which triggers the *SVC interrupt*.
+The *SVC interrupt* automatically saves registers on the stack,
 before switching to the MSP stack.
-The ``r0`` register has a double function here. It's used to transmit the
+The ``r0`` register has a double function here. It is used to transmit the
 address of the structure containing the syscalls parameters, but it also stores
 the value returned by the syscall.
 
@@ -80,8 +80,8 @@ kernel thread.
 
 .. note:: Actually, :ref:`sys_log` is the sole asynchronous syscall
 
-It's worth mentionning that as *Interrupt Service Routines (ISR)*
-should be quickly executed, EwoK forbid asynchronous syscalls while
+It is worth mentioning that as *Interrupt Service Routines (ISR)*
+should be quickly executed, EwoK forbids asynchronous syscalls while
 in this context.
 
 Note also that some syscalls should require some specific permissions, which
