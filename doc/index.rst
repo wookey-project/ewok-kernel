@@ -18,7 +18,7 @@ What is EwoK ?
 --------------
 
 EwoK is a microkernel targeting micro-controllers and embedded systems
-aiming to build secure and trusted devices.
+aiming at building secure and trusted devices.
 
 Drivers are hold in userspace. Unlike most of
 other microkernels, the goal is to support complex drivers (ISO7816,
@@ -34,19 +34,19 @@ EwoK supports the following properties:
    * Fixed permissions management, set at compile time and easily verifiable
    * Kernel Random Number Generation support (based on True RNG HW on STM32)
    * Stack smashing protection in both kernel and userspace tasks
-   * Userspace Heap/Stack smashing protection
+   * Userspace Heap smashing defenses
    * Proved W^X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
 Performances
 ^^^^^^^^^^^^
 
-Unlike other microkernels, EwoK allows userland drivers to uses
+Unlike other microkernels, EwoK allows userland drivers to use
 DMA, GPIOs and EXTIs with the help of some specific syscalls.
 Such interfaces are directly implemented in the kernel, in order to
-achieve better performances. Indeed, some hardware need a very
+achieve better performance. Indeed, some hardware need a very
 responsive software and such responsiveness can not easily be
-achieved in a typicaly minimalistic microkernel (like the L4 family).
+achieved in a typically minimalistic microkernel (like the ones from the L4 family).
 
 
 EwoK architecture
@@ -56,7 +56,7 @@ Kernel architecture
 ^^^^^^^^^^^^^^^^^^^
 
 The kernel is divided into two main components: the **libbsp** and the
-**kernel** part.
+**kernel** parts.
 
 .. image:: img/ewok_precise_arch.png
    :alt: EwoK kernel architecture
