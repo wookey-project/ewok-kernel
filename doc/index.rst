@@ -89,7 +89,7 @@ The **drivers** are written as userspace libraries. They depend on the *libstd*,
 and may sometimes depend on each others. Here is the list of the existing
 drivers.
 
-**Libraries** are various userspace features, arch-independent
+**Libraries** bring various userspace features with arch-independent
 implementations.
 
 
@@ -98,9 +98,9 @@ EwoK API
 
 EwoK is tuned for high performance embedded systems.
 The whole microkernel architecture and the provided API are
-specifically designed for that purpose.
-Note that EwoK is not a full-IPC driven microkernel, like the L4
-family.
+specifically designed for this purpose.
+Note that for these specific performance constraints, EwoK
+is not a full-IPC driven microkernel, like the L4 family.
 
 The EwoK API is described here:
 
