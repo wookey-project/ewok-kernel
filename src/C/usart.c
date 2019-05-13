@@ -58,6 +58,12 @@ void usart_init(void)
             kusart_dev.address = 0x40011400;
             kusart_dev.irqs[0].handler = (void*)USART6_IRQ_Handler;
             break;
+        case 4:
+            name = "kusart4";
+            kusart_dev.address = 0x40004C00;
+            kusart_dev.irqs[0].handler = (void*)UART4_IRQ_Handler;
+            break;
+
         default:
             break;
     }

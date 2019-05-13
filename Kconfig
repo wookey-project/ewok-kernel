@@ -72,6 +72,12 @@ choice
       In Discovery board, PB6(TX)/PB7(RX) pins are linked to UART1, if
       using motherboard DM-STF4BB, the RS232 connector is linked
       to USART6.
+    config KERNEL_CONSOLE_USART4
+    bool "kernel uses USART4 for its console"
+    ---help---
+      In Discovery board, PB6(TX)/PB7(RX) pins are linked to UART1, if
+      using motherboard DM-STF4BB, the RS232 connector is linked
+      to USART4.
   config KERNEL_CONSOLE_USART6
     bool "kernel uses USART6 for its console"
     ---help---
@@ -83,6 +89,7 @@ endchoice
 config KERNEL_USART
   int
   default 1 if KERNEL_CONSOLE_USART1
+  default 4 if KERNEL_CONSOLE_USART4
   default 6 if KERNEL_CONSOLE_USART6
 
 config KERNEL_CONSOLE_TXT
