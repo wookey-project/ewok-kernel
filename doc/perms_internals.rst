@@ -78,7 +78,7 @@ Permissions are split into two main categories:
 
 
 Resource access permissions memory model
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Resource access permissions correspond to all permissions associated to an
 access to a hardware resource (core timeslot, device, current cycle count,

@@ -6,7 +6,7 @@ Ada/SPARK for a secure kernel
 The EwoK microkernel is an Ada/SPARK kernel with very few lines of C.
 
 Why implementing Ewok in Ada?
-------------------------------
+-----------------------------
 
 Most kernels and microkernels are written in C.
 The major drawback of the C language is its proneness to
