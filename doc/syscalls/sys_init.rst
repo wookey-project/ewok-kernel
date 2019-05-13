@@ -1,25 +1,15 @@
 .. _sys_init:
 
-sys_init
---------
-EwoK ressource registration API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*sys_init*, initializing devices
+--------------------------------
 
-Synopsis
-""""""""
+Devices declaration, initialization and configuration is done with the help of
+the ``sys_init()`` syscall family.
 
-Initialization request is done by the sys_init() syscall family.
-The sys_init() family supports the following prototypes::
-
-   e_syscall_ret sys_init(INIT_DEVACCESS, device_t*dev, int devfd);
-   e_syscall_ret sys_init(INIT_DMA, dma_t*dma, int dmafd);
-   e_syscall_ret sys_init(INIT_DMA_SHM, dma_shm_t* dma_shm);
-   e_syscall_ret sys_init(INIT_GETTASKID, char*name, uint8_t*id);
-   e_syscall_ret sys_init(INIT_DONE);
-
+.. contents::
 
 sys_init(INIT_GETTASKID)
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to allow tasks to communicate with each other, they have to be able to uniquely
 determine which task is which. This is performed by asking the kernel for each
@@ -43,7 +33,7 @@ syscall will return SYS_E_INVAL;
   See the Ewok pemission model for more details.
 
 sys_init(INIT_DEVACCESS)
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 This syscall is used to declare a device. A device is composed of:
 
    * a base address (or 0 if not memory mapped)
@@ -118,7 +108,7 @@ kernels (such as Linux).
   representation of it in order to generate this file
 
 sys_init(INIT_DMA)
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
 Devices declared by the ``sys_init(INIT_DEVACCESS)`` are considered as generic
 by the kernel.  DMA are controlled by the kernel and the task has no direct
@@ -161,7 +151,7 @@ the kernel. This DMA descriptor is returned in the dmadesc third argument.
   pemissions model.
 
 sys_init(INIT_DMA_SHM)
-""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^
 
 When multiple tasks take part in a complex data flow with multiple DMA copies
 from one device to another (e.g. from a USB High Speed device to the SDIO
@@ -200,7 +190,7 @@ map.
 
 
 sys_init(INIT_DONE)
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
 As previously described, this syscall locks the initialization phase and starts
 the nominal phase of the task. From now on, the task can execute all syscalls
