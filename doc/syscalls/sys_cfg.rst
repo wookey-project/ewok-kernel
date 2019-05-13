@@ -284,6 +284,9 @@ device. This can be done by requesting the kernel to release the device using
 its device descriptor.  The device is then fully deactivated (including
 associated RCC clock and interrupts) and fully removed from the task's context.
 
+.. warning::
+   This action is **definitive**. The device is released until reboot
+
 Because of the EwoK task life-cycle paradigm including a separated declarative
 phase (so called initialization phase), a released device should never be
 allocated by another task. This can only happen if the device is released by a
