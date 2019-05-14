@@ -1,176 +1,158 @@
 .. _sys_ipc:
 
-sys_ipc
--------
-EwoK Inter-Proccess Communication API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*sys_ipc*, Inter-Proccess Communication
+---------------------------------------
+
+.. contents::
 
 Synopsis
-""""""""
+^^^^^^^^
 
-In EwoK there is no **process** structure as there is no MMU on
-microcontrollers, but there is a task notion and an IPC principle.
+*Inter-Process Communication* is done using the ``sys_ipc()`` syscall familly.
+IPC can be either *synchronous* or *asynchronous*:
 
-Inter-Process Communication is done using the sys_ipc() syscall familly.
-The sys_ipc() familly supports the following prototypes::
+   * *synchronous* IPC requests are blocked until the message has been sent and
+     received
+   * *asynchronous* IPC are not blocking. They may return an error if the other
+     side of the channel is not ready.
 
-   e_syscall_ret sys_ipc(IPC_SEND_SYNC, uint8_t target, logsize_t size, const char *msg);
-   e_syscall_ret sys_ipc(IPC_RECV_SYNC, uint8_t *sender, logsize_t *size, char *msg);
-   e_syscall_ret sys_ipc(IPC_SEND_ASYNC, uint8_t target, logsize_t size, const char *msg);
-   e_syscall_ret sys_ipc(IPC_RECV_ASYNC, uint8_t *sender, logsize_t *size, char *msg);
+EwoK detects IPC mutual lock (two task sending IPC to each other), returning
+E_BUSY error but it does not detect cyclic deadlocks between multiple tasks
+(more than 2). Be careful when designing your IPC automaton!
 
-Communicating with another task requests to know its identifier. Each task has
-a unique numeric identifier generated at build time by Tataouine.
+The EwoK IPC paradigm supports mono-directionnal communications, allowing to
+send data withtout being able to receive data from the same target
 
-Each task pair is using a dedicated communication channel which is elected
-during the first IPC request. This communication channel is then kept for
-this task pair for the system entire life-cycle.
 
-Getting a task identifier is done by using sys_init(INIT_GETTASKID), as
-explained above.
+Prerequisites
+^^^^^^^^^^^^^
 
-.. important::
-   Synchronous and asynchronous IPC can be used together (sending synchronously
-   and received asynchronously for example). The synchronous versus asynchronous
-   paradigm only impacts the caller's behavior
+If a task *A* want to communicate with another task *B*, task *A* need
+to retrieve task's B identifier.
+Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
 
-.. danger::
-   EwoK does not detect cyclic deadlocks between multiple tasks (more than 2).
-   Be careful when designing your IPC automaton
+    uint8_t        id;
+    e_syscall_ret  ret;
 
-.. note::
-   EwoK detects IPC mutual lock (two task sending IPC to each other), returning
-   E_BUSY error
+    ret = sys_init(INIT_GETTASKID, "task_b", &id);
+    if (ret != SYS_E_DONE) {
+        ...
+    }
 
-.. important::
-   The EwoK IPC paradigm supports mono-directionnal communications, allowing to
-   send data withtout being able to receive data from the same target
+
+Note also that any attempt to receive or to send a message with an IPC during
+the task *init mode* fails with ``SYS_E_DENIED``.
+
 
 sys_ipc(SEND_SYNC)
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
-A task can synchronously send data to another task. When sending data
-synchronously, the task is frozen until the other task reads all the data sent
-(using one of the receive IPCs syscall).
+A task can synchronously send data to another task.
+The task is blocked until the other task emit either a
+``sys_ipc(RECV_SYNC)`` or a ``sys_ipc(RECV_ASYNC)`` syscall: ::
 
-The IPC synchronous send syscall has the following API::
-
-   e_syscall_ret sys_ipc(IPC_SEND_SYNC, uint8_t target, logsize_t size, const char *msg);
+    uint8_t        id;
+    logsize_t      size;
+    char          *msg = "hello";
+    e_syscall_ret  ret;
+    ...
+    ret = sys_ipc(IPC_SEND_SYNC, id, sizeof(msg), msg);
+    if (ret != SYS_E_DONE) {
+       ... /* Error handling */
+    }
 
 When sending synchronously data to another task, the following can happen:
 
-   * SYS_E_DENIED: the current task is not allowed to communicate with the
+   * ``SYS_E_DONE``: The message has been succesfully emitted
+   * ``SYS_E_DENIED``: The current task is not allowed to communicate with the
      other task
-   * SYS_E_INVAL: one of the syscall argument is invalid (invalid task id,
+   * ``SYS_E_INVAL``: One of the syscall argument is invalid (invalid task id,
      pointer value, etc.)
-   * SYS_E_BUSY: (only in rare occasion) only when the target has already a
-     message from the current task that has not been read yet. This happens
-     when executing consecutively an asynchronous and a synchronous syscall
-     targeting the same task. This also happens if the target task has sent an
-     IPC to the current task which is not yet received (dead lock check)
+   * ``SYS_E_BUSY``: This happens only in the very rare condition of a
+     synchronous send is emited after an asynchronous send and while the receiver
+     has not emited any receive syscall.
 
-To these usual behaviors, any attempt to send an IPC during the task init mode
-fails with SYS_E_DENIED.
 
 sys_ipc(SEND_ASYNC)
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
-There are times where a task may want to send a message to another without
-waiting for the message to be consumed. In this very case, asynchronous send
-IPC can be used. The message is then kept in the kernel buffers while the target task
-reads it, without locking the emitter. This allows to support high reactivity
-software stack automatons without risk.
+Asynchronous send is used to send a message without waiting for it to be
+received. The message is kept in a kernel's buffer until the receiver read
+it: ::
 
-.. note::
-   When using asynchronous IPC for reactivity constraints, it is recommanded to
-   use only asynchronous ipc, getting the IPC syscalls out of the tasks
-   blocking points
-
-.. important::
-   When sending asynchronous messages, there is no (clean) way to be informed
-   of the message reception. The target task has to voluntary acknowledge it in
-   return
-
-The IPC asynchronous receive syscall has the following API::
-
-   e_syscall_ret sys_ipc(IPC_SEND_ASYNC, uint8_t target, logsize_t size, char *msg);
+   uint8_t        id;
+   logsize_t      size;
+   char          *msg = "hello";
+   e_syscall_ret  ret;
+    ...
+   ret = sys_ipc(IPC_SEND_ASYNC, id, sizeof(msg), msg);
+   if (ret != SYS_E_DONE) {
+       ... /* Error handling */
+   }
 
 When sending asynchronously data to another task, the following can happen:
 
-   * SYS_E_DENIED: the current task is not allowed to communicate with the
+   * ``SYS_E_DONE``: The message has been succesfully emitted
+   * ``SYS_E_DENIED``: the current task is not allowed to communicate with the
      other task
-   * SYS_E_INVAL: one of the syscall argument is invalid (invalid task id,
+   * ``SYS_E_INVAL``: one of the syscall argument is invalid (invalid task id,
      pointer value, etc.)
-   * SYS_E_BUSY: (only in rare occasion) only when the target has already a
+   * ``SYS_E_BUSY``: (only in rare occasion) only when the target has already a
      message from the current task that has not been read yet. This also
      happens if the target task has sent an IPC to the current task which is
      not yet received (communication channel already used)
 
-To these usual behaviors, any attempt to send an IPC during the task init mode
-fails with SYS_E_DENIED.
-
-.. important::
-   Asynchronous send never freezes the caller task
+Note that mixing synchronous and asynchronous IPC is possible but, of course, need
+some very careful thinking.
 
 sys_ipc(RECV_SYNC)
-""""""""""""""""""
+^^^^^^^^^^^^^^^^^^
 
-A task can voluntary wait for a message from another (or any) task(s), by
-executing a synchronous receive IPC.
-This syscall freezes the task while there is no message to read from the target
-task requested in the syscall arguments.
+A task can synchronously wait for a message:
+   * from another specific task, by setting accordingly the task *id*
+   * from any task, by setting the task *id* to ``ANY_APP``
 
-A task can :
-   * wait for another specific task (basic IPC mode)
-   * wait for any tasks that may communicate with it (listen mode)
+The task is blocked until a readable message is feed: ::
 
-The mode depends on the target parameter value, that can be a specific task id
-(basic IPC mode) or ANY_APP (listen mode).
+   uint8_t        id;
+   logsize_t      size;
+   char           buf[128];
+   e_syscall_ret  ret;
 
-.. important::
-   In listen mode, a task can receive IPC only from other tasks that are
-   allowed to communicate with it
+   id   = ANY_APP;      /* Waiting a msg from *any* task */
+   size = sizeof(buf);  /* Receiving buffer max size */
 
-The IPC asynchronous send syscall has the following API::
+   ret = sys_ipc(IPC_RECV_ASYNC, &id, &size, buf);
+   if (ret != SYS_E_DONE) {
+       ... /* Error handling */
+   }
 
-   e_syscall_ret sys_ipc(IPC_RECV_ASYNC, uint8_t *target, logsize_t *size, const char *msg);
+When a message is received, the kernel modify the following parameters (based
+on the example above):
 
-When receiving a message, the kernel modifies:
-   * The target value, when receiving in listen mode, to know which task has
-     sent the message
-   * The message size, with the effective message size
+   * ``id``: to know which task has sent the message
+   * ``size``: to set message's size
+   * ``buf``: the message is copied into the receiving buffer
 
 When receiving synchronously data, the following can happen:
 
-   * SYS_E_DENIED: the current task is not allowed to communicate with the
+   * ``SYS_E_DONE``: The message has been succesfully received
+   * ``SYS_E_DENIED``: the current task is not allowed to communicate with the
      other task set as target
-   * SYS_E_INVAL: one of the syscall argument is invalid (invalid task id,
+   * ``SYS_E_INVAL``: one of the syscall argument is invalid (invalid task id,
      pointer value, etc.) or the buffer size is too small to get back the
      message.
-   * SYS_E_BUSY: (only in rare occasion) only when the target is already in
+   * ``SYS_E_BUSY``: (only in rare occasion) only when the target is already in
      receiving mode, waiting for the current task to send a message.
 
-To these usual behaviors, any attempt to send an IPC during the task init mode
-fails with SYS_E_DENIED.
-
 sys_ipc(RECV_ASYNC)
-"""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^
 
-Sometimes, a task may wish to check if there is a pending message without
-being locked. In this case, it uses the asynchronous receive IPC in order to
-get back a message if there is one waiting, or continue its normal execution if
-there is not.
+Asynchronous receive is used to read any pending message. The task
+is not blocked and directly returns: ::
 
-If there is no message to read, the syscall returns with SYS_E_BUSY.
+   ret = sys_ipc(IPC_RECV_ASYNC, &id, &size, buf);
 
-.. important::
-   Asynchronous receive never freezes the caller task
-
-The asynchronous receive IPC arguments are handled in the same way synchronous
-receive IPC arguments are.
-
-The ipc asynchronous receive syscall has the following API::
-
-   e_syscall_ret sys_ipc(IPC_RECV_ASYNC, uint8_t *sender, logsize_t *size, char *msg);
+If there is no message to read, the syscall returns ``SYS_E_BUSY``.
 
 
