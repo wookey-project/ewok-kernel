@@ -30,7 +30,7 @@ sys_get_random()
 """"""""""""""""
 
 .. note::
-   Syncrhonous syscall,  executable in ISR mode
+   Synchronous syscall,  executable in ISR mode
 
 Get back some random content from the kernel is easy with EwoK and can be done
 using a single, synchronous, syscall.

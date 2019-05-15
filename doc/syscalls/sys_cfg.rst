@@ -27,46 +27,36 @@ sys_cfg(CFG_GPIO_SET)
 """""""""""""""""""""
 
 GPIOs are not directly mapped in the task's memory. As a consequence, setting
-the GPIO output value, for GPIO in output mode, must be done using a syscall.
-There is no need to use the entire GPIO structure (or parent device_t
-structure) to set a GPIO. As described in the ``sys_init(INIT_DEVACCESS)``
-explanations, each GPIO has a kref identifier. This identifier is used here to
-identify the GPIO when asking the kernel for an action on it.
+the GPIO output value is done using a syscall. 
+The GPIO must be registered as output for the syscall to succeed.
+Only the GPIO kref is needed by this syscall, see the ``sys_init(INIT_DEVACCESS)``
+explanations about kref for further details.
 
-Setting an output GPIO previously registered is done with the following API::
+Setting an output GPIO is done with the following API::
 
    e_syscall_ret sys_cfg(CFG_GPIO_SET, uint8_t gpioref, uint8_t value);
 
-The value set is the one given in third argument.
+The value set is the third argument.
 
 .. important::
-  The GPIO to set must have been previously declared in the initialization phase.
+  The GPIO to set must have been previously declared as output in the initialization phase.
 
 sys_cfg(CFG_GPIO_GET)
 """""""""""""""""""""
 
-In the same way, getting a GPIO value for a GPIO configured in input mode is
-done using a syscall.
+Getting a GPIO value for a GPIO configured in input mode is done using a syscall.
+Only the GPIO kref is needed by this syscall, see the ``sys_init(INIT_DEVACCESS)``
+explanations about kref for further details.
 
-GPIOs are not directly mapped in the task's memory. As a consequence, in the
-same way as for ``sys_cfg(CFG_GPIO_SET)`` getting a GPIO value for a GPIO in
-input mode must be done using a syscall.
-
-Following the same manner, there is no need to use the entire GPIO structure (or parent
-device_t structure) to set a GPIO. As described in the
-``sys_init(INIT_DEVACCESS)`` explanations, each GPIO has a kref identifier.
-This identifier is used here to identify the GPIO when asking the kernel for an
-action on it.
-
-Getting an input value of a GPIO previously registered is done with the
+Getting an input value of a GPIO is done with the
 following API::
 
    e_syscall_ret sys_cfg(CFG_GPIO_GET, uint8_t gpioref, uint8_t *val);
 
-The value read is set in the syscall third argument.
+The value read is put in the third argument.
 
 .. important::
-  The GPIO value to get must have been previously declared in the
+  The GPIO queried must have been previously declared as input in the
   initialization phase.
 
 sys_cfg(CFG_GPIO_UNLOCK_EXTI)
@@ -97,23 +87,19 @@ either:
 
    * GPIO_EXTI_UNLOCKED value: the EXTI line is not masked and will continue to
      arise when the external HW IP emits events
-   * GPIO_EXTI_LOCKED value: the EXTI line is masked each time the interrupt
-     arises. As a consequence, the userspace task needs to unmask it voluntarily
-     using a specific syscall, otherwise no other EXTI will be received.
+   * GPIO_EXTI_LOCKED value: the EXTI line is masked once the interrupt
+     has been scheduled for beeing serviced. The userspace task needs to 
+     unmask it voluntarily using the apropriate syscall. No other EXTI will 
+     be received without unmasking.
 
-To unmask a given EXTI interrupt, a userspace task uses the
+  Unmasking a given EXTI interrupt is done using the
 ``sys_cfg(CFG_GPIO_UNLOCK_EXTI)`` syscall. This syscall has the following API::
 
    e_syscall_ret sys_cfg(CFG_GPIO_EXTI_UNLOCK, uint8_t gpioref);
-
-The gpioref value is the kref identifier of the GPIO, like the one used in the
+  
+The gpioref parameter is the kref identifier of the GPIO, like the one used in the
 other GPIO manipulation syscalls. Unlocking the EXTI line is a synchronous
 syscall.
-
-.. important::
-  The GPIO value to get must have been previously declared in the
-  initialization phase.
-
 
 
 sys_cfg(CFG_DMA_RECONF)
@@ -122,13 +108,12 @@ sys_cfg(CFG_DMA_RECONF)
 .. note::
    Synchronous syscall, executable in ISR mode
 
-In a generic DMA channel usage, it is a standard behavior to reconfigure a part
-of the DMA channel information. This is for example the case for input or
-output buffers when using direct access mode with chained data, our circular
-buffers.
+DMA operations are performed by EwoK microkernel on the behalf of userspace tasks.
+After completion of a DMA transfert the DMA channel is disable until it is either reloaded or reconfigurated.
+For allowing the user to change the input/output buffers of a DMA channel, it is permittd to reconfigure part
+of the DMA channel information. 
 
-EwoK allows some reconfiguration of DMA channels, in a controlled way. Only
-some fields of the ``dma_t`` can be reconfigured. This is the case of:
+Only some fields of the ``dma_t`` can be reconfigured :
 
    * ISR handlers address
    * Input buffer address (for memory to peripheral mode)
@@ -137,19 +122,16 @@ some fields of the ``dma_t`` can be reconfigured. This is the case of:
    * DMA mode (direct, FIFO or circular)
    * DMA priority
 
-In order to reconfigure only a subset of theses fields, a mask exists specifying
-which field(s) need(s) to be reconfigured.
-
-As these fields are a part of the ``dma_t`` structure (see Ewok kernel API
-technical reference documentation), the syscall requires this entire structure.
-This is also required to determine which DMA channel is targeted by this
-syscall, by using the DMA id set in this structure by the kernel at
-initialization time.
-
 Reconfiguring a part of a DMA stream is done with the following API::
 
    e_syscall_ret sys_cfg(CFG_DMA_RECONF, dma_t*dma, dma_reconf_mask_t
    reconfmask);
+
+The mask parameter allows the user to specify which field(s) need(s) to be 
+reconfigured.
+
+As these fields are a part of the ``dma_t`` structure (see Ewok kernel API
+technical reference documentation), the syscall requires this entire structure.
 
 
 .. hint::
@@ -165,11 +147,11 @@ sys_cfg(CFG_DMA_RELOAD)
 
 .. note::
    Synchronous syscall, executable in ISR mode
-
-There are some times when we only want the DMA controller to restart a copy
-action, without modifying any of its properties. In this specific case, only a
-reload is needed. The kernel only needs to identify the DMA controller and
-stream, and doesn't need a whole DMA structure. The task can then use only the
+When a DMA tranfert is finished, the corresponding DMA channel is disable until it is either reloaded or reconfigurated.
+A reload can be performed when the DMA controller is requested to redo exactly the same action, without any modification of the DMA channel properties. 
+Reloading a DMA channel is faster than reconfiguring it.
+The kernel only needs to identify the DMA controller and
+stream, and does not need a whole DMA structure. The task can then use only the
 ``id`` field of the ``dma_t`` structure.
 
 Reloading a DMA stream is done with the following API::
@@ -186,8 +168,8 @@ sys_cfg(CFG_DMA_DISABLE)
 .. note::
    Synchronous syscall, executable in ISR mode
 
-It is possible to disable a DMA stream. In this case, the DMA is stopped and
-can be re-enabled only by calling one of sys_cfg(CFG_DMA_RELOAD) or
+It is possible to disable a DMA stream. In this case, the DMA channel is stopped and
+can be re-enabled by calling one of sys_cfg(CFG_DMA_RELOAD) or
 sys_cfg(CFG_DMA_RECONF) syscalls.
 
 This is useful for DMA streams in circular mode, as they never stop unless the
@@ -206,6 +188,11 @@ sys_cfg(CFG_DEV_MAP)
 
 .. note::
    Synchronous syscall, executable only in main thread mode
+Ewok Microkernel allows a task to map only a restricted number of devices at a time.
+Voluntary mapped devices permit to map, configure and unmap in a task more
+than the maximum number of concurrently mapped devices. It also allows us to avoid
+mapping devices whose concurrent mapping is dangerous (e.g. concatenated
+mappings).
 
 It is possible to declare a device as voluntary mapped (field ``map_mode`` of
 the *device_t* structure.  This field can be set to the following values:
@@ -221,10 +208,6 @@ When using DEV_MAP_VOLUNTARY, the device is not mapped by the kernel and the
 task has to map the device itself (later in the life-cycle). In that case,
 the device is mapped using this very syscall.
 
-Voluntary mapped devices permit to map, configure and unmap in sequence more
-than the maximum number of concurrently mapped devices. It also allows to avoid
-mapping devices for which concurrent mapping is dangerous (e.g. concatenated
-mappings).
 
 Mapping a device is done using the device id, hosted in the ``id`` field of the
 *device_t* structure, which is set by the kernel at registration time.
@@ -248,9 +231,8 @@ sys_cfg(CFG_DEV_UNMAP)
    Synchronous syscall, executable only in main thread mode
 
 When using DEV_MAP_VOLUNTARY, a previously voluntary mapped device can be unmapped
-by the task.  Unmapping a device frees a MPU slot when the task requires more
-than the maximum number of concurrently usable MPU slots by managing devices in
-sequence in the main thread.
+by the task.  Unmapping a device frees the corresponding MPU slot, this is useful e.g. when the task requires more
+than the maximum number of concurrently devices.
 
 .. important::
    While the device is configured, device's ISR still maps the device, even if
@@ -259,13 +241,13 @@ sequence in the main thread.
 .. important::
    Unmapping a device does not mean disabling it, the hardware device still works
    and emits IRQs that are handled by the task's registered ISR. It is the task's
-   duty to properly disable the device before unammping it if necessary
+   responsibility to properly disable the device before unammping it if necessary
 
 .. note::
    Unmapping a device requires a call to the scheduler, in order to reconfigure
    the MPU, this action is costly
 
-Unmapping a device is done using the device id, hosted in the ``id`` field of
+Unmapping a device is done using the device id, stored in the ``id`` field of
 the *device_t* structure, which is set by the kernel at registration time.
 
 Unmapping a device is done with the following API::
@@ -279,23 +261,22 @@ sys_cfg(CFG_DEV_RELEASE)
 .. note::
    Synchronous syscall, executable only in main thread mode
 
-A task may want, at a given time of its life-cycle, to stop to use a given
+A task may want to revoke its accesses to a given
 device. This can be done by requesting the kernel to release the device using
 its device descriptor.  The device is then fully deactivated (including
 associated RCC clock and interrupts) and fully removed from the task's context.
 
 .. warning::
-   This action is **definitive**. The device is released until reboot
+   **This action cannot be undone**. The device is released until reboot
 
-Because of the EwoK task life-cycle paradigm including a separated declarative
-phase (so called initialization phase), a released device should never be
+A released device shall never be
 allocated by another task. This can only happen if the device is released by a
 given task before another task has finished its initialization phase.
 
 .. danger::
-   You should **not** use nominal and initializing phases overlapping between
-   tasks to avoid potential unvoluntary device sharing associated to device
-   release, Take care to synchronize init sequences correctly.  The kernel
+   You should **not** interleave nominal and initializing phases between
+   tasks to avoid potential unwanted device reallocation. 
+   Take care to synchronize init sequences correctly.  The kernel
    **does not** clear the device registers at release time
 
 Releasing a device is done with the following API::
