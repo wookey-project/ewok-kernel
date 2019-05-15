@@ -92,8 +92,8 @@ either:
      unmask it voluntarily using the apropriate syscall. No other EXTI will 
      be received without unmasking.
 
-  Unmasking a given EXTI interrupt is done using the
-``sys_cfg(CFG_GPIO_UNLOCK_EXTI)`` syscall. This syscall has the following API::
+Unmasking a given EXTI interrupt is done using the ``sys_cfg(CFG_GPIO_UNLOCK_EXTI)``
+syscall. This syscall has the following API::
 
    e_syscall_ret sys_cfg(CFG_GPIO_EXTI_UNLOCK, uint8_t gpioref);
   
@@ -147,12 +147,15 @@ sys_cfg(CFG_DMA_RELOAD)
 
 .. note::
    Synchronous syscall, executable in ISR mode
-When a DMA tranfert is finished, the corresponding DMA channel is disable until it is either reloaded or reconfigurated.
-A reload can be performed when the DMA controller is requested to redo exactly the same action, without any modification of the DMA channel properties. 
+
+When a DMA tranfert is finished, the corresponding DMA channel is disable until
+it is either reloaded or reconfigurated.
+A reload can be performed when the DMA controller is requested to redo exactly
+the same action, without any modification of the DMA channel properties. 
 Reloading a DMA channel is faster than reconfiguring it.
-The kernel only needs to identify the DMA controller and
-stream, and does not need a whole DMA structure. The task can then use only the
-``id`` field of the ``dma_t`` structure.
+The kernel only needs to identify the DMA controller and stream, and does not
+need a whole DMA structure. The task can then use only the ``id`` field of the
+``dma_t`` structure.
 
 Reloading a DMA stream is done with the following API::
 
@@ -188,6 +191,7 @@ sys_cfg(CFG_DEV_MAP)
 
 .. note::
    Synchronous syscall, executable only in main thread mode
+
 Ewok Microkernel allows a task to map only a restricted number of devices at a time.
 Voluntary mapped devices permit to map, configure and unmap in a task more
 than the maximum number of concurrently mapped devices. It also allows us to avoid
