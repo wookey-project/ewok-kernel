@@ -19,8 +19,7 @@ might be: ::
       PREC_CYCLE  /* CPU cycles */
    } e_tick_type;
 
-Example:
-.. code-block:: C
+Example: ::
 
     uint64_t dma_start_time;
 
