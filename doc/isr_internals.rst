@@ -1,34 +1,36 @@
 .. _isr_internals:
 
-About EwoK IRQ and ISR internals
-================================
+.. contents::
 
-About IRQ, ISR, and userspace confinement
------------------------------------------
+EwoK IRQ and ISR internals
+==========================
+
+ISR mechanism
+-------------
 
 Some hardware devices such as the smart card generate interrupts that must be
 acknowledged within a very tight time frame to avoid timeouts.  Other
 components like the touch screen put pressure on the kernel with interrupts
-bursts.  To deal with these constraints, we designed a simple yet effective
+bursts.
+To deal with these constraints, we designed a simple yet effective
 system to quickly acknowledge interrupts and to limit as much as possible the
 overhead of the user mode drivers.
 
 In EwoK, a driver is typically  composed of a main thread, which implements all
-the driver logic, and one or several *user Interrupt Service Routine (user
-ISR)* to handle the hardware interrupts.  User ISRs execution takes place in
+the driver logic, and one or several *Interrupt Service Routine (ISR)* to
+handle the hardware interrupts.  ISRs execution takes place in
 user mode, with the associated task permissions and memory layout.
 
 Usually, a user ISR performs only two things: it acknowledges the hardware by
 reading or writing in some registers and it sets some variables or some shared
 structures to signal to the main thread that an event happened.
 
-About ISR postponing versus task scheduling
--------------------------------------------
-
 It should be highlighted that a user ISR is scheduled with the highest
 priority. As a consequence, it must be fast enough to avoid hindering
-treatment of subsequent hardware interrupts. In this way, it is very similar to
-the *bottom-half* part of interrupt handlers found in monolithic kernels.
+treatment of subsequent hardware interrupts.
+
+ISR postponing
+--------------
 
 When a hardware interrupt is triggered, the kernel traps it and checks if it
 must be handled by a user task. If this is the case, the kernel updates a queue
@@ -49,8 +51,8 @@ A potential problem is the induced latency in the handling of hardware interrupt
 Previous figure describes a typical scheduling scheme during an IRQ burst.
 The *posthook* mechanism has been introduced to address this issue.
 
-IRQ, ISR and Posthooks
-----------------------
+Posthooks
+---------
 
 Posthook instructions define a restricted high level language that allows to
 read or to set some bits in specific hardware registers when an interrupt
