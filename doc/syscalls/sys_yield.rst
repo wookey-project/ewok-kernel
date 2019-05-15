@@ -2,11 +2,8 @@
 
 sys_yield
 ---------
-EwoK time slot releasing API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synopsis
-""""""""
+.. contents::
 
 In some situations, yielding is an efficient way to optimize the
 scheduling. Historically, yield() is a collaborative syscall requesting the end
@@ -15,7 +12,7 @@ systems, such a call may help the scheduler in optimizing the tasks execution by
 voluntarily reducing a task's slot when no more execution is required.
 
 sys_yield()
-"""""""""""
+^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, **not** executable in ISR mode as an ISR as no reason

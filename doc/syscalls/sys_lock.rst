@@ -2,18 +2,15 @@
 
 sys_lock
 --------
-EwoK kernel-based locking mechanism
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Synopsis
-""""""""
 
 Most of the time, using pure userspace semaphores is enough to lock an access to
 a given shared variable. Semaphores are implemented in the libstd. Nonetheless,
 there might be some specific cases where pure userspace implementations are not enough.
 
+.. contents::
+
 sys_lock()
-""""""""""
+^^^^^^^^^^
 
 Imagine you manipulate a variable in both read and write in the main thread and
 in an ISR. When accessing this variable in the ISR, you may detect a userspace
@@ -41,3 +38,4 @@ The lock syscall has the following API::
 .. warning::
    Locking the task should be done for a very short amount of time, as associated ISR are
    postponed, which may generate big slowdown on the associated devices performance.
+

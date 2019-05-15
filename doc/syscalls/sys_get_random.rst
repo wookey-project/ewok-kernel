@@ -2,11 +2,8 @@
 
 sys_get_random
 --------------
-EwoK RNG accessor
-^^^^^^^^^^^^^^^^^
 
-Synopsis
-""""""""
+.. contents::
 
 The random number generator (RNG) is hold by the EwoK kernel as it
 is used to initialize the user and kernel tasks canary seed values. This entropy
@@ -27,7 +24,7 @@ source of entropy for various algorithms, and the userland can also implement
 its own PRNG processing based on this entropy.
 
 sys_get_random()
-""""""""""""""""
+^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall,  executable in ISR mode

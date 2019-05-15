@@ -2,29 +2,15 @@
 
 sys_cfg
 -------
-EwoK ressource reconfiguration API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Synopsis
-""""""""
 
 The resources (GPIOs, DMA, etc.) reconfiguration request is done by the
-sys_cfg() syscall family. The sys_cfg() family supports the following
-prototypes::
+sys_cfg() syscall family.
 
-   e_syscall_ret sys_cfg(CFG_GPIO_SET, uint8_t gpioref, uint8_t value);
-   e_syscall_ret sys_cfg(CFG_GPIO_GET, uint8_t gpioref, uint8_t *val);
-   e_syscall_ret sys_cfg(CFG_GPIO_UNLOCK_EXTI, uint8_t gpioref)
-   e_syscall_ret sys_cfg(CFG_DMA_RECONF, dma_t*dma, dma_reconf_mask_t reconfmask);
-   e_syscall_ret sys_cfg(CFG_DMA_RELOAD, uint32_t dma_id);
-   e_syscall_ret sys_cfg(CFG_DMA_DISABLE, uint32_t dma_id);
-   e_syscall_ret sys_cfg(CFG_DEV_MAP, uint8_t dev_id);
-   e_syscall_ret sys_cfg(CFG_DEV_UNMAP, uint8_t dev_id);
-   e_syscall_ret sys_cfg(CFG_DEV_RELEASE, uint8_t dev_id);
+.. contents::
 
 
 sys_cfg(CFG_GPIO_SET)
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 GPIOs are not directly mapped in the task's memory. As a consequence, setting
 the GPIO output value is done using a syscall. 
@@ -42,7 +28,7 @@ The value set is the third argument.
   The GPIO to set must have been previously declared as output in the initialization phase.
 
 sys_cfg(CFG_GPIO_GET)
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 Getting a GPIO value for a GPIO configured in input mode is done using a syscall.
 Only the GPIO kref is needed by this syscall, see the ``sys_init(INIT_DEVACCESS)``
@@ -60,7 +46,7 @@ The value read is put in the third argument.
   initialization phase.
 
 sys_cfg(CFG_GPIO_UNLOCK_EXTI)
-"""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable in ISR mode
@@ -103,7 +89,7 @@ syscall.
 
 
 sys_cfg(CFG_DMA_RECONF)
-"""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable in ISR mode
@@ -143,7 +129,7 @@ technical reference documentation), the syscall requires this entire structure.
    the initialization phase.
 
 sys_cfg(CFG_DMA_RELOAD)
-"""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable in ISR mode
@@ -166,7 +152,7 @@ Reloading a DMA stream is done with the following API::
   initialization phase.
 
 sys_cfg(CFG_DMA_DISABLE)
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable in ISR mode
@@ -187,7 +173,7 @@ Disabling a DMA stream is done with the following API::
   initialization phase.
 
 sys_cfg(CFG_DEV_MAP)
-""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable only in main thread mode
@@ -229,7 +215,7 @@ Mapping a device is done with the following API::
    the MPU, this action is costly
 
 sys_cfg(CFG_DEV_UNMAP)
-""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable only in main thread mode
@@ -260,7 +246,7 @@ Unmapping a device is done with the following API::
 
 
 sys_cfg(CFG_DEV_RELEASE)
-""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable only in main thread mode

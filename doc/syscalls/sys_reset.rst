@@ -2,11 +2,8 @@
 
 sys_reset
 ---------
-EwoK SoC software reset API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synopsis
-""""""""
+.. contents::
 
 There are some situations where an event may require a board reset. These events may be:
 
@@ -23,7 +20,7 @@ information in SoC HW IP).
 Doing such request is ensured by calling sys_reset() syscall.
 
 sys_reset()
-"""""""""""
+^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, executable in ISR mode

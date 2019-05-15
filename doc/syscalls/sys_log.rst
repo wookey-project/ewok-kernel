@@ -2,11 +2,8 @@
 
 sys_log
 -------
-EwoK serial interface logging API
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synopsis
-""""""""
+.. contents::
 
 EwoK provides a kernel-controlled logging facility with which any userspace task
 can communicate. This kernel-controlled logging interface is used for debugging
@@ -21,7 +18,7 @@ U(S)ART.
   leak through serial debug can be exploited by an attacker.
 
 sys_log()
-"""""""""
+^^^^^^^^^
 
 .. note::
    Asynchronous syscall, not executable in ISR mode

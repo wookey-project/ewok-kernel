@@ -2,18 +2,15 @@
 
 sys_sleep
 ---------
-EwoK voluntary sleep API
-^^^^^^^^^^^^^^^^^^^^^^^^
 
-Synopsis
-""""""""
+.. contents::
 
 It is possible to request a temporary period during which the task is not
 schedulable anymore. This period is fixed and the task is awoken at the end of
 it. This is a typical sleep behavior.
 
 sys_sleep()
-"""""""""""
+^^^^^^^^^^^
 
 .. note::
    Synchronous syscall, but **not** executable in ISR mode, as there is no
