@@ -534,6 +534,8 @@ Sharing a memory buffer by this mean is subject to specific permissions.
    DMA SHM declaration is often associated with IPCs to let the *caller*
    inform the *receiver* of the buffer address and size
 
+.. highlight:: c
+
 Here is a typical usage of DMA SHM buffer: ::
 
    const uint32_t bufsize = 4096;

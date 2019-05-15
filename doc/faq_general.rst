@@ -152,6 +152,7 @@ Memory slots hold .text, .got, .rodata and .data content of the application.
 .data section will be copied into RAM in the application memory layout later at
 boot time.
 
+
 As a consequence, depending on the size of these sections, the number of
 required slots may vary. You can use objdump or readelf tools to get back the
 effective size of your application and calculate the effective number of slots

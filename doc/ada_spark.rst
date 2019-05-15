@@ -37,7 +37,7 @@ by GNAT providing a
 Importing C symbols in Ada
 """"""""""""""""""""""""""
 
-.. highlight:: ada
+.. highlight:: vhdl
 
 Importing a C symbol in an Ada program is done using the following directive::
 
