@@ -17,12 +17,12 @@ IPC can be either *synchronous* or *asynchronous*:
      side of the channel is not ready.
 
 EwoK detects IPC mutual lock (two task sending IPC to each other), returning
-E_BUSY error but it does not detect cyclic deadlocks between multiple tasks
+``SYS_E_BUSY`` error but it does not detect cyclic deadlocks between multiple tasks
 (more than 2). Be careful when designing your IPC automaton!
 
-The EwoK IPC paradigm supports mono-directionnal communications, allowing to
-send data withtout being able to receive data from the same target
-
+Note that IPC are half-duplex. For example, if task *A* can send messages to
+task *B*, the reciprocity is not true and task *B* may have no permission to
+send any message to *A*.
 
 Prerequisites
 ^^^^^^^^^^^^^
