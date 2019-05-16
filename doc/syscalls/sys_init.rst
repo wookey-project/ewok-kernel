@@ -13,6 +13,12 @@ sys_init(INIT_GETTASKID)
 
 If a task *A* wants to communicate with another task *B*, task *A* need
 to retrieve task's B identifier.
+
+.. note::
+   Ewok gives each running task a unique identifier, its *task id*.
+   A task also have a name, given by the implementor, used to
+   ease task identification.
+
 Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
 
     char          *peer_name = "task_b";

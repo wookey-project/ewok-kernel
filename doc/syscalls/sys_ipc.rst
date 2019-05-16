@@ -30,12 +30,6 @@ Prerequisites
 
 If a task *A* want to communicate with another task *B*, task *A* need
 to retrieve *B*'s *task id*.
-
-.. note::
-   Ewok gives each running task a unique identifier, its *task id*.
-   A task also have a name, given by the implementor, used to
-   ease task identification.
-
 Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
 
     uint8_t        id;
@@ -45,6 +39,8 @@ Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
     if (ret != SYS_E_DONE) {
         ...
     }
+
+For more details, see :ref:`sys_init`.
 
 .. important::
    Notice that any attempt to receive or to send a message with an IPC during
