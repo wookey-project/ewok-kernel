@@ -3,25 +3,19 @@
 sys_lock
 --------
 
-Most of the time, using pure userspace semaphores is enough to lock an access to
-a given shared variable. Semaphores are implemented in the libstd. Nonetheless,
-there might be some specific cases where pure userspace implementations are not enough.
+Pure userspace semaphore, as proposed in libstd.h, do not permit easy handling 
+of variable shared between ISR and mainthread. ISR treatments do not allow to sleep 
+or wait for the main thread to release semaphores. The solution to this problem is to instruct Ewok
+not to schedule the ISR routine while the shared variable is in use in the main thread.
+Of course such a situation ought to be short. 
 
 .. contents::
 
 sys_lock()
 ^^^^^^^^^^
 
-Imagine you manipulate a variable in both read and write in the main thread and
-in an ISR. When accessing this variable in the ISR, you may detect a userspace
-lock but you don't have any easy way to postpone the potential work required on
-this variable in the ISR context, as ISR are executed on external events. In
-that case, an easy way would be to slow down the ISR execution while the
-userspace thread is keeping the lock.
-
-This is what this syscall is doing: while a lock is set by the main thread, all
-the ISR of the task are postponed in the ISR queue, waiting for the lock to be
-release. This efficiently creates a critical section in the main thread with regard
+``sys_lock``: postpone the ISR while a lock is set by the main thread. 
+This efficiently creates a critical section in the main thread with respect
 to the ISR thread.
 
 .. note::
