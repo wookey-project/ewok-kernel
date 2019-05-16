@@ -87,6 +87,12 @@ in this context.
 Note also that some syscalls should require some specific permissions, which
 are set at build time.
 
+Syscalls and permissions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A part of the syscalls require dedicated permissions. See :ref:`perms` section
+for more information about EwoK permissions and their impact on the syscall API.
+
 Syscall overview
 ----------------
 

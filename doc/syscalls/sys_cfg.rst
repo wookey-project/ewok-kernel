@@ -1,7 +1,7 @@
 .. _sys_cfg:
 
-sys_cfg
--------
+*sys_cfg*, configuring devices
+------------------------------
 
 The resources (GPIOs, DMA, etc.) reconfiguration request is done by the
 sys_cfg() syscall family.

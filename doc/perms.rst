@@ -43,6 +43,7 @@ Permissions are separated into 4 families:
    :alt: Task permissions configuration
    :align: center
 
+
 Devices
 """""""
 
@@ -57,6 +58,10 @@ Devices
    :alt: Task permissions configuration
    :align: center
 
+
+.. warning::
+   Devices permissions impact the ``sys_init(INIT_DEVACCESS)`` syscall
+   
 Time
 """"
 
@@ -74,6 +79,8 @@ returned by the kernel:
    * Microsecond granularity
    * CPU cycle granularity
 
+.. warning::
+   Time permissions impact the ``sys_get_systick()`` syscall
 
 Tasking
 """""""
@@ -93,6 +100,9 @@ Tasking
    :alt: Task permissions configuration
    :align: center
 
+.. warning::
+   Devices permissions impact the ``sys_init(INIT_DEVACCESS)`` and ``sys_reset()`` syscalls
+
 Memory management
 """""""""""""""""
 
@@ -105,6 +115,9 @@ from the task's address space, if the driver supports this feature.
 .. image:: img/mc_app_perms_memory.png
    :alt: Task permissions configuration
    :align: center
+
+.. warning::
+   Devices permissions impact the ``sys_init(INIT_DEVACCESS)`` syscall
 
 IPCs
 ^^^^
