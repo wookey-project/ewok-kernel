@@ -3,18 +3,18 @@
 sys_lock
 --------
 
-Pure userspace semaphore, as proposed in libstd.h, do not permit easy handling 
-of variable shared between ISR and mainthread. ISR treatments do not allow to sleep 
+Pure userspace semaphore, as proposed in ``libstd.h``, do not permit easy handling
+of variable shared between ISR and main threads. ISR treatments do not allow to sleep
 or wait for the main thread to release semaphores. The solution to this problem is to instruct Ewok
 not to schedule the ISR routine while the shared variable is in use in the main thread.
-Of course such a situation ought to be short. 
+Of course such a situation ought to be short.
 
 .. contents::
 
 sys_lock()
 ^^^^^^^^^^
 
-``sys_lock``: postpone the ISR while a lock is set by the main thread. 
+``sys_lock``: postpone the ISR while a lock is set by the main thread.
 This efficiently creates a critical section in the main thread with respect
 to the ISR thread.
 
