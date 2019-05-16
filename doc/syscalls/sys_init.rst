@@ -107,12 +107,14 @@ In this example:
 
 Mapping devices in memory
 """""""""""""""""""""""""
-Due to MPU constraints, a task can not map simultaneously more than 4 devices
-in memory. In that case, the task should use the syscall
+A task cannot currently map simultaneously more than 4 devices
+in memory (this is an architectural constraint on ARM cortex M, which was Ewok first target). 
+
+If one need to manage more than this number of devices, the task should use the syscall
 ``sys_cfg(CFG_DEV_MAP|CFG_DEV_UNMAP)`` to voluntary map the desires devices.
 Note that those syscalls can be used only if ``map_mode`` field of the
-``device_t`` structure is set to ``DEV_MAP_VOLUNTARY`` and if the task
-is allowed to do this (set in the *menuconfig* kernel menu).
+``device_t`` structure is set to ``DEV_MAP_VOLUNTARY``. 
+The task need a specific permission to do this (set in the *menuconfig* kernel menu).
 
 Using GPIOs
 """""""""""

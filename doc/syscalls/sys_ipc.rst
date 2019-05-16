@@ -11,25 +11,25 @@ Synopsis
 *Inter-Process Communication* is done using the ``sys_ipc()`` syscall familly.
 IPC can be either *synchronous* or *asynchronous*:
 
-   * *synchronous* IPC requests are blocked until the message has been sent and
+   * *synchronous* IPC requests are blocking until the message has been sent and
      received
-   * *asynchronous* IPC are not blocking. They may return an error if the other
+   * *asynchronous* IPC are non blocking. They may return an error if the other
      side of the channel is not ready.
 
 EwoK detects IPC mutual lock (two task sending IPC to each other), returning
 ``SYS_E_BUSY`` error but it does not detect cyclic deadlocks between multiple tasks
 (more than 2). Be careful when designing your IPC automaton!
 
-Note that IPC are half-duplex. For example, if task *A* can send messages to
-task *B*, the reciprocity is not always true and task *B* may have no permission to
-send any message to *A*.
+Note that the EwoK IPC are half duplex.
 
 Prerequisites
 ^^^^^^^^^^^^^
 
-If a task *A* want to communicate with another task *B*, task *A* need
-to retrieve task's B identifier.
-Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
+Ewok gives each running task a unique identifier, its ``TASKID``. 
+Application implementor must give each application a name. 
+
+The relationship between the implementor name and the ``TASKID`` is given by
+the ``sys_init(INIT_GETTASKID)`` syscall: ::
 
     uint8_t        id;
     e_syscall_ret  ret;
@@ -39,8 +39,9 @@ Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
         ...
     }
 
+.. important::
 
-Note also that any attempt to receive or to send a message with an IPC during
+Notice that any attempt to receive or to send a message with an IPC during
 the task *init mode* fails with ``SYS_E_DENIED``.
 
 
@@ -61,7 +62,7 @@ The task is blocked until the other task emit either a
        ... /* Error handling */
     }
 
-When sending synchronously data to another task, the following can happen:
+The ``sys_ipc(IPC_SEND_SYNC,....)`` can return:
 
    * ``SYS_E_DONE``: The message has been succesfully emitted
    * ``SYS_E_DENIED``: The current task is not allowed to communicate with the
@@ -90,7 +91,7 @@ it: ::
        ... /* Error handling */
    }
 
-When sending asynchronously data to another task, the following can happen:
+The ``sys_ipc(IPC_SEND_ASYNC,....)`` can return:
 
    * ``SYS_E_DONE``: The message has been succesfully emitted
    * ``SYS_E_DENIED``: the current task is not allowed to communicate with the
@@ -102,7 +103,7 @@ When sending asynchronously data to another task, the following can happen:
      happens if the target task has sent an IPC to the current task which is
      not yet received (communication channel already used)
 
-Note that mixing synchronous and asynchronous IPC is possible but, of course, need
+Mixing synchronous and asynchronous IPC is possible but, of course, need
 some very careful thinking.
 
 sys_ipc(RECV_SYNC)
@@ -122,7 +123,7 @@ The task is blocked until a readable message is feed: ::
    id   = ANY_APP;      /* Waiting a msg from *any* task */
    size = sizeof(buf);  /* Receiving buffer max size */
 
-   ret = sys_ipc(IPC_RECV_ASYNC, &id, &size, buf);
+   ret = sys_ipc(IPC_RECV_SYNC, &id, &size, buf);
    if (ret != SYS_E_DONE) {
        ... /* Error handling */
    }
@@ -134,7 +135,7 @@ on the example above):
    * ``size``: to set message's size
    * ``buf``: the message is copied into the receiving buffer
 
-When receiving synchronously data, the following can happen:
+The ``sys_ipc(IPC_RECV_SYNC,....)`` can return:
 
    * ``SYS_E_DONE``: The message has been succesfully received
    * ``SYS_E_DENIED``: the current task is not allowed to communicate with the
@@ -153,6 +154,8 @@ is not blocked and directly returns: ::
 
    ret = sys_ipc(IPC_RECV_ASYNC, &id, &size, buf);
 
-If there is no message to read, the syscall returns ``SYS_E_BUSY``.
+
+This syscall returns the same values that is synchonous counterpart plus
+``SYS_E_BUSY`` if there is no message to read.
 
 
