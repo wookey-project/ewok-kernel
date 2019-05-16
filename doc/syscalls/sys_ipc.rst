@@ -21,7 +21,7 @@ EwoK detects IPC mutual lock (two task sending IPC to each other), returning
 (more than 2). Be careful when designing your IPC automaton!
 
 Note that IPC are half-duplex. For example, if task *A* can send messages to
-task *B*, the reciprocity is not true and task *B* may have no permission to
+task *B*, the reciprocity is not always true and task *B* may have no permission to
 send any message to *A*.
 
 Prerequisites
