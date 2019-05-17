@@ -11,30 +11,28 @@ the ``sys_init()`` syscall family.
 sys_init(INIT_GETTASKID)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-If a task *A* wants to communicate with another task *B*, task *A* need
-to retrieve task's B identifier.
+If a task *A* wants to communicate with another task *B*, task *A* needs
+to retrieve task's *B* identifier.
 
 .. note::
-   Ewok gives each running task a unique identifier, its *task id*.
-   A task also have a name, given by the implementor, used to
-   ease task identification.
+   * Each running task is identified by a unique identifier: its *task id*.
+     A task have also a name, given by the implementor, to ease its
+     identification.
+   * If IPC *domains* are supported by the kernel, only tasks
+     in the same *domain* can identify each other.
 
-Getting a task identifier is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
+Getting a *task id* is done with ``sys_init(INIT_GETTASKID)`` syscall: ::
 
-    char          *peer_name = "task_b";
     uint8_t        peer_id;
     e_syscall_ret  ret;
 
-    ret = sys_init(INIT_GETTASKID, peer_name, &peer_id);
+    ret = sys_init(INIT_GETTASKID, "task_b", &peer_id);
     if (ret != SYS_E_DONE) {
         ...
     }
 
 In the example above, if the call is succesful, the ``peer_id`` parameter is
-updated with the *id* of the related task.
-
-.. note:: If IPC *domains* are supported by the kernel, only tasks
-          in the same *domain* can identify each other.
+updated with the *task id*.
 
 
 sys_init(INIT_DEVACCESS)
@@ -42,10 +40,15 @@ sys_init(INIT_DEVACCESS)
 
 If a task wants to use a device, it must request it to the kernel
 using the ``sys_init(INIT_DEVACCESS)`` syscall.
-To make that request, a ``device_t`` structure must be filled.
-It describes the requested device. That structure is defined in kernel sources
-in ``kernel/src/C/exported/devices.h`` file.
-It content is:
+
+.. warning::
+   DMA streams are not initialized with ``sys_init(INIT_DEVACCESS)``
+   but with ``sys_init(INIT_DMA)``
+
+To make that request, a ``device_t`` structure,
+whose prototype is defined in ``kernel/src/C/exported/devices.h``, must be
+filled. That structure describes the requested device.
+Its content is:
 
 .. code-block:: C
 
@@ -61,6 +64,7 @@ It content is:
     } device_t;
 
 The fields of the ``device_t`` structure are explained here:
+
    * ``name`` contains a name, useful for debugging purposes
    * ``address`` is the base address of the device in memory (0 if the device
      is not mapped in memory)
@@ -105,35 +109,57 @@ Below is an example, excerpt from the :ref:`blinky` demo:
 In this example:
 
    * ``leds`` parameter is a ``device_t`` structure that describes the
-     requested device.
-   * ``desc_leds`` is an id returned by the syscall and used by the
-     ``sys_cfg(CFG_DEV_MAP)`` and ``sys_cfg(CFG_DEV_UNMAP)`` syscalls
-     (set to *-1* in case of failure)
-
+     requested device. Here, the leds on the *stm32f407* board.
+   * ``desc_leds`` is a *device id* returned by the syscall. It's not
+     very useful here as the *device id* is used only in
+     some few syscalls (``sys_cfg(CFG_DEV_MAP)`` and ``sys_cfg(CFG_DEV_UNMAP)``)
 
 Mapping devices in memory
 """""""""""""""""""""""""
 Due to MPU constraints on Cortex-M, a task can not map simultaneously more than
 4 devices in memory.
-If one need to manage more devices, the task should use the syscall
-``sys_cfg(CFG_DEV_MAP|CFG_DEV_UNMAP)`` to voluntary map the desires devices.
-Note that those syscalls can be used only if ``map_mode`` field of the
-``device_t`` structure is set to ``DEV_MAP_VOLUNTARY``.
-The task need a specific permission to do this (set in the *menuconfig* kernel menu).
+
+If a task needs to manage more than 4 devices, it should use the
+syscalls ``sys_cfg(CFG_DEV_MAP)`` and ``sys_cfg(CFG_DEV_UNMAP)`` to voluntary
+map and unmap the desire devices. Those syscalls can be used only if:
+
+  * ``map_mode`` field of the ``device_t`` structure is set to ``DEV_MAP_VOLUNTARY``
+  * the task is granted with a specific permission to do this (set in the
+    *menuconfig* kernel menu).
 
 Using GPIOs
 """""""""""
 Each GPIO port/pin pair is identified by a ``kref`` value. That value
 must be filled in when using the ``sys_cfg(CFG_GPIO_GET)`` and
-``sys_cfg(CFG_GPIO_GET)`` syscalls.
+``sys_cfg(CFG_GPIO_GET)`` syscalls (see :ref:`sys_cfg`).
 
 IRQ handler
 """""""""""
 For each IRQ, an *Interrupt Service Routine* (ISR) should be declared.
+Here is an example excerpt from the :ref:`demo` :
 
-.. important::
-   DMA streams or controllers are not initialized with
-   ``sys_init(INIT_DEVACCESS)`` syscall
+.. code-block:: C
+
+    memset (&button, 0, sizeof (button));
+    strncpy (button.name, "BUTTON", sizeof (button.name));
+
+    button.gpio_num = 1;
+    button.gpios[0].kref.port   = button_dev_infos.gpios[BUTTON].port;
+    button.gpios[0].kref.pin    = button_dev_infos.gpios[BUTTON].pin;
+    button.gpios[0].mask        = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
+                                  GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED |
+                                  GPIO_MASK_SET_EXTI;
+    button.gpios[0].mode        = GPIO_PIN_INPUT_MODE;
+    button.gpios[0].pupd        = GPIO_PULLDOWN;
+    button.gpios[0].type        = GPIO_PIN_OTYPER_PP;
+    button.gpios[0].speed       = GPIO_PIN_LOW_SPEED;
+    button.gpios[0].exti_trigger = GPIO_EXTI_TRIGGER_RISE;
+    button.gpios[0].exti_lock    = GPIO_EXTI_UNLOCKED;
+    button.gpios[0].exti_handler = (user_handler_t) exti_button_handler;
+
+    /* Now that the button device structure is filled, use sys_init to
+     * initialize it */
+    ret = sys_init(INIT_DEVACCESS, &button, &desc_button);
 
 
 sys_init(INIT_DMA)
@@ -141,10 +167,10 @@ sys_init(INIT_DMA)
 
 If a task wants to use a DMA stream, it must request it to the kernel
 using the ``sys_init(INIT_DMA)`` syscall.
-To make that request, a ``dma_t`` structure must be filled.
-It describes the requested DMA stream. That structure is defined in kernel
-sources in ``kernel/src/C/exported/dma.h`` file.
-It content is:
+To make that request, a ``dma_t`` structure,
+whose prototype is defined in ``kernel/src/C/exported/dma.h``, must be
+filled. That structure describes the requested DMA stream.
+Its content is:
 
 .. code-block:: C
 
@@ -163,8 +189,8 @@ It content is:
         dma_dir_t dir;          /* Transfert direction */
         dma_mode_t mode;        /* DMA mode */
         dma_datasize_t datasize;    /* Data unit size (byte, half-word or word) */
-        bool mem_inc;           /* Increment for memory, when set to 0, the device doesn't increment the memory address at each read */
-        bool dev_inc;           /* Increment for device, with the same behavior as the mem_inc, but for the device. Typically set to 0 when the DMA read (or write) to (from) a register */
+	bool mem_inc;           /* Increment for memory */
+	bool dev_inc;           /* Increment for device */
         dma_burst_t mem_burst;  /* Memory burst size */
         dma_burst_t dev_burst;  /* Device burst size */
     } dma_t;
@@ -173,31 +199,29 @@ Example:
 
 .. code-block:: C
 
-    dma.channel = DMA2_CHANNEL_SDIO;
-    dma.dir = MEMORY_TO_PERIPHERAL;
-    dma.in_addr = (physaddr_t) 0;   /* Set later with DMA_RECONF */
-    dma.out_addr = (volatile physaddr_t)sdio_get_data_addr();
-    dma.in_prio = DMA_PRI_HIGH;
     dma.dma = DMA2;
-    dma.size = 0;                   /* Set later with DMA_RECONF */
-
     dma.stream = DMA2_STREAM_SDIO_FD;
-
+    dma.channel = DMA2_CHANNEL_SDIO;
+    dma.size = 0;                   /* Set later with DMA_RECONF */
+    dma.in_addr = (physaddr_t) 0;   /* Set later with DMA_RECONF */
+    dma.in_prio = DMA_PRI_HIGH;
+    dma.in_handler = (user_dma_handler_t) sdio_dmacallback;
+    dma.out_addr = (volatile physaddr_t)sdio_get_data_addr();
+    dma.out_handler = (user_dma_handler_t) sdio_dmacallback;
+    dma.flow_control = DMA_FLOWCTRL_DEV;
+    dma.dir = MEMORY_TO_PERIPHERAL;
     dma.mode = DMA_FIFO_MODE;
+    dma.datasize = DMA_DS_WORD;
     dma.mem_inc = 1;
     dma.dev_inc = 0;
-    dma.datasize = DMA_DS_WORD;
     dma.mem_burst = DMA_BURST_INC4;
     dma.dev_burst = DMA_BURST_INC4;
-    dma.flow_control = DMA_FLOWCTRL_DEV;
-    dma.in_handler = (user_dma_handler_t) sdio_dmacallback;
-    dma.out_handler = (user_dma_handler_t) sdio_dmacallback;
 
     ret = sys_init(INIT_DMA, &dma, &dma_descriptor);
 
-In this example, the ``dma_descriptor`` is an id returned by the syscall and
-used by the ``sys_cfg(CFG_DMA_RECONF)`` and ``sys_cfg(CFG_DMA_RELOAD)``
-syscalls.
+In this example, the ``dma_descriptor`` is an identifier returned by the
+syscall and used by the ``sys_cfg(CFG_DMA_RECONF)`` and
+``sys_cfg(CFG_DMA_RELOAD)`` syscalls.
 
 .. note::
   For the sake of security, the EwoK DMA implementation denies
