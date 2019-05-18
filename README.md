@@ -13,7 +13,7 @@ EwoK supports the following properties:
    * Strict partitioning of physical resources (devices, etc.)
    * Fixed permissions management, set at compile time and easily verifiable
    * Stack smashing protection
-   * Heap/Stack smashing protection (Work in Progress)
+   * Heap/Stack smashing protection
    * Proved W⊕X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
