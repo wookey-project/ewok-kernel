@@ -2,6 +2,8 @@
 
 
 [![Release](https://img.shields.io/github/release/wookey-project/ewok-kernel.svg)](https://github.com/wookey-project/ewok-kernel/releases/latest)
+[![Travis CI Build Status](https://api.travis-ci.com/wookey-project/ewok-kernel.svg?branch=master)](https://travis-ci.org/wookey-project/ewok-kernel)
+
 
 ## What is EwoK ?
 
