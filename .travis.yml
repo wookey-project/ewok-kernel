@@ -10,7 +10,8 @@ addons:
 before_install:
     - sudo apt install -y python-sphinx imagemagick python-docutils texlive-pictures texlive-latex-extra texlive-fonts-recommended latexmk ghostscript
 
-install: true
+install:
+    - sudo sed -i '/PDF/s/none/read|write/' /etc/ImageMagick-6/policy.xml
 
 script:
     - make doc
