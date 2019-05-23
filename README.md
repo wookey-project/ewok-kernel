@@ -1,5 +1,8 @@
 # About EwoK microkernel
 
+
+[![Release](https://img.shields.io/github/release/wookey-project/ewok-kernel.svg)](https://github.com/wookey-project/ewok-kernel/releases/latest)
+
 ## What is EwoK ?
 
 EwoK is a microkernel targeting micro-controllers and embedded systems. It aims to bring an efficient hardening of embedded devices with a reduced impact on the device performances.
