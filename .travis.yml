@@ -1,0 +1,20 @@
+language: python
+os: linux
+dist:
+    - xenial
+
+addons:
+    apt:
+        update: true
+
+before_install:
+    - sudo apt install -y python-sphinx imagemagick python-docutils texlive-pictures texlive-latex-extra texlive-fonts-recommended latexmk ghostscript
+
+install: true
+
+script:
+    - make doc
+
+branches:
+    only:
+        - master
