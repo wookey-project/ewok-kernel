@@ -20,6 +20,8 @@
 --
 
 with ewok.debug;
+with ewok.sched;
+with ewok.tasks;
 
 package body ewok.tasks.debug
    with spark_mode => off
@@ -28,6 +30,9 @@ is
    procedure crashdump (frame_a : in ewok.t_stack_frame_access)
    is
    begin
+      ewok.debug.log (ewok.debug.ERROR,
+         "current task: " & ewok.tasks.tasks_list(ewok.sched.get_current).name);
+
       ewok.debug.log (ewok.debug.ERROR,
          "registers (frame at " &
          system_address'image (to_system_address (frame_a)) &
