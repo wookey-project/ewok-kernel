@@ -397,6 +397,8 @@ is
 
          pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
+            & ", data: " & system_address'image (tasks_list(id).data_slot_start)
+            & " - " & system_address'image (tasks_list(id).data_slot_end)
             & ", sp: " & system_address'image
                            (to_system_address (tasks_list(id).ctx.frame_a))
             & ", ID" & t_task_id'image (id) & ")"));
