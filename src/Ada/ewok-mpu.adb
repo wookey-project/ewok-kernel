@@ -49,6 +49,10 @@ is
       region_config  : m4.mpu.t_region_config;
    begin
 
+      --
+      -- Initializing the MPU
+      --
+
       -- Testing if there's an MPU
       m4.mpu.is_mpu_available (success);
 
@@ -71,28 +75,14 @@ is
       -- enabled memory region causes a memory management fault.
       m4.mpu.init;
 
-      -- SHR
-      if get_region_size (REGION_SIZE_32KB) /= ewok.layout.SHR_SIZE then
-         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'SHARED' size"));
-         return;
-      end if;
+      --
+      -- Configuring MPU regions
+      --
 
-      region_config :=
-        (region_number  => SHARED_REGION,
-         addr           => ewok.layout.SHR_BASE,
-         size           => REGION_SIZE_32KB,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RO_USER_NO,
-         xn             => true,
-         b              => false,
-         s              => false);
-
-      -- A memory region must never be mapped RWX
-      m4.mpu.configure_region (region_config);
-
-      -- Kernel code
+      -- Region: kernel code
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.FW1_KERN_SIZE then
-         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'KERNEL CODE' size"));
+         pragma DEBUG
+           (debug.log (debug.ERROR, "MPU: invalid 'KERNEL CODE' size"));
          return;
       end if;
 
@@ -108,11 +98,11 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      -- Devices
+      -- Region: devices that may be accessed by the kernel
       region_config :=
-        (region_number  => DEVICES_REGION,
+        (region_number  => KERN_DEVICES_REGION,
          addr           => soc.layout.PERIPH_BASE,
-         size           => REGION_SIZE_512KB,
+         size           => REGION_SIZE_512MB,
          subregion_mask => 0,
          access_perm    => REGION_PERM_PRIV_RW_USER_NO,
          xn             => true,
@@ -121,9 +111,10 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      -- kernel data + stacks
+      -- Region: kernel data + stack
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
-         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'KERNEL DATA' size"));
+         pragma DEBUG
+           (debug.log (debug.ERROR, "MPU: invalid 'KERNEL DATA' size"));
          return;
       end if;
 
@@ -139,7 +130,9 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      -- User data
+      -- Region: user data
+      -- Note: This is for the whole area. Each task will use only a fixed
+      --       number of sub-regions
       if get_region_size (REGION_SIZE_128KB) /= ewok.layout.USER_RAM_SIZE then
          pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'USER DATA' size"));
          return;
@@ -157,7 +150,7 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      -- USER code area
+      -- Region: user code
       -- Note: This is for the whole area. Each task will use only a fixed
       --       number of sub-regions
       if get_region_size (REGION_SIZE_256KB) /= ewok.layout.FW1_USER_SIZE then
@@ -177,9 +170,9 @@ is
 
       m4.mpu.configure_region (region_config);
 
-      -- User ISR stack
+      -- Region: user ISR stack
       region_config :=
-        (region_number  => ISR_STACK_REGION,
+        (region_number  => USER_ISR_STACK_REGION,
          addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
          size           => REGION_SIZE_4KB,
          subregion_mask => 0,
@@ -195,6 +188,20 @@ is
       pragma DEBUG (debug.log (debug.INFO, "MPU is enabled"));
 
    end init;
+
+
+   procedure enable_unrestricted_kernel_access
+   is
+   begin
+      m4.mpu.enable_unrestricted_kernel_access;
+   end enable_unrestricted_kernel_access;
+
+
+   procedure disable_unrestricted_kernel_access
+   is
+   begin
+      m4.mpu.disable_unrestricted_kernel_access;
+   end disable_unrestricted_kernel_access;
 
 
    procedure regions_schedule
@@ -260,7 +267,7 @@ is
 
             m4.mpu.update_subregion_mask (region_config);
 
-         when REGION_TYPE_BOOTROM =>
+         when REGION_TYPE_BOOT_ROM =>
 
             -- MPU makes Boot ROM region unattainable to avoid ROP attacks
 

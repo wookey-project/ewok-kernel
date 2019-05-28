@@ -123,6 +123,14 @@ is
       with
          global => (in_out => (MPU, m4.scb.SCB));
 
+   procedure enable_unrestricted_kernel_access
+      with
+         global => (in_out => (MPU));
+
+   procedure disable_unrestricted_kernel_access
+      with
+         global => (in_out => (MPU));
+
    -- That function is only used by SPARK prover
    function get_region_size_mask (size : t_region_size) return unsigned_32
       is (2**(natural (size) + 1) - 1)

@@ -65,12 +65,26 @@ is
    procedure init
    is
    begin
-      -- Enable privileged software access to default memory map
-      m4.mpu.MPU.CTRL.PRIVDEFENA := true;
+      -- Kernel has *no access* to default memory map
+      m4.mpu.MPU.CTRL.PRIVDEFENA := false;
 
       -- Enable the memory fault exception
       m4.scb.SCB.SHCSR.MEMFAULTENA := true;
    end init;
+
+
+   procedure enable_unrestricted_kernel_access
+   is
+   begin
+      m4.mpu.MPU.CTRL.PRIVDEFENA := true;
+   end enable_unrestricted_kernel_access;
+
+
+   procedure disable_unrestricted_kernel_access
+   is
+   begin
+      m4.mpu.MPU.CTRL.PRIVDEFENA := false;
+   end disable_unrestricted_kernel_access;
 
 
    procedure configure_region
@@ -120,7 +134,6 @@ is
 
       -- Defines the region size and memory attributes
       MPU.RASR.SRD := region.subregion_mask;
-
    end update_subregion_mask;
 
 end m4.mpu;
