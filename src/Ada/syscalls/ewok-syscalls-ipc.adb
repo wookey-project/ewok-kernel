@@ -498,8 +498,8 @@ is
             debug.panic ("send(): EndPoint starvation !O_+");
          end if;
 
-         ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver)         := ep;
-         receiver_a.all.ipc_endpoints(caller_id)   := ep;
+         ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) := ep;
+         receiver_a.all.ipc_endpoints(caller_id) := ep;
 
       else
          ep := ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver);
@@ -569,8 +569,13 @@ is
          -- The receiver will reexecute the SVC instruction to fulfill its syscall
          ewok.tasks.set_state
            (receiver_a.all.id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
+
+         -- Unrestrict kernel access to memory to change a value located
+         -- in the receiver's stack frame
+         ewok.mpu.enable_unrestricted_kernel_access;
          receiver_a.all.ctx.frame_a.all.PC :=
             receiver_a.all.ctx.frame_a.all.PC - 2;
+         ewok.mpu.disable_unrestricted_kernel_access;
       end if;
 
       if blocking then
