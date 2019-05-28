@@ -183,6 +183,7 @@ library project Libkernel is
 
       -- Debugging / error handling code
       for Switches ("ewok-tasks-debug.adb")        use size_noverif_switches;
+      for Switches ("ewok-debug.adb")              use size_noverif_switches;
       for Switches ("ewok-mpu-handler.adb")        use size_noverif_switches;
 
    end Compiler;

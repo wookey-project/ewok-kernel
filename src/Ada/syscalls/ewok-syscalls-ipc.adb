@@ -76,10 +76,10 @@ is
    begin
 
       --if expected_sender = ewok.ipc.ANY_APP then
-      --   pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_recv(): "
+      --   pragma DEBUG (debug.log (debug.DEBUG, "recv(): "
       --      & ewok.tasks.tasks_list(caller_id).name & " <- ANY");
       --else
-      --   pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_recv(): "
+      --   pragma DEBUG (debug.log (debug.DEBUG, "recv(): "
       --      & ewok.tasks.tasks_list(caller_id).name & " <- "
       --      & ewok.tasks.tasks_list(ewok.ipc.to_task_id(expected_sender)).name);
       --end if;
@@ -91,14 +91,14 @@ is
       if mode /= TASK_MODE_MAINTHREAD then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): IPCs in ISR mode not allowed!"));
+            & ": recv(): IPCs in ISR mode not allowed!"));
          goto ret_denied;
       end if;
 
       if not expected_sender'valid then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): invalid id_sender"));
+            & ": recv(): invalid id_sender"));
          goto ret_inval;
       end if;
 
@@ -106,7 +106,7 @@ is
       if not ewok.tasks.is_init_done (caller_id) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): initialization not completed"));
+            & ": recv(): initialization not completed"));
          goto ret_denied;
       end if;
 
@@ -116,7 +116,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'size' parameter not in task's address space"));
+            & ": recv(): 'size' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -126,7 +126,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'expected_sender' parameter not in task's address space"));
+            & ": recv(): 'expected_sender' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -136,7 +136,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): 'buffer' parameter not in task's address space"));
+            & ": recv(): 'buffer' parameter not in task's address space"));
          goto ret_inval;
       end if;
 
@@ -155,7 +155,7 @@ is
          if not ewok.tasks.is_real_user (id_sender) then
             pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): invalid id_sender"));
+               & ": recv(): invalid id_sender"));
             goto ret_inval;
          end if;
 
@@ -170,7 +170,7 @@ is
          if caller_id = id_sender then
             pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): sender and receiver are the same"));
+               & ": recv(): sender and receiver are the same"));
             goto ret_inval;
          end if;
 
@@ -179,7 +179,7 @@ is
          if not ewok.perm.is_same_domain (id_sender, caller_id) then
             pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): sender's domain not granted"));
+               & ": recv(): sender's domain not granted"));
             goto ret_denied;
          end if;
 #end if;
@@ -188,7 +188,7 @@ is
          if not ewok.perm.ipc_is_granted (id_sender, caller_id) then
             pragma DEBUG (debug.log (debug.ERROR,
                ewok.tasks.tasks_list(caller_id).name
-               & ": ipc_do_recv(): not granted to listen task "
+               & ": recv(): not granted to listen task "
                & ewok.tasks.tasks_list(id_sender).name));
             goto ret_denied;
          end if;
@@ -286,7 +286,7 @@ is
       if ep.all.size > size then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_recv(): IPC message overflows, buffer is too small"));
+            & ": recv(): IPC message overflows, buffer is too small"));
          goto ret_inval;
       end if;
 
@@ -380,7 +380,7 @@ is
 
    begin
 
-      --pragma DEBUG (debug.log (debug.DEBUG, "ipc_do_send(): "
+      --pragma DEBUG (debug.log (debug.DEBUG, "send(): "
       --   & ewok.tasks.tasks_list(caller_id).name & " -> "
       --   & ewok.tasks.tasks_list(id_receiver).name);
 
@@ -391,14 +391,14 @@ is
       if mode /= TASK_MODE_MAINTHREAD then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): making IPCs while in ISR mode is not allowed!"));
+            & ": send(): making IPCs while in ISR mode is not allowed!"));
          goto ret_denied;
       end if;
 
       if not id_receiver'valid then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid id_receiver"));
+            & ": send(): invalid id_receiver"));
          goto ret_inval;
       end if;
 
@@ -406,7 +406,7 @@ is
       if not is_init_done (caller_id) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): initialization not completed"));
+            & ": send(): initialization not completed"));
          goto ret_denied;
       end if;
 
@@ -416,7 +416,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): 'buffer' not in caller space"));
+            & ": send(): 'buffer' not in caller space"));
          goto ret_inval;
       end if;
 
@@ -424,7 +424,7 @@ is
       if not ewok.tasks.is_real_user (id_receiver) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): id_receiver must be a user task"));
+            & ": send(): id_receiver must be a user task"));
          goto ret_inval;
       end if;
 
@@ -441,7 +441,7 @@ is
       if caller_id = id_receiver then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): receiver and sender are the same"));
+            & ": send(): receiver and sender are the same"));
          goto ret_inval;
       end if;
 
@@ -449,7 +449,7 @@ is
       if size > ewok.ipc.MAX_IPC_MSG_SIZE then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid size"));
+            & ": send(): invalid size"));
          goto ret_inval;
       end if;
 
@@ -461,7 +461,7 @@ is
       if not ewok.perm.is_same_domain (id_receiver, caller_id) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send() to "
+            & ": send() to "
             & ewok.tasks.tasks_list(id_receiver).name
             & ": domain not granted"));
          goto ret_denied;
@@ -471,7 +471,7 @@ is
       if not ewok.perm.ipc_is_granted (caller_id, id_receiver) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send() to "
+            & ": send() to "
             & ewok.tasks.tasks_list(id_receiver).name
             & " not granted"));
          goto ret_denied;
@@ -495,7 +495,7 @@ is
          ewok.ipc.get_endpoint (ep, ok);
          if not ok then
             -- FIXME
-            debug.panic ("ipc_do_send(): EndPoint starvation !O_+");
+            debug.panic ("send(): EndPoint starvation !O_+");
          end if;
 
          ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver)         := ep;
@@ -545,7 +545,7 @@ is
       if ep.all.state /= ewok.ipc.READY then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": ipc_do_send(): invalid endpoint state - maybe a dead lock"));
+            & ": send(): invalid endpoint state - maybe a dead lock"));
          goto ret_denied;
       end if;
 

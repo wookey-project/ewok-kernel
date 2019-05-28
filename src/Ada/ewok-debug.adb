@@ -78,6 +78,22 @@ is
    end log;
 
 
+   procedure alert (s : string)
+   is
+   begin
+      log (BG_COLOR_RED & s & BG_COLOR_BLACK, false);
+   end alert;
+
+
+   procedure newline
+   is
+      s : constant types.c.c_string (1 .. 3) := (ASCII.CR, ASCII.LF, ASCII.NUL);
+   begin
+      c.kernel.log (s);
+      c.kernel.flush;
+   end newline;
+
+
    procedure panic (s : string)
    is
    begin

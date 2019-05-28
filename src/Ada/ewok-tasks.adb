@@ -174,11 +174,7 @@ is
       end if;
 
       tasks_list(ID_SOFTIRQ).ttype  := TASK_TYPE_KERNEL;
-      tasks_list(ID_SOFTIRQ).mode   := TASK_MODE_MAINTHREAD;
       tasks_list(ID_SOFTIRQ).id     := ID_SOFTIRQ;
-
-      tasks_list(ID_SOFTIRQ).slot      := 0; -- unused
-      tasks_list(ID_SOFTIRQ).num_slots := 0; -- unused
 
       -- Zeroing the stack
       declare
@@ -233,9 +229,6 @@ is
       tasks_list(ID_KERNEL).ttype  := TASK_TYPE_KERNEL;
       tasks_list(ID_KERNEL).mode   := TASK_MODE_MAINTHREAD;
       tasks_list(ID_KERNEL).id     := ID_KERNEL;
-
-      tasks_list(ID_KERNEL).slot      := 0; -- unused
-      tasks_list(ID_KERNEL).num_slots := 0; -- unused
 
       -- Zeroing the stack
       declare
@@ -298,7 +291,6 @@ is
          end if;
 
          tasks_list(id).ttype := TASK_TYPE_USER;
-         tasks_list(id).mode  := TASK_MODE_MAINTHREAD;
          tasks_list(id).id    := id;
 
          tasks_list(id).slot      := applications.list(id).slot;
