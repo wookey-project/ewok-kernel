@@ -1,21 +1,74 @@
-language: python
+language: c
 os: linux
 dist:
     - xenial
 
+
 addons:
     apt:
         update: true
+        packages:
+            - repo
+            - git
+            - make
+            - gcc-arm-none-eabi
+            - binutils-arm-none-eabi
+            - python-pip
+            - python3-pip
+            - python-pyscard
+            - python-crypto
+            - openjdk-8-jdk
+            - maven
+            - ant
+            - curl
+            - python-sphinx
+            - imagemagick
+            - python-docutils
+            - texlive-pictures
+            - texlive-latex-extra
+            - texlive-fonts-recommended
+            - latexmk
+            - ghostscript
 
-before_install:
-    - sudo apt install -y python-sphinx imagemagick python-docutils texlive-pictures texlive-latex-extra texlive-fonts-recommended latexmk ghostscript
+# testing with jdk8, on xenial
+before_install: true
 
+# installing dependencies
 install:
     - sudo sed -i '/PDF/s/none/read|write/' /etc/ImageMagick-6/policy.xml
+    - pip install --user intelhex
+    - sudo pip3 install kconfiglib
+    - curl -o /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin http://mirrors.cdn.adacore.com/art/5b0c1227a3f5d7097625478d
+    - chmod +x /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin
+    - git clone https://github.com/AdaCore/gnat_community_install_script.git /tmp/gnat_install
+    - /tmp/gnat_install/install_package.sh /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin /opt/adacore-arm-eabi
+    - curl -s "https://get.sdkman.io" -o /tmp/sdk
+    - chmod +x /tmp/sdk
+    - /tmp/sdk
+    - sudo bash -c ". $HOME/.sdkman/bin/sdkman-init.sh && sdk install maven 3.6.1"
 
+# setting build dir and correct path for installed tools
+before_script:
+    - python --version
+    - mkdir build && cd build
+    - export PATH=/opt/adacore-arm-eabi/bin:/usr/local/bin:$PATH
+    - git config --global color.ui true
+
+# let's sync and build for disco407, wookey, and build doc
 script:
+    - repo init -u https://github.com/wookey-project/manifest.git -m soft/disco407_nightly.xml && repo sync
+    - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
+    - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
+    - source setenv.sh
+    - make boards/32f407disco/configs/disco_blinky_ada_defconfig
+    - make
+    - rm -rf *
+    - rm -rf .config* .git* .repo* .layout* .travis*
+    - repo init -u https://github.com/wookey-project/manifest.git -m soft/wookey_nightly.xml && repo sync
+    - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
+    - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
+    - source setenv.sh
+    - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
+    - make
     - make doc
 
-branches:
-    only:
-        - master
