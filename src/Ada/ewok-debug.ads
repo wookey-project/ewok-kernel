@@ -34,6 +34,8 @@ is
 
    procedure log (s : string; nl : boolean := true);
    procedure log (level : t_level; s : string);
+   procedure alert (s : string);
+   procedure newline;
    procedure panic (s : string);
 
 end ewok.debug;

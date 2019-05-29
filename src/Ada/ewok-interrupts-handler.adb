@@ -198,6 +198,16 @@ is
          return frame_a;
 
       --
+      -- Privileged exceptions
+      --
+      elsif frame_a.all.exc_return = 16#FFFF_FFF9# then
+         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
+            new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
+         end if;
+         debug.panic ("Privileged exception " & t_interrupt'image (it));
+         return new_frame_a;
+
+      --
       -- Unsupported EXC_RETURN
       --
       else

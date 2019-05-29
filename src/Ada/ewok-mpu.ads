@@ -33,21 +33,21 @@ is
       REGION_TYPE_USER_CODE,
       REGION_TYPE_USER_DEV,
       REGION_TYPE_RO_USER_DEV,
-      REGION_TYPE_BOOTROM,
+      REGION_TYPE_BOOT_ROM,
       REGION_TYPE_ISR_DATA)
    with size => 32;
 
-   SHARED_REGION        : constant m4.mpu.t_region_number := 0;
-   KERN_CODE_REGION     : constant m4.mpu.t_region_number := 1;
-   DEVICES_REGION       : constant m4.mpu.t_region_number := 2;
-   BOOT_ROM_REGION      : constant m4.mpu.t_region_number := 3;
-   KERN_DATA_REGION     : constant m4.mpu.t_region_number := 3;
-   USER_DATA_REGION     : constant m4.mpu.t_region_number := 4; -- USER_RAM
-   USER_CODE_REGION     : constant m4.mpu.t_region_number := 5; -- USER_TXT
-   ISR_STACK_REGION     : constant m4.mpu.t_region_number := 6;
-   USER_DEV1_REGION     : constant m4.mpu.t_region_number := 6;
-   ISR_DEVICE_REGION    : constant m4.mpu.t_region_number := 7;
-   USER_DEV2_REGION     : constant m4.mpu.t_region_number := 7;
+   KERN_CODE_REGION        : constant m4.mpu.t_region_number := 0;
+   KERN_DEVICES_REGION     : constant m4.mpu.t_region_number := 1;
+   KERN_DATA_REGION        : constant m4.mpu.t_region_number := 2;
+
+   USER_DATA_REGION        : constant m4.mpu.t_region_number := 3; -- USER_RAM
+   USER_CODE_REGION        : constant m4.mpu.t_region_number := 4; -- USER_TXT
+   USER_ISR_STACK_REGION   : constant m4.mpu.t_region_number := 5;
+   USER_DEV1_REGION        : constant m4.mpu.t_region_number := 5;
+   USER_ISR_DEVICE_REGION  : constant m4.mpu.t_region_number := 6;
+   USER_DEV2_REGION        : constant m4.mpu.t_region_number := 6;
+   USER_SHARED_REGION      : constant m4.mpu.t_region_number := 7;
 
    -- How many devices can be mapped in memory
    MAX_DEVICE_REGIONS   : constant := 2;
@@ -65,12 +65,25 @@ is
      (success : out boolean)
       with global => (in_out => (m4.mpu.MPU, m4.scb.SCB));
 
+   --
+   -- Utilities so that the kernel can temporary access the whole memory space
+   --
+
+   procedure enable_unrestricted_kernel_access
+      with
+         global => (in_out => (m4.mpu.MPU));
+
+   procedure disable_unrestricted_kernel_access
+      with
+         global => (in_out => (m4.mpu.MPU));
+
    -- That function is only used by SPARK prover
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
       is (2**(natural (size) + 1) - 1)
       with ghost;
 
-   pragma warnings (off, "condition can only be False if invalid values present");
+   pragma warnings
+     (off, "condition can only be False if invalid values present");
 
    procedure regions_schedule
      (region_number  : in  m4.mpu.t_region_number;

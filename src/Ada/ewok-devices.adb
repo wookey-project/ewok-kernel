@@ -261,8 +261,7 @@ is
       end if;
 
       -- Registering the device
-      pragma DEBUG (debug.log (debug.INFO, "Registered device: " & name &
-         " (0x" & system_address'image (udev.all.base_addr) & ")"));
+      pragma DEBUG (debug.log (debug.INFO, "Registered device: " & name));
 
       registered_device(dev_id).udev      := t_checked_user_device (udev.all);
       registered_device(dev_id).task_id   := task_id;
@@ -568,7 +567,7 @@ is
 
          if devinfo = NULL then
             pragma DEBUG (debug.log (debug.ERROR, "Device at addr" & system_address'image
-               (udev.all.base_addr) & " with size" & unsigned_32'image (udev.all.size) &
+               (udev.all.base_addr) & -- " with size" & unsigned_32'image (udev.all.size) &
                ": not found"));
             return false;
          end if;

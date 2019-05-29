@@ -185,7 +185,6 @@ int main(int argc, char *args[])
 #else
     KERNLOG(DBG_INFO, "Board: STM32F407\n");
 #endif
-    KERNLOG(DBG_INFO, "==============================\n");
 #endif
 
     /*
@@ -214,11 +213,6 @@ int main(int argc, char *args[])
 
     /* Initialize softirq ring buffer and globals */
     softirq_init();
-
-    /*
-     * The kernel has finished its initialization, the first thread can now be executed
-     */
-    KERNLOG(DBG_INFO, "==============================\n");
 
     /*
      * Now that the kernel has finished to initialized tasks context, let's update

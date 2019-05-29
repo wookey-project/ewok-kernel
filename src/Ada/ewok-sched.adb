@@ -32,7 +32,6 @@ with ewok.mpu;
 with ewok.layout;
 with ewok.interrupts;
 with ewok.debug;
-with soc.layout;
 with soc.interrupts;
 with soc.dwt;
 with m4.scb;
@@ -273,26 +272,67 @@ is
       ok       : boolean;
    begin
 
+      -- Notes about mapping user devices:
+      --
+      --  - EXTIs are a special case where an interrupt can trigger a
+      --    user ISR without any device_id associated
+      --  - DMAs are not registered in devices
+
       new_task := ewok.tasks.get_task (id);
 
-      if new_task.all.ttype = TASK_TYPE_USER then
+      -- Kernel tasks are already granted with privileged accesses
+      if new_task.all.ttype = TASK_TYPE_KERNEL then
+         return;
+      end if;
+
+      -- User task
+      if new_task.all.mode = TASK_MODE_ISRTHREAD then
+
+         --------------
+         -- ISR mode --
+         --------------
+
+         dev_id   := new_task.all.isr_ctx.device_id;
+
+         if dev_id /= ID_DEV_UNUSED then
+
+            ewok.devices.mpu_mapping_device
+              (dev_id, ewok.mpu.USER_ISR_DEVICE_REGION, ok);
+
+            if not ok then
+               debug.panic ("mpu_switching(): mapping device failed!");
+            end if;
+
+         else
+            -- Unmapping devices eventually mapped by other tasks
+            -- Note: can be time consumming if no device was mapped
+            m4.mpu.disable_region (ewok.mpu.USER_ISR_DEVICE_REGION);
+         end if;
+
+         -- Mapping the ISR stack
+         ewok.mpu.regions_schedule
+           (region_number  => ewok.mpu.USER_ISR_STACK_REGION,
+            addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
+            size           => m4.mpu.REGION_SIZE_4KB,
+            region_type    => ewok.mpu.REGION_TYPE_ISR_DATA,
+            subregion_mask => 0);
+
+      else
+         -----------------
+         -- Main thread --
+         -----------------
 
          --
-         -- Mapping the ISR device and the ISR stack
+         -- Mapping the user devices
          --
 
-         -- Notes
-         --  - EXTIs are a special case where an interrupt can trigger a
-         --    user ISR without any device_id associated
-         --  - DMAs are not registered in devices
-
-         if new_task.all.mode = TASK_MODE_ISRTHREAD then
-            dev_id   := new_task.all.isr_ctx.device_id;
+         for i in new_task.all.mounted_device'range loop
+            dev_id   := new_task.all.mounted_device(i);
 
             if dev_id /= ID_DEV_UNUSED then
 
                ewok.devices.mpu_mapping_device
-                 (dev_id, ewok.mpu.ISR_DEVICE_REGION, ok);
+                 (dev_id, ewok.mpu.device_regions(i), ok);
 
                if not ok then
                   debug.panic ("mpu_switching(): mapping device failed!");
@@ -301,88 +341,45 @@ is
             else
                -- Unmapping devices eventually mapped by other tasks
                -- Note: can be time consumming if no device was mapped
-               m4.mpu.disable_region (ewok.mpu.ISR_DEVICE_REGION);
+               m4.mpu.disable_region (ewok.mpu.device_regions(i));
             end if;
 
-            -- Mapping the ISR stack
-            ewok.mpu.regions_schedule
-              (region_number  => ewok.mpu.ISR_STACK_REGION,
-               addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
-               size           => m4.mpu.REGION_SIZE_4KB,
-               region_type    => ewok.mpu.REGION_TYPE_ISR_DATA,
-               subregion_mask => 0);
+         end loop;
 
-         else -- TASK_MODE_MAINTHREAD
+      end if; -- ISR or MAIN thread
 
-         --
-         -- Mapping the user devices
-         --
+      --------------------------------
+      -- Mapping user code and data --
+      --------------------------------
 
-            for i in new_task.all.mounted_device'range loop
-               dev_id   := new_task.all.mounted_device(i);
+      declare
+         type t_mask is array (unsigned_8 range 1 .. 8) of bit
+            with pack, size => 8;
 
-               if dev_id /= ID_DEV_UNUSED then
+         function to_unsigned_8 is new ada.unchecked_conversion
+           (t_mask, unsigned_8);
 
-                  ewok.devices.mpu_mapping_device
-                    (dev_id, ewok.mpu.device_regions(i), ok);
-
-                  if not ok then
-                     debug.panic ("mpu_switching(): mapping device failed!");
-                  end if;
-
-               else
-                  -- Unmapping devices eventually mapped by other tasks
-                  -- Note: can be time consumming if no device was mapped
-                  m4.mpu.disable_region (ewok.mpu.device_regions(i));
-               end if;
-
-            end loop;
-
-         end if; -- ISR or MAIN thread
-
-         --
-         -- Mapping user code and data
-         --
-
-         declare
-            type t_mask is array (unsigned_8 range 1 .. 8) of bit
-               with pack, size => 8;
-
-            function to_unsigned_8 is new ada.unchecked_conversion
-              (t_mask, unsigned_8);
-
-            mask : t_mask := (others => 1);
-         begin
-            for i in 0 .. new_task.all.num_slots - 1 loop
-               mask(new_task.all.slot + i) := 0;
-            end loop;
-
-            ewok.mpu.regions_schedule
-              (region_number  => ewok.mpu.USER_CODE_REGION,
-               addr           => applications.txt_user_region_base,
-               size           => applications.txt_user_region_size,
-               region_type    => ewok.mpu.REGION_TYPE_USER_CODE,
-               subregion_mask => to_unsigned_8 (mask));
-
-            -- FIXME: 128KB for user RAM is SoC Specific
-            ewok.mpu.regions_schedule
-              (region_number  => ewok.mpu.USER_DATA_REGION,
-               addr           => ewok.layout.USER_DATA_BASE,
-               size           => m4.mpu.REGION_SIZE_128KB,
-               region_type    => ewok.mpu.REGION_TYPE_USER_DATA,
-               subregion_mask => to_unsigned_8 (mask));
-         end;
-
-      else -- KERNEL TASK
+         mask : t_mask := (others => 1);
+      begin
+         for i in 0 .. new_task.all.num_slots - 1 loop
+            mask(new_task.all.slot + i) := 0;
+         end loop;
 
          ewok.mpu.regions_schedule
-           (region_number  => ewok.mpu.BOOT_ROM_REGION,
-            addr           => soc.layout.BOOTROM_BASE,
-            size           => m4.mpu.REGION_SIZE_32KB,
-            region_type    => ewok.mpu.REGION_TYPE_BOOTROM,
-            subregion_mask => 0);
+           (region_number  => ewok.mpu.USER_CODE_REGION,
+            addr           => applications.txt_user_region_base,
+            size           => applications.txt_user_region_size,
+            region_type    => ewok.mpu.REGION_TYPE_USER_CODE,
+            subregion_mask => to_unsigned_8 (mask));
 
-      end if;
+         -- FIXME: 128KB for user RAM is SoC Specific
+         ewok.mpu.regions_schedule
+           (region_number  => ewok.mpu.USER_DATA_REGION,
+            addr           => ewok.layout.USER_DATA_BASE,
+            size           => m4.mpu.REGION_SIZE_128KB,
+            region_type    => ewok.mpu.REGION_TYPE_USER_DATA,
+            subregion_mask => to_unsigned_8 (mask));
+      end;
 
    end mpu_switching;
 

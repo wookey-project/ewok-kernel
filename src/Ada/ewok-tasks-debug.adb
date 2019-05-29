@@ -20,44 +20,47 @@
 --
 
 with ewok.debug;
+with ewok.sched;
+with ewok.tasks;
 
 package body ewok.tasks.debug
    with spark_mode => off
 is
 
+   package DBG renames ewok.debug;
+
    procedure crashdump (frame_a : in ewok.t_stack_frame_access)
    is
    begin
-      ewok.debug.log (ewok.debug.ERROR,
-         "registers (frame at " &
-         system_address'image (to_system_address (frame_a)) &
-         ", EXC_RETURN " & unsigned_32'image (frame_a.all.exc_return) & ")");
+      DBG.log (DBG.ERROR, ewok.tasks.tasks_list(ewok.sched.get_current).name);
 
-      ewok.debug.log (ewok.debug.ERROR,
-         "R0 " & unsigned_32'image (frame_a.all.R0) &
-         ", R1 " & unsigned_32'image (frame_a.all.R1) &
-         ", R2 " & unsigned_32'image (frame_a.all.R2) &
-         ", R3 " & unsigned_32'image (frame_a.all.R3));
+      DBG.alert ("Frame ");
+      DBG.alert (system_address'image (to_system_address (frame_a)));
+      DBG.newline;
 
-      ewok.debug.log (ewok.debug.ERROR,
-         "R4 " & unsigned_32'image (frame_a.all.R4) &
-         ", R5 " & unsigned_32'image (frame_a.all.R5) &
-         ", R6 " & unsigned_32'image (frame_a.all.R6) &
-         ", R7 " & unsigned_32'image (frame_a.all.R7));
+      DBG.alert ("EXC_RETURN ");
+      DBG.alert (unsigned_32'image (frame_a.all.exc_return));
+      DBG.newline;
 
-      ewok.debug.log (ewok.debug.ERROR,
-         "R8 " & unsigned_32'image (frame_a.all.R8) &
-         ", R9 " & unsigned_32'image (frame_a.all.R9) &
-         ", R10 " & unsigned_32'image (frame_a.all.R10) &
-         ", R11 " & unsigned_32'image (frame_a.all.R11));
+      DBG.alert ("R0  "); DBG.alert (unsigned_32'image (frame_a.all.R0)); DBG.newline;
+      DBG.alert ("R1  "); DBG.alert (unsigned_32'image (frame_a.all.R1)); DBG.newline;
+      DBG.alert ("R2  "); DBG.alert (unsigned_32'image (frame_a.all.R2)); DBG.newline;
+      DBG.alert ("R3  "); DBG.alert (unsigned_32'image (frame_a.all.R3)); DBG.newline;
+      DBG.alert ("R4  "); DBG.alert (unsigned_32'image (frame_a.all.R4)); DBG.newline;
+      DBG.alert ("R5  "); DBG.alert (unsigned_32'image (frame_a.all.R5)); DBG.newline;
+      DBG.alert ("R6  "); DBG.alert (unsigned_32'image (frame_a.all.R6)); DBG.newline;
+      DBG.alert ("R7  "); DBG.alert (unsigned_32'image (frame_a.all.R7)); DBG.newline;
+      DBG.alert ("R8  "); DBG.alert (unsigned_32'image (frame_a.all.R8)); DBG.newline;
+      DBG.alert ("R9  "); DBG.alert (unsigned_32'image (frame_a.all.R9)); DBG.newline;
+      DBG.alert ("R10 "); DBG.alert (unsigned_32'image (frame_a.all.R10)); DBG.newline;
+      DBG.alert ("R11 "); DBG.alert (unsigned_32'image (frame_a.all.R11)); DBG.newline;
+      DBG.alert ("R12 "); DBG.alert (unsigned_32'image (frame_a.all.R12)); DBG.newline;
 
-      ewok.debug.log (ewok.debug.ERROR,
-         "R12 " & unsigned_32'image (frame_a.all.R12) &
-         ", PC " & unsigned_32'image (frame_a.all.PC) &
-         ", LR " & unsigned_32'image (frame_a.all.LR));
-
-      ewok.debug.log (ewok.debug.ERROR,
-         "PSR " & unsigned_32'image (m4.cpu.to_unsigned_32 (frame_a.all.PSR)));
+      DBG.alert ("PC  "); DBG.alert (unsigned_32'image (frame_a.all.PC)); DBG.newline;
+      DBG.alert ("LR  "); DBG.alert (unsigned_32'image (frame_a.all.LR)); DBG.newline;
+      DBG.alert ("PSR ");
+      DBG.alert (unsigned_32'image (m4.cpu.to_unsigned_32 (frame_a.all.PSR)));
+      DBG.newline;
 
    end crashdump;
 

@@ -33,7 +33,7 @@ is
    SRAM_BASE         : constant system_address := 16#1000_0000#;
    SRAM_SIZE         : constant := 64 * KBYTE;
 
-   BOOTROM_BASE      : constant system_address := 16#1FFF_0000#;
+   BOOT_ROM_BASE     : constant system_address := 16#1FFF_0000#;
 
    RAM_BASE          : constant system_address := 16#2000_0000#; -- SRAM
    RAM_SIZE          : constant := 128 * KBYTE;
