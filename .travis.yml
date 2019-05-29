@@ -52,7 +52,7 @@ jobs:
               - mkdir build && cd build
               - export PATH=/opt/adacore-arm-eabi/bin:/usr/local/bin:$PATH
               - git config --global color.ui true
-              -repo init -u https://github.com/wookey-project/manifest.git -m soft/disco407_nightly.xml && repo sync
+              - repo init -u https://github.com/wookey-project/manifest.git -m soft/disco407_nightly.xml && repo sync
               - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
               - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
               - source setenv.sh
@@ -71,11 +71,6 @@ jobs:
               - make
         - stage: doc
           script: make doc
-
-stages:
-    - disco407
-    - wookey
-    - doc
 
 notifications:
   email:
