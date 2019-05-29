@@ -70,5 +70,5 @@ script:
     - source setenv.sh
     - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
     - make
-    - make doc
+    - make -C kernel doc
 
