@@ -72,3 +72,10 @@ script:
     - make
     - make -C kernel doc
 
+notifications:
+  email:
+    recipients:
+      - wookey@ssi.gouv.fr
+    on_success: never
+    on_failure: always
+    on_pull_requests: always
