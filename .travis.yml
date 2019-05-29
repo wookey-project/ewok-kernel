@@ -30,11 +30,8 @@ addons:
             - latexmk
             - ghostscript
 
-# testing with jdk8, on xenial
-before_install: true
-
 # installing dependencies
-install:
+before_install:
     - sudo sed -i '/PDF/s/none/read|write/' /etc/ImageMagick-6/policy.xml
     - pip install --user intelhex
     - sudo pip3 install kconfiglib
@@ -47,30 +44,38 @@ install:
     - /tmp/sdk
     - sudo bash -c ". $HOME/.sdkman/bin/sdkman-init.sh && sdk install maven 3.6.1"
 
-# setting build dir and correct path for installed tools
-before_script:
-    - python --version
-    - mkdir build && cd build
-    - export PATH=/opt/adacore-arm-eabi/bin:/usr/local/bin:$PATH
-    - git config --global color.ui true
-
 # let's sync and build for disco407, wookey, and build doc
-script:
-    - repo init -u https://github.com/wookey-project/manifest.git -m soft/disco407_nightly.xml && repo sync
-    - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
-    - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
-    - source setenv.sh
-    - make boards/32f407disco/configs/disco_blinky_ada_defconfig
-    - make
-    - rm -rf *
-    - rm -rf .config* .git* .repo* .layout* .travis*
-    - repo init -u https://github.com/wookey-project/manifest.git -m soft/wookey_nightly.xml && repo sync
-    - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
-    - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
-    - source setenv.sh
-    - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
-    - make
-    - make -C kernel doc
+jobs:
+    include:
+        - stage: disco407
+          script:
+              - mkdir build && cd build
+              - export PATH=/opt/adacore-arm-eabi/bin:/usr/local/bin:$PATH
+              - git config --global color.ui true
+              -repo init -u https://github.com/wookey-project/manifest.git -m soft/disco407_nightly.xml && repo sync
+              - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
+              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
+              - source setenv.sh
+              - make boards/32f407disco/configs/disco_blinky_ada_defconfig
+              - make
+        - stage: wookey
+          script:
+              - mkdir build && cd build
+              - export PATH=/opt/adacore-arm-eabi/bin:/usr/local/bin:$PATH
+              - git config --global color.ui true
+              - repo init -u https://github.com/wookey-project/manifest.git -m soft/wookey_nightly.xml && repo sync
+              - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
+              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
+              - source setenv.sh
+              - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
+              - make
+        - stage: doc
+          script: make doc
+
+stages:
+    - disco407
+    - wookey
+    - doc
 
 notifications:
   email:
