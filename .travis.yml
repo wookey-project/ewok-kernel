@@ -29,6 +29,9 @@ addons:
             - texlive-fonts-recommended
             - latexmk
             - ghostscript
+            - zip
+            - unzip
+            - bash
 
 # installing dependencies
 before_install:
