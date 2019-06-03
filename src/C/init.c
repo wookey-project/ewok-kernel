@@ -76,11 +76,9 @@
   that is kernel specific (not generic with the loader)
 */
 
-#ifdef CONFIG_ADAKERNEL
-    /* Specific Ada runtime elaboration code */
+/* Specific Ada runtime elaboration code */
 extern void kernelinit(void);
 extern void interrupts_init(void);
-#endif
 
 #define YELLOW "\x1b[1;33;40m"
 #define WHITE  "\x1b[0;37;40m"
@@ -103,11 +101,10 @@ int main(int argc, char *args[])
 
     disable_irq();
 
-#ifdef CONFIG_ADAKERNEL
     /* Specific Ada runtime elaboration code */
     kernelinit();
     interrupts_init();
-#endif
+
     core_systick_init();
 
     /* Configure the USART in UART mode, this is the kernel console initialization */

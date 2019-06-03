@@ -6,28 +6,16 @@ CFLAGS += -I$(PROJ_FILES)/kernel/arch/socs/stm32f429/C
 
 socdrv-y :=
 socdrv-bsp-y :=
+socdrv-ada-bsp-y :=
 
-# this is the Board Support package content
-socdrv-bsp-y += C/soc-rcc.c
+# this is the C Board Support package content, not yet ported in Ada/SPARK
 socdrv-bsp-y += C/soc-rng.c
-socdrv-bsp-y += C/soc-interrupts.c
-socdrv-bsp-y += C/soc-gpio.c
 socdrv-bsp-y += C/soc-usart.c
-socdrv-bsp-y += C/soc-exti.c
 socdrv-bsp-y += C/soc-init.c
 socdrv-bsp-y += C/soc-devmap.c
-socdrv-bsp-y += C/default_handlers.c
 socdrv-bsp-y += C/postpone.c
-# mutually exclusive
-socdrv-bsp-$(CONFIG_KERNEL_DMA_ENABLE) += C/soc-dma.c
-socdrv-bsp-$(CONFIG_KERNEL_UNSAFE_DMA_ENABLE) += C/soc-dma.c
 
-socdrv-bsp-y += C/soc-dwt.c
-
-socdrv-$(CONFIG_IWDG) += C/soc-iwdg.c
-
-ifeq ($(CONFIG_ADAKERNEL),y)
-# for Ada equivalent
+# Ada/SPARK code
 socdrv-ada-bsp-y += Ada/soc-rcc.adb
 #socdrv-ada-bsp-y += Ada/soc-rng.adb
 socdrv-ada-bsp-y += Ada/soc-interrupts.adb
@@ -43,4 +31,3 @@ socdrv-ada-bsp-y += Ada/soc-dwt.adb
 #socdrv-ada_bsp-y += Ada/soc-devmap.adb
 socdrv-ada-bsp-y += Ada/soc-nvic.adb
 socdrv-ada-bsp-y += Ada/soc-syscfg.adb
-endif

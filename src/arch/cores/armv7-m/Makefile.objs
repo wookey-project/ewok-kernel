@@ -3,12 +3,8 @@ CORE_DIR = $(PROJ_FILES)/kernel/src/arch/cores/$(ARCH)
 CFLAGS += -I$(CORE_DIR)
 CFLAGS += -I$(CORE_DIR)/C
 
-# core content is only in BSP by now (not in userspace drivers)
+# C core content is only in BSP by now (not in userspace drivers)
 core-bsp-y :=
-
-# mandatory
-core-bsp-y += C/m4-mpu.c
-core-bsp-y += C/m4-systick.c
 
 # configurable
 
@@ -17,10 +13,8 @@ core-bsp-y += C/m4-systick.c
 core-bsp-$(CONFIG_FPU_ENABLE) += C/m4-fpu.c
 
 core-ada-bsp-y :=
-ifeq ($(CONFIG_ADAKERNEL),y)
 # for Ada equivalent
 
 core-ada-bsp-y += Ada/m4-mpu.adb
 core-ada-bsp-y += Ada/m4-systick.adb
 
-endif
