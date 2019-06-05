@@ -29,37 +29,34 @@ package body ewok.syscalls.lock
    with spark_mode => off
 is
 
-   procedure sys_lock
+   procedure svc_lock_enter
      (caller_id   : in ewok.tasks_shared.t_task_id;
-      params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
-      syscall : t_syscalls_lock
-         with address => params(0)'address;
    begin
-
       if mode = TASK_MODE_ISRTHREAD then
          set_return_value (caller_id, mode, SYS_E_DENIED);
          return;
       end if;
+      set_return_value (caller_id, mode, SYS_E_DONE);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_LOCKED);
+   end svc_lock_enter;
 
-      if not syscall'valid then
-         set_return_value (caller_id, mode, SYS_E_INVAL);
+
+   procedure svc_lock_exit
+     (caller_id   : in ewok.tasks_shared.t_task_id;
+      mode        : in ewok.tasks_shared.t_task_mode)
+   is
+   begin
+      if mode = TASK_MODE_ISRTHREAD then
+         set_return_value (caller_id, mode, SYS_E_DENIED);
          return;
       end if;
-
-      case syscall is
-         when LOCK_ENTER =>
-            set_return_value (caller_id, mode, SYS_E_DONE);
-            ewok.tasks.set_state (caller_id, mode, TASK_STATE_LOCKED);
-
-         when LOCK_EXIT  =>
-            set_return_value (caller_id, mode, SYS_E_DONE);
-            ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-            -- When unlocking a task, it is highly probable that an ISR is
-            -- waiting and need to be executed.
-            ewok.sched.request_schedule;
-      end case;
-   end sys_lock;
+      set_return_value (caller_id, mode, SYS_E_DONE);
+      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+      -- When unlocking a task, it is highly probable that an ISR is
+      -- waiting and need to be executed.
+      ewok.sched.request_schedule;
+   end svc_lock_exit;
 
 end ewok.syscalls.lock;

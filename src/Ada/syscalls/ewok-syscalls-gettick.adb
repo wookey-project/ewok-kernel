@@ -33,16 +33,16 @@ package body ewok.syscalls.gettick
    with spark_mode => off
 is
 
-   procedure sys_gettick
+   procedure svc_gettick
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
       value       : unsigned_64
-         with address => to_address (params(0));
+         with address => to_address (params(1));
 
       precision   : ewok.exported.ticks.t_precision
-         with address => params(1)'address;
+         with address => params(2)'address;
    begin
 
       --
@@ -54,7 +54,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_gettick(): 'value' parameter not in caller space"));
+            & ": svc_gettick(): 'value' parameter not in caller space"));
          goto ret_inval;
       end if;
 
@@ -103,7 +103,7 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end sys_gettick;
+   end svc_gettick;
 
 end ewok.syscalls.gettick;
 

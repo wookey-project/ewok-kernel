@@ -25,17 +25,17 @@ with ewok.tasks_shared;
 package ewok.syscalls.cfg.dev
    with spark_mode => off
 is
-   procedure dev_map
+   procedure svc_dev_map
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-   procedure dev_unmap
+   procedure svc_dev_unmap
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-   procedure dev_release
+   procedure svc_dev_release
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);

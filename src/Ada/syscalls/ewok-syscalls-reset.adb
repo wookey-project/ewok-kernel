@@ -30,7 +30,7 @@ package body ewok.syscalls.reset
    with spark_mode => off
 is
 
-   procedure sys_reset
+   procedure svc_reset
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
@@ -47,6 +47,6 @@ is
 
       debug.panic ("soc.nvic.reset failed !?!");
 
-   end sys_reset;
+   end svc_reset;
 
 end ewok.syscalls.reset;

@@ -40,7 +40,7 @@ is
 
    --pragma debug_policy (IGNORE);
 
-   procedure ipc_do_recv
+   procedure svc_ipc_do_recv
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       blocking    : in boolean;
@@ -348,10 +348,10 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end ipc_do_recv;
+   end svc_ipc_do_recv;
 
 
-   procedure ipc_do_send
+   procedure svc_ipc_do_send
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       blocking    : in     boolean;
@@ -611,35 +611,6 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end ipc_do_send;
-
-
-   procedure sys_ipc
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out t_parameters;
-      mode        : in     ewok.tasks_shared.t_task_mode)
-   is
-      syscall : t_syscalls_ipc
-         with address => params(0)'address;
-   begin
-
-      if not syscall'valid then
-         set_return_value (caller_id, mode, SYS_E_INVAL);
-         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-         return;
-      end if;
-
-      case syscall is
-         when IPC_RECV_SYNC   =>
-            ipc_do_recv (caller_id, params, true, mode);
-         when IPC_SEND_SYNC   =>
-            ipc_do_send (caller_id, params, true, mode);
-         when IPC_RECV_ASYNC  =>
-            ipc_do_recv (caller_id, params, false, mode);
-         when IPC_SEND_ASYNC  =>
-            ipc_do_send (caller_id, params, false, mode);
-      end case;
-
-   end sys_ipc;
+   end svc_ipc_do_send;
 
 end ewok.syscalls.ipc;

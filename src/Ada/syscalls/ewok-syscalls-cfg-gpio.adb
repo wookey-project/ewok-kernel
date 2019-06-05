@@ -31,7 +31,7 @@ package body ewok.syscalls.cfg.gpio
    with spark_mode => off
 is
 
-   procedure gpio_set
+   procedure svc_gpio_set
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -80,10 +80,10 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end gpio_set;
+   end svc_gpio_set;
 
 
-   procedure gpio_get
+   procedure svc_gpio_get
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -130,14 +130,14 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end gpio_get;
+   end svc_gpio_get;
 
 
 
    -- Unlock EXTI line associated to given GPIO, if the EXTI
    -- line has been locked by the kernel (exti lock parameter is
    -- set to 'true'.
-   procedure gpio_unlock_exti
+   procedure svc_gpio_unlock_exti
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -189,7 +189,7 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end gpio_unlock_exti;
+   end svc_gpio_unlock_exti;
 
 
 end ewok.syscalls.cfg.gpio;

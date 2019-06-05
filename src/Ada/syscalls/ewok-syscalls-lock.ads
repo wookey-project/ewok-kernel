@@ -27,9 +27,14 @@ package ewok.syscalls.lock
    with spark_mode => off
 is
 
-   procedure sys_lock
+   procedure svc_lock_enter
      (caller_id   : in ewok.tasks_shared.t_task_id;
-      params      : in t_parameters;
+      mode        : in ewok.tasks_shared.t_task_mode)
+   with
+      global => (output => ewok.tasks.tasks_list);
+
+   procedure svc_lock_exit
+     (caller_id   : in ewok.tasks_shared.t_task_id;
       mode        : in ewok.tasks_shared.t_task_mode)
    with
       global => (output => ewok.tasks.tasks_list);

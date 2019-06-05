@@ -30,16 +30,7 @@ with ewok.exported.interrupts;
 with ewok.interrupts;
 with ewok.layout;
 with ewok.sched;
-with ewok.syscalls.init;
-with ewok.syscalls.cfg;
-with ewok.syscalls.gettick;
-with ewok.syscalls.ipc;
-with ewok.syscalls.lock;
 with ewok.syscalls.log;
-with ewok.syscalls.reset;
-with ewok.syscalls.sleep;
-with ewok.syscalls.yield;
-with ewok.syscalls.rng;
 with soc.interrupts; use type soc.interrupts.t_interrupt;
 with soc.nvic;
 with m4.cpu;
@@ -82,9 +73,10 @@ is
 
 
    procedure push_syscall
-     (task_id     : in  ewok.tasks_shared.t_task_id)
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      svc         : in  ewok.syscalls.t_svc)
    is
-      req   : constant t_syscall_request := (task_id, WAITING);
+      req   : constant t_syscall_request := (task_id, svc, WAITING);
       ok    : boolean;
    begin
       p_syscall_requests.write (syscall_queue, req, ok);
@@ -98,68 +90,10 @@ is
 
    procedure syscall_handler (req : in  t_syscall_request)
    is
-
-      type t_syscall_parameters_access is access all t_syscall_parameters;
-
-      function to_syscall_parameters_access is new ada.unchecked_conversion
-        (system_address, t_syscall_parameters_access);
-
-      svc      : t_svc_type;
-      params_a : t_syscall_parameters_access;
+      svc_params_a : constant t_parameters_access :=
+         to_parameters_access
+           (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
    begin
-
-      --
-      -- Getting the svc number from the SVC instruction
-      --
-
-      declare
-         PC : constant system_address :=
-            TSK.tasks_list(req.caller_id).ctx.frame_a.all.PC;
-         inst : m4.cpu.instructions.t_svc_instruction
-            with import, address => to_address (PC - 2);
-      begin
-         if not inst.opcode'valid then
-            raise program_error;
-         end if;
-
-         declare
-            svc_type : t_svc_type with address => inst.svc_num'address;
-            val      : unsigned_8 with address => inst.svc_num'address;
-         begin
-            if not svc_type'valid then
-               pragma DEBUG (debug.log (debug.ERROR, "Invalid SVC: "
-                  & unsigned_8'image (val)));
-               ewok.tasks.set_state
-                 (req.caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FAULT);
-               set_return_value
-                 (req.caller_id, TSK.tasks_list(req.caller_id).mode, SYS_E_DENIED);
-               return;
-            end if;
-            svc := svc_type;
-         end;
-      end;
-
-      --
-      -- Getting syscall parameters
-      --
-
-      params_a :=
-         to_syscall_parameters_access (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
-
-      if params_a = NULL then
-         pragma DEBUG (debug.log (debug.ERROR,
-            ewok.tasks.tasks_list(req.caller_id).name
-            & ": syscall with no parameters"));
-         return;
-      end if;
-
-      if not params_a.all.syscall_type'valid then
-         pragma DEBUG (debug.log (debug.ERROR,
-            ewok.tasks.tasks_list(req.caller_id).name
-            & ": unknown syscall " &
-            ewok.syscalls.t_syscall_type'image (params_a.all.syscall_type)));
-         return;
-      end if;
 
       --
       -- Logging
@@ -172,9 +106,7 @@ is
       begin
          to_ada (name, TSK.tasks_list(req.caller_id).name.all);
          debug.log (debug.INFO, name & ": svc"
-            & ewok.syscalls.t_svc_type'image (svc)
-            & ", syscall" & ewok.syscalls.t_syscall_type'image
-            (params_a.all.syscall_type));
+            & ewok.syscalls.t_svc'image (svc));
       end;
 #end if;
 
@@ -182,41 +114,12 @@ is
       -- Calling the handler
       --
 
-      if svc /= SVC_SYSCALL then
-         debug.panic ("syscall_handler(): wrong SVC"
-            & ewok.syscalls.t_svc_type'image (svc));
-      end if;
-
-      case params_a.all.syscall_type is
-         when SYS_LOG =>
-            ewok.syscalls.log.sys_log
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_YIELD      =>
-            ewok.syscalls.yield.sys_yield (req.caller_id, TASK_MODE_MAINTHREAD);
-         when SYS_INIT       =>
-            ewok.syscalls.init.sys_init
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_IPC        =>
-            ewok.syscalls.ipc.sys_ipc
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_CFG        =>
-            ewok.syscalls.cfg.sys_cfg
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_GETTICK    =>
-            ewok.syscalls.gettick.sys_gettick
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_RESET      =>
-            ewok.syscalls.reset.sys_reset
-              (req.caller_id, TASK_MODE_MAINTHREAD);
-         when SYS_SLEEP      =>
-            ewok.syscalls.sleep.sys_sleep
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_LOCK       =>
-            ewok.syscalls.lock.sys_lock
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
-         when SYS_GET_RANDOM =>
-            ewok.syscalls.rng.sys_get_random
-              (req.caller_id, params_a.all.args, TASK_MODE_MAINTHREAD);
+      case req.svc is
+         when SVC_LOG =>
+            ewok.syscalls.log.svc_log
+              (req.caller_id, svc_params_a.all, TASK_MODE_MAINTHREAD);
+         when others =>
+            raise program_error;
       end case;
 
    end syscall_handler;
@@ -272,16 +175,16 @@ is
       --
 
       -- User defined ISR handler
-      params(0) := req.params.handler;
+      params(1) := req.params.handler;
 
       -- IRQ
-      params(1) := unsigned_32'val
+      params(2) := unsigned_32'val
         (soc.nvic.to_irq_number (req.params.interrupt));
 
       -- Status and data returned by the 'posthook' treatement
       -- (cf. ewok.posthook.exec)
-      params(2) := req.params.posthook_status;
-      params(3) := req.params.posthook_data;
+      params(3) := req.params.posthook_status;
+      params(4) := req.params.posthook_data;
 
       create_stack
         (ewok.layout.STACK_TOP_TASK_ISR,

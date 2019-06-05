@@ -51,7 +51,7 @@ is
         (t_stack_frame_access, system_address);
 
 
-   type t_parameters is array (0 .. 3) of unsigned_32 with pack;
+   type t_parameters is array (1 .. 4) of unsigned_32 with pack;
 
    type t_parameters_access is access all t_parameters;
 

@@ -37,7 +37,7 @@ is
    package TSK renames ewok.tasks;
 
 
-   procedure dev_map
+   procedure svc_dev_map
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -156,10 +156,10 @@ is
       set_return_value (caller_id, mode, SYS_E_BUSY);
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-    end dev_map;
+    end svc_dev_map;
 
 
-   procedure dev_unmap
+   procedure svc_dev_unmap
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -257,10 +257,10 @@ is
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end dev_unmap;
+   end svc_dev_unmap;
 
 
-   procedure dev_release
+   procedure svc_dev_release
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -339,7 +339,7 @@ is
       TSK.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end dev_release;
+   end svc_dev_release;
 
 
 end ewok.syscalls.cfg.dev;

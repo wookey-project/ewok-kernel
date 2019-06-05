@@ -35,7 +35,7 @@ is
 
    package TSK renames ewok.tasks;
 
-   procedure init_do_reg_dma
+   procedure svc_do_reg_dma
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
@@ -57,14 +57,14 @@ is
       if not ewok.perm.ressource_is_granted
                (ewok.perm.PERM_RES_DEV_DMA, caller_id)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): permission not granted"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): permission not granted"));
          goto ret_denied;
       end if;
 
       -- Ada based sanitation using on types compliance
       if not dma_config'valid_scalars
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): invalid dma_t"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): invalid dma_t"));
          goto ret_inval;
       end if;
 
@@ -79,7 +79,7 @@ is
          not ewok.sanitize.is_word_in_data_slot
                  (to_system_address (descriptor'address), caller_id, mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): parameters not in task's memory space"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): parameters not in task's memory space"));
          goto ret_denied;
       end if;
 
@@ -88,7 +88,7 @@ is
                  (dma_config, caller_id,
                   ewok.exported.dma.t_config_mask'(others => false), mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): invalid dma configuration"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): invalid dma configuration"));
          goto ret_inval;
       end if;
 
@@ -96,7 +96,7 @@ is
       -- Note: A DMA controller can manage only one channel per stream in the
       --       same time.
       if ewok.dma.stream_is_already_used (dma_config) then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): dma configuration already used"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): dma configuration already used"));
          goto ret_denied;
       end if;
 
@@ -111,7 +111,7 @@ is
       -- Initialization
       ewok.dma.init_stream (dma_config, caller_id, index, ok);
       if not ok then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma(): dma initialization failed"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma(): dma initialization failed"));
          goto ret_denied;
       end if;
 
@@ -145,10 +145,10 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end;
+   end svc_do_reg_dma;
 
 
-   procedure init_do_reg_dma_shm
+   procedure svc_do_reg_dma_shm
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
@@ -166,7 +166,7 @@ is
       -- Ada based sanitation using on types compliance
       if not user_dma_shm'valid_scalars
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma_shm(): invalid dma_shm_t"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma_shm(): invalid dma_shm_t"));
          goto ret_inval;
       end if;
 
@@ -177,14 +177,14 @@ is
                   caller_id,
                   mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma_shm(): parameters not in task's memory space"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma_shm(): parameters not in task's memory space"));
          goto ret_denied;
       end if;
 
       -- Verify DMA shared memory configuration transmitted by the user
       if not ewok.dma.sanitize_dma_shm (user_dma_shm, caller_id, mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma_shm(): invalid configuration"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma_shm(): invalid configuration"));
          goto ret_inval;
       end if;
 
@@ -193,7 +193,7 @@ is
       -- Does the task can share memory with its target task?
       if not ewok.perm.dmashm_is_granted (caller_id, granted_id)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma_shm(): not granted"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma_shm(): not granted"));
          goto ret_denied;
       end if;
 
@@ -204,7 +204,7 @@ is
          TSK.tasks_list(granted_id).num_dma_shms := TSK.tasks_list(granted_id).num_dma_shms + 1;
          TSK.tasks_list(caller_id).num_dma_shms  := TSK.tasks_list(caller_id).num_dma_shms + 1;
       else
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_dma_shm(): busy"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_do_reg_dma_shm(): busy"));
          goto ret_busy;
       end if;
 
@@ -230,10 +230,10 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end init_do_reg_dma_shm;
+   end svc_do_reg_dma_shm;
 
 
-   procedure sys_cfg_dma_reconf
+   procedure svc_dma_reconf
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -264,7 +264,7 @@ is
                   caller_id,
                   mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_reconf(): parameters not in task's memory space"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): parameters not in task's memory space"));
          goto ret_inval;
       end if;
 
@@ -272,7 +272,7 @@ is
       if dma_descriptor < TSK.tasks_list(caller_id).dma_id'first or
          dma_descriptor > TSK.tasks_list(caller_id).num_dma_id
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_reconf(): invalid descriptor"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): invalid descriptor"));
          goto ret_inval;
       end if;
 
@@ -281,7 +281,7 @@ is
       if not ewok.dma.has_same_dma_channel
                  (TSK.tasks_list(caller_id).dma_id(dma_descriptor), new_dma_config)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_reconf(): ctrl/channel/stream changed"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): ctrl/channel/stream changed"));
          goto ret_inval;
       end if;
 
@@ -289,7 +289,7 @@ is
       if not ewok.dma.sanitize_dma
                  (new_dma_config, caller_id, config_mask, mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_reconf(): invalid configuration"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): invalid configuration"));
          goto ret_inval;
       end if;
 
@@ -319,10 +319,10 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end sys_cfg_dma_reconf;
+   end svc_dma_reconf;
 
 
-   procedure sys_cfg_dma_reload
+   procedure svc_dma_reload
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -340,7 +340,7 @@ is
       if dma_descriptor < TSK.tasks_list(caller_id).dma_id'first or
          dma_descriptor > TSK.tasks_list(caller_id).num_dma_id
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_reload(): invalid descriptor"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reload(): invalid descriptor"));
          goto ret_inval;
       end if;
 
@@ -361,10 +361,10 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end sys_cfg_dma_reload;
+   end svc_dma_reload;
 
 
-   procedure sys_cfg_dma_disable
+   procedure svc_dma_disable
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
@@ -382,7 +382,7 @@ is
       if dma_descriptor < TSK.tasks_list(caller_id).dma_id'first or
          dma_descriptor > TSK.tasks_list(caller_id).num_dma_id
       then
-         pragma DEBUG (debug.log (debug.ERROR, "sys_cfg_dma_disable(): invalid descriptor"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_disable(): invalid descriptor"));
          goto ret_inval;
       end if;
 
@@ -403,7 +403,7 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end sys_cfg_dma_disable;
+   end svc_dma_disable;
 
 
 end ewok.syscalls.dma;

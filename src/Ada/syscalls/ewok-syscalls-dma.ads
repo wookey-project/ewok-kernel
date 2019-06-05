@@ -26,27 +26,27 @@ package ewok.syscalls.dma
    with spark_mode => off
 is
 
-   procedure init_do_reg_dma
+   procedure svc_do_reg_dma
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode);
 
-   procedure init_do_reg_dma_shm
+   procedure svc_do_reg_dma_shm
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode);
 
-   procedure sys_cfg_dma_reconf
+   procedure svc_dma_reconf
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-   procedure sys_cfg_dma_reload
+   procedure svc_dma_reload
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
 
-   procedure sys_cfg_dma_disable
+   procedure svc_dma_disable
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);

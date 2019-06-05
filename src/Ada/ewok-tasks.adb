@@ -68,10 +68,10 @@ is
 
       frame_a := to_stack_frame_access (sp - (t_stack_frame'size / 8));
 
-      frame_a.all.R0 := params(0);
-      frame_a.all.R1 := params(1);
-      frame_a.all.R2 := params(2);
-      frame_a.all.R3 := params(3);
+      frame_a.all.R0 := params(1);
+      frame_a.all.R1 := params(2);
+      frame_a.all.R2 := params(3);
+      frame_a.all.R3 := params(4);
 
       frame_a.all.R4    := 0;
       frame_a.all.R5    := 0;

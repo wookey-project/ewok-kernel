@@ -26,7 +26,7 @@ package ewok.syscalls.gettick
    with spark_mode => off
 is
 
-   procedure sys_gettick
+   procedure svc_gettick
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);
