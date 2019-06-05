@@ -43,64 +43,6 @@ package body ewok.syscalls.handler
    with spark_mode => off
 is
 
-   procedure exec_synchronous_syscall
-     (current_id     : in     ewok.tasks_shared.t_task_id;
-      mode           : in     ewok.tasks_shared.t_task_mode;
-      svc            : in     t_svc;
-      svc_params     : in out t_parameters)
-   is
-   begin
-
-      case svc is
-         when SVC_YIELD          =>
-            ewok.syscalls.yield.svc_yield (current_id, mode);
-         when SVC_GETTICK        =>
-            ewok.syscalls.gettick.svc_gettick (current_id, svc_params, mode);
-         when SVC_RESET          =>
-            ewok.syscalls.reset.svc_reset (current_id, mode);
-         when SVC_SLEEP          =>
-            ewok.syscalls.sleep.svc_sleep (current_id, svc_params, mode);
-         when SVC_GET_RANDOM     =>
-            ewok.syscalls.rng.svc_get_random (current_id, svc_params, mode);
-         when SVC_INIT_DEVACCESS =>
-            ewok.syscalls.init.svc_register_device (current_id, svc_params, mode);
-         when SVC_INIT_DMA       =>
-            ewok.syscalls.dma.svc_do_reg_dma (current_id, svc_params, mode);
-         when SVC_INIT_DMA_SHM   =>
-            ewok.syscalls.dma.svc_do_reg_dma_shm (current_id, svc_params, mode);
-         when SVC_INIT_GETTASKID =>
-            ewok.syscalls.init.svc_get_taskid (current_id, svc_params, mode);
-         when SVC_INIT_DONE      =>
-            ewok.syscalls.init.svc_init_done (current_id, mode);
-         when SVC_GPIO_SET   =>
-            ewok.syscalls.cfg.gpio.svc_gpio_set (current_id, svc_params, mode);
-         when SVC_GPIO_GET   =>
-            ewok.syscalls.cfg.gpio.svc_gpio_get (current_id, svc_params, mode);
-         when SVC_GPIO_UNLOCK_EXTI =>
-            ewok.syscalls.cfg.gpio.svc_gpio_unlock_exti (current_id, svc_params, mode);
-         when SVC_DMA_RECONF =>
-            ewok.syscalls.dma.svc_dma_reconf (current_id, svc_params, mode);
-         when SVC_DMA_RELOAD =>
-            ewok.syscalls.dma.svc_dma_reload (current_id, svc_params, mode);
-         when SVC_DMA_DISABLE =>
-            ewok.syscalls.dma.svc_dma_disable (current_id, svc_params, mode);
-         when SVC_DEV_MAP    =>
-            ewok.syscalls.cfg.dev.svc_dev_map (current_id, svc_params, mode);
-         when SVC_DEV_UNMAP  =>
-            ewok.syscalls.cfg.dev.svc_dev_unmap (current_id, svc_params, mode);
-         when SVC_DEV_RELEASE =>
-            ewok.syscalls.cfg.dev.svc_dev_release (current_id, svc_params, mode);
-         when SVC_LOCK_ENTER     =>
-            ewok.syscalls.lock.svc_lock_enter (current_id, mode);
-         when SVC_LOCK_EXIT      =>
-            ewok.syscalls.lock.svc_lock_exit (current_id, mode);
-         when others =>
-            raise program_error;
-      end case;
-
-   end exec_synchronous_syscall;
-
-
    function svc_handler
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
@@ -192,6 +134,61 @@ is
 
             return ewok.sched.do_schedule (frame_a);
 
+         when SVC_YIELD          =>
+            ewok.syscalls.yield.svc_yield (current_id, current_a.all.mode);
+            return frame_a;
+
+         when SVC_GETTICK        =>
+            ewok.syscalls.gettick.svc_gettick (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_RESET          =>
+            ewok.syscalls.reset.svc_reset (current_id, current_a.all.mode);
+            return frame_a;
+
+         when SVC_SLEEP          =>
+            ewok.syscalls.sleep.svc_sleep (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_GET_RANDOM     =>
+            ewok.syscalls.rng.svc_get_random (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_LOG   =>
+
+            -- Svc_log() syscall is postponed (asynchronously executed)
+            if current_a.all.mode = TASK_MODE_MAINTHREAD then
+               ewok.softirq.push_syscall (current_id, svc);
+               ewok.tasks.set_state (current_id, TASK_MODE_MAINTHREAD,
+                  TASK_STATE_SVC_BLOCKED);
+               return ewok.sched.do_schedule (frame_a);
+            else
+               -- Postponed syscalls are forbidden in ISR mode
+               set_return_value
+                 (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
+               return frame_a;
+            end if;
+
+         when SVC_INIT_DEVACCESS =>
+            ewok.syscalls.init.svc_register_device (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_INIT_DMA       =>
+            ewok.syscalls.dma.svc_do_reg_dma (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_INIT_DMA_SHM   =>
+            ewok.syscalls.dma.svc_do_reg_dma_shm (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_INIT_GETTASKID =>
+            ewok.syscalls.init.svc_get_taskid (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_INIT_DONE      =>
+            ewok.syscalls.init.svc_init_done (current_id, current_a.all.mode);
+            return frame_a;
+
          when SVC_IPC_RECV_SYNC   =>
             ewok.syscalls.ipc.svc_ipc_do_recv
               (current_id, svc_params_a.all, true, current_a.all.mode);
@@ -212,26 +209,48 @@ is
               (current_id, svc_params_a.all, false, current_a.all.mode);
             return ewok.sched.do_schedule (frame_a);
 
-         when SVC_LOG   =>
+         when SVC_GPIO_SET   =>
+            ewok.syscalls.cfg.gpio.svc_gpio_set (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
 
-            -- Svc_log() syscall is postponed (asynchronously executed)
-            if current_a.all.mode = TASK_MODE_MAINTHREAD then
-               ewok.softirq.push_syscall (current_id, svc);
-               ewok.tasks.set_state (current_id, TASK_MODE_MAINTHREAD,
-                  TASK_STATE_SVC_BLOCKED);
-               return ewok.sched.do_schedule (frame_a);
-            else
-               -- Postponed syscalls are forbidden in ISR mode
-               set_return_value
-                 (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
-               return frame_a;
-            end if;
+         when SVC_GPIO_GET   =>
+            ewok.syscalls.cfg.gpio.svc_gpio_get (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
 
-         when others    =>
+         when SVC_GPIO_UNLOCK_EXTI =>
+            ewok.syscalls.cfg.gpio.svc_gpio_unlock_exti (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
 
-            -- Executing other synchronous syscall
-            exec_synchronous_syscall
-              (current_id, current_a.all.mode, svc, svc_params_a.all);
+         when SVC_DMA_RECONF =>
+            ewok.syscalls.dma.svc_dma_reconf (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_DMA_RELOAD =>
+            ewok.syscalls.dma.svc_dma_reload (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_DMA_DISABLE =>
+            ewok.syscalls.dma.svc_dma_disable (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_DEV_MAP    =>
+            ewok.syscalls.cfg.dev.svc_dev_map (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_DEV_UNMAP  =>
+            ewok.syscalls.cfg.dev.svc_dev_unmap (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_DEV_RELEASE =>
+            ewok.syscalls.cfg.dev.svc_dev_release (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
+
+         when SVC_LOCK_ENTER     =>
+            ewok.syscalls.lock.svc_lock_enter (current_id, current_a.all.mode);
+            return frame_a;
+
+         when SVC_LOCK_EXIT      =>
+            ewok.syscalls.lock.svc_lock_exit (current_id, current_a.all.mode);
             return frame_a;
 
       end case;
