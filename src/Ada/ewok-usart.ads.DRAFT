@@ -1,0 +1,10 @@
+
+package ewok.usart is
+   with spark_mode => off
+is
+
+   usart : t_user_device;
+
+   procedure init;
+
+end ewok.usart;

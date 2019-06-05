@@ -108,6 +108,13 @@ is
       case svc is
 
          when SVC_TASK_DONE   =>
+
+            if current_a.all.mode /= TASK_MODE_MAINTHREAD then
+               set_return_value
+                 (current_id, current_a.all.mode, SYS_E_DENIED);
+               return frame_a;
+            end if;
+
             ewok.tasks.set_state
               (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
@@ -115,18 +122,24 @@ is
 
          when SVC_ISR_DONE    =>
 
+            if current_a.all.mode /= TASK_MODE_ISRTHREAD then
+               set_return_value
+                 (current_id, current_a.all.mode, SYS_E_DENIED);
+               return frame_a;
+            end if;
+
 #if CONFIG_SCHED_SUPPORT_FISR
-               declare
-                  current_state : constant t_task_state :=
-                     ewok.tasks.get_state (current_id, TASK_MODE_MAINTHREAD);
-               begin
-                  if current_state = TASK_STATE_RUNNABLE or
-                     current_state = TASK_STATE_IDLE
-                  then
-                     ewok.tasks.set_state
-                       (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
-                  end if;
-               end;
+            declare
+               current_state : constant t_task_state :=
+                  ewok.tasks.get_state (current_id, TASK_MODE_MAINTHREAD);
+            begin
+               if current_state = TASK_STATE_RUNNABLE or
+                  current_state = TASK_STATE_IDLE
+               then
+                  ewok.tasks.set_state
+                    (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
+               end if;
+            end;
 #end if;
 
             ewok.tasks.set_state
