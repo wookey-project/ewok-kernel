@@ -39,14 +39,10 @@ EXTRA_LDFLAGS ?= -Tkernel.ld
 
 LDFLAGS += $(EXTRA_LDFLAGS) -L$(APP_BUILD_DIR) $(AFLAGS_GCC) -fno-builtin -nostdlib -nostartfiles -Xlinker
 
-# --unresolved-symbols=ignore-in-object-files
-LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp
 
-ifeq ($(CONFIG_ADAKERNEL),y)
 LD_LIBS = -lkernel -L$(APP_BUILD_DIR)/Ada/lib
 LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp
 LD_LIBS += -lgnat -L$(BUILD_DIR)/kernel/libgnat
-endif
 
 BUILD_DIR ?= $(PROJ_FILE)build
 
@@ -54,22 +50,11 @@ SRC = $(wildcard C/*.c) $(wildcard C/syscalls/*.c)
 OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
 DEP := $(OBJ:%.o=%.d)
 
-ifeq ($(CONFIG_ADAKERNEL),y)
-#ada sources files
 # all files in Ada dir will replace C equivalent
 ASRC_DIR = Ada
 ASRC = $(wildcard $(ASRC_DIR)/*.adb) $(wildcard $(ASRC_DIR)/syscalls/*.adb)
 ALIB = $(APP_BUILD_DIR)/Ada/lib/libkernel.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
-
-# deleting C files having their Ada equivalent from the C/obj list
-ADACEQ  = $(patsubst Ada/ewok-%.adb,C/%.c,$(ASRC))
-ADACEQ += $(patsubst Ada/syscalls/ewok-%.adb,C/syscalls/%.c,$(ASRC))
-SRC_TMP = $(filter-out $(ADACEQ),$(SRC))
-SRC := $(SRC_TMP)
-OBJ := $(SRC:%.c=$(APP_BUILD_DIR)/%.o)
-DEP := $(OBJ:%.o=%.d)
-endif
 
 SOC_DIR := $(PROJ_FILES)/kernel/src/arch/socs/$(SOC)
 SOC_SRC := startup_$(SOC).s
@@ -101,11 +86,7 @@ all:
 	@echo "is downloaded and can be compiled"
 else
 
-ifeq ($(CONFIG_ADAKERNEL),y)
-all: check_paradigm_switch $(APP_BUILD_DIR) libgnat libbsp kernel
-else
-all: check_paradigm_switch $(APP_BUILD_DIR) libbsp kernel
-endif
+all: $(APP_BUILD_DIR) libgnat libbsp kernel
 
 endif
 
@@ -139,18 +120,6 @@ kernel: $(APP_BUILD_DIR)/$(ELF_NAME) $(APP_BUILD_DIR)/$(HEX_NAME)
 # kernel C sources files
 
 
-check_paradigm_switch:
-ifeq ($(CONFIG_ADAKERNEL),y)
-	# when switching between kernel paradigm, we must clean any objects an bin files
-	if test ! -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; fi
-else
-	# when switching between kernel paradigm, we must clean any objects an bin files
-	if test -d $(APP_BUILD_DIR)/Ada; then rm -rf $(APP_BUILD_DIR)/*.[od] $(APP_BUILD_DIR)/syscalls; rm -rf $(APP_BUILD_DIR)/libbsp; rm -rf $(APP_BUILD_DIR)/Ada; fi
-endif
-
-
-
-ifeq ($(CONFIG_ADAKERNEL),y)
 $(ADIR):
 	$(call cmd,mkdir)
 
@@ -159,7 +128,6 @@ $(ALIB): $(ADIR) libkernel
 libkernel: libkernel.gpr
 	$(call cmd,ada_lib)
 
-endif
 
 sanitize: $(SRC)
 	clang -target armv7-m -mfloat-abi=hard -mcpu=cortex-m4 $(CLANG_CFLAGS) --analyze $(SRC)
@@ -191,7 +159,6 @@ $(APP_BUILD_DIR):
 	$(call cmd,mkdir)
 
 
-ifeq ($(CONFIG_ADAKERNEL),y)
 __clean: libkernel.gpr
 	$(call cmd,ada_clean)
 	-rm C/generated/*
@@ -200,7 +167,6 @@ __clean: libkernel.gpr
 
 __distclean: libkernel.gpr
 	$(call cmd,ada_distclean)
-endif
 
 #
 # As any modification in the user apps permissions or configuration impact the kernel
@@ -209,7 +175,7 @@ endif
 # sure that the last potential configuration or userspace layout upgrade is taken into
 # account in the kernel
 #
-clean_headers: check_paradigm_switch
+clean_headers:
 	-rm C/generated/*
 	-rm Ada/generated/*
 	rm -rf $(APP_BUILD_DIR)/kernel.*.hex

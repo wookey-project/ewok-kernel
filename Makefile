@@ -54,7 +54,7 @@ show:
 	$(Q)$(MAKE) -C src show
 
 libbsp:
-	ADAKERNEL=$(ADAKERNEL) make LOADER=$(LOADER) -C src/arch
+	make -C src/arch
 
 clean_headers:
 	$(Q)$(MAKE) -C src clean_headers

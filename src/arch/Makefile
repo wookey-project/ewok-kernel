@@ -40,14 +40,6 @@ endif
 LDFLAGS += -fno-builtin -nostdlib -nostartfiles
 LD_LIBS +=
 
-ifeq ($(ADAKERNEL),y)
-# libabsp is not linked here, but via libkernel (using libkernel.gpr) and directly in the
-# ldr Makefile.
-# The goal is to link directly libkernel and libbsp (Ada & Ada) to keep type checking and
-# Ada to Ada calls validation without passing by C laxism
-# LD_LIBS += -labsp -L$(APP_BUILD_DIR)/Ada/lib
-endif
-
 BUILD_DIR ?= $(PROJ_FILES)build
 
 SRC_DIR = .
@@ -59,7 +51,6 @@ CORE_SRC = $(core-bsp-y)
 CORE_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
 CORE_DEP := $(CORE_OBJ:.o=.d)
 
-ifeq ($(ADAKERNEL),y)
 # substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
 CORE_ASRC = $(core-ada-bsp-y)
 
@@ -67,7 +58,6 @@ CORE_ADACEQ = $(patsubst Ada/%.adb,C/%.c,$(core-ada-bsp-y))
 CORE_SRC := $(filter-out $(CORE_ADACEQ),$(core-bsp-y))
 CORE_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/core/%.o,$(CORE_SRC))
 CORE_DEP := $(CORE_OBJ:.o=.d)
-endif
 
 
 SOC_SRC = $(socdrv-bsp-y)
@@ -75,21 +65,10 @@ SOC_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
 SOC_OBJ := $(patsubst C/%.s,$(APP_BUILD_DIR)/soc/%.o,$(SOC_OBJ))
 SOC_DEP := $(SOC_OBJ:.o=.d)
 
-ifeq ($(ADAKERNEL),y)
-# substitute Ada sources to C sources when they exists (Mix Ada/C libbsp)
-SOC_ASRC = $(socdrv-ada-bsp-y)
 
-SOC_ADACEQ = $(patsubst Ada/%.adb,C/%.c,$(socdrv-ada-bsp-y))
-SOC_SRC = $(filter-out $(SOC_ADACEQ),$(socdrv-bsp-y))
-SOC_OBJ := $(patsubst C/%.c,$(APP_BUILD_DIR)/soc/%.o,$(SOC_SRC))
-SOC_DEP := $(SOC_OBJ:.o=.d)
-endif
-
-ifeq ($(ADAKERNEL),y)
 # to finish with Ada, declare the location of the Ada lib
 ALIB = $(APP_BUILD_DIR)/Ada/lib/libabsp.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
-endif
 
 #C sources files
 BOARD_SRC = $(board-bsp-y)
@@ -146,7 +125,6 @@ lib: $(APP_BUILD_DIR)/$(LIB_FULL_NAME)
 # build targets (driver, core, SoC, Board... and local)
 # App C sources files
 
-ifeq ($(ADAKERNEL),y)
 $(ADIR):
 	$(call cmd,mkdir)
 
@@ -154,8 +132,6 @@ $(ALIB): libabsp $(ADIR)
 	$(call cmd,ada_lib)
 
 libabsp: libabsp.gpr
-
-endif
 
 
 $(APP_BUILD_DIR)/%.o: %.c
@@ -185,14 +161,12 @@ $(APP_BUILD_DIR)/$(LIB_FULL_NAME): $(OBJ) $(AOBJ) $(ROBJ) $(SOC_OBJ) $(BOARD_OBJ
 $(APP_BUILD_DIR):
 	$(call cmd,mkdir)
 
-ifeq ($(ADAKERNEL),y)
 __clean: libabsp.gpr
 	$(call cmd,ada_clean)
 	-rm -rf $(CORE_OBJ) $(SOC_OBJ) $(BOARD_OBJ)
 
 __distclean: libabsp.gpr
 	$(call cmd,ada_distclean)
-endif
 
 -include $(DEP)
 -include $(TESTSDEP)

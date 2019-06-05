@@ -4,24 +4,10 @@ source "kernel/src/arch/Kconfig"
 
 endmenu
 
-choice
-  prompt "Kernel implementation"
-  default ADAKERNEL
-  config ADAKERNEL
-    bool "Ada & SPARK"
-    ---help---
-    Ada strongly typed language improves code safety by preventing runtime
-    errors such as buffer overflow, use of invalid pointers, etc.
-    Disabling Ada is not recommended.
-  config CKERNEL
-    bool "C language [DEPRECATED]"
-    ---help---
-    C language is unsafe and its use leads to hard to prevent runtime errors.
-    C version of EwoK is therefore deprecated and still present for
-    historical purpose only.
-    Building the C version of EwoK is not recommended and and should never be
-    used in production.
-endchoice
+# now Ada/SPARK kernel is mandatory
+config ADAKERNEL
+  bool
+  default y
 
 config KERNEL_NOSERIAL
   bool "No kernel serial interface (production mode)"
