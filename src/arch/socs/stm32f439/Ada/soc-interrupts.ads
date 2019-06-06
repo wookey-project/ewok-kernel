@@ -29,7 +29,7 @@ is
    -------------------------------------
 
    type t_interrupt is
-     (ESTACK,          -- 0
+     (INT_NONE,        -- 0
       INT_RESET,
       INT_NMI,
       INT_HARDFAULT,

@@ -22,6 +22,7 @@
 
 with system;
 with types.c;
+with soc.devmap;
 
 package soc.rcc
    with spark_mode => off
@@ -300,5 +301,7 @@ is
          convention     => c,
          export         => true,
          external_name  => "soc_rcc_setsysclock";
+
+   procedure enable_clock (periph : in soc.devmap.t_periph_id);
 
 end soc.rcc;
