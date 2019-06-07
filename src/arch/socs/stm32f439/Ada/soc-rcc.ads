@@ -153,7 +153,7 @@ is
       CCMDATARAMEN   : boolean;   -- CCM data RAM clock enable
       DMA1EN         : boolean;   -- DMA1 clock enable
       DMA2EN         : boolean;   -- DMA2 clock enable
-      reserved_23_24 : bit;
+      reserved_23_24 : bits_2;
       ETHMACEN       : boolean;   -- Ethernet MAC clock enable
       ETHMACTXEN     : boolean;   -- Ethernet Transmission clock enable
       ETHMACRXEN     : boolean;   -- Ethernet Reception clock enable
@@ -162,7 +162,35 @@ is
       OTGHSULPIEN    : boolean;   -- USB OTG HSULPI clock enable
       reserved_31    : bit;
    end record
-      with pack, size => 32, volatile_full_access;
+      with size => 32, volatile_full_access;
+
+   for t_RCC_AHB1ENR use record
+      GPIOAEN        at 0 range 0 .. 0;
+      GPIOBEN        at 0 range 1 .. 1;
+      GPIOCEN        at 0 range 2 .. 2;
+      GPIODEN        at 0 range 3 .. 3;
+      GPIOEEN        at 0 range 4 .. 4;
+      GPIOFEN        at 0 range 5 .. 5;
+      GPIOGEN        at 0 range 6 .. 6;
+      GPIOHEN        at 0 range 7 .. 7;
+      GPIOIEN        at 0 range 8 .. 8;
+      reserved_9_11  at 0 range 9 .. 11;
+      CRCEN          at 0 range 12 .. 12;
+      reserved_13_17 at 0 range 13 .. 17;
+      BKPSRAMEN      at 0 range 18 .. 18;
+      reserved_19    at 0 range 19 .. 19;
+      CCMDATARAMEN   at 0 range 20 .. 20;
+      DMA1EN         at 0 range 21 .. 21;
+      DMA2EN         at 0 range 22 .. 22;
+      reserved_23_24 at 0 range 23 .. 24;
+      ETHMACEN       at 0 range 25 .. 25;
+      ETHMACTXEN     at 0 range 26 .. 26;
+      ETHMACRXEN     at 0 range 27 .. 27;
+      ETHMACPTPEN    at 0 range 28 .. 28;
+      OTGHSEN        at 0 range 29 .. 29;
+      OTGHSULPIEN    at 0 range 30 .. 30;
+      reserved_31    at 0 range 31 .. 31;
+   end record;
 
    -------------------------------------------------------------
    -- RCC AHB2 peripheral clock enable register (RCC_AHB2ENR) --
@@ -220,10 +248,41 @@ is
       reserved_27    : bit;
       PWREN          : boolean;  -- Power interface clock enable
       DACEN          : boolean;  -- DAC interface clock enable
-      UART7EN        : boolean;  -- UART7 clock enable
-      UART8EN        : boolean;  -- UART8 clock enable
+      reserved_30_31 : boolean;
    end record
-      with pack, size => 32, volatile_full_access;
+      with size => 32, volatile_full_access;
+
+   for t_RCC_APB1ENR use record
+      TIM2EN         at 0 range 0 .. 0;
+      TIM3EN         at 0 range 1 .. 1;
+      TIM4EN         at 0 range 2 .. 2;
+      TIM5EN         at 0 range 3 .. 3;
+      TIM6EN         at 0 range 4 .. 4;
+      TIM7EN         at 0 range 5 .. 5;
+      TIM12EN        at 0 range 6 .. 6;
+      TIM13EN        at 0 range 7 .. 7;
+      TIM14EN        at 0 range 8 .. 8;
+      reserved_9_10  at 0 range 9 .. 10;
+      WWDGEN         at 0 range 11 .. 11;
+      reserved_12_13 at 0 range 12 .. 13;
+      SPI2EN         at 0 range 14 .. 14;
+      SPI3EN         at 0 range 15 .. 15;
+      reserved_16    at 0 range 16 .. 16;
+      USART2EN       at 0 range 17 .. 17;
+      USART3EN       at 0 range 18 .. 18;
+      UART4EN        at 0 range 19 .. 19;
+      UART5EN        at 0 range 20 .. 20;
+      I2C1EN         at 0 range 21 .. 21;
+      I2C2EN         at 0 range 22 .. 22;
+      I2C3EN         at 0 range 23 .. 23;
+      reserved_24    at 0 range 24 .. 24;
+      CAN1EN         at 0 range 25 .. 25;
+      CAN2EN         at 0 range 26 .. 26;
+      reserved_27    at 0 range 27 .. 27;
+      PWREN          at 0 range 28 .. 28;
+      DACEN          at 0 range 29 .. 29;
+      reserved_30_31 at 0 range 30 .. 31;
+   end record;
 
    -------------------------------------------------------------
    -- RCC APB2 peripheral clock enable register (RCC_APB2ENR) --
@@ -251,7 +310,29 @@ is
       reserved_19_23 : bits_5;
       reserved_24_31 : unsigned_8;
    end record
-      with pack, size => 32, volatile_full_access;
+      with size => 32, volatile_full_access;
+
+   for t_RCC_APB2ENR use record
+      TIM1EN         at 0 range 0 .. 0;
+      TIM8EN         at 0 range 1 .. 1;
+      reserved_2_3   at 0 range 2 .. 3;
+      USART1EN       at 0 range 4 .. 4;
+      USART6EN       at 0 range 5 .. 5;
+      reserved_6_7   at 0 range 6 .. 7;
+      ADC1EN         at 0 range 8 .. 8;
+      ADC2EN         at 0 range 9 .. 9;
+      ADC3EN         at 0 range 10 .. 10;
+      SDIOEN         at 0 range 11 .. 11;
+      SPI1EN         at 0 range 12 .. 12;
+      reserved_13    at 0 range 13 .. 13;
+      SYSCFGEN       at 0 range 14 .. 14;
+      reserved_15    at 0 range 15 .. 15;
+      TIM9EN         at 0 range 16 .. 16;
+      TIM10EN        at 0 range 17 .. 17;
+      TIM11EN        at 0 range 18 .. 18;
+      reserved_19_23 at 0 range 19 .. 23;
+      reserved_24_31 at 0 range 24 .. 31;
+   end record;
 
    --------------------
    -- RCC peripheral --

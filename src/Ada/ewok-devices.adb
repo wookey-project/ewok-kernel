@@ -49,7 +49,7 @@ is
       for i in registered_device'range loop
          registered_device(i).status    := DEV_STATE_UNUSED;
          registered_device(i).task_id   := ID_UNUSED;
-         registered_device(i).devinfo   := NO_PERIPH;
+         registered_device(i).periph_id := NO_PERIPH;
          -- FIXME initialize registered_device(i).udev with 0 values
       end loop;
    end init;
@@ -91,7 +91,7 @@ is
       return boolean
    is
    begin
-      return soc.devmap.periphs(registered_device(dev_id).devinfo).ro;
+      return soc.devmap.periphs(registered_device(dev_id).periph_id).ro;
    end is_user_device_region_ro;
 
 
@@ -99,7 +99,7 @@ is
       return unsigned_8
    is
    begin
-      return soc.devmap.periphs(registered_device(dev_id).devinfo).subregions;
+      return soc.devmap.periphs(registered_device(dev_id).periph_id).subregions;
    end get_user_device_subregions_mask;
 
 
@@ -153,7 +153,7 @@ is
    is begin
       registered_device(dev_id).status    := DEV_STATE_UNUSED;
       registered_device(dev_id).task_id   := ID_UNUSED;
-      registered_device(dev_id).devinfo   := NO_PERIPH;
+      registered_device(dev_id).periph_id := NO_PERIPH;
       -- FIXME initialize registered_device(dev_id).udev with 0 values
    end release_registered_device_entry;
 
@@ -164,7 +164,7 @@ is
       dev_id   : out t_device_id;
       success  : out boolean)
    is
-      devinfo  : soc.devmap.t_periph_id;
+      periph_id: soc.devmap.t_periph_id;
       len      : constant natural := types.c.len (udev.all.name);
       name     : string (1 .. len);
       found    : boolean;
@@ -178,9 +178,9 @@ is
       --       can register them. Thus, we don't look for them in soc.devmap.periphs
       --       table.
       if udev.all.size /= 0 then
-         devinfo := soc.devmap.find_periph
-           (udev.all.base_addr, udev.all.size);
-         if devinfo = NO_PERIPH then
+         periph_id :=
+            soc.devmap.find_periph (udev.all.base_addr, udev.all.size);
+         if periph_id = NO_PERIPH then
             pragma DEBUG (debug.log (debug.ERROR, "Device not existing: " & name));
             success := false;
             return;
@@ -189,11 +189,11 @@ is
 
       -- Is it already used ?
       -- Note: GPIOs alone are not considered as devices. When the user
-      --       declares lone GPIOs, devinfo is NO_PERIPH
+      --       declares lone GPIOs, periph_id is NO_PERIPH
       for id in registered_device'range loop
-         if registered_device(id).status  /= DEV_STATE_UNUSED and then
-            registered_device(id).devinfo /= NO_PERIPH and then
-            registered_device(id).devinfo = devinfo
+         if registered_device(id).status    /= DEV_STATE_UNUSED and then
+            registered_device(id).periph_id /= NO_PERIPH and then
+            registered_device(id).periph_id  = periph_id
          then
             pragma DEBUG (debug.log (debug.ERROR, "Device already used: " & name));
             success := false;
@@ -227,8 +227,8 @@ is
          found := false;
 
          inner_loop:
-         for i in soc.devmap.periphs(devinfo).interrupt_list'range loop
-            if soc.devmap.periphs(devinfo).interrupt_list(i)
+         for i in soc.devmap.periphs(periph_id).interrupt_list'range loop
+            if soc.devmap.periphs(periph_id).interrupt_list(i)
                   = udev.interrupts(declared_it).interrupt
             then
                found := true;
@@ -267,7 +267,7 @@ is
 
       registered_device(dev_id).udev      := t_checked_user_device (udev.all);
       registered_device(dev_id).task_id   := task_id;
-      registered_device(dev_id).devinfo   := devinfo;
+      registered_device(dev_id).periph_id := periph_id;
       registered_device(dev_id).status    := DEV_STATE_REGISTERED;
 
       -- Registering GPIOs
@@ -385,22 +385,12 @@ is
       end loop;
 
       -- Enable device's clock
-      if registered_device(dev_id).devinfo /= NO_PERIPH then
-         -- Write enable bit is needed only in REGISTERED state
+      if registered_device(dev_id).periph_id /= NO_PERIPH then
          if registered_device(dev_id).status = DEV_STATE_REGISTERED then
-            -- Some device may not depend on a RCC clock (this is the case of
-            -- the SoC flash device, which is enabled at boot time and has no
-            -- RCC bit on STM32 for example).
-            soc.rcc.enable_clock (registered_device(dev_id).devinfo);
+            soc.rcc.enable_clock (registered_device(dev_id).periph_id);
          end if;
-
-         declare
-            udev : constant t_checked_user_device := registered_device(dev_id).udev;
-            name : string (1 .. types.c.len (udev.name));
-         begin
-            types.c.to_ada (name, udev.name);
-            pragma DEBUG (debug.log (debug.INFO, "Enabled device: " & name));
-         end;
+         pragma DEBUG (debug.log (debug.INFO, "Enabled device: "
+            & soc.devmap.periphs(registered_device(dev_id).periph_id).name));
       end if;
 
       registered_device(dev_id).status := DEV_STATE_ENABLED;
@@ -548,7 +538,7 @@ is
    is
       len      : constant natural := types.c.len (udev.all.name);
       name     : string (1 .. natural'min (t_device_name'length, len));
-      devinfo  : soc.devmap.t_periph_id;
+      periph_id: soc.devmap.t_periph_id;
       ok       : boolean;
    begin
 
@@ -561,8 +551,8 @@ is
       end if;
 
       if udev.all.size /= 0 then
-         devinfo := soc.devmap.find_periph (udev.all.base_addr, udev.all.size);
-         if devinfo = NO_PERIPH then
+         periph_id := soc.devmap.find_periph (udev.all.base_addr, udev.all.size);
+         if periph_id = NO_PERIPH then
             pragma DEBUG (debug.log (debug.ERROR, "Device at addr" & system_address'image
                (udev.all.base_addr) & -- " with size" & unsigned_32'image (udev.all.size) &
                ": not found"));
@@ -570,7 +560,7 @@ is
          end if;
 
          if not ewok.perm.ressource_is_granted
-                 (ewok.devices.perms.permissions(devinfo), task_id)
+                 (ewok.devices.perms.permissions(periph_id), task_id)
          then
             pragma DEBUG (debug.log (debug.ERROR, "No access to device: " & name));
             return false;

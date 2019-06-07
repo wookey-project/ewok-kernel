@@ -36,10 +36,10 @@ is
    type t_status is (DMA_UNUSED, DMA_USED, DMA_CONFIGURED);
 
    type t_registered_dma is record
-      config   : soc.dma.interfaces.t_dma_config;
-      task_id  : ewok.tasks_shared.t_task_id          := ID_UNUSED;
-      status   : t_status                             := DMA_UNUSED;
-      devinfo  : soc.devmap.t_periph_id               := soc.devmap.NO_PERIPH;
+      config      : soc.dma.interfaces.t_dma_config;
+      task_id     : ewok.tasks_shared.t_task_id          := ID_UNUSED;
+      status      : t_status                             := DMA_UNUSED;
+      periph_id   : soc.devmap.t_periph_id               := soc.devmap.NO_PERIPH;
    end record;
 
    registered_dma :

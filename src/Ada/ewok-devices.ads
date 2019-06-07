@@ -46,7 +46,7 @@ is
    type t_device is record
       udev        : aliased t_checked_user_device;
       task_id     : t_task_id;
-      devinfo     : soc.devmap.t_periph_id;
+      periph_id   : soc.devmap.t_periph_id;
       status      : t_device_state;
    end record;
 
