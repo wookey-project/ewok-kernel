@@ -38,16 +38,16 @@ is
 
    pragma warnings (on);
 
-   procedure sys_get_random
+   procedure svc_get_random
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
       length      : unsigned_16
-         with address => params(1)'address;
+         with address => params(2)'address;
 
       buffer      : types.c.c_string (1 .. to_integer(length))
-         with address => to_address (params(0));
+         with address => to_address (params(1));
    begin
 
       -- Forbidden after end of task initialization
@@ -64,7 +64,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): 'value' parameter not in caller space"));
+            & ": svc_get_random(): 'value' parameter not in caller space"));
          goto ret_inval;
       end if;
 
@@ -80,7 +80,7 @@ is
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): permission not granted"));
+            & ": svc_get_random(): permission not granted"));
          goto ret_denied;
       end if;
 
@@ -95,7 +95,7 @@ is
       if c.kernel.get_random (buffer, length) /= types.c.SUCCESS then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
-            & ": sys_get_random(): weak seed"));
+            & ": svc_get_random(): weak seed"));
          goto ret_busy;
       end if;
 
@@ -118,6 +118,6 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end sys_get_random;
+   end svc_get_random;
 
 end ewok.syscalls.rng;

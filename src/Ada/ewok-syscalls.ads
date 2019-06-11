@@ -35,60 +35,34 @@ is
    SYS_E_BUSY     : constant t_syscall_ret := 3;
       -- Target is busy OR not enough ressources OR ressource is already used
 
-   type t_svc_type is
-     (SVC_SYSCALL,
-      SVC_TASK_DONE,
-      SVC_ISR_DONE)
-      with size => 8;
-
-   function to_svc_type is new ada.unchecked_conversion
-     (unsigned_8, t_svc_type);
-
-   type t_syscall_type is
-     (SYS_YIELD,
-      SYS_INIT,
-      SYS_IPC,
-      SYS_CFG,
-      SYS_GETTICK,
-      SYS_RESET,
-      SYS_SLEEP,
-      SYS_LOCK,
-      SYS_GET_RANDOM,
-      SYS_LOG)
-      with size => 32;
-
-   type t_syscalls_init is
-     (INIT_DEVACCESS,
-      INIT_DMA,
-      INIT_DMA_SHM,
-      INIT_GETTASKID,
-      INIT_DONE);
-
-   type t_syscalls_ipc is
-     (IPC_RECV_SYNC,
-      IPC_SEND_SYNC,
-      IPC_RECV_ASYNC,
-      IPC_SEND_ASYNC);
-
-   type t_syscalls_cfg is
-     (CFG_GPIO_SET,
-      CFG_GPIO_GET,
-      CFG_GPIO_UNLOCK_EXTI,
-      CFG_DMA_RECONF,
-      CFG_DMA_RELOAD,
-      CFG_DMA_DISABLE,
-      CFG_DEV_MAP,
-      CFG_DEV_UNMAP,
-      CFG_DEV_RELEASE);
-
-   type t_syscalls_lock is
-     (LOCK_ENTER,
-      LOCK_EXIT);
-
-   type t_syscall_parameters is record
-      syscall_type   : t_syscall_type;
-      args           : aliased t_parameters;
-   end record
-      with pack;
+   type t_svc is
+     (SVC_EXIT,
+      SVC_YIELD,
+      SVC_GET_TIME,
+      SVC_RESET,
+      SVC_SLEEP,
+      SVC_GET_RANDOM,
+      SVC_LOG,
+      SVC_REGISTER_DEVICE,
+      SVC_REGISTER_DMA,
+      SVC_REGISTER_DMA_SHM,
+      SVC_GET_TASKID,
+      SVC_INIT_DONE,
+      SVC_IPC_RECV_SYNC,
+      SVC_IPC_SEND_SYNC,
+      SVC_IPC_RECV_ASYNC,
+      SVC_IPC_SEND_ASYNC,
+      SVC_GPIO_SET,
+      SVC_GPIO_GET,
+      SVC_GPIO_UNLOCK_EXTI,
+      SVC_DMA_RECONF,
+      SVC_DMA_RELOAD,
+      SVC_DMA_DISABLE,
+      SVC_DEV_MAP,
+      SVC_DEV_UNMAP,
+      SVC_DEV_RELEASE,
+      SVC_LOCK_ENTER,
+      SVC_LOCK_EXIT)
+   with size => 8;
 
 end ewok.syscalls;

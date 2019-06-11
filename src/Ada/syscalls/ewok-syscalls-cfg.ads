@@ -20,15 +20,8 @@
 --
 --
 
-with ewok.tasks_shared;
 
 package ewok.syscalls.cfg
    with spark_mode => off
 is
-
-   procedure sys_cfg
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out ewok.t_parameters;
-      mode        : in     ewok.tasks_shared.t_task_mode);
-
 end ewok.syscalls.cfg;

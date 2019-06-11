@@ -26,7 +26,7 @@ package ewok.syscalls.init
    with spark_mode => off
 is
 
-   procedure init_do_reg_devaccess
+   procedure svc_register_device
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
@@ -35,18 +35,13 @@ is
          export         => true,
          external_name  => "init_do_reg_devaccess";
 
-   procedure init_do_done
+   procedure svc_init_done
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode);
 
-   procedure init_do_get_taskid
+   procedure svc_get_taskid
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode);
-
-   procedure sys_init
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out t_parameters;
-      mode        : in     ewok.tasks_shared.t_task_mode);
 
 end ewok.syscalls.init;

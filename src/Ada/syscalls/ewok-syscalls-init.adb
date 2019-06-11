@@ -27,7 +27,6 @@ with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices;
 with ewok.sanitize;
 with ewok.dma;
-with ewok.syscalls.dma;
 with ewok.mpu;
 with ewok.perm;
 with ewok.sched;
@@ -40,7 +39,7 @@ is
    package TSK renames ewok.tasks;
 
 
-   procedure init_do_reg_devaccess
+   procedure svc_register_device
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
@@ -79,7 +78,7 @@ is
                 caller_id))
       then
          pragma DEBUG (debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): udev not in task's memory space"));
+            "svc_register_device(): udev not in task's memory space"));
          goto ret_denied;
       end if;
 
@@ -88,14 +87,14 @@ is
                (to_system_address (descriptor'address), caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): descriptor not in task's memory space"));
+            "svc_register_device(): descriptor not in task's memory space"));
          goto ret_denied;
       end if;
 
       -- Ada based sanitization
       if not udev'valid_scalars
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev scalars"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev scalars"));
          goto ret_inval;
       end if;
 
@@ -103,13 +102,13 @@ is
          not ewok.devices.sanitize_user_defined_device
                  (udev'unchecked_access, caller_id)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "init_do_reg_devaccess(): invalid udev"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev"));
          goto ret_inval;
       end if;
 
       if TSK.tasks_list(caller_id).num_devs = TSK.MAX_DEVS_PER_TASK then
          pragma DEBUG (debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): no space left to register the device"));
+            "svc_register_device(): no space left to register the device"));
          goto ret_busy;
       end if;
 
@@ -118,7 +117,7 @@ is
          TSK.tasks_list(caller_id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS
       then
          pragma DEBUG (debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): no free region left to map the device"));
+            "svc_register_device(): no free region left to map the device"));
          goto ret_busy;
       end if;
 
@@ -130,7 +129,7 @@ is
 
       if not ok then
          pragma DEBUG (debug.log (debug.ERROR,
-            "init_do_reg_devaccess(): failed to register the device"));
+            "svc_register_device(): failed to register the device"));
          goto ret_denied;
       end if;
 
@@ -171,10 +170,10 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
-   end init_do_reg_devaccess;
+   end svc_register_device;
 
 
-   procedure init_do_done
+   procedure svc_init_done
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
@@ -224,10 +223,10 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end init_do_done;
+   end svc_init_done;
 
 
-   procedure init_do_get_taskid
+   procedure svc_get_taskid
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
@@ -293,39 +292,7 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end init_do_get_taskid;
-
-
-   procedure sys_init
-     (caller_id   : in     ewok.tasks_shared.t_task_id;
-      params      : in out t_parameters;
-      mode        : in     ewok.tasks_shared.t_task_mode)
-   is
-      syscall : t_syscalls_init
-         with import, address => params(0)'address;
-   begin
-
-      if not syscall'valid then
-         set_return_value (caller_id, mode, SYS_E_INVAL);
-         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-         return;
-      end if;
-
-      case syscall is
-         when INIT_DEVACCESS  => init_do_reg_devaccess
-                                   (caller_id, params, mode);
-#if CONFIG_KERNEL_DMA_ENABLE
-         when INIT_DMA        => ewok.syscalls.dma.init_do_reg_dma
-                                   (caller_id, params, mode);
-         when INIT_DMA_SHM    => ewok.syscalls.dma.init_do_reg_dma_shm
-                                   (caller_id, params, mode);
-#end if;
-         when INIT_GETTASKID  => init_do_get_taskid (caller_id, params, mode);
-         when INIT_DONE       => init_do_done (caller_id, mode);
-      end case;
-
-   end sys_init;
-
+   end svc_get_taskid;
 
 end ewok.syscalls.init;
 

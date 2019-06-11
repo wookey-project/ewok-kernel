@@ -21,8 +21,8 @@
 --
 
 
-with ada.unchecked_conversion;
 with ewok.tasks_shared; use ewok.tasks_shared;
+with ewok.syscalls;
 with soc.interrupts;
 with rings;
 
@@ -47,6 +47,7 @@ is
 
    type t_syscall_request is record
       caller_id   : ewok.tasks_shared.t_task_id;
+      svc         : ewok.syscalls.t_svc;
       state       : t_state;
    end record;
 
@@ -77,7 +78,8 @@ is
       params      : in  t_isr_parameters);
 
    procedure push_syscall
-     (task_id     : in  ewok.tasks_shared.t_task_id);
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      svc         : in  ewok.syscalls.t_svc);
 
    procedure syscall_handler (req : in  t_syscall_request);
 

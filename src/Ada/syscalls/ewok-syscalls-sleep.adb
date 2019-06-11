@@ -30,16 +30,16 @@ package body ewok.syscalls.sleep
    with spark_mode => off
 is
 
-   procedure sys_sleep
+   procedure svc_sleep
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
       sleep_time : unsigned_32
-         with address => params(0)'address;
+         with address => params(1)'address;
 
       sleep_mode : t_sleep_mode
-         with address => params(1)'address;
+         with address => params(2)'address;
    begin
 
       if mode = TASK_MODE_ISRTHREAD then
@@ -75,7 +75,7 @@ is
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
-   end sys_sleep;
+   end svc_sleep;
 
 end ewok.syscalls.sleep;
 

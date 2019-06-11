@@ -28,7 +28,7 @@ package body ewok.syscalls.yield
    with spark_mode => off
 is
 
-   procedure sys_yield
+   procedure svc_yield
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
@@ -52,6 +52,6 @@ is
       end if;
 
 
-   end sys_yield;
+   end svc_yield;
 
 end ewok.syscalls.yield;

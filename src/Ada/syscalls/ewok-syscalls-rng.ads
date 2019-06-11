@@ -30,7 +30,7 @@ is
    -- return a random content from the TRNG hardware (if there is one) or
    -- from a pseudorandom source into a given buffer.
    -- The length must not be greater than 16 bytes.
-   procedure sys_get_random
+   procedure svc_get_random
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in  ewok.tasks_shared.t_task_mode);

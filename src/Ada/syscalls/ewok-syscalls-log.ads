@@ -28,7 +28,7 @@ package ewok.syscalls.log
    with spark_mode => off
 is
 
-   procedure sys_log
+   procedure svc_log
      (caller_id   : in     ewok.tasks_shared.t_task_id;
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode);

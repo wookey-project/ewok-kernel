@@ -30,6 +30,36 @@
  */
 #define ANY_APP 0xff
 
+typedef enum {
+    SVC_EXIT,
+    SVC_YIELD,
+    SVC_GET_TIME,
+    SVC_RESET,
+    SVC_SLEEP,
+    SVC_GET_RANDOM,
+    SVC_LOG,
+    SVC_REGISTER_DEVICE,
+    SVC_REGISTER_DMA,
+    SVC_REGISTER_DMA_SHM,
+    SVC_GET_TASKID,
+    SVC_INIT_DONE,
+    SVC_IPC_RECV_SYNC,
+    SVC_IPC_SEND_SYNC,
+    SVC_IPC_RECV_ASYNC,
+    SVC_IPC_SEND_ASYNC,
+    SVC_GPIO_SET,
+    SVC_GPIO_GET,
+    SVC_GPIO_UNLOCK_EXTI,
+    SVC_DMA_RECONF,
+    SVC_DMA_RELOAD,
+    SVC_DMA_DISABLE,
+    SVC_DEV_MAP,
+    SVC_DEV_UNMAP,
+    SVC_DEV_RELEASE,
+    SVC_LOCK_ENTER,
+    SVC_LOCK_EXIT
+} e_svc_type;
+
 /**
 ** \private
 ** enumerate defining the syscall to execute (value in r0)
