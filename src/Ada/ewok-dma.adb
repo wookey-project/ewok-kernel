@@ -34,7 +34,6 @@ with ewok.perm;
 with soc.dma;              use soc.dma;
 with soc.dma.interfaces;   use soc.dma.interfaces;
 with soc.nvic;
-with c.socinfo;   use type c.socinfo.t_device_soc_infos_access;
 
 package body ewok.dma
    with spark_mode => off
@@ -151,10 +150,13 @@ is
    procedure enable_dma_irq
      (index : in ewok.dma_shared.t_registered_dma_index)
    is
+      -- Peripheral associated with the DMA stream
+      periph_id : constant soc.devmap.t_periph_id := registered_dma(index).periph_id;
+
       -- DMAs have only one IRQ line per stream
       intr  : constant soc.interrupts.t_interrupt :=
-         registered_dma(index).devinfo.all.interrupt_list
-           (c.socinfo.t_dev_interrupt_range'first);
+         soc.devmap.periphs(periph_id).interrupt_list
+           (soc.devmap.t_interrupt_range'first);
    begin
       soc.nvic.enable_irq (soc.nvic.to_irq_number (intr));
    end enable_dma_irq;
@@ -307,7 +309,8 @@ is
       caller_id      : in     ewok.tasks_shared.t_task_id;
       success        : out    boolean)
    is
-      ok             : boolean;
+      periph_id   : constant soc.devmap.t_periph_id := registered_dma(index).periph_id;
+      ok          : boolean;
    begin
 
       if not to_configure.buffer_size then
@@ -358,7 +361,7 @@ is
                   user_config.out_handler;
 
                ewok.interrupts.set_interrupt_handler
-                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
+                 (soc.devmap.periphs(periph_id).interrupt_list(soc.devmap.t_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -373,7 +376,7 @@ is
                   user_config.in_handler;
 
                ewok.interrupts.set_interrupt_handler
-                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
+                 (soc.devmap.periphs(periph_id).interrupt_list (soc.devmap.t_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -420,7 +423,8 @@ is
       index          : out    ewok.dma_shared.t_registered_dma_index;
       success        : out    boolean)
    is
-      ok : boolean;
+      periph_id   : soc.devmap.t_periph_id;
+      ok          : boolean;
    begin
 
       -- Find a free entry in the registered_dma array
@@ -453,22 +457,19 @@ is
          periph_burst_size => user_config.periph_burst_size);
 
       registered_dma(index).task_id    := caller_id;
-      registered_dma(index).devinfo    :=
-         c.socinfo.soc_devmap_find_dma_device
-           (user_config.controller, user_config.stream);
+      registered_dma(index).periph_id  :=
+         soc.devmap.find_dma_periph
+           (soc.dma.t_dma_periph_index (user_config.controller),
+            soc.dma.t_stream_index (user_config.stream));
 
-      if registered_dma(index).devinfo = NULL then
-         pragma DEBUG (debug.log ("dma.init(): unknown DMA device"));
-         success := false;
-         return;
-      end if;
+      periph_id := registered_dma(index).periph_id;
 
       -- Set up the interrupt handler
       case user_config.transfer_dir is
          when PERIPHERAL_TO_MEMORY  =>
             if user_config.out_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
-                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
+                 (soc.devmap.periphs(periph_id).interrupt_list(soc.devmap.t_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.out_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,
@@ -482,7 +483,7 @@ is
          when MEMORY_TO_PERIPHERAL  =>
             if user_config.in_handler /= 0 then
                ewok.interrupts.set_interrupt_handler
-                 (registered_dma(index).devinfo.all.interrupt_list(c.socinfo.t_dev_interrupt_range'first),
+                 (soc.devmap.periphs(periph_id).interrupt_list(soc.devmap.t_interrupt_range'first),
                   ewok.interrupts.to_handler_access (user_config.in_handler),
                   caller_id,
                   ewok.devices_shared.ID_DEV_UNUSED,

@@ -21,6 +21,7 @@
 --
 
 with ada.unchecked_conversion;
+with soc.devmap; use soc.devmap;
 with soc.pwr;
 with soc.flash;
 
@@ -120,5 +121,54 @@ is
 
       return types.c.SUCCESS;
    end init;
+
+
+   procedure enable_clock (periph : in soc.devmap.t_periph_id)
+   is
+   begin
+      case periph is
+         when NO_PERIPH => return;
+         when DMA1_INFO .. DMA1_STR7   => soc.rcc.RCC.AHB1ENR.DMA1EN := true;
+         when DMA2_INFO .. DMA2_STR7   => soc.rcc.RCC.AHB1ENR.DMA2EN := true;
+         when CRYP_CFG .. CRYP         => soc.rcc.RCC.AHB2ENR.CRYPEN := true;
+         when HASH                     => soc.rcc.RCC.AHB2ENR.HASHEN := true;
+         when USB_OTG_FS               => soc.rcc.RCC.AHB2ENR.OTGFSEN := true;
+         when USB_OTG_HS               =>
+                           soc.rcc.RCC.AHB1ENR.OTGHSEN      := true;
+                           soc.rcc.RCC.AHB1ENR.OTGHSULPIEN  := true;
+         when SDIO      => soc.rcc.RCC.APB2ENR.SDIOEN    := true;
+         when ETH_MAC   => soc.rcc.RCC.AHB1ENR.ETHMACEN  := true;
+         when CRC       => soc.rcc.RCC.AHB1ENR.CRCEN     := true;
+         when SPI1      => soc.rcc.RCC.APB2ENR.SPI1EN    := true;
+         when SPI2      => soc.rcc.RCC.APB1ENR.SPI2EN    := true;
+         when SPI3      => soc.rcc.RCC.APB1ENR.SPI3EN    := true;
+         when I2C1      => soc.rcc.RCC.APB1ENR.I2C1EN    := true;
+         when I2C2      => soc.rcc.RCC.APB1ENR.I2C2EN    := true;
+         when I2C3      => soc.rcc.RCC.APB1ENR.I2C3EN    := true;
+         when CAN1      => soc.rcc.RCC.APB1ENR.CAN1EN    := true;
+         when CAN2      => soc.rcc.RCC.APB1ENR.CAN2EN    := true;
+         when USART1    => soc.rcc.RCC.APB2ENR.USART1EN  := true;
+         when USART6    => soc.rcc.RCC.APB2ENR.USART6EN  := true;
+         when USART2    => soc.rcc.RCC.APB1ENR.USART2EN  := true;
+         when USART3    => soc.rcc.RCC.APB1ENR.USART3EN  := true;
+         when UART4     => soc.rcc.RCC.APB1ENR.UART4EN   := true;
+         when UART5     => soc.rcc.RCC.APB1ENR.UART5EN   := true;
+         when TIM1      => soc.rcc.RCC.APB2ENR.TIM1EN    := true;
+         when TIM8      => soc.rcc.RCC.APB2ENR.TIM8EN    := true;
+         when TIM9      => soc.rcc.RCC.APB2ENR.TIM9EN    := true;
+         when TIM10     => soc.rcc.RCC.APB2ENR.TIM10EN   := true;
+         when TIM11     => soc.rcc.RCC.APB2ENR.TIM11EN   := true;
+         when TIM2      => soc.rcc.RCC.APB1ENR.TIM2EN    := true;
+         when TIM3      => soc.rcc.RCC.APB1ENR.TIM3EN    := true;
+         when TIM4      => soc.rcc.RCC.APB1ENR.TIM4EN    := true;
+         when TIM5      => soc.rcc.RCC.APB1ENR.TIM5EN    := true;
+         when TIM6      => soc.rcc.RCC.APB1ENR.TIM6EN    := true;
+         when TIM7      => soc.rcc.RCC.APB1ENR.TIM7EN    := true;
+         when TIM12     => soc.rcc.RCC.APB1ENR.TIM12EN   := true;
+         when TIM13     => soc.rcc.RCC.APB1ENR.TIM13EN   := true;
+         when TIM14     => soc.rcc.RCC.APB1ENR.TIM14EN   := true;
+         when FLASH_CTRL ..  FLASH_FLOP => null;
+      end case;
+   end enable_clock;
 
 end soc.rcc;

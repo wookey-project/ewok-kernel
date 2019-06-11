@@ -26,7 +26,7 @@ with ewok.exported.devices;
 with ewok.exported.interrupts;
 with m4.mpu;
 with soc.interrupts;
-with c.socinfo;
+with soc.devmap;
 
 package ewok.devices
    with spark_mode => off
@@ -46,7 +46,7 @@ is
    type t_device is record
       udev        : aliased t_checked_user_device;
       task_id     : t_task_id;
-      devinfo     : c.socinfo.t_device_soc_infos_access; -- FIXME
+      periph_id   : soc.devmap.t_periph_id;
       status      : t_device_state;
    end record;
 

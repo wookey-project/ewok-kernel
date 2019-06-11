@@ -150,54 +150,54 @@ ada_header = """
 --
 --
 
-with soc.interrupts;
+with soc.interrupts; use soc.interrupts;
 with soc.dma;
-with ewok.perm; use ewok.perm;
 
-package devmap
+package soc.devmap
    with spark_mode => off
 is
 
-   type rcc_enable_bit_t is integer range 0..31;
-   --
+   type t_interrupt_range is range 1 .. 4;
+   type t_interrupt_list is array (t_interrupt_range)
+      of soc.interrupts.t_interrupt;
+
    -- Structure defining the STM32 device map
-   --
    -- This table is based on doc STMicro RM0090 Reference manual memory map
-   -- Only devices that may be registered by userspace are mapped here
-   --
-   -- See #soc_devices_list
-   --
-   type device_soc_infos_t is record
-      name    : string<1..16>;
-      addr    : unsigned_32;
-      rcc_enr : physaddr_t;
-      rcc_enb : rcc_enable_bit_t;
-      size    : unsigned_32;
-      mask    : unsigned_8;
-      irqs    : array <1..4> of unsigned_8;
-      ro      : boolean;
-      perm    : ewok.perm.t_perm_name;
+   -- Only devices that may be registered in userspace are defined here
+
+   type t_periph_info is record
+      name             : string (1 .. 16);
+      addr             : system_address;
+      size             : unsigned_32;
+      subregions       : unsigned_8;
+      interrupt_list   : t_interrupt_list;
+      ro               : boolean;
    end record;
 
-   --
-   -- \\var struct device_soc_infos *soc_device_list
-   -- \\brief STM32F4 devices map
-   --
-   -- This structure define all available devices and associated informations. This
-   -- informations are separated in two parts:
-   --   - physical information (IRQ lines, RCC references, physical address and size...)
-   --   - security information (required permissions, usage restriction (RO mapping, etc.)
-   --
-   -- This structure is used in remplacement of a full device tree for simplicity in small
-   -- embedded systems.
-   --
+   type t_periph_info_access is access all t_periph_info;
+
+   -- STM32F4 devices map
+   -- This structure define all available devices and associated informations.
+   -- This informations are separated in two parts:
+   --   - physical information (IRQ lines, RCC references, physical address...)
+   --   - security information (required permissions, usage restriction...)
 """;
 
 
-ada_footer= """
-   };
+ada_footer= """);
 
-end devmap;
+   function find_periph
+     (addr     : system_address;
+      size     : unsigned_32)
+      return t_periph_id;
+
+   function find_dma_periph
+     (id       : soc.dma.t_dma_periph_index;
+      stream   : soc.dma.t_stream_index)
+      return t_periph_id;
+
+
+end soc.devmap;
 """;
 
 
@@ -301,60 +301,59 @@ def generate_ada():
     # not yet operational:
     # we do not print out peripheral, and as is, last devices may be
     # unprinted ones
-    print("   type t_device_id is (");
+    print("   type t_periph_id is (");
+    print("      NO_PERIPH");
     for device, has_more in lookahead(data):
         if device["type"] != "block":
             continue;
         dev_id = device["name"].upper();
         dev_id = re.sub(r'-', '_', dev_id);
-        print("      %s," % dev_id);
-
+        print("     ,%s" % dev_id);
     print("   );\n\n");
 
-
-    print("   soc_devices_list : constant array (t_device_id'range) of device_soc_info_t := (");
+    print("   periphs : constant array (t_periph_id range t_periph_id'succ (t_periph_id'first) .. t_periph_id'last) of t_periph_info := (");
+    counter = 1
     for device, has_more in lookahead(data):
         if device["type"] != "block":
             continue;
+        dev_id = device["name"].upper();
+        dev_id = re.sub(r'-', '_', dev_id);
+        dev_id = dev_id.ljust(16)[:16];
+
+        if counter > 1:
+            print("   ,%s => " % dev_id, end='');
+        else:
+            print("    %s => " % dev_id, end='');
+        counter = counter + 1;
+
         # device name
-        print("      ( \"%s\", " % device["name"], end='');
+        print("( \"%s\", " % dev_id, end='');
+
         # device address
         print("%s, " % hex_to_adahex(device["address"]), end='');
-        # device control register
-        print("%s, " % device["enable_register"], end='');
-        # device control register bit(s)
-        enbrbits = device["enable_register_bits"];
-
-        print("%s" % enbrbits[0], end='');
-        if len(enbrbits) > 1: # other bits ?
-            for enb in enbrbits[1:]:
-                print (" | %s" % enb, end='');
-        print(", ", end='');
 
         # device size
         print("%s, " % hex_to_adahex(device["size"]), end='');
+
         # device memory mapping mask
         print("%s, " % bin_to_adabin(device["memory_subregion_mask"]), end='');
+
         # device irq
         if 'irqs' in device:
            irqs = device["irqs"];
            print("( ", end='');
-           print(irqs[0]["value"], end='');
+           print("t_interrupt'val(%s)" % irqs[0]["value"], end='');
            for irq in irqs[1:]:
-               print(", %s" % irq["value"], end='');
+               print(", t_interrupt'val(%s)" % irq["value"], end='');
            if len(irqs) < 4:
                for i in range(len(irqs), 4):
-                   print(", 0", end='');
+                   print(", INT_NONE", end='');
            print(" ), ", end='');
         else:
-           print("( 0, 0, 0, 0 ), ", end='');
+           print("( INT_NONE, INT_NONE, INT_NONE, INT_NONE ), ", end='');
+
         # device mapping ro ?
-        print("%s, " % device["read_only"], end='');
-        # device permissions
-        print("%s )," %  device["permission"]);
-
-
-
+        print("%s)" % device["read_only"]);
 #print data;
 
 print(header);
