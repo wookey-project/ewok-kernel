@@ -7,6 +7,7 @@ project Prove is
       "../src/Ada/generated",
       "../src/arch/Ada",
       "../src/arch/cores/armv7-m/Ada",
+      "../src/arch/socs/stm32f439/Ada/generated",
       "../src/arch/socs/stm32f439/Ada");
 
    for Runtime ("Ada") use "zfp-stm32f4";
