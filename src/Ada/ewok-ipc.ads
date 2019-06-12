@@ -29,6 +29,10 @@ is
 
    MAX_IPC_MSG_SIZE     : constant := 128;
    ENDPOINTS_POOL_SIZE  : constant := 10;
+   IDLE_ENDPOINT        : constant := 0;
+
+   subtype t_full_endpoints_id is unsigned_8 range 0 .. ENDPOINTS_POOL_SIZE;
+   subtype t_valid_endpoints_id is t_full_endpoints_id range 1 .. ENDPOINTS_POOL_SIZE;
 
    --
    -- IPC EndPoints
@@ -84,13 +88,13 @@ is
    type t_endpoint_access is access all t_endpoint;
 
    type t_endpoints is
-      array (ewok.tasks_shared.t_task_id range <>) of t_endpoint_access;
+      array (ewok.tasks_shared.t_task_id range <>) of t_full_endpoints_id;
 
    --
    -- Global pool of IPC EndPoints
    --
 
-   ipc_endpoints : array (1 .. ENDPOINTS_POOL_SIZE) of aliased t_endpoint;
+   ipc_endpoints : array (t_valid_endpoints_id) of aliased t_endpoint;
 
    --
    -- Functions
@@ -101,11 +105,11 @@ is
 
    -- Get a free IPC endpoint
    procedure get_endpoint
-     (endpoint_a  : out t_endpoint_access;
+     (endpoint    : out t_full_endpoints_id;
       success     : out boolean);
 
    -- Release a used IPC endpoint
    procedure release_endpoint
-     (endpoint_a  : in  t_endpoint_access);
+     (endpoint  : in  t_valid_endpoints_id);
 
 end ewok.ipc;

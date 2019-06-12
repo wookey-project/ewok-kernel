@@ -85,7 +85,7 @@ is
 
 
    procedure get_endpoint
-     (endpoint_a  : out t_endpoint_access;
+     (endpoint    : out t_full_endpoints_id;
       success     : out boolean)
    is
    begin
@@ -93,22 +93,22 @@ is
       for i in ipc_endpoints'range loop
          if ipc_endpoints(i).state = FREE then
             ipc_endpoints(i).state  := READY;
-            endpoint_a  := ipc_endpoints(i)'access;
+            endpoint := i;
             success     := true;
             return;
          end if;
       end loop;
 
-      endpoint_a := NULL;
+      endpoint       := IDLE_ENDPOINT;
       success        := false;
    end get_endpoint;
 
 
    procedure release_endpoint
-     (endpoint_a : in  t_endpoint_access)
+     (endpoint  : in  t_valid_endpoints_id)
    is
    begin
-      init_endpoint (endpoint_a.all);
+      init_endpoint (ipc_endpoints(endpoint));
    end release_endpoint;
 
 

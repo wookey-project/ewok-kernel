@@ -164,7 +164,7 @@ is
       isr_ctx           : aliased t_isr_context;
    end record;
 
-   type t_task_access is access all t_task;
+   type t_task_access is access t_task;
 
    type t_task_array is array (t_task_id range <>) of aliased t_task;
 
