@@ -27,7 +27,7 @@ with types; use types;
 with m4.cpu;
 
 package ewok
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_stack_frame is record
@@ -42,14 +42,13 @@ is
    end record
       with size => 17 * 32;
 
-   type t_stack_frame_access is access all t_stack_frame;
+   type t_stack_frame_access is access t_stack_frame;
 
    function to_stack_frame_access is new ada.unchecked_conversion
         (system_address, t_stack_frame_access);
 
    function to_system_address is new ada.unchecked_conversion
         (t_stack_frame_access, system_address);
-
 
    type t_parameters is array (1 .. 4) of unsigned_32 with pack;
 

@@ -25,7 +25,7 @@ with soc.dma.interfaces;
 with types.c;
 
 package ewok.exported.dma
-   with spark_mode => off
+   with spark_mode => on
 is
 
    -- Specify DMA elements to (re)configure
@@ -60,7 +60,7 @@ is
       periph_burst_size : soc.dma.interfaces.t_burst_size;
    end record;
 
-   type t_dma_user_config_access is access all t_dma_user_config;
+   type t_dma_user_config_access is access t_dma_user_config;
 
    type t_dma_shm_access is (SHM_ACCESS_READ, SHM_ACCESS_WRITE);
 

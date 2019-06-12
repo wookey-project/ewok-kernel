@@ -32,7 +32,7 @@ with soc.layout;
 
 
 package ewok.tasks
-   with spark_mode => off
+   with spark_mode => on
 is
 
    subtype t_task_name is string (1 .. 10);

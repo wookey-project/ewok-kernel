@@ -24,7 +24,7 @@
 with ewok.tasks_shared;
 
 package ewok.ipc
-   with spark_mode => off
+   with spark_mode => on
 is
 
    MAX_IPC_MSG_SIZE     : constant := 128;

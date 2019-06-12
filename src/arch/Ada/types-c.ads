@@ -1,6 +1,6 @@
 
 package types.c
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_retval is (SUCCESS, FAILURE) with size => 8;
