@@ -36,9 +36,6 @@ package body ewok.mpu.handler
    with spark_mode => off
 is
 
-   -- local type for task_t accessor, in rw mode
-   type t_task_access is access all ewok.tasks.t_task;
-
    function memory_fault_handler
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
