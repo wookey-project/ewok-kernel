@@ -72,7 +72,7 @@ is
         (pin   => 0,
          port  => soc.gpio.GPIO_PA),
 #else
-      kref     => t_gpio_ref'
+      kref     => ewok.exported.gpios.t_gpio_ref'
         (pin   => 6,
          port  => soc.gpio.GPIO_PB),
 #end if;
