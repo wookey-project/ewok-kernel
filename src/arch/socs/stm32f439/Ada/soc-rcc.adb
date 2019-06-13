@@ -24,6 +24,7 @@ with ada.unchecked_conversion;
 with soc.devmap; use soc.devmap;
 with soc.pwr;
 with soc.flash;
+with soc.rcc.default;
 
 package body soc.rcc
    with spark_mode => off
@@ -85,12 +86,12 @@ is
       if enable_pll then
          RCC.CR.PLLON := false;
          RCC.PLLCFGR :=
-           (PLLM   => 16,  -- Division factor for the main PLL
-            PLLN   => 336, -- Main PLL multiplication factor for VCO
-            PLLP   => 0,   -- Main PLL division factor for main system clock. PLLP = 2
+           (PLLM   => default.PLL_M, -- Division factor for the main PLL
+            PLLN   => default.PLL_N, -- Main PLL multiplication factor for VCO
+            PLLP   => default.PLL_P, -- Main PLL division factor for main system clock
             PLLSRC => (if enable_hse then 1 else 0),
                -- HSE or HSI oscillator clock selected as PLL
-            PLLQ   => 7);
+            PLLQ   => default.PLL_Q);
                -- Main PLL division factor for USB OTG FS, SDIO and random
                -- number generator
          -- Enable the main PLL
@@ -108,9 +109,9 @@ is
       soc.flash.FLASH.ACR.LATENCY   := 5;    -- Latency = 5 wait states
 
       -- Set clock dividers
-      RCC.CFGR.HPRE  := 2#0000#; -- AHB prescaler, not divided
-      RCC.CFGR.PPRE1 := 2#101#;  -- APB1 low speed prescaler, divided by 4
-      RCC.CFGR.PPRE2 := 2#100#;  -- APB2 high speed prescaler, divided by 2
+      RCC.CFGR.HPRE  := default.AHB_DIV;  -- AHB prescaler
+      RCC.CFGR.PPRE1 := default.APB1_DIV; -- APB1 low speed prescaler
+      RCC.CFGR.PPRE2 := default.APB2_DIV; -- APB2 high speed prescaler
 
       if enable_pll then
          RCC.CFGR.SW := 2#10#; -- PLL selected as system clock

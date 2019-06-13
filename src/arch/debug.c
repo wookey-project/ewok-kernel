@@ -26,16 +26,15 @@
 #include "debug.h"
 #include "libc.h"
 #include "product.h"
-#include "soc-usart.h"
 
 #define BUF_MAX		512
+
+void ada_debug_init(void);
+void ada_debug_putc(uint8_t);
 
 #ifndef CONFIG_KERNEL_NOSERIAL
 volatile int logging = CONFIG_KERNEL_CONSOLE_TXT;
 #endif
-
-cb_usart_getc_t console_getc = NULL;
-cb_usart_putc_t console_putc = NULL;
 
 static struct {
     uint32_t start;
@@ -62,30 +61,6 @@ void init_ring_buffer(void)
     }
 }
 
-#ifndef CONFIG_KERNEL_NOSERIAL
-void cb_console_data_received(void)
-{
-    char c;
-    if (console_getc == NULL) {
-        panic("Error: console_getc not initialized!");
-    }
-
-    c = console_getc();
-
-
-    if (logging && console_putc) {
-        if (c == '\r') {
-          console_putc('\r');
-          console_putc('\n');
-        } else {
-          console_putc(c);
-        }
-    }
-}
-
-static usart_config_t console_config = { 0 };
-#endif
-
 void debug_console_init(void)
 {
     /* init ring buffer. The ring buffer is keeped to support sys_ipc(LOG) syscalls,
@@ -94,22 +69,10 @@ void debug_console_init(void)
      */
     init_ring_buffer();
 #ifndef CONFIG_KERNEL_NOSERIAL
-    /* Configure the USART in UART mode */
-    console_config.usart = CONFIG_KERNEL_USART;
-    console_config.baudrate = 115200;
-    console_config.word_length = USART_CR1_M_8;
-    console_config.stop_bits = USART_CR2_STOP_1BIT;
-    console_config.parity = USART_CR1_PCE_DIS;
-    console_config.hw_flow_control = USART_CR3_CTSE_CTS_DIS | USART_CR3_RTSE_RTS_DIS;
-    console_config.options_cr1 = USART_CR1_TE_EN | USART_CR1_RE_EN | USART_CR1_UE_EN;
-    console_config.callback_data_received = cb_console_data_received;
-    console_config.callback_usart_getc_ptr = &console_getc;
-    console_config.callback_usart_putc_ptr = &console_putc;
-
-    /* Initialize the USART related to the console */
-    soc_usart_init(&console_config);
+    /* Configure the USART */
+    ada_debug_init();
     dbg_log("[USART%d initialized for console output, baudrate=%d]\n",
-            console_config.usart, console_config.baudrate);
+            CONFIG_KERNEL_USART, 115200);
     dbg_flush();
 #endif
 }
@@ -197,11 +160,8 @@ static inline void ring_buffer_write_string(char *str, uint32_t len)
 /* flush behavior with activated serial... */
 void dbg_flush(void)
 {
-    if (console_putc == NULL) {
-        panic("Error: console_putc not initialized");
-    }
     while (ring_buffer.start != ring_buffer.end) {
-        console_putc(ring_buffer.buf[ring_buffer.start++]);
+        ada_debug_putc (ring_buffer.buf[ring_buffer.start++]);
         ring_buffer.start %= BUF_MAX;
     }
 }
@@ -466,33 +426,6 @@ static inline uint8_t print_handle_format_string(const char *fmt, va_list * args
                     /* now we can print the number in argument */
                     ring_buffer_write_number(val, 16);
                     fs_prop.strlen += len;
-                    /* => end of format string */
-                    goto end;
-                }
-            case 'o':
-                {
-                    /*
-                     * Handling octal
-                     */
-                    if (fs_prop.started == false) {
-                        goto err;
-                    }
-                    fs_prop.numeric_mode = FS_NUM_UNSIGNED;
-                    uint32_t val = va_arg(*args, uint32_t);
-                    uint8_t len = get_number_len(val, 8);
-
-                    if (fs_prop.attr_size && fs_prop.attr_0len) {
-                        /* we have to pad with 0 the number to reach
-                         * the desired size */
-                        for (uint32_t i = len; i < fs_prop.size; ++i) {
-                            ring_buffer_write_char('0');
-                            fs_prop.strlen++;
-                        }
-                    }
-                    /* now we can print the number in argument */
-                    ring_buffer_write_number(val, 8);
-                    fs_prop.strlen += len;
-
                     /* => end of format string */
                     goto end;
                 }

@@ -29,7 +29,6 @@
 #else
 #error "no systick support for other by now!"
 #endif
-#include "soc-usart.h"
 
 /**
  * This is the DBGLOG log levels definition. This is syslog compatible

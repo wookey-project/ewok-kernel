@@ -146,12 +146,3 @@ int8_t strcasecmp(const char *a, const char *b)
 }
 
 
-void sleep_intern(uint8_t length)
-{
-    /* FIXME Assert length value */
-    int i = 0, j = 0;
-    int time_value = (1 << (length * 2));
-    for (i = 0; i < time_value; i++) {
-        for (j = 0; j < time_value; j++) ;
-    }
-}

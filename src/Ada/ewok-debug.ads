@@ -32,6 +32,16 @@ is
    BG_COLOR_ORANGE   : constant string := ASCII.ESC & "[37;43m";
    BG_COLOR_BLUE     : constant string := ASCII.ESC & "[37;44m";
 
+   procedure init
+   with  convention     => c,
+         export         => true,
+         external_name  => "ada_debug_init";
+
+   procedure putc (c : character)
+   with  convention     => c,
+         export         => true,
+         external_name  => "ada_debug_putc";
+
    procedure log (s : string; nl : boolean := true);
    procedure log (level : t_level; s : string);
    procedure alert (s : string);
