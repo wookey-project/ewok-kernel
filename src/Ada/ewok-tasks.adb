@@ -399,14 +399,6 @@ is
    end init_apps;
 
 
-   function get_task (id : ewok.tasks_shared.t_task_id)
-      return t_task_access
-   is
-   begin
-      return tasks_list(id)'access;
-   end get_task;
-
-
    function get_task_id (name : t_task_name)
       return ewok.tasks_shared.t_task_id
    is

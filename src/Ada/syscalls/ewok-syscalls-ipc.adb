@@ -38,6 +38,11 @@ package body ewok.syscalls.ipc
    with spark_mode => off
 is
 
+   -- local type for task_t accessor, in rw mode
+   type t_task_access is access all ewok.tasks.t_task;
+   -- local access type for t_endpoint
+   type t_endpoint_access is access all t_endpoint;
+
    --pragma debug_policy (IGNORE);
 
    procedure svc_ipc_do_recv
@@ -47,10 +52,10 @@ is
       mode        : in ewok.tasks_shared.t_task_mode)
    is
 
-      ep          : ewok.ipc.t_endpoint_access;
+      ep          : t_endpoint_access;
       ep_id       : ewok.ipc.t_full_endpoints_id;
       task_ep_id  : ewok.tasks_shared.t_task_id;
-      sender_a    : ewok.tasks.t_task_access;
+      sender_a    : t_task_access;
 
       ----------------
       -- Parameters --
@@ -196,7 +201,7 @@ is
          end if;
 
          -- Checks are ok
-         sender_a := ewok.tasks.get_task (id_sender);
+         sender_a := ewok.tasks.tasks_list(id_sender)'access;
 
       end if;
 
@@ -289,7 +294,7 @@ is
          raise program_error;
       end if;
 
-      sender_a := ewok.tasks.get_task (id_sender);
+      sender_a := ewok.tasks.tasks_list(id_sender)'access;
 
       -- Copying the message in the receiver's buffer
       if ep.all.size > size then
@@ -368,9 +373,9 @@ is
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
 
-      ep             : ewok.ipc.t_endpoint_access;
+      ep             : t_endpoint_access;
       ep_id          : ewok.ipc.t_full_endpoints_id;
-      receiver_a     : ewok.tasks.t_task_access;
+      receiver_a     : t_task_access;
       ok             : boolean;
 
       ----------------
@@ -439,7 +444,7 @@ is
          goto ret_inval;
       end if;
 
-      receiver_a := ewok.tasks.get_task (id_receiver);
+      receiver_a := ewok.tasks.tasks_list(id_receiver)'access;
 
       -- Defensive programming test: should *never* be true
       if ewok.tasks.get_state (id_receiver, TASK_MODE_MAINTHREAD)

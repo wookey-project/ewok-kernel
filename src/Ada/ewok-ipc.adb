@@ -27,6 +27,7 @@ package body ewok.ipc
    with spark_mode => off
 is
 
+
    function to_task_id
      (eid : t_extended_task_id) return ewok.tasks_shared.t_task_id
    is

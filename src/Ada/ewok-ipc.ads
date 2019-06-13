@@ -75,7 +75,7 @@ is
    function to_ext_task_id
      (id : ewok.tasks_shared.t_task_id) return t_extended_task_id;
 
-   type t_extended_task_id_access is access all t_extended_task_id;
+   type t_extended_task_id_access is access t_extended_task_id;
 
    type t_endpoint is record
       from  :  t_extended_task_id;
@@ -84,8 +84,6 @@ is
       data  :  byte_array (1 .. MAX_IPC_MSG_SIZE);
       size  :  unsigned_8;
    end record;
-
-   type t_endpoint_access is access all t_endpoint;
 
    type t_endpoints is
       array (ewok.tasks_shared.t_task_id range <>) of t_full_endpoints_id;

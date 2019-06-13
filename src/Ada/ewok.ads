@@ -52,7 +52,7 @@ is
 
    type t_parameters is array (1 .. 4) of unsigned_32 with pack;
 
-   type t_parameters_access is access all t_parameters;
+   type t_parameters_access is access t_parameters;
 
    function to_parameters_access is new ada.unchecked_conversion
         (system_address, t_parameters_access);
