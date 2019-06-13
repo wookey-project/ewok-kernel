@@ -21,8 +21,14 @@
 --
 
 
-with types.c;
-with c.kernel;
+with ewok.tasks_shared;    use ewok.tasks_shared;
+with ewok.devices_shared;  use ewok.devices_shared;
+with soc.usart;            use soc.usart;
+with soc.usart.interfaces;
+with ewok.exported;
+with ewok.exported.gpios;
+with ewok.gpio;
+with soc.gpio;
 
 #if CONFIG_KERNEL_PANIC_WIPE
 with soc;
@@ -39,26 +45,126 @@ package body ewok.debug
    with spark_mode => off
 is
 
-   procedure log (s : string; nl : boolean := true)
+   kernel_usart_id   : unsigned_8;
+   TX_pin_config     : aliased ewok.exported.gpios.t_gpio_config;
+
+   USART1_TX_pin_config : constant ewok.exported.gpios.t_gpio_config :=
+     (settings => ewok.exported.gpios.t_gpio_settings'(others => true),
+      kref     => ewok.exported.gpios.t_gpio_ref'
+        (pin   => 6,
+         port  => soc.gpio.GPIO_PB),
+      mode     => ewok.exported.gpios.GPIO_AF,
+      pupd     => ewok.exported.gpios.GPIO_PULLUP,
+      otype    => ewok.exported.gpios.GPIO_PUSH_PULL,
+      ospeed   => ewok.exported.gpios.GPIO_HIGH_SPEED,
+      af       => ewok.exported.gpios.GPIO_AF_USART1,
+      bsr_r    => 0,
+      bsr_s    => 0,
+      lck      => 0,
+      exti_trigger   => ewok.exported.gpios.GPIO_EXTI_TRIGGER_NONE,
+      exti_lock      => ewok.exported.gpios.GPIO_EXTI_UNLOCKED,
+      exti_handler   => 16#0000_0000#);
+
+   USART4_TX_pin_config : constant ewok.exported.gpios.t_gpio_config :=
+     (settings => ewok.exported.gpios.t_gpio_settings'(others => true),
+#if CONFIG_WOOKEY
+      kref     => ewok.exported.gpios.t_gpio_ref'
+        (pin   => 0,
+         port  => soc.gpio.GPIO_PA),
+#else
+      kref     => ewok.exported.gpios.t_gpio_ref'
+        (pin   => 6,
+         port  => soc.gpio.GPIO_PB),
+#end if;
+      mode     => ewok.exported.gpios.GPIO_AF,
+      pupd     => ewok.exported.gpios.GPIO_PULLUP,
+      otype    => ewok.exported.gpios.GPIO_PUSH_PULL,
+      ospeed   => ewok.exported.gpios.GPIO_HIGH_SPEED,
+      af       => ewok.exported.gpios.GPIO_AF_UART4,
+      bsr_r    => 0,
+      bsr_s    => 0,
+      lck      => 0,
+      exti_trigger   => ewok.exported.gpios.GPIO_EXTI_TRIGGER_NONE,
+      exti_lock      => ewok.exported.gpios.GPIO_EXTI_UNLOCKED,
+      exti_handler   => 16#0000_0000#);
+
+   USART6_TX_pin_config : constant ewok.exported.gpios.t_gpio_config :=
+     (settings => ewok.exported.gpios.t_gpio_settings'(others => true),
+      kref     => ewok.exported.gpios.t_gpio_ref'
+        (pin   => 6,
+         port  => soc.gpio.GPIO_PC),
+      mode     => ewok.exported.gpios.GPIO_AF,
+      pupd     => ewok.exported.gpios.GPIO_PULLUP,
+      otype    => ewok.exported.gpios.GPIO_PUSH_PULL,
+      ospeed   => ewok.exported.gpios.GPIO_HIGH_SPEED,
+      af       => ewok.exported.gpios.GPIO_AF_USART6,
+      bsr_r    => 0,
+      bsr_s    => 0,
+      lck      => 0,
+      exti_trigger   => ewok.exported.gpios.GPIO_EXTI_TRIGGER_NONE,
+      exti_lock      => ewok.exported.gpios.GPIO_EXTI_UNLOCKED,
+      exti_handler   => 16#0000_0000#);
+
+
+   procedure init
    is
-      c_string : types.c.c_string (1 .. s'length + 3);
+      ok             : boolean;
    begin
 
-      for i in s'range loop
-         c_string(1 + i - s'first) := s(i);
-      end loop;
+#if    CONFIG_KERNEL_USART = 1
+      kernel_usart_id := 1;
+#elsif CONFIG_KERNEL_USART = 4
+      kernel_usart_id := 4;
+#elsif CONFIG_KERNEL_USART = 6
+      kernel_usart_id := 6;
+#else
+      raise program_error;
+#end if;
 
-      if nl then
-         c_string(c_string'last - 2) := ASCII.CR;
-         c_string(c_string'last - 1) := ASCII.LF;
-         c_string(c_string'last)     := ASCII.NUL;
-      else
-         c_string(c_string'last - 2) := ASCII.NUL;
+      case kernel_usart_id is
+         when 1 =>
+            TX_pin_config  := USART1_TX_pin_config;
+         when 4 =>
+            TX_pin_config  := USART4_TX_pin_config;
+         when 6 =>
+            TX_pin_config  := USART6_TX_pin_config;
+         when others =>
+            raise program_error;
+      end case;
+
+      ewok.gpio.register (ID_KERNEL, ID_DEV_UNUSED, TX_pin_config'access, ok);
+      if not ok then
+         raise program_error;
       end if;
 
-      c.kernel.log (c_string);
-      c.kernel.flush;
+      ewok.gpio.config (TX_pin_config'access);
 
+      soc.usart.interfaces.configure
+        (kernel_usart_id, 115_200, DATA_9BITS, PARITY_ODD, STOP_1, ok);
+      if not ok then
+         raise program_error;
+      end if;
+
+   end init;
+
+
+   procedure putc (c : character)
+   is
+   begin
+      soc.usart.interfaces.transmit (kernel_usart_id, character'pos (c));
+   end putc;
+
+
+   procedure log (s : string; nl : boolean := true)
+   is
+   begin
+      for i in s'range loop
+         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (s(i)));
+      end loop;
+      if nl then
+         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (ASCII.CR));
+         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (ASCII.LF));
+      end if;
    end log;
 
 
@@ -87,10 +193,8 @@ is
 
    procedure newline
    is
-      s : constant types.c.c_string (1 .. 3) := (ASCII.CR, ASCII.LF, ASCII.NUL);
    begin
-      c.kernel.log (s);
-      c.kernel.flush;
+      log ("");
    end newline;
 
 

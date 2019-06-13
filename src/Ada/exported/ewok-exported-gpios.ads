@@ -75,6 +75,15 @@ is
       GPIO_EXTI_TRIGGER_FALL,
       GPIO_EXTI_TRIGGER_BOTH);
 
+   -- See RM0090, p. 274
+   GPIO_AF_USART1 : constant unsigned_32 := 7;
+   GPIO_AF_USART2 : constant unsigned_32 := 7;
+   GPIO_AF_USART3 : constant unsigned_32 := 7;
+   GPIO_AF_UART4  : constant unsigned_32 := 8;
+   GPIO_AF_UART5  : constant unsigned_32 := 8;
+   GPIO_AF_USART6 : constant unsigned_32 := 8;
+   GPIO_AF_SDIO   : constant unsigned_32 := 12;
+
    type t_interface_gpio_exti_lock is
      (GPIO_EXTI_UNLOCKED,
       GPIO_EXTI_LOCKED);

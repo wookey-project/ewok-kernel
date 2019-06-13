@@ -39,8 +39,6 @@
 
 #include "tasks.h"
 #include "soc-init.h"
-#include "soc-usart.h"
-#include "soc-usart-regs.h"
 #include "soc-layout.h"
 #include "soc-interrupts.h"
 #include "soc-flash.h"
@@ -64,7 +62,6 @@
 #include "syscalls.h"
 #include "dma.h"
 #include "exti.h"
-#include "usart.h"
 #include "get_random.h"
 
 #define r_CORTEX_M_NVIC_ICER0	REG_ADDR(NVIC_BASE + (uint32_t)0x80)
@@ -103,6 +100,10 @@ int main(int argc, char *args[])
 
     /* Specific Ada runtime elaboration code */
     kernelinit();
+
+    /* Initialize devices */
+    dev_init();
+
     interrupts_init();
 
     core_systick_init();
@@ -201,12 +202,6 @@ int main(int argc, char *args[])
      * associated devices are also initialized by this function after having registered irq/dev)
      */
     task_init();
-
-    /* Initialize devices vector */
-    dev_init();
-
-    /* Initialize kernel devices (usart, led,...) */
-    usart_init();
 
     /* Initialize softirq ring buffer and globals */
     softirq_init();

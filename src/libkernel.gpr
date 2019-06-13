@@ -137,6 +137,8 @@ library project Libkernel is
       "soc.nvic",
       "soc.rcc",
       "soc.syscfg",
+      "soc.usart",
+      "soc.usart.interfaces",
       "soc",
       "m4.cpu",
       "m4.cpu.instructions",

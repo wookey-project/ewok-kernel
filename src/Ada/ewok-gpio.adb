@@ -111,7 +111,6 @@ is
             conf.all.kref.pin,
             soc.gpio.t_pin_mode'val
               (t_interface_gpio_mode'pos (conf.all.mode)));
-
       end if;
 
       if conf.all.settings.set_type then

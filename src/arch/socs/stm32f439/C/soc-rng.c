@@ -22,6 +22,7 @@
  */
 #include "soc-rcc.h"
 #include "soc-rng.h"
+#include "C/regutils.h"
 #include "debug.h"
 
 /**

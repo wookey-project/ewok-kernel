@@ -66,7 +66,7 @@ void system_init(uint32_t addr)
 #ifdef PROD_ENABLE_PLL
     bool enable_pll = true;
 #else
-    bool enable_hse = false;
+    bool enable_pll = false;
 #endif
 
 #ifdef CONFIG_STM32F4

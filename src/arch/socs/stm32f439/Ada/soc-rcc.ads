@@ -77,10 +77,20 @@ is
    -- RCC PLL configuration register (RCC_PLLCFGR) --
    --------------------------------------------------
 
+   type t_PLLP is
+     (PLLP2, PLLP4, PLLP6, PLLP8)
+      with size => 2;
+
+   for t_PLLP use
+     (PLLP2 => 2#00#,
+      PLLP4 => 2#01#,
+      PLLP6 => 2#10#,
+      PLLP8 => 2#11#);
+
    type t_RCC_PLLCFGR is record
       PLLM           : bits_6;
       PLLN           : bits_9;
-      PLLP           : bits_2;
+      PLLP           : t_PLLP;
       PLLSRC         : bit;
       PLLQ           : bits_4;
    end record
@@ -100,13 +110,51 @@ is
    -- RCC clock configuration register (RCC_CFGR) --
    -------------------------------------------------
 
+   type t_HPRE is
+     (HPRE_NODIV,
+      HPRE_DIV2,
+      HPRE_DIV4,
+      HPRE_DIV8,
+      HPRE_DIV16,
+      HPRE_DIV64,
+      HPRE_DIV128,
+      HPRE_DIV256,
+      HPRE_DIV512)
+      with size => 4;
+
+   for t_HPRE use
+     (HPRE_NODIV  => 2#0000#,
+      HPRE_DIV2   => 2#1000#,
+      HPRE_DIV4   => 2#1001#,
+      HPRE_DIV8   => 2#1010#,
+      HPRE_DIV16  => 2#1011#,
+      HPRE_DIV64  => 2#1100#,
+      HPRE_DIV128 => 2#1101#,
+      HPRE_DIV256 => 2#1110#,
+      HPRE_DIV512 => 2#1111#);
+
+   type t_PPRE is
+     (PPRE_NODIV,
+      PPRE_DIV2,
+      PPRE_DIV4,
+      PPRE_DIV8,
+      PPRE_DIV16)
+      with size => 3;
+
+   for t_PPRE use
+     (PPRE_NODIV => 2#000#,
+      PPRE_DIV2  => 2#100#,
+      PPRE_DIV4  => 2#101#,
+      PPRE_DIV8  => 2#110#,
+      PPRE_DIV16 => 2#111#);
+
    type t_RCC_CFGR is record
       SW             : bits_2;   -- System clock switch
       SWS            : bits_2;   -- System clock switch status
-      HPRE           : bits_4;   -- AHB prescaler
+      HPRE           : t_HPRE;   -- AHB prescaler
       reserved_8_9   : bits_2;
-      PPRE1          : bits_3;   -- APB Low speed prescaler (APB1)
-      PPRE2          : bits_3;   -- APB high-speed prescaler (APB2)
+      PPRE1          : t_PPRE;   -- APB Low speed prescaler (APB1)
+      PPRE2          : t_PPRE;   -- APB high-speed prescaler (APB2)
       RTCPRE         : bits_5;   -- HSE division factor for RTC clock
       MCO1           : bits_2;   -- Microcontroller clock output 1
       I2SSCR         : bit;      -- I2S clock selection

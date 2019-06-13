@@ -45,9 +45,9 @@ package body ewok.sched
 is
 
    package TSK renames ewok.tasks;
-   sched_period      : unsigned_32  := 0;
-   current_task_id   : t_task_id    := ID_KERNEL;
-   last_main_user_task_id : t_task_id    := applications.list'first;
+   sched_period            : unsigned_32  := 0;
+   current_task_id         : t_task_id    := ID_KERNEL;
+   last_main_user_task_id  : t_task_id    := applications.list'first;
 
    -----------------------------------------------
    -- SPARK/ghost specific functions & procedures

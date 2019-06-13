@@ -44,7 +44,6 @@ is
 #if not CONFIG_KERNEL_PANIC_FREEZE
       new_frame_a : t_stack_frame_access
 #end if;
-      current     : ewok.tasks.t_task_access;
 
    begin
 
@@ -73,17 +72,11 @@ is
          debug.log (debug.ERROR, "MPU: the processor attempted an instruction fetch from a location that does not permit execution");
       end if;
 
-      current  := ewok.tasks.get_task (ewok.sched.get_current);
-
-      if current = NULL then
-         debug.panic ("MPU: No current task.");
-      end if;
-
       ewok.tasks.debug.crashdump (frame_a);
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state
-        (current.all.id, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
+        (ewok.sched.get_current, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
 
 #if CONFIG_KERNEL_PANIC_FREEZE
       debug.panic ("panic!");
