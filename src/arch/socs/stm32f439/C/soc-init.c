@@ -28,7 +28,6 @@
 #include "soc-scb.h"
 #include "soc-rcc.h"
 #include "product.h"
-#include "debug.h"
 
 /*
  * \brief Configure the Vector Table location and offset address

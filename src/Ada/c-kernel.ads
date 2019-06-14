@@ -35,8 +35,7 @@ package c.kernel is
       global         => null;
 
    function get_random_u32
-     (rng : out unsigned_32)
-      return types.c.t_retval
+      return unsigned_32
    with
       convention     => c,
       import         => true,

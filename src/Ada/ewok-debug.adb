@@ -107,19 +107,12 @@ is
 
 
    procedure init
+     (usart : in unsigned_8)
    is
       ok             : boolean;
    begin
 
-#if    CONFIG_KERNEL_USART = 1
-      kernel_usart_id := 1;
-#elsif CONFIG_KERNEL_USART = 4
-      kernel_usart_id := 4;
-#elsif CONFIG_KERNEL_USART = 6
-      kernel_usart_id := 6;
-#else
-      raise program_error;
-#end if;
+      kernel_usart_id := usart;
 
       case kernel_usart_id is
          when 1 =>
@@ -144,6 +137,10 @@ is
       if not ok then
          raise program_error;
       end if;
+
+      log (INFO,
+         "EwoK: USART" & unsigned_8'image (kernel_usart_id) & " initialized");
+      newline;
 
    end init;
 
@@ -224,7 +221,15 @@ is
          m4.scb.reset;
       end;
 #end if;
-
    end panic;
+
+
+   procedure c_panic (c_msg : types.c.c_string)
+   is
+      msg : string (1 .. types.c.len (c_msg));
+   begin
+      types.c.to_ada (msg, c_msg);
+      panic (msg);
+   end c_panic;
 
 end ewok.debug;

@@ -4,6 +4,6 @@
 #include "soc-rng.h"
 
 retval_t    get_random(unsigned char *buf, uint16_t len);
-retval_t    get_random_u32(uint32_t * random);
+uint32_t    get_random_u32(void);
 
 #endif                          /* __GET_RANDOM_H__ */
