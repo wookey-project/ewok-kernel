@@ -38,6 +38,11 @@ package body ewok.syscalls.ipc
    with spark_mode => off
 is
 
+   -- local type for task_t accessor, in rw mode
+   type t_task_access is access all ewok.tasks.t_task;
+   -- local access type for t_endpoint
+   type t_endpoint_access is access all t_endpoint;
+
    --pragma debug_policy (IGNORE);
 
    procedure svc_ipc_do_recv
@@ -47,8 +52,10 @@ is
       mode        : in ewok.tasks_shared.t_task_mode)
    is
 
-      ep          : ewok.ipc.t_endpoint_access;
-      sender_a    : ewok.tasks.t_task_access;
+      ep          : t_endpoint_access;
+      ep_id       : ewok.ipc.t_full_endpoints_id;
+      task_ep_id  : ewok.tasks_shared.t_task_id;
+      sender_a    : t_task_access;
 
       ----------------
       -- Parameters --
@@ -194,7 +201,7 @@ is
          end if;
 
          -- Checks are ok
-         sender_a := ewok.tasks.get_task (id_sender);
+         sender_a := ewok.tasks.tasks_list(id_sender)'access;
 
       end if;
 
@@ -203,21 +210,26 @@ is
       ------------------------------
 
       ep := NULL;
+      ep_id := IDLE_ENDPOINT;
+      task_ep_id := ID_UNUSED;
 
       -- Special case: listening to ANY_APP and already have a pending message
       if listen_any then
 
          for i in ewok.tasks.tasks_list(caller_id).ipc_endpoints'range loop
-            if ewok.tasks.tasks_list(caller_id).ipc_endpoints(i) /= NULL
+            if ewok.tasks.tasks_list(caller_id).ipc_endpoints(i) /= IDLE_ENDPOINT
                and then
-               ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).state
+               ewok.ipc.ipc_endpoints(ewok.tasks.tasks_list(caller_id).ipc_endpoints(i)).state
                   = ewok.ipc.WAIT_FOR_RECEIVER
                and then
-               ewok.ipc.to_task_id
-                 (ewok.tasks.tasks_list(caller_id).ipc_endpoints(i).to)
+               ewok.ipc.to_task_id (ewok.ipc.ipc_endpoints(ewok.tasks.tasks_list(caller_id).ipc_endpoints(i)).to)
                      = caller_id
             then
-               ep := ewok.tasks.tasks_list(caller_id).ipc_endpoints(i);
+               -- get back the ipc endpoint accessor from the ipc endpoint
+               -- identifier store in the task
+               ep_id := ewok.tasks.tasks_list(caller_id).ipc_endpoints(i);
+               ep := ewok.ipc.ipc_endpoints(ep_id)'access;
+               task_ep_id := i;
                exit;
             end if;
          end loop;
@@ -226,15 +238,17 @@ is
       -- message
       else
 
-         if ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender) /= NULL
+         if ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender) /= IDLE_ENDPOINT
             and then
-            ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender).state
+            ewok.ipc.ipc_endpoints(ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender)).state
                = ewok.ipc.WAIT_FOR_RECEIVER
             and then
-            ewok.ipc.to_task_id (ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender).to)
+            ewok.ipc.to_task_id (ewok.ipc.ipc_endpoints(ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender)).to)
                = caller_id
          then
-            ep := ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender);
+            ep_id := ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_sender);
+            ep := ewok.ipc.ipc_endpoints(ep_id)'access;
+            task_ep_id := id_sender;
          end if;
 
       end if;
@@ -280,7 +294,7 @@ is
          raise program_error;
       end if;
 
-      sender_a := ewok.tasks.get_task (id_sender);
+      sender_a := ewok.tasks.tasks_list(id_sender)'access;
 
       -- Copying the message in the receiver's buffer
       if ep.all.size > size then
@@ -299,8 +313,9 @@ is
       buf(1 .. unsigned_32 (size)) := ep.all.data(1 .. unsigned_32 (size));
 
       -- The EndPoint is ready for another use
-      ep.all.state := ewok.ipc.READY;
-      ep.all.size  := 0;
+      release_endpoint(ep_id);
+      ewok.tasks.tasks_list(id_sender).ipc_endpoints(caller_id) := IDLE_ENDPOINT;
+      ewok.tasks.tasks_list(caller_id).ipc_endpoints(task_ep_id) := IDLE_ENDPOINT;
 
       -- Free sender from it's blocking state
       case ewok.tasks.get_state (id_sender, TASK_MODE_MAINTHREAD) is
@@ -358,8 +373,9 @@ is
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
 
-      ep             : ewok.ipc.t_endpoint_access;
-      receiver_a     : ewok.tasks.t_task_access;
+      ep             : t_endpoint_access;
+      ep_id          : ewok.ipc.t_full_endpoints_id;
+      receiver_a     : t_task_access;
       ok             : boolean;
 
       ----------------
@@ -428,7 +444,7 @@ is
          goto ret_inval;
       end if;
 
-      receiver_a := ewok.tasks.get_task (id_receiver);
+      receiver_a := ewok.tasks.tasks_list(id_receiver)'access;
 
       -- Defensive programming test: should *never* be true
       if ewok.tasks.get_state (id_receiver, TASK_MODE_MAINTHREAD)
@@ -482,27 +498,31 @@ is
       ------------------------------
 
       ep := NULL;
+      ep_id := IDLE_ENDPOINT;
 
       -- Creating a new EndPoint between the sender and the receiver
-      if ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) = NULL
+      if ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) = IDLE_ENDPOINT
       then
 
          -- Defensive programming test: should *never* happen
-         if receiver_a.all.ipc_endpoints(caller_id) /= NULL then
+         if receiver_a.all.ipc_endpoints(caller_id) /= IDLE_ENDPOINT then
             raise program_error;
          end if;
 
-         ewok.ipc.get_endpoint (ep, ok);
+         ewok.ipc.get_endpoint (ep_id, ok);
          if not ok then
             -- FIXME
             debug.panic ("send(): EndPoint starvation !O_+");
          end if;
 
-         ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) := ep;
-         receiver_a.all.ipc_endpoints(caller_id) := ep;
+         ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver) := ep_id;
+         receiver_a.all.ipc_endpoints(caller_id) := ep_id;
+
+         ep := ewok.ipc.ipc_endpoints(ep_id)'access;
 
       else
-         ep := ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver);
+         ep_id := ewok.tasks.tasks_list(caller_id).ipc_endpoints(id_receiver);
+         ep := ewok.ipc.ipc_endpoints(ep_id)'access;
       end if;
 
       -----------------------

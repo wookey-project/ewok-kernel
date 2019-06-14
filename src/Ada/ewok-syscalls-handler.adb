@@ -43,6 +43,9 @@ package body ewok.syscalls.handler
    with spark_mode => off
 is
 
+   -- local type for task_t accessor, in rw mode
+   type t_task_access is access all ewok.tasks.t_task;
+
    function svc_handler
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
@@ -50,11 +53,11 @@ is
       svc            : t_svc;
       svc_params_a   : t_parameters_access;
       current_id     : t_task_id;
-      current_a      : ewok.tasks.t_task_access;
+      current_a      : t_task_access;
    begin
 
       current_id  := ewok.sched.get_current;
-      current_a   := ewok.tasks.get_task (current_id);
+      current_a   := ewok.tasks.tasks_list(current_id)'access;
 
       --
       -- We must save the frame pointer because synchronous syscall don't refer

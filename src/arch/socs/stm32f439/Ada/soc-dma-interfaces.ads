@@ -22,7 +22,7 @@
 
 
 package soc.dma.interfaces
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_dma_interrupts is

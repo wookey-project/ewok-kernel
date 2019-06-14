@@ -22,7 +22,7 @@
 
 
 package ewok.dma_shared
-   with spark_mode => off
+   with spark_mode => on
 is
 
    ID_DMA_UNUSED : constant := 0;

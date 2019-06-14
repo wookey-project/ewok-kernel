@@ -149,7 +149,7 @@ is
       tsk.stack_size        := 0;
       tsk.state             := TASK_STATE_EMPTY;
       tsk.isr_state         := TASK_STATE_EMPTY;
-      tsk.ipc_endpoints     := (others => NULL);
+      tsk.ipc_endpoints     := (others => IDLE_ENDPOINT);
       tsk.ctx.frame_a       := NULL;
       tsk.isr_ctx           := t_isr_context'(0, ID_DEV_UNUSED, ISR_STANDARD, NULL);
    end set_default_values;
@@ -196,7 +196,7 @@ is
       tasks_list(ID_SOFTIRQ).isr_state := TASK_STATE_IDLE;
 
       for i in tasks_list(ID_SOFTIRQ).ipc_endpoints'range loop
-         tasks_list(ID_SOFTIRQ).ipc_endpoints(i)   := NULL;
+         tasks_list(ID_SOFTIRQ).ipc_endpoints(i)   := IDLE_ENDPOINT;
       end loop;
 
       pragma DEBUG (debug.log (debug.INFO, "Created SOFTIRQ context (pc: "
@@ -250,7 +250,7 @@ is
       tasks_list(ID_KERNEL).isr_state    := TASK_STATE_IDLE;
 
       for i in tasks_list(ID_KERNEL).ipc_endpoints'range loop
-         tasks_list(ID_KERNEL).ipc_endpoints(i)   := NULL;
+         tasks_list(ID_KERNEL).ipc_endpoints(i)   := IDLE_ENDPOINT;
       end loop;
 
       pragma DEBUG (debug.log (debug.INFO, "Created context for IDLE task (pc: "
@@ -355,7 +355,7 @@ is
          tasks_list(id).isr_state   := TASK_STATE_IDLE;
 
          for i in tasks_list(id).ipc_endpoints'range loop
-            tasks_list(id).ipc_endpoints(i)   := NULL;
+            tasks_list(id).ipc_endpoints(i)   := IDLE_ENDPOINT;
          end loop;
 
          -- Zeroing the stack
@@ -397,14 +397,6 @@ is
       end loop;
 
    end init_apps;
-
-
-   function get_task (id : ewok.tasks_shared.t_task_id)
-      return t_task_access
-   is
-   begin
-      return tasks_list(id)'access;
-   end get_task;
 
 
    function get_task_id (name : t_task_name)
@@ -521,11 +513,13 @@ is
    is
    begin
       for i in tasks_list(id).ipc_endpoints'range loop
-         if tasks_list(id).ipc_endpoints(i) /= NULL
+         if tasks_list(id).ipc_endpoints(i) /= IDLE_ENDPOINT
             and then
-            tasks_list(id).ipc_endpoints(i).state = ewok.ipc.WAIT_FOR_RECEIVER
+            ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoints(i)).state
+               = ewok.ipc.WAIT_FOR_RECEIVER
             and then
-            ewok.ipc.to_task_id (tasks_list(id).ipc_endpoints(i).to) = id
+            ewok.ipc.to_task_id (ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoints(i)).to)
+               = id
          then
             return true;
          end if;

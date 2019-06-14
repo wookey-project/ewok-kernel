@@ -32,7 +32,7 @@ with soc.layout;
 
 
 package ewok.tasks
-   with spark_mode => off
+   with spark_mode => on
 is
 
    subtype t_task_name is string (1 .. 10);
@@ -164,8 +164,6 @@ is
       isr_ctx           : aliased t_isr_context;
    end record;
 
-   type t_task_access is access all t_task;
-
    type t_task_array is array (t_task_id range <>) of aliased t_task;
 
    -------------
@@ -220,10 +218,6 @@ is
    procedure init_apps;
 
    function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean;
-
-   function get_task (id : ewok.tasks_shared.t_task_id)
-      return t_task_access
-   with inline;
 
 #if CONFIG_KERNEL_DOMAIN
    function get_domain (id : in ewok.tasks_shared.t_task_id)

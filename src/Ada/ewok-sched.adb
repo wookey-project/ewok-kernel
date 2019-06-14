@@ -41,8 +41,10 @@ with applications; -- Automatically generated
 
 
 package body ewok.sched
-   with spark_mode => on
+   with spark_mode => off
 is
+
+   type t_task_access is access all ewok.tasks.t_task;
 
    package TSK renames ewok.tasks;
    sched_period            : unsigned_32  := 0;
@@ -278,7 +280,7 @@ is
       --    user ISR without any device_id associated
       --  - DMAs are not registered in devices
 
-      new_task := ewok.tasks.get_task (id);
+      new_task := ewok.tasks.tasks_list(id)'access;
 
       -- Kernel tasks are already granted with privileged accesses
       if new_task.all.ttype = TASK_TYPE_KERNEL then
@@ -485,7 +487,7 @@ is
    begin
 
       current_task_id := ID_KERNEL;
-      idle_task := get_task (current_task_id);
+      idle_task := ewok.tasks.tasks_list(current_task_id)'access;
 
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_SYSTICK,

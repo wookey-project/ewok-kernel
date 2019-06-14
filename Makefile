@@ -23,7 +23,7 @@ APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
 BUILD_DIR ?= $(PROJ_FILE)build
 
-.PHONY: __clean __distclean doc
+.PHONY: __clean __distclean doc prove
 
 default: all
 
@@ -55,6 +55,9 @@ show:
 
 libbsp:
 	make -C src/arch
+
+prove:
+	$(Q)$(MAKE) -C $@ all
 
 clean_headers:
 	$(Q)$(MAKE) -C src clean_headers
