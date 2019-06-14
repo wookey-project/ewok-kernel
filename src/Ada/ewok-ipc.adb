@@ -27,15 +27,14 @@ package body ewok.ipc
    with spark_mode => off
 is
 
-
    function to_task_id
-     (eid : t_extended_task_id) return ewok.tasks_shared.t_task_id
+     (id : t_extended_task_id) return ewok.tasks_shared.t_task_id
    is
       pragma warnings (off); -- size may differ
       function convert is new ada.unchecked_conversion
         (t_extended_task_id, ewok.tasks_shared.t_task_id);
       pragma warnings (on);
-      ret : constant ewok.tasks_shared.t_task_id := convert (eid);
+      ret : constant ewok.tasks_shared.t_task_id := convert (id);
    begin
       if ret'valid then
          return ret;
@@ -86,7 +85,7 @@ is
 
 
    procedure get_endpoint
-     (endpoint    : out t_full_endpoints_id;
+     (endpoint    : out t_extended_endpoint_id;
       success     : out boolean)
    is
    begin
@@ -95,21 +94,21 @@ is
          if ipc_endpoints(i).state = FREE then
             ipc_endpoints(i).state  := READY;
             endpoint := i;
-            success     := true;
+            success  := true;
             return;
          end if;
       end loop;
 
-      endpoint       := IDLE_ENDPOINT;
-      success        := false;
+      endpoint := ID_ENDPOINT_UNUSED;
+      success  := false;
    end get_endpoint;
 
 
    procedure release_endpoint
-     (endpoint  : in  t_valid_endpoints_id)
+     (ep_id    : in  t_endpoint_id)
    is
    begin
-      init_endpoint (ipc_endpoints(endpoint));
+      init_endpoint (ipc_endpoints(ep_id));
    end release_endpoint;
 
 

@@ -149,7 +149,7 @@ is
       tsk.stack_size        := 0;
       tsk.state             := TASK_STATE_EMPTY;
       tsk.isr_state         := TASK_STATE_EMPTY;
-      tsk.ipc_endpoints     := (others => IDLE_ENDPOINT);
+      tsk.ipc_endpoint_id   := (others => ID_ENDPOINT_UNUSED);
       tsk.ctx.frame_a       := NULL;
       tsk.isr_ctx           := t_isr_context'(0, ID_DEV_UNUSED, ISR_STANDARD, NULL);
    end set_default_values;
@@ -192,11 +192,11 @@ is
          tasks_list(ID_SOFTIRQ).ctx.frame_a);
 
       tasks_list(ID_SOFTIRQ).stack_size   := STACK_SIZE_SOFTIRQ;
-      tasks_list(ID_SOFTIRQ).state := TASK_STATE_IDLE;
-      tasks_list(ID_SOFTIRQ).isr_state := TASK_STATE_IDLE;
+      tasks_list(ID_SOFTIRQ).state        := TASK_STATE_IDLE;
+      tasks_list(ID_SOFTIRQ).isr_state    := TASK_STATE_IDLE;
 
-      for i in tasks_list(ID_SOFTIRQ).ipc_endpoints'range loop
-         tasks_list(ID_SOFTIRQ).ipc_endpoints(i)   := IDLE_ENDPOINT;
+      for i in tasks_list(ID_SOFTIRQ).ipc_endpoint_id'range loop
+         tasks_list(ID_SOFTIRQ).ipc_endpoint_id(i)   := ID_ENDPOINT_UNUSED;
       end loop;
 
       pragma DEBUG (debug.log (debug.INFO, "Created SOFTIRQ context (pc: "
@@ -249,8 +249,8 @@ is
       tasks_list(ID_KERNEL).state        := TASK_STATE_RUNNABLE;
       tasks_list(ID_KERNEL).isr_state    := TASK_STATE_IDLE;
 
-      for i in tasks_list(ID_KERNEL).ipc_endpoints'range loop
-         tasks_list(ID_KERNEL).ipc_endpoints(i)   := IDLE_ENDPOINT;
+      for i in tasks_list(ID_KERNEL).ipc_endpoint_id'range loop
+         tasks_list(ID_KERNEL).ipc_endpoint_id(i)   := ID_ENDPOINT_UNUSED;
       end loop;
 
       pragma DEBUG (debug.log (debug.INFO, "Created context for IDLE task (pc: "
@@ -354,8 +354,8 @@ is
          tasks_list(id).state       := TASK_STATE_RUNNABLE;
          tasks_list(id).isr_state   := TASK_STATE_IDLE;
 
-         for i in tasks_list(id).ipc_endpoints'range loop
-            tasks_list(id).ipc_endpoints(i)   := IDLE_ENDPOINT;
+         for i in tasks_list(id).ipc_endpoint_id'range loop
+            tasks_list(id).ipc_endpoint_id(i)   := ID_ENDPOINT_UNUSED;
          end loop;
 
          -- Zeroing the stack
@@ -512,13 +512,14 @@ is
       return boolean
    is
    begin
-      for i in tasks_list(id).ipc_endpoints'range loop
-         if tasks_list(id).ipc_endpoints(i) /= IDLE_ENDPOINT
+      for i in tasks_list(id).ipc_endpoint_id'range loop
+         if tasks_list(id).ipc_endpoint_id(i) /= ID_ENDPOINT_UNUSED
             and then
-            ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoints(i)).state
+            ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoint_id(i)).state
                = ewok.ipc.WAIT_FOR_RECEIVER
             and then
-            ewok.ipc.to_task_id (ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoints(i)).to)
+            ewok.ipc.to_task_id
+              (ewok.ipc.ipc_endpoints(tasks_list(id).ipc_endpoint_id(i)).to)
                = id
          then
             return true;

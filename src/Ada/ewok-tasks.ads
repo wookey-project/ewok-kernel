@@ -121,6 +121,10 @@ is
    type t_device_id_list is array (unsigned_8 range <>) of
       ewok.devices_shared.t_device_id;
 
+   type t_ipc_endpoint_id_list is array (ewok.tasks_shared.t_task_id) of
+      ewok.ipc.t_extended_endpoint_id;
+
+
    type t_task is record
       name              : t_task_name;
       entry_point       : system_address;
@@ -159,7 +163,7 @@ is
       stack_size        : unsigned_16;
       state             : t_task_state;
       isr_state         : t_task_state;
-      ipc_endpoints     : ewok.ipc.t_endpoints (ewok.tasks_shared.t_task_id'range);
+      ipc_endpoint_id   : t_ipc_endpoint_id_list;
       ctx               : aliased t_main_context;
       isr_ctx           : aliased t_isr_context;
    end record;
