@@ -27,16 +27,11 @@ package ewok.ipc
    with spark_mode => on
 is
 
-   MAX_IPC_MSG_SIZE     : constant := 128;
-   ENDPOINTS_POOL_SIZE  : constant := 10;
-   IDLE_ENDPOINT        : constant := 0;
-
-   subtype t_full_endpoints_id is unsigned_8 range 0 .. ENDPOINTS_POOL_SIZE;
-   subtype t_valid_endpoints_id is t_full_endpoints_id range 1 .. ENDPOINTS_POOL_SIZE;
-
    --
    -- IPC EndPoints
    --
+
+   MAX_IPC_MSG_SIZE     : constant := 128;
 
    type t_endpoint_state is (
       -- IPC endpoint is unused
@@ -70,12 +65,10 @@ is
       ANY_APP     => 255);
 
    function to_task_id
-     (eid : t_extended_task_id) return ewok.tasks_shared.t_task_id;
+     (id : t_extended_task_id) return ewok.tasks_shared.t_task_id;
 
    function to_ext_task_id
      (id : ewok.tasks_shared.t_task_id) return t_extended_task_id;
-
-   type t_extended_task_id_access is access t_extended_task_id;
 
    type t_endpoint is record
       from  :  t_extended_task_id;
@@ -85,14 +78,20 @@ is
       size  :  unsigned_8;
    end record;
 
-   type t_endpoints is
-      array (ewok.tasks_shared.t_task_id range <>) of t_full_endpoints_id;
-
    --
    -- Global pool of IPC EndPoints
    --
 
-   ipc_endpoints : array (t_valid_endpoints_id) of aliased t_endpoint;
+   ENDPOINTS_POOL_SIZE  : constant := 10;
+   ID_ENDPOINT_UNUSED   : constant := 0;
+
+   type t_extended_endpoint_id is
+      range ID_ENDPOINT_UNUSED .. ENDPOINTS_POOL_SIZE;
+
+   subtype t_endpoint_id is
+      t_extended_endpoint_id range 1 .. ENDPOINTS_POOL_SIZE;
+
+   ipc_endpoints : array (t_endpoint_id) of aliased t_endpoint;
 
    --
    -- Functions
@@ -103,11 +102,11 @@ is
 
    -- Get a free IPC endpoint
    procedure get_endpoint
-     (endpoint    : out t_full_endpoints_id;
+     (endpoint    : out t_extended_endpoint_id;
       success     : out boolean);
 
    -- Release a used IPC endpoint
    procedure release_endpoint
-     (endpoint  : in  t_valid_endpoints_id);
+     (ep_id       : in  t_endpoint_id);
 
 end ewok.ipc;

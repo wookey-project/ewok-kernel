@@ -44,12 +44,12 @@ package body ewok.sched
    with spark_mode => off
 is
 
-   type t_task_access is access all ewok.tasks.t_task;
-
    package TSK renames ewok.tasks;
+
    sched_period            : unsigned_32  := 0;
    current_task_id         : t_task_id    := ID_KERNEL;
    last_main_user_task_id  : t_task_id    := applications.list'first;
+
 
    -----------------------------------------------
    -- SPARK/ghost specific functions & procedures
@@ -269,7 +269,7 @@ is
      (id : in t_task_id)
    with spark_mode => off
    is
-      new_task : t_task_access;
+      new_task : t_task renames ewok.tasks.tasks_list(id);
       dev_id   : t_device_id;
       ok       : boolean;
    begin
@@ -280,21 +280,19 @@ is
       --    user ISR without any device_id associated
       --  - DMAs are not registered in devices
 
-      new_task := ewok.tasks.tasks_list(id)'access;
-
       -- Kernel tasks are already granted with privileged accesses
-      if new_task.all.ttype = TASK_TYPE_KERNEL then
+      if new_task.ttype = TASK_TYPE_KERNEL then
          return;
       end if;
 
       -- User task
-      if new_task.all.mode = TASK_MODE_ISRTHREAD then
+      if new_task.mode = TASK_MODE_ISRTHREAD then
 
          --------------
          -- ISR mode --
          --------------
 
-         dev_id   := new_task.all.isr_ctx.device_id;
+         dev_id   := new_task.isr_ctx.device_id;
 
          if dev_id /= ID_DEV_UNUSED then
 
@@ -328,8 +326,8 @@ is
          -- Mapping the user devices
          --
 
-         for i in new_task.all.mounted_device'range loop
-            dev_id   := new_task.all.mounted_device(i);
+         for i in new_task.mounted_device'range loop
+            dev_id   := new_task.mounted_device(i);
 
             if dev_id /= ID_DEV_UNUSED then
 
@@ -363,8 +361,8 @@ is
 
          mask : t_mask := (others => 1);
       begin
-         for i in 0 .. new_task.all.num_slots - 1 loop
-            mask(new_task.all.slot + i) := 0;
+         for i in 0 .. new_task.num_slots - 1 loop
+            mask(new_task.slot + i) := 0;
          end loop;
 
          ewok.mpu.regions_schedule
@@ -482,12 +480,11 @@ is
    procedure init
       with spark_mode => off
    is
-      idle_task   : t_task_access;
+      idle_task   : t_task renames ewok.tasks.tasks_list(ID_KERNEL);
       ok          : boolean;
    begin
 
       current_task_id := ID_KERNEL;
-      idle_task := ewok.tasks.tasks_list(current_task_id)'access;
 
       ewok.interrupts.set_task_switching_handler
         (soc.interrupts.INT_SYSTICK,

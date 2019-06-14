@@ -86,13 +86,13 @@ is
      (id : in  ewok.tasks_shared.t_task_id)
    is
    begin
-      for peer in ewok.tasks.tasks_list(id).ipc_endpoints'range
+      for peer in ewok.tasks.tasks_list(id).ipc_endpoint_id'range
       loop
          if peer /= ID_UNUSED and then
-            ewok.tasks.tasks_list(id).ipc_endpoints(peer) /= NULL
+            ewok.tasks.tasks_list(id).ipc_endpoint_id(peer) /= NULL
          then
             ewok.ipc.release_endpoint
-              (ewok.tasks.tasks_list(id).ipc_endpoints(peer));
+              (ewok.tasks.tasks_list(id).ipc_endpoint_id(peer));
          end if;
       end loop;
    end release_ipcs;

@@ -43,7 +43,6 @@ package body ewok.syscalls.handler
    with spark_mode => off
 is
 
-   -- local type for task_t accessor, in rw mode
    type t_task_access is access all ewok.tasks.t_task;
 
    function svc_handler
