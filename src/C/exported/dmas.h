@@ -23,7 +23,7 @@
 #ifndef EXPORTED_DMAS_H_
 #define EXPORTED_DMAS_H_
 
-#include "../tasks-shared.h"
+#include "tasks-shared.h"
 
 typedef enum {
   /** Reconfigure handlers (in or out, depending on direction) */

@@ -20,8 +20,9 @@
  *     limitations under the License.
  *
  */
-#include "debug.h"
 #include "get_random.h"
+
+extern void panic (char *s);
 
 /* Global variable holding the stack canary value */
 volatile uint32_t __stack_chk_guard = 0;

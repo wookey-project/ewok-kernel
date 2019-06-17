@@ -21,14 +21,15 @@
 --
 
 
-package ewok.devices.interfaces
+package ewok.init
    with spark_mode => off
 is
 
-   procedure init
-   with
-      convention     => c,
-      export         => true,
-      external_name  => "dev_init";
+   procedure main
+     (argc  : in  integer;
+      args  : in  system_address)
+   with  convention     => c,
+         export         => true,
+         external_name  => "ewok_init";
 
-end ewok.devices.interfaces;
+end ewok.init;

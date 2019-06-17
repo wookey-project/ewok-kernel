@@ -20,6 +20,7 @@
 --
 --
 
+with types.c;
 
 package ewok.debug
    with spark_mode => off
@@ -32,20 +33,33 @@ is
    BG_COLOR_ORANGE   : constant string := ASCII.ESC & "[37;43m";
    BG_COLOR_BLUE     : constant string := ASCII.ESC & "[37;44m";
 
-   procedure init
-   with  convention     => c,
-         export         => true,
-         external_name  => "ada_debug_init";
+   procedure init (usart : in unsigned_8);
 
-   procedure putc (c : character)
-   with  convention     => c,
-         export         => true,
-         external_name  => "ada_debug_putc";
+   procedure putc (c : character);
 
    procedure log (s : string; nl : boolean := true);
    procedure log (level : t_level; s : string);
-   procedure alert (s : string);
-   procedure newline;
+
+   procedure alert (s : string)
+   with  convention     => ada,
+         export         => true,
+         external_name  => "ewok_debug_alert";
+
+   procedure newline
+   with  convention     => ada,
+         export         => true,
+         external_name  => "ewok_debug_newline";
+
    procedure panic (s : string);
+
+   --
+   -- Needed by C code
+   --
+   pragma warnings (off);
+   procedure c_panic (c_msg : types.c.c_string)
+   with  convention     => c,
+         export         => true,
+         external_name  => "panic";
+   pragma warnings (on);
 
 end ewok.debug;

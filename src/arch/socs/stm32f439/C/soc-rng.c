@@ -23,7 +23,6 @@
 #include "soc-rcc.h"
 #include "soc-rng.h"
 #include "C/regutils.h"
-#include "debug.h"
 
 /**
  * @brief Initialize RNG (mainly initialize it clock).
@@ -60,17 +59,21 @@ static int soc_rng_init(void)
 {
     rng_init();
     rng_enabled = 1;
+
     /* Enable random number generation */
     set_reg(r_CORTEX_M_RNG_CR, 1, RNG_CR_RNGEN);
+
     /* Wait for the RNG to be ready */
-    while (!(read_reg_value(r_CORTEX_M_RNG_SR) & RNG_SR_DRDY_Msk)) {
-    };
+    while (!(read_reg_value(r_CORTEX_M_RNG_SR) & RNG_SR_DRDY_Msk))
+        {};
+
     /* Check for error */
     if (read_reg_value(r_CORTEX_M_RNG_SR) & RNG_SR_CEIS_Msk) {
         return 2;
     } else if (read_reg_value(r_CORTEX_M_RNG_SR) & RNG_SR_SEIS_Msk) {
         return 3;
     }
+
     return 0;
 }
 
@@ -80,6 +83,7 @@ static uint8_t rng_run(uint32_t * random)
     if (rng_enabled == 0) {
         return soc_rng_init();
     }
+
     /* Read random number */
     else if (read_reg_value(r_CORTEX_M_RNG_SR) & RNG_SR_DRDY_Msk) {
         *random = read_reg_value(r_CORTEX_M_RNG_DR);
@@ -105,7 +109,7 @@ static uint8_t rng_run(uint32_t * random)
 static void rng_ceis_error(void)
 {
     /* Check that clock controller is correctly configured */
-    LOG("[Clock error\n");
+//    LOG("[Clock error\n");
     /* Clear error */
     set_reg(r_CORTEX_M_RNG_SR, 0, RNG_SR_CEIS);
 }
@@ -117,7 +121,7 @@ static void rng_ceis_error(void)
  */
 static void rng_seis_error(void)
 {
-    LOG("SEIS (seed) error\n");
+//    LOG("SEIS (seed) error\n");
     /* Clear error */
     set_reg(r_CORTEX_M_RNG_SR, 0, RNG_SR_SEIS);
     /* Clear and set RNGEN bit to restart the RNG */
@@ -127,12 +131,12 @@ static void rng_seis_error(void)
 
 static void rng_fips_error(void)
 {
-    LOG("FIPS PUB warning: current random is the same as the previous one (or it is the first one)\n");
+//    LOG("FIPS PUB warning: current random is the same as the previous one (or it is the first one)\n");
 }
 
 static void rng_unknown_error(void)
 {
-    ERROR("Unknown error happened (maybe data wasn't ready?)\n");
+//    ERROR("Unknown error happened (maybe data wasn't ready?)\n");
 }
 
 /**

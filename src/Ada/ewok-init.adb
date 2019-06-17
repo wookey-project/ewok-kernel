@@ -1,0 +1,157 @@
+--
+-- Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
+--   - Ryad     Benadjila
+--   - Arnauld  Michelizza
+--   - Mathieu  Renard
+--   - Philippe Thierry
+--   - Philippe Trebuchet
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--     http://www.apache.org/licenses/LICENSE-2.0
+--
+--     Unless required by applicable law or agreed to in writing, software
+--     distributed under the License is distributed on an "AS IS" BASIS,
+--     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--     See the License for the specific language governing permissions and
+--     limitations under the License.
+--
+--
+
+with m4.cpu;
+with m4.cpu.instructions;
+with m4.systick;
+with soc.dwt;
+with ewok.devices;
+with ewok.debug;
+with ewok.dma;
+with ewok.exti;
+with ewok.interrupts;
+with ewok.layout;
+with ewok.mpu;
+with ewok.softirq;
+with ewok.sched;
+with ewok.tasks;
+with c.kernel;
+
+
+package body ewok.init
+   with spark_mode => off
+is
+
+   procedure init_stack_chk_guard
+   with
+      convention     => c,
+      import         => true,
+      external_name  => "init_stack_chk_guard",
+      global         => null;
+
+#if CONFIG_FPU_ENABLE
+   procedure fpu_enable
+   with
+      convention     => c,
+      import         => true,
+      external_name  => "fpu_enable",
+      global         => null;
+#end if;
+
+   procedure system_init (addr : in system_address)
+   with
+      convention     => c,
+      import         => true,
+      external_name  => "system_init",
+      global         => null;
+
+
+   procedure main
+     (argc  : in  integer;
+      args  : in  system_address)
+   is
+      seed  : unsigned_32;
+      ok    : boolean;
+   begin
+      m4.cpu.disable_irq;
+
+      -- Initialize devices structures
+      ewok.devices.init;
+
+      -- Initialize interrupts, handlers & priorities
+      ewok.interrupts.init;
+
+      -- Initialize system Clock
+      m4.systick.init;
+
+      -- Configure the USART for debugging purpose
+#if    CONFIG_KERNEL_USART = 1
+      ewok.debug.init (1);
+#elsif CONFIG_KERNEL_USART = 4
+      ewok.debug.init (4);
+#elsif CONFIG_KERNEL_USART = 6
+      ewok.debug.init (6);
+#else
+      raise program_error;
+#end if;
+
+      -- Initialize DWT (required for precise time measurement)
+      soc.dwt.init;
+
+      -- Initialize the platform TRNG, the collected seed value must
+      -- not be used as it is the first generated random value
+      seed := c.kernel.get_random_u32;
+      if seed = 0 then
+         debug.alert ("Unable to use TRNG!");
+      end if;
+
+      -- Initialize the stack protection, based on the hardware RNG device
+      init_stack_chk_guard;
+
+#if CONFIG_KERNEL_DMA_ENABLE
+      ewok.dma.init;
+#end if;
+
+#if CONFIG_FPU_ENABLE
+      fpu_enable;
+#end if;
+
+      -- Initialize the EXTIs
+      ewok.exti.init;
+
+      -- The kernel is a PIE executable. Its base address is given in first
+      -- argument, based on the loader informations
+      if argc = 1 then
+         declare
+            base_address : system_address
+               with address => to_address (args);
+         begin
+            system_init (base_address - ewok.layout.VTORS_SIZE);
+         end;
+      else
+         ewok.debug.panic ("No kernel base address: unable to support PIE!");
+      end if;
+
+      -- Initialize the MPU
+      -- After this sequence, the kernel is executed with the MPU activated and
+      -- can generate memory fault in case of invalid access.
+      ewok.mpu.init (ok);
+      if not ok then
+         ewok.debug.panic ("MPU configuration failed!");
+      end if;
+
+      m4.cpu.instructions.full_memory_barrier;
+
+      -- Create user tasks
+      ewok.tasks.task_init;
+
+      -- Initialize SOFTIRQ thread
+      ewok.softirq.init;
+
+      -- Let's run tasks!
+      ewok.sched.init;
+
+      ewok.debug.panic ("Why am I here?");
+
+   end main;
+
+end ewok.init;

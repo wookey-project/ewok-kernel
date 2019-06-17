@@ -25,10 +25,6 @@ package ewok.dma.interfaces
    with spark_mode => off
 is
 
-   procedure dma_init
-   with
-      convention => c, export, external_name  => "dma_init";
-
    function dma_get_status
      (caller_id   : ewok.tasks_shared.t_task_id;
       intr        : soc.interrupts.t_interrupt)

@@ -63,7 +63,9 @@ err:
     return FAILURE;
 }
 
-retval_t get_random_u32(uint32_t * random)
+uint32_t get_random_u32(void)
 {
-    return get_random((unsigned char *)random, 4);
+    uint32_t random = 0;
+    get_random((unsigned char *)&random, 4);
+    return random;
 }

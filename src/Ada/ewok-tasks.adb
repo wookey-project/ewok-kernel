@@ -373,8 +373,9 @@ is
          --
 
          -- Getting the stack "canary"
-         if c.kernel.get_random_u32 (random) /= types.c.SUCCESS then
-            debug.panic ("Unable to get random from TRNG source");
+         random := c.kernel.get_random_u32;
+         if random = 0 then
+            debug.alert ("Unable to get random from TRNG source");
          end if;
 
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);
