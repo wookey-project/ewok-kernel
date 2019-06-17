@@ -24,6 +24,7 @@ with m4.cpu;
 with m4.cpu.instructions;
 with m4.systick;
 with soc.dwt;
+with soc.system;
 with ewok.devices;
 with ewok.debug;
 with ewok.dma;
@@ -56,13 +57,6 @@ is
       external_name  => "fpu_enable",
       global         => null;
 #end if;
-
-   procedure system_init (addr : in system_address)
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "system_init",
-      global         => null;
 
 
    procedure main
@@ -125,7 +119,7 @@ is
             base_address : system_address
                with address => to_address (args);
          begin
-            system_init (base_address - ewok.layout.VTORS_SIZE);
+            soc.system.init (base_address - ewok.layout.VTORS_SIZE);
          end;
       else
          ewok.debug.panic ("No kernel base address: unable to support PIE!");

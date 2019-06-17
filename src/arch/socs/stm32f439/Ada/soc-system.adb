@@ -20,31 +20,28 @@
 --
 --
 
+with soc.rcc;
+with m4.cpu.instructions;
+with m4.scb;
 
-package soc.rcc.default
+package body soc.system
    with spark_mode => off
 is
 
-   --
-   -- Those constant suit to disco407, disco429, disco430 and wookey
-   --
+   procedure init (vtor_addr : in  system_address)
+   is
+   begin
+      soc.rcc.reset;
+      soc.rcc.init;
 
-   enable_HSE : constant boolean := false;
-   enable_PLL : constant boolean := true;
+      --
+      -- Set VTOR
+      --
 
-   PLL_M : constant := 16;
-   PLL_N : constant := 336;
+      m4.cpu.instructions.DMB; -- Data Memory Barrier
+      m4.scb.SCB.VTOR := vtor_addr;
+      m4.cpu.instructions.DSB; -- Data Synchronization Barrier
 
-   PLL_P : constant t_PLLP := PLLP2;
+   end init;
 
-   PLL_Q : constant := 7;
-
-   AHB_DIV  : constant t_HPRE := HPRE_NODIV;
-   APB1_DIV : constant t_PPRE := PPRE_DIV4;
-   APB2_DIV : constant t_PPRE := PPRE_DIV2;
-
-   CLOCK_APB1     : constant := 42_000_000; -- Hz
-   CLOCK_APB2     : constant := 84_000_000; -- Hz
-   CORE_FREQUENCY : constant := 168_000_000; -- Hz
-
-end soc.rcc.default;
+end soc.system;

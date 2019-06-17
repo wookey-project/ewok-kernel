@@ -21,7 +21,6 @@
 --
 
 with system;
-with types.c;
 with soc.devmap;
 
 package soc.rcc
@@ -416,20 +415,9 @@ is
          address => system'to_address(16#4002_3800#);
 
 
-   procedure reset
-      with
-         convention     => c,
-         export         => true,
-         external_name  => "soc_rcc_reset";
+   procedure reset;
 
-   function init
-     (enable_hse  : in  types.c.bool;
-      enable_pll  : in  types.c.bool)
-      return types.c.t_retval
-      with
-         convention     => c,
-         export         => true,
-         external_name  => "soc_rcc_setsysclock";
+   procedure init;
 
    procedure enable_clock (periph : in soc.devmap.t_periph_id);
 
