@@ -20,26 +20,28 @@
 --
 --
 
-with types.c;
-
-package c.kernel is
+package body ewok.rng.interfaces
+   with spark_mode => off
+is
 
    function get_random
-     (s    : out types.c.c_string;
+     (s    : in  system_address;
       len  : in  unsigned_16)
       return types.c.t_retval
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "get_random",
-      global         => null;
+   is
+      tab   : unsigned_8_array (1 .. unsigned_32 (len))
+         with address => to_address (s);
+      ok    : boolean;
+   begin
+      ewok.rng.random_array (tab, ok);
+      if ok then
+         return types.c.SUCCESS;
+      else
+         return types.c.FAILURE;
+      end if;
+   end get_random;
 
-   function get_random_u32
-      return unsigned_32
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "get_random_u32",
-      global         => null;
+end ewok.rng.interfaces;
 
-end c.kernel;
+
+

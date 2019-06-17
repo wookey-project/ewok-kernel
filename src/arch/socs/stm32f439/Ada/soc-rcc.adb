@@ -125,10 +125,11 @@ is
    begin
       case periph is
          when NO_PERIPH => return;
-         when DMA1_INFO .. DMA1_STR7   => soc.rcc.RCC.AHB1ENR.DMA1EN := true;
-         when DMA2_INFO .. DMA2_STR7   => soc.rcc.RCC.AHB1ENR.DMA2EN := true;
-         when CRYP_CFG .. CRYP         => soc.rcc.RCC.AHB2ENR.CRYPEN := true;
-         when HASH                     => soc.rcc.RCC.AHB2ENR.HASHEN := true;
+         when DMA1_INFO .. DMA1_STR7   => soc.rcc.RCC.AHB1ENR.DMA1EN  := true;
+         when DMA2_INFO .. DMA2_STR7   => soc.rcc.RCC.AHB1ENR.DMA2EN  := true;
+         when CRYP_CFG .. CRYP         => soc.rcc.RCC.AHB2ENR.CRYPEN  := true;
+         when HASH                     => soc.rcc.RCC.AHB2ENR.HASHEN  := true;
+         when RNG                      => soc.rcc.RCC.AHB2ENR.RNGEN   := true;
          when USB_OTG_FS               => soc.rcc.RCC.AHB2ENR.OTGFSEN := true;
          when USB_OTG_HS               =>
                            soc.rcc.RCC.AHB1ENR.OTGHSEN      := true;

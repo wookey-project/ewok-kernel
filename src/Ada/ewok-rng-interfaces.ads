@@ -20,16 +20,21 @@
 --
 --
 
+with types.c;
 
-pragma warnings (Off, "use clause for package");
+package ewok.rng.interfaces
+   with spark_mode => off
+is
 
-with interfaces; use interfaces;
-pragma unreferenced (interfaces);
+   function get_random
+     (s    : in  system_address;
+      len  : in  unsigned_16)
+      return types.c.t_retval
+   with
+      convention     => c,
+      export         => true,
+      external_name  => "get_random";
 
-with types; use types;
-pragma unreferenced (types);
+end ewok.rng.interfaces;
 
-pragma warnings (On, "use clause for package");
 
-package c is
-end c;

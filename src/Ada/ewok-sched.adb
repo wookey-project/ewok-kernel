@@ -177,8 +177,10 @@ is
       declare
          random   : aliased unsigned_32;
          id       : t_task_id;
+         ok       : boolean;
+         pragma unreferenced (ok);
       begin
-         soc_rng_getrng (random'access);
+         ewok.rng.random (random'access, ok);
          id := t_task_id'val ((applications.list'first)'pos +
                             (random mod applications.list'length));
          for i in 1 .. applications.list'length loop

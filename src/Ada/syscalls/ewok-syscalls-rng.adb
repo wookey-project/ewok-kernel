@@ -24,19 +24,13 @@ with ewok.tasks;        use ewok.tasks;
 with ewok.sanitize;
 with ewok.perm;
 with ewok.debug;
+with ewok.rng;
 with types.c;           use type types.c.t_retval;
-with c.kernel;
+
 
 package body ewok.syscalls.rng
    with spark_mode => off
 is
-
-   pragma warnings (off);
-
-   function to_integer is new ada.unchecked_conversion
-     (unsigned_16, integer);
-
-   pragma warnings (on);
 
    procedure svc_get_random
      (caller_id   : in     ewok.tasks_shared.t_task_id;
@@ -46,8 +40,10 @@ is
       length      : unsigned_16
          with address => params(2)'address;
 
-      buffer      : types.c.c_string (1 .. to_integer(length))
+      buffer      : unsigned_8_array (1 .. unsigned_32 (length))
          with address => to_address (params(1));
+
+      ok : boolean;
    begin
 
       -- Forbidden after end of task initialization
@@ -92,7 +88,9 @@ is
       --       busy. Please check this return value when using this
       --       syscall to avoid using weak random content
 
-      if c.kernel.get_random (buffer, length) /= types.c.SUCCESS then
+      ewok.rng.random_array (buffer, ok);
+
+      if not ok then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": svc_get_random(): weak seed"));
