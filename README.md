@@ -44,8 +44,8 @@ The libbsp is the architecture-specific part of the kernel, hosting all the low
 level and arch-specific drivers (MPU, GPIOs, timers, DMAs, etc.). The libbsp is
 itself separated in:
 
-   *SoC-specific drivers*, such as DMA or GPIO support for the STM32F407, STM32F429 and STM32F439 SoCs
-   *Core-specific drivers*, such as MPU support for the Cortex-M4 ARMv7-m micro-architecture
+   * *SoC-specific drivers*, such as DMA or GPIO support for the STM32F407, STM32F429 and STM32F439 SoCs
+   * *Core-specific drivers*, such as MPU support for the Cortex-M4 ARMv7-m micro-architecture
 
 The kernel part contains all specific high level content (scheduling, task
 management, syscalls, etc.) and uses the libbsp as a hardware abstraction for
