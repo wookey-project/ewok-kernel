@@ -94,4 +94,4 @@ reducing the risk of any invalid modification.
 As EwoK is a driver-oriented microkernel, permissions are also driver oriented.
 
 For more information about the EwoK microkernel, the complete documentation is
-published [here](https://wookey-project.github.io/ewok.html)
+published [here](https://wookey-project.github.io/ewok/index.html)
