@@ -20,31 +20,16 @@
 --
 --
 
-
-package soc.rcc.default
+package ewok.rng
    with spark_mode => off
 is
 
-   --
-   -- Those constant suit to disco407, disco429, disco430 and wookey
-   --
+   procedure random_array
+     (tab      : out unsigned_8_array;
+      success  : out boolean);
 
-   enable_HSE : constant boolean := false;
-   enable_PLL : constant boolean := true;
+   procedure random
+     (rand     : out unsigned_32;
+      success  : out boolean);
 
-   PLL_M : constant := 16;
-   PLL_N : constant := 336;
-
-   PLL_P : constant t_PLLP := PLLP2;
-
-   PLL_Q : constant := 7;
-
-   AHB_DIV  : constant t_HPRE := HPRE_NODIV;
-   APB1_DIV : constant t_PPRE := PPRE_DIV4;
-   APB2_DIV : constant t_PPRE := PPRE_DIV2;
-
-   CLOCK_APB1     : constant := 42_000_000; -- Hz
-   CLOCK_APB2     : constant := 84_000_000; -- Hz
-   CORE_FREQUENCY : constant := 168_000_000; -- Hz
-
-end soc.rcc.default;
+end ewok.rng;

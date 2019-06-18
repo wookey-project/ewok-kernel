@@ -310,6 +310,7 @@ is
 
    type t_SCB_peripheral is record
       ICSR  : t_SCB_ICSR;
+      VTOR  : system_address;
       AIRCR : t_SCB_AIRCR;
       CCR   : t_SCB_CCR;
       SHPR1 : t_SCB_SHPR1;
@@ -323,6 +324,7 @@ is
 
    for t_SCB_peripheral use record
       ICSR  at 16#04# range 0 .. 31;
+      VTOR  at 16#08# range 0 .. 31;
       AIRCR at 16#0C# range 0 .. 31;
       CCR   at 16#14# range 0 .. 31;
       SHPR1 at 16#18# range 0 .. 31;

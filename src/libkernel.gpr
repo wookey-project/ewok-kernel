@@ -69,8 +69,6 @@ library project Libkernel is
 
    for Library_Interface use
      ("applications",
-      "c",
-      "c.kernel",
       "ewok",
       "ewok.debug",
       "ewok.devices",
@@ -98,6 +96,8 @@ library project Libkernel is
       "ewok.mpu.handler",
       "ewok.perm",
       "ewok.perm_auto",
+      "ewok.rng",
+      "ewok.rng.interfaces",
       "ewok.sanitize",
       "ewok.sched",
       "ewok.softirq",
@@ -132,6 +132,7 @@ library project Libkernel is
       "soc.layout.stm32f4",
       "soc.nvic",
       "soc.rcc",
+      "soc.rng",
       "soc.syscfg",
       "soc.usart",
       "soc.usart.interfaces",

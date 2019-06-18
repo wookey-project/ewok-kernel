@@ -23,8 +23,6 @@
 #ifndef _KERNEL_SYSCALLS_H_
 #define _KERNEL_SYSCALLS_H_
 
-#include "autoconf.h"
-
 /*
  * IPC broadcast magic number
  */

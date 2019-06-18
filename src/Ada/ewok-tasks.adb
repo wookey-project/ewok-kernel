@@ -28,9 +28,9 @@ with ewok.debug;
 with ewok.layout;          use ewok.layout;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.ipc;             use ewok.ipc;
+with ewok.rng;
 with ewok.softirq;
 with ewok.devices;
-with c.kernel;
 with types.c;              use type types.c.t_retval;
 
 with applications; -- Automatically generated
@@ -267,6 +267,7 @@ is
       user_base   : system_address;
       params      : t_parameters;
       random      : unsigned_32;
+      ok          : boolean;
    begin
 
       if applications.t_real_task_id'last > ID_APP7 then
@@ -373,8 +374,8 @@ is
          --
 
          -- Getting the stack "canary"
-         random := c.kernel.get_random_u32;
-         if random = 0 then
+         ewok.rng.random (random, ok);
+         if not ok then
             debug.alert ("Unable to get random from TRNG source");
          end if;
 

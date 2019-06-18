@@ -20,7 +20,10 @@
  *     limitations under the License.
  *
  */
-#include "get_random.h"
+#include "libc.h"
+
+
+extern retval_t    get_random(unsigned char *buf, uint16_t len);
 
 extern void panic (char *s);
 

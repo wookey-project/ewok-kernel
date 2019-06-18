@@ -20,26 +20,10 @@
 --
 --
 
-with types.c;
+package soc.system
+   with spark_mode => off
+is
 
-package c.kernel is
+   procedure init (vtor_addr : in  system_address);
 
-   function get_random
-     (s    : out types.c.c_string;
-      len  : in  unsigned_16)
-      return types.c.t_retval
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "get_random",
-      global         => null;
-
-   function get_random_u32
-      return unsigned_32
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "get_random_u32",
-      global         => null;
-
-end c.kernel;
+end soc.system;

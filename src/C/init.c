@@ -28,7 +28,6 @@
  *
  */
 
-#include "autoconf.h"
 
 /* Specific Ada runtime elaboration code */
 extern void kernelinit(void);

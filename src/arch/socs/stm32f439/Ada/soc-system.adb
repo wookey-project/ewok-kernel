@@ -20,16 +20,28 @@
 --
 --
 
+with soc.rcc;
+with m4.cpu.instructions;
+with m4.scb;
 
-pragma warnings (Off, "use clause for package");
+package body soc.system
+   with spark_mode => off
+is
 
-with interfaces; use interfaces;
-pragma unreferenced (interfaces);
+   procedure init (vtor_addr : in  system_address)
+   is
+   begin
+      soc.rcc.reset;
+      soc.rcc.init;
 
-with types; use types;
-pragma unreferenced (types);
+      --
+      -- Set VTOR
+      --
 
-pragma warnings (On, "use clause for package");
+      m4.cpu.instructions.DMB; -- Data Memory Barrier
+      m4.scb.SCB.VTOR := vtor_addr;
+      m4.cpu.instructions.DSB; -- Data Synchronization Barrier
 
-package c is
-end c;
+   end init;
+
+end soc.system;

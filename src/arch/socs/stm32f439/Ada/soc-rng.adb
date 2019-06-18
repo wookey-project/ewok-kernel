@@ -20,31 +20,56 @@
 --
 --
 
+with soc.devmap;
+with soc.rcc;
 
-package soc.rcc.default
+package body soc.rng
    with spark_mode => off
 is
 
-   --
-   -- Those constant suit to disco407, disco429, disco430 and wookey
-   --
+   last_random : unsigned_32;
 
-   enable_HSE : constant boolean := false;
-   enable_PLL : constant boolean := true;
 
-   PLL_M : constant := 16;
-   PLL_N : constant := 336;
+   procedure init
+     (success : out boolean)
+   is
+   begin
 
-   PLL_P : constant t_PLLP := PLLP2;
+      soc.rcc.enable_clock (soc.devmap.RNG);
+      RNG.CR.RNGEN := true;
 
-   PLL_Q : constant := 7;
+      loop
+         exit when RNG.SR.DRDY;
+      end loop;
 
-   AHB_DIV  : constant t_HPRE := HPRE_NODIV;
-   APB1_DIV : constant t_PPRE := PPRE_DIV4;
-   APB2_DIV : constant t_PPRE := PPRE_DIV2;
+      if RNG.SR.SECS or RNG.SR.CECS then
+         success := false;
+      else
+         success := true;
+      end if;
 
-   CLOCK_APB1     : constant := 42_000_000; -- Hz
-   CLOCK_APB2     : constant := 84_000_000; -- Hz
-   CORE_FREQUENCY : constant := 168_000_000; -- Hz
+      last_random := RNG.DR.RNDATA;
+   end init;
 
-end soc.rcc.default;
+
+   procedure random
+     (rand     : out unsigned_32;
+      success  : out boolean)
+   is
+   begin
+
+      loop
+         exit when RNG.SR.DRDY;
+      end loop;
+
+      rand := RNG.DR.RNDATA;
+
+      if rand = last_random or RNG.SR.SECS then
+         success := false;
+      else
+         success := true;
+      end if;
+   end random;
+
+
+end soc.rng;

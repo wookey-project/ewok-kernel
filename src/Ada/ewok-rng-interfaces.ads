@@ -20,31 +20,21 @@
 --
 --
 
+with types.c;
 
-package soc.rcc.default
+package ewok.rng.interfaces
    with spark_mode => off
 is
 
-   --
-   -- Those constant suit to disco407, disco429, disco430 and wookey
-   --
+   function get_random
+     (s    : in  system_address;
+      len  : in  unsigned_16)
+      return types.c.t_retval
+   with
+      convention     => c,
+      export         => true,
+      external_name  => "get_random";
 
-   enable_HSE : constant boolean := false;
-   enable_PLL : constant boolean := true;
+end ewok.rng.interfaces;
 
-   PLL_M : constant := 16;
-   PLL_N : constant := 336;
 
-   PLL_P : constant t_PLLP := PLLP2;
-
-   PLL_Q : constant := 7;
-
-   AHB_DIV  : constant t_HPRE := HPRE_NODIV;
-   APB1_DIV : constant t_PPRE := PPRE_DIV4;
-   APB2_DIV : constant t_PPRE := PPRE_DIV2;
-
-   CLOCK_APB1     : constant := 42_000_000; -- Hz
-   CLOCK_APB2     : constant := 84_000_000; -- Hz
-   CORE_FREQUENCY : constant := 168_000_000; -- Hz
-
-end soc.rcc.default;

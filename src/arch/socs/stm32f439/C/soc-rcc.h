@@ -23,7 +23,6 @@
 #ifndef SOC_RCC_H
 #define SOC_RCC_H
 
-#include "soc-init.h"
 #include "soc-core.h"
 
 #define r_CORTEX_M_RCC_CR           REG_ADDR(RCC_BASE + (uint32_t) 0x00)

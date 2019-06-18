@@ -24,6 +24,8 @@ with m4.cpu;
 with m4.cpu.instructions;
 with m4.systick;
 with soc.dwt;
+with soc.rng;
+with soc.system;
 with ewok.devices;
 with ewok.debug;
 with ewok.dma;
@@ -34,7 +36,6 @@ with ewok.mpu;
 with ewok.softirq;
 with ewok.sched;
 with ewok.tasks;
-with c.kernel;
 
 
 package body ewok.init
@@ -57,19 +58,11 @@ is
       global         => null;
 #end if;
 
-   procedure system_init (addr : in system_address)
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "system_init",
-      global         => null;
-
 
    procedure main
      (argc  : in  integer;
       args  : in  system_address)
    is
-      seed  : unsigned_32;
       ok    : boolean;
    begin
       m4.cpu.disable_irq;
@@ -97,11 +90,10 @@ is
       -- Initialize DWT (required for precise time measurement)
       soc.dwt.init;
 
-      -- Initialize the platform TRNG, the collected seed value must
-      -- not be used as it is the first generated random value
-      seed := c.kernel.get_random_u32;
-      if seed = 0 then
-         debug.alert ("Unable to use TRNG!");
+      -- Initialize the platform TRNG
+      soc.rng.init (ok);
+      if not ok then
+         debug.alert ("Unable to use TRNG");
       end if;
 
       -- Initialize the stack protection, based on the hardware RNG device
@@ -125,7 +117,7 @@ is
             base_address : system_address
                with address => to_address (args);
          begin
-            system_init (base_address - ewok.layout.VTORS_SIZE);
+            soc.system.init (base_address - ewok.layout.VTORS_SIZE);
          end;
       else
          ewok.debug.panic ("No kernel base address: unable to support PIE!");

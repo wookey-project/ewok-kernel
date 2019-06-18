@@ -54,10 +54,7 @@ is
    end reset;
 
 
-   function init
-     (enable_hse  : types.c.bool;
-      enable_pll  : types.c.bool)
-      return types.c.t_retval
+   procedure init
    is
    begin
 
@@ -70,7 +67,7 @@ is
       -- the device does not operate at the maximum frequency.
       soc.pwr.PWR.CR.VOS := soc.pwr.VOS_SCALE1;
 
-      if enable_hse then
+      if default.enable_hse then
          RCC.CR.HSEON   := true;
          loop
             exit when RCC.CR.HSERDY;
@@ -83,19 +80,19 @@ is
          end loop;
       end if;
 
-      if enable_pll then
-         RCC.CR.PLLON := false;
-         RCC.PLLCFGR :=
+      if default.enable_pll then
+         RCC.CR.PLLON   := false;
+         RCC.PLLCFGR    :=
            (PLLM   => default.PLL_M, -- Division factor for the main PLL
             PLLN   => default.PLL_N, -- Main PLL multiplication factor for VCO
             PLLP   => default.PLL_P, -- Main PLL division factor for main system clock
-            PLLSRC => (if enable_hse then 1 else 0),
+            PLLSRC => (if default.enable_hse then 1 else 0),
                -- HSE or HSI oscillator clock selected as PLL
             PLLQ   => default.PLL_Q);
                -- Main PLL division factor for USB OTG FS, SDIO and random
                -- number generator
          -- Enable the main PLL
-         RCC.CR.PLLON := true;
+         RCC.CR.PLLON   := true;
          loop
             exit when RCC.CR.PLLRDY;
          end loop;
@@ -113,14 +110,13 @@ is
       RCC.CFGR.PPRE1 := default.APB1_DIV; -- APB1 low speed prescaler
       RCC.CFGR.PPRE2 := default.APB2_DIV; -- APB2 high speed prescaler
 
-      if enable_pll then
+      if default.enable_pll then
          RCC.CFGR.SW := 2#10#; -- PLL selected as system clock
          loop
             exit when RCC.CFGR.SWS = 2#10#;
          end loop;
       end if;
 
-      return types.c.SUCCESS;
    end init;
 
 
@@ -129,10 +125,11 @@ is
    begin
       case periph is
          when NO_PERIPH => return;
-         when DMA1_INFO .. DMA1_STR7   => soc.rcc.RCC.AHB1ENR.DMA1EN := true;
-         when DMA2_INFO .. DMA2_STR7   => soc.rcc.RCC.AHB1ENR.DMA2EN := true;
-         when CRYP_CFG .. CRYP         => soc.rcc.RCC.AHB2ENR.CRYPEN := true;
-         when HASH                     => soc.rcc.RCC.AHB2ENR.HASHEN := true;
+         when DMA1_INFO .. DMA1_STR7   => soc.rcc.RCC.AHB1ENR.DMA1EN  := true;
+         when DMA2_INFO .. DMA2_STR7   => soc.rcc.RCC.AHB1ENR.DMA2EN  := true;
+         when CRYP_CFG .. CRYP         => soc.rcc.RCC.AHB2ENR.CRYPEN  := true;
+         when HASH                     => soc.rcc.RCC.AHB2ENR.HASHEN  := true;
+         when RNG                      => soc.rcc.RCC.AHB2ENR.RNGEN   := true;
          when USB_OTG_FS               => soc.rcc.RCC.AHB2ENR.OTGFSEN := true;
          when USB_OTG_HS               =>
                            soc.rcc.RCC.AHB1ENR.OTGHSEN      := true;
