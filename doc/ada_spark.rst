@@ -3,7 +3,7 @@
 Ada/SPARK for a secure kernel
 =============================
 
-The EwoK microkernel is an Ada/SPARK kernel with very few lines of C.
+The EwoK microkernel is an Ada/SPARK kernel with a bit of assembly.
 
 Why implementing Ewok in Ada?
 -----------------------------
@@ -142,18 +142,6 @@ EwoK, various packages and subpackages are used.
    * Core-related packages belong to the core-relative package (e.g. `m4` for
      Cortex-M4)
 
-EwoK kernel is implemented with a little bit of C. Thus, some Ada/SPARK
-packages require
-an external interface with the C code. For a given package *foo* interacting
-with external C code, a *foo_interface* package must be defined.
-
-In the same way, as some various C types (structures, union, enumerates, etc.)
-have to be used in the interfaces packages, the following C-specific packages
-exist, containing only specifications:
-
-   * c package containing all C types and API that are arch-independent
-   * c_soc package, containing all C types and API that are SoC-specific
-
 Preprocessing in Ada
 --------------------
 
@@ -180,8 +168,8 @@ SDK. The reason is that the generated files contain information about the
 applications list, associated permissions and layout. All these information
 are stored by the SDK configuration mechanism, not by the kernel itself.
 
-The scripts generating these files (and the C equivalent) are hosted in the
-tools/ directory of the SDK:
+The scripts generating these files are hosted in the tools/ directory of the
+SDK:
 
    * tools/gen_ld: generates the global layout and the application layout header
    * tools/gen_symhdr.pl: generates the applications section mapping. Used to

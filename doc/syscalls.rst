@@ -27,23 +27,26 @@ the value returned by the syscall.
 
 An example of a syscall implementation: ::
 
-   e_syscall_ret sys_cfg_CFG_GPIO_GET(uint32_t cfgtype, uint8_t gpioref,
-                                      uint8_t * value)
+   e_syscall_ret sys_cfg_CFG_GPIO_GET(uint32_t cfgtype,
+                                      uint8_t gpioref, uint8_t * value)
    {
-       struct gen_syscall_args args =
-           { SYS_CFG, cfgtype, gpioref, (uint32_t) value, 0 };
-       return do_syscall(&args);
+       struct gen_syscall_args args = { gpioref, (uint32_t) value, 0, 0 };
+       return do_syscall(SVC_GPIO_GET, &args);
    }
 
-   e_syscall_ret do_syscall(__attribute__((unused)) struct gen_syscall_args *args)
+   e_syscall_ret do_syscall(e_svc_type svc, __attribute__ ((unused))
+                            struct gen_syscall_args *args)
    {
        e_syscall_ret ret;
-       asm volatile (
-           "svc #0\n"
-           "str  r0, %[ret]\n"
-           : [ret] "=m"(ret) :: "r0");
-       return ret;
-   }
+
+       switch (svc) {
+   ...
+        case SVC_GPIO_GET:
+            asm volatile ("mov r0, %[args]; svc %[svc]; str  r0, %[ret]\n"
+                          :[ret] "=m"(ret)
+                          :[svc] "i"(SVC_GPIO_GET),[args] "g"(args)
+                          :"r0");
+   ...
 
 Returned values
 ^^^^^^^^^^^^^^^
