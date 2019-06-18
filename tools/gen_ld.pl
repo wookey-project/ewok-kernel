@@ -20,10 +20,8 @@ my $out_ld  = shift;
 my $firmnum = shift;
 
 my $ada_pkg_name    = "applications";
-my $out_header      = "kernel/src/C/generated/apps_layout.h";
 my $out_header_ada  = "kernel/src/Ada/generated/$ada_pkg_name.ads";
 
-open my $OUTHDR, ">", "$out_header" or die "unable to open $out_header";
 open my $OUTHDR_ADA, ">", "$out_header_ada" or die "unable to open $out_header_ada";
 
 my %hash;
@@ -43,38 +41,6 @@ foreach my $i (grep {!/_/} sort(keys(%hash))) {
 
 my @apps = (grep {/.*_${mode}$/} (sort keys %hash));
 my $appcnt = @apps;
-
-#-----------------------------------------------------------------------------
-# C header
-#-----------------------------------------------------------------------------
-
-print $OUTHDR <<EOF
-#ifndef APP_LAYOUT_H_
-#define APP_LAYOUT_H_
-
-#include "autoconf.h"
-#include "types.h"
-#include "perm.h"
-#include "soc-layout.h"
-
-struct app {
-    const char    *name;
-    uint8_t        slot;
-    uint8_t        domain;
-    uint8_t        prio;
-    physaddr_t     startisr;
-    uint8_t        num_slots;
-    physaddr_t     stack_bottom;
-    physaddr_t     stack_top;
-    uint16_t       stack_size;
-    uint32_t       res_perm_reg; /* ressource permission register */
-};
-
-#define ID_APPMAX ID_APP$appcnt
-
-static const struct app app_tab[] = {
-EOF
-;
 
 
 #-----------------------------------------------------------------------------
@@ -206,8 +172,6 @@ foreach my $i (grep {!/_/} sort(keys(%hash))) {
   my $stack_top = `$ENV{'CROSS_COMPILE'}nm -a build/$arch/$board/apps/\L$i\E/\L$i\E.${firmnum}.elf |grep "_e_stack"|awk '{ print \$1  }'`;
   chomp($stack_top);
 
-  print $OUTHDR "  { \"APPNAME\", $slot, $domain, $priority, 0x$startisr,  $num_slots, 0x$stack_bottom, 0x$stack_top, $stack_size, $register }," =~ s/APPNAME/\L$i\E/gr;
-
   # Trailing ',' to separate records
   if ($slot gt 1) {
     printf $OUTHDR_ADA ",\n";
@@ -229,31 +193,16 @@ foreach my $i (grep {!/_/} sort(keys(%hash))) {
 
 
 # closing app structure
-print $OUTHDR "
-};
-
-";
-
 print $OUTHDR_ADA "
    );
 
 ";
 
 #-----------------------------------------------------------------------------
-# C & Ada body, define current firmware user TXT & RAM region base & size
+# Ada body, define current firmware user TXT & RAM region base & size
 #-----------------------------------------------------------------------------
 #
 my $prefix="\U${firmnum}\L";
-
-print $OUTHDR "
-#define TXT_KERN_REGION_BASE ${prefix}_KERN_BASE
-#define TXT_KERN_REGION_SIZE ${prefix}_KERN_REGION_SIZE
-#define TXT_KERN_SIZE        ${prefix}_KERN_SIZE
-
-#define TXT_USER_REGION_BASE ${prefix}_USER_BASE
-#define TXT_USER_REGION_SIZE ${prefix}_USER_REGION_SIZE
-#define TXT_USER_SIZE        ${prefix}_USER_SIZE
-";
 
 print $OUTHDR_ADA "
    txt_kern_region_base : constant unsigned_32   := soc.layout.${prefix}_KERN_BASE;
@@ -266,14 +215,9 @@ print $OUTHDR_ADA "
 ";
 
 #-----------------------------------------------------------------------------
-# C & Ada footer
+# Ada footer
 #-----------------------------------------------------------------------------
 
-
-print $OUTHDR "
-
-#endif /*!APP_LAYOUT_H_*/
-";
 
 print $OUTHDR_ADA "
 

@@ -1,7 +1,0 @@
-BOARD_DIR = $(PROJ_FILES)/kernel/src/arch/boards/$(BOARD)
-
-CFLAGS += -I$(BOARD_DIR)
-CFLAGS += -I$(BOARD_DIR)/..
-
-board-bsp-y :=
-

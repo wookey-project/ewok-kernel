@@ -152,113 +152,6 @@ sub parse_matrix
   }
 }
 
-
-#------------------------------------------------------
-# C HEADER FILE RELATED FUNCTIONS
-# This functions are used to generate the C header file
-#------------------------------------------------------
-
-#
-# Generate the table of ressource registers based on the configuration
-#
-# Each application has its own ressource permission register. This function
-# generate the C format ressource table for all applications
-#
-
-sub generate_c_ressource_perm
-{
-  my $outfile=shift;
-  my $register = 0;
-
-  print $outfile "static const ressource_reg_t ressource_perm_tab[] = {\n";
-  foreach my $app (grep {!/_/} sort(keys(%hash)))
-  {
-
-      next if (not defined($hash{"${app}_${mode}"}));
-      $register = parse_ressource_perms($app);
-      printf $outfile "    0x%08x, /* %s */\n", $register, lc $app;
-  }
-  print $outfile "};\n\n";
-}
-
-
-
-#
-# Generate a boolean matrix for C header
-#
-# This function is based on the output of parse_matrix.
-#
-sub generate_c_matrix
-{
-  my $hashperm=shift;
-  my $tabname=shift;
-  my $outfile=shift;
-
-  # ass bool tab[][] is not allowed in C, we must
-  # fixed one of the table depth. As te matrix is
-  # a square based on the number of applications,
-  # we use it for table depth
-  my @apps = (grep {/.*_${mode}$/} (sort keys %hash));
-  my $appnum = @apps;
-
-  my $string="/* $tabname communication permissions */
-static const bool com_${tabname}_perm[][$appnum] = {\n";
-  for my $i (grep {!/_/} (sort keys %hash))
-  {
-    next if (not defined($hash{"${i}_${mode}"}));
-    $string.="    {";
-    for my $j (grep {!/_/} (sort keys %hash))
-    {
-      next if (not defined($hash{"${j}_${mode}"}));
-      $string.=($hashperm{$i}{$j}+0).", ";
-    }
-    $string=~s/, $/},\n/;
-  }
-  $string=~s/,\n$/\n};\n\n/;
-  print $outfile $string;
-}
-
-#
-# Generate C header first lines
-#
-# This function add preprocessing content at the begining of the
-# header file
-#
-
-sub generate_c_header
-{
-  my $outfile=shift;
-  my $head_string="#ifndef COM_PERM_H_
-# define COM_PERM_H_
-
-#include \"autoconf.h\"
-#include \"types.h\"
-
-/* ressource register */
-typedef uint32_t ressource_reg_t;
-
-";
-
-  print $outfile $head_string;
-}
-
-#
-# \brief generate C header last lines
-#
-# This function add preprocessing content at the end of the
-# header file
-#
-sub generate_c_footer
-{
-  my $outfile=shift;
-  my $foot_string="
-
-#endif /*!COM_PERM_H_*/
-";
-
-  print $outfile $foot_string;
-}
-
 #######################################################
 # ADA HEADER FILE RELATED FUNCTIONS
 # This functions are used to generate the Ada header file
@@ -504,21 +397,17 @@ sub main
   # We shift the config file from argv as it has been parsed
   shift @ARGV;
 
-  my $c_header = "kernel/src/C/generated/gen_perms.h";
   my $ada_header = "kernel/src/Ada/generated/ewok-perm_auto.ads";
 
   #
-  # C & Ada header file generation
+  # Ada header file generation
   #
-  open my $C_HEADER, ">", "$c_header" or die "Unable to open $c_header";
   open my $ADA_HEADER, ">", "$ada_header" or die "Unable to open $ada_header";
 
   # Starting file
-  generate_c_header($C_HEADER);
   generate_ada_header($ADA_HEADER);
 
   # Generate ressource permission registers table
-  generate_c_ressource_perm($C_HEADER);
   generate_ada_ressource_perm($ADA_HEADER);
 
   #
@@ -544,15 +433,12 @@ sub main
     $file =~ s/(.*\/)(.*)\..*/\2/g;
 
     parse_matrix($configfile,\%hashperm);
-    generate_c_matrix($hashperm, $file, $C_HEADER);
     generate_ada_matrix($hashperm, $file, $ADA_HEADER);
   }
 
   # End of file
-  generate_c_footer($C_HEADER);
   generate_ada_footer($ADA_HEADER);
 
-  close $C_HEADER;
   close $ADA_HEADER;
 
   #
