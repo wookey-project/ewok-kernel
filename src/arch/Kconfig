@@ -98,42 +98,6 @@ if WOOKEY
 source "kernel/src/arch/socs/stm32f439/Kconfig"
 endif
 
-config FPU_ENABLE
-  bool "Enable Hardware Floating point unit (FPU)"
-  default n
-  help
-    Enable the hardware FPU support. Caution: no FPU context save
-    is supported by now.
-
-choice
-  prompt "FPU access rights"
-  depends on FPU_ENABLE
-config FPU_ENABLE_ALL
-    bool "Allow FPU for all (privilegied and unprivilegied)"
-    help
-      Any task can use the hardware floating point unit.
-config FPU_ENABLE_PRIVILEGIED
-    bool "Allow FPU for privilegied only"
-    help
-      Only privilegied (i.e. supervisor) task can use hardware
-      floating point unit.
-endchoice
-
-choice
-  prompt "FPU context management"
-  depends on FPU_ENABLE
-config FPU_NOSAVE
-    bool "No context saving support"
-    help
-      No context save. FPU must be used only in unpreemptive part of the code.
-config FPU_LAZY
-    bool "Lazy saving (EXPERIMENTAL)"
-    help
-      Lazy context save. FPU can be used in preemptive mode but with reduced
-      register set.
-endchoice
-
-
 config CORE_FREQUENCY
   int "Target core frequency"
   depends on STM32F4 || STM32F2

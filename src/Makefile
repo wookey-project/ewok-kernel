@@ -41,7 +41,6 @@ LDFLAGS += $(EXTRA_LDFLAGS) -L$(APP_BUILD_DIR) $(AFLAGS_GCC) -fno-builtin -nostd
 
 
 LD_LIBS = -lkernel -L$(APP_BUILD_DIR)/Ada/lib
-LD_LIBS += -lbsp -L$(BUILD_DIR)/kernel/libbsp
 LD_LIBS += -lgnat -L$(BUILD_DIR)/kernel/libgnat
 
 BUILD_DIR ?= $(PROJ_FILE)build
@@ -86,7 +85,7 @@ all:
 	@echo "is downloaded and can be compiled"
 else
 
-all: $(APP_BUILD_DIR) libgnat libbsp kernel
+all: $(APP_BUILD_DIR) libgnat kernel
 
 endif
 
@@ -103,11 +102,6 @@ show:
 	@echo "\t\tBUILD_DIR\t=> " $(BUILD_DIR)
 	@echo "\t\tAPP_BUILD_DIR\t=> " $(APP_BUILD_DIR)
 	@echo
-
-libbsp:
-	$(Q)$(MAKE) -C arch clean
-	$(Q)$(MAKE) -C arch EXTRA_CFLAGS="-DKERNEL"
-	$(Q)$(MAKE) -C arch EXTRA_CFLAGS="-DLOADER"
 
 libgnat:
 	$(Q)$(MAKE) -C Ada/libgnat all

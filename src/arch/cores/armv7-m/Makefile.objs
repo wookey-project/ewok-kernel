@@ -8,10 +8,6 @@ core-bsp-y :=
 
 # configurable
 
-# per app
-# no need for FPU for loader
-core-bsp-$(CONFIG_FPU_ENABLE) += C/m4-fpu.c
-
 core-ada-bsp-y :=
 # for Ada equivalent
 

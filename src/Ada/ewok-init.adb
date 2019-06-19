@@ -42,23 +42,6 @@ package body ewok.init
    with spark_mode => off
 is
 
-   procedure init_stack_chk_guard
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "init_stack_chk_guard",
-      global         => null;
-
-#if CONFIG_FPU_ENABLE
-   procedure fpu_enable
-   with
-      convention     => c,
-      import         => true,
-      external_name  => "fpu_enable",
-      global         => null;
-#end if;
-
-
    procedure main
      (argc  : in  integer;
       args  : in  system_address)
@@ -96,15 +79,9 @@ is
          debug.alert ("Unable to use TRNG");
       end if;
 
-      -- Initialize the stack protection, based on the hardware RNG device
-      init_stack_chk_guard;
-
 #if CONFIG_KERNEL_DMA_ENABLE
+      -- Initialize DMA controllers
       ewok.dma.init;
-#end if;
-
-#if CONFIG_FPU_ENABLE
-      fpu_enable;
 #end if;
 
       -- Initialize the EXTIs
