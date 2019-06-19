@@ -113,6 +113,7 @@ library project Libkernel is
       "ewok.syscalls.log",
       "ewok.syscalls.sleep",
       "ewok.syscalls.yield",
+      "ewok.syscalls.exiting",
       "ewok.tasks",
       "ewok.tasks.debug",
       "ewok.tasks_shared",

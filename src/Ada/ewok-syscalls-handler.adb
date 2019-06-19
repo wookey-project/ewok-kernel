@@ -35,6 +35,7 @@ with ewok.syscalls.reset;
 with ewok.syscalls.rng;
 with ewok.syscalls.sleep;
 with ewok.syscalls.yield;
+with ewok.syscalls.exiting;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with m4.cpu.instructions;
@@ -109,33 +110,9 @@ is
 
       case svc is
 
-         when SVC_EXIT   =>
-
-            if current_a.all.mode = TASK_MODE_ISRTHREAD then
-#if CONFIG_SCHED_SUPPORT_FISR
-               declare
-                  current_state : constant t_task_state :=
-                     ewok.tasks.get_state (current_id, TASK_MODE_MAINTHREAD);
-               begin
-                  if current_state = TASK_STATE_RUNNABLE or
-                     current_state = TASK_STATE_IDLE
-                  then
-                     ewok.tasks.set_state
-                       (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
-                  end if;
-               end;
-#end if;
-               ewok.tasks.set_state
-                 (current_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
-               return ewok.sched.do_schedule (frame_a);
-
-            -- Main thread mode
-            else
-               -- FIXME: maybe we should clean resources (devices, DMA, IPCs) ?
-               ewok.tasks.set_state
-                 (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
-               return ewok.sched.do_schedule (frame_a);
-            end if;
+         when SVC_EXIT           =>
+            ewok.syscalls.exiting.svc_exit (current_id, current_a.all.mode);
+            return ewok.sched.do_schedule (frame_a);
 
          when SVC_YIELD          =>
             ewok.syscalls.yield.svc_yield (current_id, current_a.all.mode);
