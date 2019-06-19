@@ -53,9 +53,6 @@ prepare:
 show:
 	$(Q)$(MAKE) -C src show
 
-libbsp:
-	make -C src/arch
-
 prove:
 	$(Q)$(MAKE) -C $@ all
 
