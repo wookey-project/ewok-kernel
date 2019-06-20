@@ -55,10 +55,10 @@ library project Libkernel is
       "arch/cores/" & external("ARCH") & "/Ada",
       "arch/socs/" & external("SOCNAME") & "/Ada",
       "arch/socs/" & external("SOCNAME") & "/Ada/generated",
-      "Ada",
-      "Ada/syscalls",
-      "Ada/exported",
-      "Ada/generated");
+      ".",
+      "./syscalls",
+      "./exported",
+      "./generated");
 
    for Library_Dir   use external("BUILD_DIR") & "/Ada/lib";
    for Object_Dir    use external("BUILD_DIR") & "/Ada";

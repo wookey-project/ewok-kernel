@@ -20,7 +20,7 @@ my $out_ld  = shift;
 my $firmnum = shift;
 
 my $ada_pkg_name    = "applications";
-my $out_header_ada  = "kernel/src/Ada/generated/$ada_pkg_name.ads";
+my $out_header_ada  = "kernel/src/generated/$ada_pkg_name.ads";
 
 open my $OUTHDR_ADA, ">", "$out_header_ada" or die "unable to open $out_header_ada";
 

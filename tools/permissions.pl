@@ -397,7 +397,7 @@ sub main
   # We shift the config file from argv as it has been parsed
   shift @ARGV;
 
-  my $ada_header = "kernel/src/Ada/generated/ewok-perm_auto.ads";
+  my $ada_header = "kernel/src/generated/ewok-perm_auto.ads";
 
   #
   # Ada header file generation
