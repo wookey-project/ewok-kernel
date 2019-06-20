@@ -5,6 +5,10 @@ s-imglli.ads
 s-imglli.adb
 gnat.ads
 s-imguns.ads
+s-memcop.adb
+s-memcop.ads
 s-memmov.adb
 s-memmov.ads
+s-memset.adb
+s-memset.ads
 system.ads

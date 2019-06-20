@@ -4,8 +4,12 @@ src/Ada/libgnat/gnat/s-imgint.ads
 src/Ada/libgnat/gnat/s-imglli.adb
 src/Ada/libgnat/gnat/s-imglli.ads
 src/Ada/libgnat/gnat/s-imguns.ads
+src/Ada/libgnat/gnat/s-memcop.adb
+src/Ada/libgnat/gnat/s-memcop.ads
 src/Ada/libgnat/gnat/s-memmov.adb
 src/Ada/libgnat/gnat/s-memmov.ads
+src/Ada/libgnat/gnat/s-memset.adb
+src/Ada/libgnat/gnat/s-memset.ads
 src/Ada/libgnat/gnat/system.ads
 src/Ada/libgnat/gnat/ada.ads
 src/Ada/libgnat/gnat/gnat.ads
