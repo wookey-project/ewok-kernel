@@ -52,9 +52,9 @@ library project Libkernel is
 
    for Source_Dirs use
      ("arch/Ada",
-      "arch/cores/" & external("ARCH") & "/Ada",
-      "arch/socs/" & external("SOCNAME") & "/Ada",
-      "arch/socs/" & external("SOCNAME") & "/Ada/generated",
+      "arch/cores/" & external("ARCH"),
+      "arch/socs/" & external("SOCNAME"),
+      "arch/socs/" & external("SOCNAME") & "/generated",
       ".",
       "./syscalls",
       "./exported",

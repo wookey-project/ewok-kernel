@@ -1,0 +1,1 @@
+../stm32f439/soc-layout-stm32f42x.ads
