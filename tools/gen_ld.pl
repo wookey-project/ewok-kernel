@@ -22,6 +22,8 @@ my $firmnum = shift;
 my $ada_pkg_name    = "applications";
 my $out_header_ada  = "kernel/src/generated/$ada_pkg_name.ads";
 
+mkdir("kernel/src/generated/",0755) if !-d "kernel/src/generated/";
+
 open my $OUTHDR_ADA, ">", "$out_header_ada" or die "unable to open $out_header_ada";
 
 my %hash;
