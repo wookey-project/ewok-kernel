@@ -17,8 +17,8 @@ my $arch    = shift;
 my $board   = shift;
 my $firmnum = shift;
 
-my $out_ads = "kernel/src/Ada/generated/sections.ads";
-my $out_adb = "kernel/src/Ada/generated/sections.adb";
+my $out_ads = "kernel/src/generated/sections.ads";
+my $out_adb = "kernel/src/generated/sections.adb";
 
 open my $OUT_ADS, ">", "$out_ads"   or die "unable to open $out_ads";
 open my $OUT_ADB, ">", "$out_adb"   or die "unable to open $out_adb";

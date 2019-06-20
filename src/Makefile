@@ -69,7 +69,7 @@ TODEL_CLEAN += $(OBJ) $(ALDIR) $(ALIB) $(DEP) $(LDSCRIPT_NAME)
 # targets
 TODEL_DISTCLEAN += $(APP_BUILD_DIR)
 
-.PHONY: __clean __distclean
+.PHONY: __clean __distclean libgnat
 
 default: all
 
@@ -104,7 +104,7 @@ show:
 	@echo
 
 libgnat:
-	$(Q)$(MAKE) -C Ada/libgnat all
+	$(Q)$(MAKE) -C libgnat all
 
 kernel: $(APP_BUILD_DIR)/$(ELF_NAME) $(APP_BUILD_DIR)/$(HEX_NAME)
 
