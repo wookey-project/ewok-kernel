@@ -123,7 +123,7 @@ is
       dwt_loops   := 0;
       reset_timer;
       start_timer;
-      init_done := True;
+      init_done   := true;
    end init;
 
 

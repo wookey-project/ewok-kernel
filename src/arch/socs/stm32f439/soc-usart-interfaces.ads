@@ -1,6 +1,6 @@
 
 package soc.usart.interfaces
-   with spark_mode => on
+   with spark_mode => off
 is
 
    procedure configure

@@ -20,6 +20,7 @@
 --
 --
 
+with system;
 
 package m4.fpu
    with spark_mode => off
@@ -170,7 +171,7 @@ is
       FPCCR  at 16#04# range 0 .. 31;
       FPCAR  at 16#08# range 0 .. 31;
       FPDSCR at 16#0C# range 0 .. 31;
-   end record
+   end record;
 
    FPU   : t_FPU_peripheral
       with
