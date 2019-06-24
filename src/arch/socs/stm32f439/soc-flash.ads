@@ -21,7 +21,9 @@
 --
 with system;
 
-package soc.flash is
+package soc.flash
+   with spark_mode => off
+is
 
    -----------------------------------------------
    -- Flash access control register (FLASH_ACR) --

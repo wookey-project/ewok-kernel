@@ -21,7 +21,9 @@
 --
 with system;
 
-package soc.pwr is
+package soc.pwr
+   with spark_mode => off
+is
 
    -------------------------------------------
    -- PWR power control register (PWR_CR)   --

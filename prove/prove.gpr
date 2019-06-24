@@ -1,14 +1,14 @@
 project Prove is
 
    for Source_Dirs use
-     ("../src/Ada",
-      "../src/Ada/exported",
-      "../src/Ada/syscalls",
-      "../src/Ada/generated",
+     ("../src",
+      "../src/exported",
+      "../src/syscalls",
+      "../src/generated",
       "../src/arch/Ada",
-      "../src/arch/cores/armv7-m/Ada",
-      "../src/arch/socs/stm32f439/Ada/generated",
-      "../src/arch/socs/stm32f439/Ada");
+      "../src/arch/cores/armv7-m",
+      "../src/arch/socs/stm32f439/generated",
+      "../src/arch/socs/stm32f439");
 
    for Runtime ("Ada") use "zfp-stm32f4";
    for Target use "arm-eabi";
