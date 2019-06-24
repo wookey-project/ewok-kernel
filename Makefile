@@ -47,8 +47,7 @@ doc:
 	$(Q)$(MAKE) BUILDDIR=../$(APP_BUILD_DIR)/doc  -C doc html latexpdf
 
 prepare:
-	@mkdir -p src/C/generated
-	@mkdir -p src/Ada/generated
+	@mkdir -p src/generated
 
 show:
 	$(Q)$(MAKE) -C src show
