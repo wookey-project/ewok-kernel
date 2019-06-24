@@ -29,11 +29,7 @@ is
    function get_random
      (s    : in  system_address;
       len  : in  unsigned_16)
-      return types.c.t_retval
-   with
-      convention     => c,
-      export         => true,
-      external_name  => "get_random";
+      return types.c.t_retval;
 
 end ewok.rng.interfaces;
 
