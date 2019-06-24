@@ -1,7 +1,7 @@
 .. _ewok_kernel:
 
-EwoK microkernel
-================
+EwoK: a secure microkernel for building secure embedded systems
+===============================================================
 
 .. image:: img/ewok.png
    :height: 250px
@@ -24,18 +24,25 @@ Drivers are hold in userspace. Unlike most of
 other microkernels, the goal is to support complex drivers (ISO7816,
 USB, CRYP, SDIO) while achieving high performances.
 
-Security properties
-^^^^^^^^^^^^^^^^^^^
+What makes EwoK secure?
+^^^^^^^^^^^^^^^^^^^^^^^
 
-EwoK supports the following properties:
+EwoK is a microkernel enforcing strict isolation between tasks and device
+drivers and providing strict access control to physical resources (devices,
+etc.) and strong enforcement of the least privilege principle.
+
+EwoK is also implemented in Ada/SPARK, a strongly typed language often used
+in highly critical domains (avionic, railway systems, space, etc.) to build
+safe and secure software.
+
+Some other security features provided by EwoK:
 
    * Strict memory partitioning
    * Strict partitioning of physical resources (devices, etc.)
    * Fixed permissions management, set at compile time and easily verifiable
-   * Kernel Random Number Generation support (based on True RNG HW on STM32)
-   * Stack smashing protection in both kernel and userspace tasks
-   * Userspace Heap smashing defenses
-   * Proved W^X memory mappings
+   * Stack smashing protection
+   * Heap/Stack smashing protection
+   * Proved W⊕X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
 Performances
