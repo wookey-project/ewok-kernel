@@ -66,12 +66,7 @@ is
 
    syscall_queue  : p_syscall_requests.ring;
 
-   procedure init
-   with
-      convention     => c,
-      export         => true,
-      external_name  => "softirq_init",
-      global         => null;
+   procedure init;
 
    procedure push_isr
      (task_id     : in  ewok.tasks_shared.t_task_id;

@@ -148,9 +148,6 @@ is
 
    function get_interrupt return t_interrupt
       with
-         inline,
-         convention     => c,
-         export         => true,
-         external_name  => "interrupt_get_num";
+         inline;
 
 end soc.interrupts;

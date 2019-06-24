@@ -89,9 +89,6 @@ is
    -- stop the DWT timer
    procedure stop_timer
    with
-      convention     => c,
-      export         => true,
-      external_name  => "soc_dwt_stop_timer",
       pre            => init_is_done,
       global         => (input => Ini_F,
                         in_out => Ctrl),
@@ -106,10 +103,7 @@ is
    -- dwt_loop doesn't overflow
    procedure ovf_manage
    with
-      pre            => check_32bits_overflow,
-      convention     => c,
-      export         => true,
-      external_name  => "soc_dwt_ovf_manage";
+      pre            => check_32bits_overflow;
 
    -- initialize the DWT module
    -- This procedure is called by the kernel main() function, and as
@@ -123,11 +117,7 @@ is
                          output => (Last,
                                     Loo,
                                     Cnt,
-                                    Lar_register)),
-      convention     => c,
-      export         => true,
-      external_name  => "soc_dwt_init";
-
+                                    Lar_register));
 
 
    -- get the DWT timer (without overflow support, keep a 32bit value)

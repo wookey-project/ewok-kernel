@@ -20,8 +20,6 @@
 --
 --
 
-with types.c;
-
 package ewok.debug
    with spark_mode => off
 is
@@ -40,6 +38,8 @@ is
    procedure log (s : string; nl : boolean := true);
    procedure log (level : t_level; s : string);
 
+   -- Note: those procedures are exported to be used by the libgnat
+   --       'last_chance_handler'
    procedure alert (s : string)
    with  convention     => ada,
          export         => true,
@@ -51,15 +51,5 @@ is
          external_name  => "ewok_debug_newline";
 
    procedure panic (s : string);
-
-   --
-   -- Needed by C code
-   --
-   pragma warnings (off);
-   procedure c_panic (c_msg : types.c.c_string)
-   with  convention     => c,
-         export         => true,
-         external_name  => "panic";
-   pragma warnings (on);
 
 end ewok.debug;

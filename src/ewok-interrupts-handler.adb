@@ -105,7 +105,7 @@ is
       it := soc.interrupts.get_interrupt;
 
       --
-      -- Exceptions (not nested)
+      -- Exceptions and interrupts (not nested)
       --
       if frame_a.all.exc_return = 16#FFFF_FFFD# then
 
@@ -132,7 +132,8 @@ is
                   interrupt_table(it).task_id);
                new_frame_a := ewok.sched.do_schedule (frame_a);
             else
-               debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
+               debug.log (debug.ALERT,
+                  "Unhandled interrupt " & t_interrupt'image (it));
             end if;
          end if;
 
@@ -162,7 +163,6 @@ is
       -- Nested exceptions
       --
       elsif frame_a.all.exc_return = 16#FFFF_FFF1# then
-         --debug.log (debug.DEBUG, "Nested interrupt: " & t_interrupt'image (it));
 
          -- System exceptions
          if it < INT_WWDG then
@@ -171,9 +171,11 @@ is
                when INT_SYSTICK => null;
                when others      =>
                   if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
-                     new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
+                     new_frame_a :=
+                        interrupt_table(it).task_switch_handler (frame_a);
                   else
-                     debug.panic ("Unhandled exception " & t_interrupt'image (it));
+                     debug.panic
+                       ("Unhandled exception " & t_interrupt'image (it));
                   end if;
             end case;
 
@@ -190,7 +192,8 @@ is
                   interrupt_table(it).handler,
                   interrupt_table(it).task_id);
             else
-               debug.panic ("Unhandled interrupt " & t_interrupt'image (it));
+               debug.log (debug.ALERT,
+                  "Unhandled interrupt " & t_interrupt'image (it));
             end if;
 
          end if;
@@ -201,6 +204,10 @@ is
       -- Privileged exceptions
       --
       elsif frame_a.all.exc_return = 16#FFFF_FFF9# then
+
+         -- Note: should never happen as threads use the process stack
+         --       (they never use the main stack)
+
          if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
             new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
          end if;

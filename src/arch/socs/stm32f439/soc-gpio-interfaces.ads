@@ -34,11 +34,7 @@ is
       ospeed   : in  t_pin_output_speed;
       pupd     : in  t_pin_pupd;
       af       : in  t_pin_alt_func)
-      return types.c.t_retval
-   with
-      convention     => c,
-      export         => true,
-      external_name  => "soc_gpio_configure";
+      return types.c.t_retval;
 
 end soc.gpio.interfaces;
 

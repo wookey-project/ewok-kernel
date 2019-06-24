@@ -29,11 +29,7 @@ is
    procedure svc_register_device
      (caller_id   : in ewok.tasks_shared.t_task_id;
       params      : in t_parameters;
-      mode        : in ewok.tasks_shared.t_task_mode)
-      with
-         convention     => c,
-         export         => true,
-         external_name  => "init_do_reg_devaccess";
+      mode        : in ewok.tasks_shared.t_task_mode);
 
    procedure svc_init_done
      (caller_id   : in  ewok.tasks_shared.t_task_id;

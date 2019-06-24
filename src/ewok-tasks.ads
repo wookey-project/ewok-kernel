@@ -273,9 +273,6 @@ is
 
    procedure task_init
    with
-      convention     => c,
-      export         => true,
-      external_name  => "task_init",
       global         => null;
 
    function is_init_done

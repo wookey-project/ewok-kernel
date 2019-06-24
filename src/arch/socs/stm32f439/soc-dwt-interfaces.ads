@@ -26,19 +26,11 @@ is
 
    -- get the DWT timer (without overflow support, keep a 32bit value)
    function get_cycles_32
-     return Unsigned_32
-   with
-      convention      => c,
-      export          => true,
-       external_name  => "soc_dwt_getcycles";
+     return Unsigned_32;
 
    -- get the DWT timer with overflow support. permits linear measurement
    -- on 64 bits cycles time window (approx. 1270857 days)
    function get_cycles
-     return Unsigned_64
-   with
-      convention     => c,
-      export         => true,
-      external_name  => "soc_dwt_getcycles_64";
+     return Unsigned_64;
 
 end soc.dwt.interfaces;

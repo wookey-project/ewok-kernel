@@ -223,13 +223,4 @@ is
 #end if;
    end panic;
 
-
-   procedure c_panic (c_msg : types.c.c_string)
-   is
-      msg : string (1 .. types.c.len (c_msg));
-   begin
-      types.c.to_ada (msg, c_msg);
-      panic (msg);
-   end c_panic;
-
 end ewok.debug;

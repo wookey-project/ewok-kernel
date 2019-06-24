@@ -126,19 +126,12 @@ is
    ---------------
 
    -- Initialize the systick module
-   procedure init
-      with
-         convention     => c,
-         export         => true,
-         external_name  => "core_systick_init";
+   procedure init;
 
    -- Get the number of milliseconds elapsed since booting
    function get_ticks return unsigned_64
       with
-         volatile_function,
-         convention     => c,
-         export         => true,
-         external_name  => "core_systick_get_ticks";
+         volatile_function;
 
    function get_milliseconds return milliseconds
       with
