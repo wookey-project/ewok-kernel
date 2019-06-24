@@ -1,4 +1,4 @@
-# About EwoK microkernel
+# EwoK, a secure microkernel for building secure embedded systems
 
 
 [![Release](https://img.shields.io/github/release/wookey-project/ewok-kernel.svg)](https://github.com/wookey-project/ewok-kernel/releases/latest)
@@ -7,8 +7,8 @@
 
 ## What is EwoK ?
 
-EwoK is a microkernel targeting micro-controllers and embedded systems. It aims
-to bring an efficient hardening of embedded devices with a reduced impact on
+EwoK is a highly secure microkernel targeting micro-controllers and embedded systems.
+It aims to bring an efficient hardening of embedded devices with a reduced impact on
 the device performances.
 
 EwoK has been designed to host complex drivers in userspace. Unlike most of
@@ -17,7 +17,15 @@ as well as high performance (USB, SDIO, CRYP) drivers. This makes EwoK valuable
 for multiple use cases, including high speed and security targeted devices.
 Security properties
 
-EwoK supports the following properties:
+EwoK is a microkernel enforcing strict isolation between tasks and device
+drivers and providing strict access control to physical resources (devices,
+etc.) and strong enforcement of the least privilege principle.
+
+EwoK is also implemented in Ada/SPARK, a strongly typed language often used
+in highly critical domains (avionic, railway systems, space, etc.) to build
+safe and secure software.
+
+Some other security features provided by EwoK:
 
    * Strict memory partitioning
    * Strict partitioning of physical resources (devices, etc.)
@@ -35,7 +43,7 @@ Nevertheless, DMA registers are never directly accessible to user tasks and any
 DMA configuration implies a validation of all the inputs by the kernel before
 any modification of the controller is pushed at the hardware level.
 
-## EwoK microkernel architecture
+## EwoK architecture
 
 The Ewok kernel is divided into two main components: the *libbsp* and the *kernel*
 part.
