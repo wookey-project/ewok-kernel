@@ -12,7 +12,7 @@ It aims to bring an efficient hardening of embedded devices with a reduced impac
 the device performances.
 
 EwoK has been designed to host complex drivers in userspace. Unlike most of
-other microkernels, the goal is to support complex software stacks (ISO7816, …)
+other microkernels, the goal is to support complex software stacks (ISO7816,...)
 as well as high performance (USB, SDIO, CRYP) drivers. This makes EwoK valuable
 for multiple use cases, including high speed and security targeted devices.
 Security properties
@@ -32,7 +32,7 @@ Some other security features provided by EwoK:
    * Fixed permissions management, set at compile time and easily verifiable
    * Stack smashing protection
    * Heap/Stack smashing protection
-   * Proved W⊕X memory mappings
+   * Proved W^X memory mappings
    * Strict temporal separation between declarative phase and execution phase
 
 Ewok provides to the userspace drivers a specific interface to allow them to
@@ -92,10 +92,10 @@ others cannot. This property is described in each syscall documentation, and
 the developer will have to refer to it and understand in which context a piece
 of code is executed before calling such a syscall.
 
-## EwoK permission model
+## EwoK permission model
 
 EwoK permission model is static. Permissions are set at configuration time,
-before building the firmware, and can’t be updated during the device life
+before building the firmware, and can't be updated during the device life
 cycle. Each application permissions are stored in a .rodata part of the kernel,
 reducing the risk of any invalid modification.
 
