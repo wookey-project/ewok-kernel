@@ -4,51 +4,33 @@ source "kernel/src/arch/Kconfig"
 
 endmenu
 
-# now Ada/SPARK kernel is mandatory
+#
+# Mandatory
+#
 config ADAKERNEL
   bool
   default y
 
-config KERNEL_NOSERIAL
-  bool "No kernel serial interface (production mode)"
+#
+# Serial interface for debugging
+#
+config KERNEL_SERIAL
+  bool "Kernel serial interface activated (debug mode)"
   default n
   ---help---
-  This option deactivate the kernel serial interface. There is
-  no more information printed out on any serial interface.
-  Userspace applications printf content will be deleted by
+  This option activates the kernel serial interface (mainly
+  for debugging purpose).
+  The kernel usart interface is activated.
+  Userspace applications printf content will be printed by
   the kernel.
-  The kernel usart interface is *not* activated.
-  This mode is a self-protection mechanism to avoid any leak
-  due to debug message content. The kernel usart attack surface
-  is also closed. This should be the standard behavior of a production
-  mode.
+  This should be disabled in production mode.
 
-choice
-  prompt "Kernel Panic behavior"
-  default KERNEL_PANIC_FREEZE
-    config KERNEL_PANIC_FREEZE
-    bool "Freeze on panic"
-    ---help---
-       Freeze the system on kernel panic(). This freeze the execution.
-       All the software stack is still mapped in flash and RAM. Useful
-       for debugging purpose.
+config KERNEL_MODE
+  string
+  default "debug"   if KERNEL_SERIAL
+  default "release" if !KERNEL_SERIAL
 
-    config KERNEL_PANIC_REBOOT
-    bool "Reboot on panic"
-    ---help---
-       Reboot the system on kernel panic(). This force the device to
-       reboot but the memory content is zeroified only at boot time.
-
-    config KERNEL_PANIC_WIPE
-    bool "Wipe the applications data and reboot"
-    ---help---
-       Wipe the applications data in RAM with zero and then reboot
-       the device. This avoid attacks using panic & reboot action to
-       get back the RAM content at early reboot time
-endchoice
-
-if !KERNEL_NOSERIAL
-
+if KERNEL_SERIAL
 choice
   prompt "kernel console USART identifier"
   default KERNEL_CONSOLE_USART1
@@ -78,15 +60,31 @@ config KERNEL_USART
   default 4 if KERNEL_CONSOLE_USART4
   default 6 if KERNEL_CONSOLE_USART6
 
-config KERNEL_CONSOLE_TXT
-  bool "Allowing user input text echo on kernel console"
-  default y
-  ---help---
-  If Y, input chars on the kernel console will be echoed. There
-  is no specific behavior behind this (no protocol, shell or others),
-  only a character echo in the ISR.
-
 endif
+
+choice
+  prompt "Kernel Panic behavior"
+  default KERNEL_PANIC_FREEZE
+    config KERNEL_PANIC_FREEZE
+    bool "Freeze on panic"
+    ---help---
+       Freeze the system on kernel panic(). This freeze the execution.
+       All the software stack is still mapped in flash and RAM. Useful
+       for debugging purpose.
+
+    config KERNEL_PANIC_REBOOT
+    bool "Reboot on panic"
+    ---help---
+       Reboot the system on kernel panic(). This force the device to
+       reboot but the memory content is zeroified only at boot time.
+
+    config KERNEL_PANIC_WIPE
+    bool "Wipe the applications data and reboot"
+    ---help---
+       Wipe the applications data in RAM with zero and then reboot
+       the device. This avoid attacks using panic & reboot action to
+       get back the RAM content at early reboot time
+endchoice
 
 config KERNEL_DMA_ENABLE
   bool "Enable secure DMA kernel support"

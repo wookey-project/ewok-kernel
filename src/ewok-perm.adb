@@ -35,12 +35,6 @@ is
       return boolean
    is
    begin
-      -- Assertion on the statically built com_dmashm_perm:
-      -- a task is not allowed to declare a DMA_SHM to itself
-      -- This assertion is a DMA_SHM matrix sanitation
-      pragma assert
-         (for all x in t_real_task_id =>
-            (not ewok.perm_auto.com_dmashm_perm(x,x)));
       return ewok.perm_auto.com_dmashm_perm (from, to);
    end dmashm_is_granted;
 
@@ -51,12 +45,6 @@ is
       return boolean
    is
    begin
-      -- Assertion on the statically built com_ipc_perm:
-      -- a task is not allowed to declare an IPC channel to itself
-      -- This assertion is an IPC matrix sanitation
-      pragma assert
-         (for all x in t_real_task_id =>
-            (not ewok.perm_auto.com_ipc_perm(x,x)));
       return ewok.perm_auto.com_ipc_perm (from, to);
    end ipc_is_granted;
 
@@ -67,7 +55,7 @@ is
       to      : in t_real_task_id)
       return boolean
       with
-         spark_mode => off -- implies tasks.get_domain() to be Spark compatible
+         spark_mode => off -- implies tasks.get_domain() to be SPARK compatible
    is
    begin
       return

@@ -23,12 +23,13 @@
 
 with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
-with soc.usart;            use soc.usart;
-with soc.usart.interfaces;
 with ewok.exported;
 with ewok.exported.gpios;
 with ewok.gpio;
+
 with soc.gpio;
+with soc.usart;            use soc.usart;
+with soc.usart.interfaces;
 
 #if CONFIG_KERNEL_PANIC_WIPE
 with soc;
@@ -148,7 +149,11 @@ is
    procedure putc (c : character)
    is
    begin
+#if CONFIG_KERNEL_SERIAL
       soc.usart.interfaces.transmit (kernel_usart_id, character'pos (c));
+#else
+      null;
+#end if;
    end putc;
 
 
@@ -156,11 +161,11 @@ is
    is
    begin
       for i in s'range loop
-         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (s(i)));
+         putc (s(i));
       end loop;
       if nl then
-         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (ASCII.CR));
-         soc.usart.interfaces.transmit (kernel_usart_id, character'pos (ASCII.LF));
+         putc (ASCII.CR);
+         putc (ASCII.LF);
       end if;
    end log;
 

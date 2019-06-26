@@ -376,7 +376,8 @@ is
          -- Getting the stack "canary"
          ewok.rng.random (random, ok);
          if not ok then
-            debug.alert ("Unable to get random from TRNG source");
+            pragma DEBUG (debug.log (debug.ERROR,
+               "Unable to get random from TRNG source"));
          end if;
 
          params := t_parameters'(to_unsigned_32 (id), random, 0, 0);

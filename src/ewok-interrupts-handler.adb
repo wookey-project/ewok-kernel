@@ -41,7 +41,7 @@ is
      (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
    is
    begin
-      debug.log (debug.ERROR, "UsageFault");
+      pragma DEBUG (debug.log (debug.ERROR, "UsageFault"));
       return hardfault_handler (frame_a);
    end usagefault_handler;
 
@@ -52,30 +52,30 @@ is
       cfsr : constant m4.scb.t_SCB_CFSR := m4.scb.SCB.CFSR;
    begin
 
-      if cfsr.MMFSR.IACCVIOL  then debug.log (debug.ERROR, "+cfsr.MMFSR.IACCVIOL"); end if;
-      if cfsr.MMFSR.DACCVIOL  then debug.log (debug.ERROR, "+cfsr.MMFSR.DACCVIOL"); end if;
-      if cfsr.MMFSR.MUNSTKERR then debug.log (debug.ERROR, "+cfsr.MMFSR.MUNSTKERR"); end if;
-      if cfsr.MMFSR.MSTKERR   then debug.log (debug.ERROR, "+cfsr.MMFSR.MSTKERR"); end if;
-      if cfsr.MMFSR.MLSPERR   then debug.log (debug.ERROR, "+cfsr.MMFSR.MLSPERR"); end if;
-      if cfsr.MMFSR.MMARVALID then debug.log (debug.ERROR, "+cfsr.MMFSR.MMARVALID"); end if;
+      if cfsr.MMFSR.IACCVIOL  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.IACCVIOL")); end if;
+      if cfsr.MMFSR.DACCVIOL  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.DACCVIOL")); end if;
+      if cfsr.MMFSR.MUNSTKERR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MUNSTKERR")); end if;
+      if cfsr.MMFSR.MSTKERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MSTKERR")); end if;
+      if cfsr.MMFSR.MLSPERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MLSPERR")); end if;
+      if cfsr.MMFSR.MMARVALID then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MMARVALID")); end if;
 
-      if cfsr.BFSR.IBUSERR    then debug.log (debug.ERROR, "+cfsr.BFSR.IBUSERR"); end if;
-      if cfsr.BFSR.PRECISERR  then debug.log (debug.ERROR, "+cfsr.BFSR.PRECISERR"); end if;
-      if cfsr.BFSR.IMPRECISERR then debug.log (debug.ERROR, "+cfsr.BFSR.IMPRECISERR"); end if;
-      if cfsr.BFSR.UNSTKERR   then debug.log (debug.ERROR, "+cfsr.BFSR.UNSTKERR"); end if;
-      if cfsr.BFSR.STKERR     then debug.log (debug.ERROR, "+cfsr.BFSR.STKERR"); end if;
-      if cfsr.BFSR.LSPERR     then debug.log (debug.ERROR, "+cfsr.BFSR.LSPERR"); end if;
-      if cfsr.BFSR.BFARVALID  then debug.log (debug.ERROR, "+cfsr.BFSR.BFARVALID"); end if;
+      if cfsr.BFSR.IBUSERR    then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.IBUSERR")); end if;
+      if cfsr.BFSR.PRECISERR  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.PRECISERR")); end if;
+      if cfsr.BFSR.IMPRECISERR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.IMPRECISERR")); end if;
+      if cfsr.BFSR.UNSTKERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.UNSTKERR")); end if;
+      if cfsr.BFSR.STKERR     then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.STKERR")); end if;
+      if cfsr.BFSR.LSPERR     then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.LSPERR")); end if;
+      if cfsr.BFSR.BFARVALID  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.BFARVALID")); end if;
 
-      if cfsr.UFSR.UNDEFINSTR then debug.log (debug.ERROR, "+cfsr.UFSR.UNDEFINSTR"); end if;
-      if cfsr.UFSR.INVSTATE   then debug.log (debug.ERROR, "+cfsr.UFSR.INVSTATE"); end if;
-      if cfsr.UFSR.INVPC      then debug.log (debug.ERROR, "+cfsr.UFSR.INVPC"); end if;
-      if cfsr.UFSR.NOCP       then debug.log (debug.ERROR, "+cfsr.UFSR.NOCP"); end if;
-      if cfsr.UFSR.UNALIGNED  then debug.log (debug.ERROR, "+cfsr.UFSR.UNALIGNED"); end if;
-      if cfsr.UFSR.DIVBYZERO  then debug.log (debug.ERROR, "+cfsr.UFSR.DIVBYZERO"); end if;
+      if cfsr.UFSR.UNDEFINSTR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.UNDEFINSTR")); end if;
+      if cfsr.UFSR.INVSTATE   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.INVSTATE")); end if;
+      if cfsr.UFSR.INVPC      then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.INVPC")); end if;
+      if cfsr.UFSR.NOCP       then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.NOCP")); end if;
+      if cfsr.UFSR.UNALIGNED  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.UNALIGNED")); end if;
+      if cfsr.UFSR.DIVBYZERO  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.DIVBYZERO")); end if;
 
-      ewok.tasks.debug.crashdump (frame_a);
-      debug.panic ("panic!");
+      pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
+      debug.panic ("Hard fault!");
 
       return frame_a;
 
@@ -132,8 +132,8 @@ is
                   interrupt_table(it).task_id);
                new_frame_a := ewok.sched.do_schedule (frame_a);
             else
-               debug.log (debug.ALERT,
-                  "Unhandled interrupt " & t_interrupt'image (it));
+               pragma DEBUG (debug.log (debug.ALERT,
+                  "Unhandled interrupt " & t_interrupt'image (it)));
             end if;
          end if;
 
@@ -192,8 +192,8 @@ is
                   interrupt_table(it).handler,
                   interrupt_table(it).task_id);
             else
-               debug.log (debug.ALERT,
-                  "Unhandled interrupt " & t_interrupt'image (it));
+               pragma DEBUG (debug.log (debug.ALERT,
+                  "Unhandled interrupt " & t_interrupt'image (it)));
             end if;
 
          end if;

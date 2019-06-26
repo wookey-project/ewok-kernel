@@ -11,7 +11,7 @@ and/or informational purpose and is accessible through the configured kernel
 U(S)ART.
 
 .. important::
-  When the kernel is configured in KERNEL_NOSERIAL mode, the kernel doesn't
+  When the KERNEL_SERIAL option is not enabled, the kernel doesn't
   print out any log. The U(S)ART line isn't even activated. Although, the
   sys_log() behavior stays unchanged. This is particularly useful in a paranoid
   mode when generating 'production' firmwares: we are ensured that no information

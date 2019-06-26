@@ -1,25 +1,26 @@
 library project Libkernel is
 
-   type Build_Size is ("size", "hybrid", "perf");
-   Kernel_Build_Size : Build_Size := external("KERNEL_ADA_BUILDSIZE");
+   type Build_Size_Type is ("size", "hybrid", "perf");
+   Build_Size : Build_Size_Type := external("KERNEL_ADA_BUILDSIZE");
 
-   size_switches := ();
-   perf_switches := ();
-   size_noverif_switches := ();
-   perf_noverif_switches := ();
+   type Mode_Type is ("debug", "release");
+   Mode : Mode_Type := external ("MODE");
 
    basic :=
      ("-fstack-usage",  -- Generate .su file with informations about the
-      -- amount of stack used
+                        -- amount of stack used
       "-gnateG",        -- Generate preprocessed source
       "-gnatep=" & Libkernel'Project_Dir & "gnatprep.def", -- Preprocessing data file
       "-gnatet=target.atp",
       "-gnatec=" & Libkernel'Project_Dir & "libkernel.adc",
       "-gnatn",         -- Enable pragma Inline
-      "-gnata",         -- Enable pragma Assert | Debug
       "-gnatwa",        -- Turn on all warnings
       "-gnatw.X",       -- Turn off warnings for export/import
       "-gnatwe");       -- Treat all warnings as errors
+
+   debug :=
+     ("-g",
+      "-gnata");        -- Enable pragma Assert | Debug
 
    verif :=
      ("-gnato",         -- Turn on all checks
@@ -29,23 +30,19 @@ library project Libkernel is
      ("-gnatp",         -- Turn off all checks
       "-gnatVn");       -- Turn off all validity checks
 
-   -- Ada code
-   case Kernel_Build_Size is
+   size_switches     := ();
+   perf_switches     := ();
+
+   case Build_Size is
       when "size" =>
-         size_switches := ("-Os", "-g") & basic & verif;
-         perf_switches := ("-Os", "-g") & basic & verif;
-         size_noverif_switches := ("-Os", "-g") & basic & no_verif;
-         perf_noverif_switches := ("-Os", "-g") & basic & no_verif;
+         size_switches := ("-Os") & basic;
+         perf_switches := ("-Os") & basic;
       when "hybrid" =>
-         size_switches := ("-Os", "-g") & basic & verif;
-         perf_switches := ("-O2", "-g") & basic & verif;
-         size_noverif_switches := ("-Os", "-g") & basic & no_verif;
-         perf_noverif_switches := ("-O2", "-g") & basic & no_verif;
+         size_switches := ("-Os") & basic;
+         perf_switches := ("-O2") & basic;
       when "perf" =>
-         size_switches := ("-Os", "-g") & basic & verif;
-         perf_switches := ("-O3", "-g") & basic & verif;
-         size_noverif_switches := ("-Os", "-g") & basic & no_verif;
-         perf_noverif_switches := ("-O3", "-g") & basic & no_verif;
+         size_switches := ("-Os") & basic;
+         perf_switches := ("-O3") & basic;
    end case;
 
    for Languages use ("Ada");
@@ -155,38 +152,50 @@ library project Libkernel is
    Local_Path := ".";
 
    package Compiler is
-      for Default_Switches ("ada") use size_switches;
 
-      for Switches ("ewok-sched.adb")              use perf_switches;
-      for Switches ("ewok-tasks.adb")              use perf_switches;
-      for Switches ("ewok-interrupts-handler.adb") use perf_switches;
-      for Switches ("ewok-syscalls-handler.adb")   use perf_switches;
-      for Switches ("ewok-syscalls-ipc.adb")       use perf_switches;
-      for Switches ("ewok-isr.adb")                use perf_switches;
-      for Switches ("ewok-posthook.adb")           use perf_switches;
-      for Switches ("ewok-softirq.adb")            use perf_switches;
-
-      for Switches ("soc-nvic.adb")                use perf_switches;
-      for Switches ("soc-dma.adb")                 use perf_switches;
-      for Switches ("soc-gpio.adb")                use perf_switches;
-      for Switches ("soc-gpio-interfaces.adb")     use perf_switches;
-
-      -- Proved SPARK code
-      for Switches ("ewok-perm.adb")               use perf_noverif_switches;
-
-      for Switches ("soc-interrupts.adb")          use perf_noverif_switches;
-      for Switches ("m4-mpu.adb")                  use perf_noverif_switches;
-      for Switches ("m4-cpu.adb")                  use perf_noverif_switches;
-      for Switches ("m4-cpu-instructions.adb")     use perf_noverif_switches;
-
-      for Switches ("m4-systick.adb")              use perf_noverif_switches;
-      for Switches ("soc-dwt.adb")                 use perf_noverif_switches;
-      for Switches ("m4-scb.adb")                  use perf_noverif_switches;
-
-      -- Debugging / error handling code
-      for Switches ("ewok-tasks-debug.adb")        use size_noverif_switches;
-      for Switches ("ewok-debug.adb")              use size_noverif_switches;
-      for Switches ("ewok-mpu-handler.adb")        use size_noverif_switches;
+      case Mode is
+         when "debug" =>
+            for Default_Switches ("ada") use size_switches & debug & verif;
+            for Switches ("ewok-sched.adb")              use perf_switches & debug & verif;
+            for Switches ("ewok-tasks.adb")              use perf_switches & debug & verif;
+            for Switches ("ewok-interrupts-handler.adb") use perf_switches & debug & verif;
+            for Switches ("ewok-syscalls-handler.adb")   use perf_switches & debug & verif;
+            for Switches ("ewok-syscalls-ipc.adb")       use perf_switches & debug & verif;
+            for Switches ("ewok-isr.adb")                use perf_switches & debug & verif;
+            for Switches ("ewok-posthook.adb")           use perf_switches & debug & verif;
+            for Switches ("ewok-softirq.adb")            use perf_switches & debug & verif;
+            for Switches ("soc-nvic.adb")                use perf_switches & debug & verif;
+            for Switches ("soc-dma.adb")                 use perf_switches & debug & verif;
+            for Switches ("soc-gpio.adb")                use perf_switches & debug & verif;
+            for Switches ("soc-gpio-interfaces.adb")     use perf_switches & debug & verif;
+         when "release" =>
+            for Default_Switches ("ada") use size_switches & no_verif;
+            for Switches ("ewok-sched.adb")              use perf_switches & no_verif;
+            for Switches ("ewok-tasks.adb")              use perf_switches & no_verif;
+            for Switches ("ewok-interrupts-handler.adb") use perf_switches & no_verif;
+            for Switches ("ewok-syscalls-handler.adb")   use perf_switches & no_verif;
+            for Switches ("ewok-syscalls-ipc.adb")       use perf_switches & no_verif;
+            for Switches ("ewok-isr.adb")                use perf_switches & no_verif;
+            for Switches ("ewok-posthook.adb")           use perf_switches & no_verif;
+            for Switches ("ewok-softirq.adb")            use perf_switches & no_verif;
+            for Switches ("soc-nvic.adb")                use perf_switches & no_verif;
+            for Switches ("soc-dma.adb")                 use perf_switches & no_verif;
+            for Switches ("soc-gpio.adb")                use perf_switches & no_verif;
+            for Switches ("soc-gpio-interfaces.adb")     use perf_switches & no_verif;
+            -- Proved SPARK code
+            for Switches ("ewok-perm.adb")               use perf_switches & no_verif;
+            for Switches ("soc-interrupts.adb")          use perf_switches & no_verif;
+            for Switches ("m4-mpu.adb")                  use perf_switches & no_verif;
+            for Switches ("m4-cpu.adb")                  use perf_switches & no_verif;
+            for Switches ("m4-cpu-instructions.adb")     use perf_switches & no_verif;
+            for Switches ("m4-systick.adb")              use perf_switches & no_verif;
+            for Switches ("soc-dwt.adb")                 use perf_switches & no_verif;
+            for Switches ("m4-scb.adb")                  use perf_switches & no_verif;
+            -- Debugging / error handling code
+            for Switches ("ewok-tasks-debug.adb")        use size_switches & no_verif;
+            for Switches ("ewok-debug.adb")              use size_switches & no_verif;
+            for Switches ("ewok-mpu-handler.adb")        use size_switches & no_verif;
+      end case;
 
    end Compiler;
 
