@@ -577,8 +577,8 @@ is
       end if;
 
       if not task_owns_dma_stream (caller_id,
-                                  t_controller (soc_dma_id),
-                                  t_stream (soc_stream_id))
+                                   t_controller (soc_dma_id),
+                                   t_stream (soc_stream_id))
       then
          success := false;
          return;

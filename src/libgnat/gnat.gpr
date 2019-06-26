@@ -1,6 +1,6 @@
 library project Gnat is
 
-   for Languages use ("Ada", "C");
+   for Languages use ("Ada");
    for Library_Kind use "static";
    for Library_Name use "gnat";
    for Target use "arm-eabi";
