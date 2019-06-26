@@ -81,10 +81,8 @@ is
          pragma DEBUG (debug.log (debug.ERROR, "Unable to use TRNG"));
       end if;
 
-#if CONFIG_KERNEL_DMA_ENABLE
       -- Initialize DMA controllers
       ewok.dma.init;
-#end if;
 
       -- Initialize the EXTIs
       ewok.exti.init;

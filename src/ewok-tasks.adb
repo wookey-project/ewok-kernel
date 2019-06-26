@@ -1,4 +1,4 @@
---
+
 -- Copyright 2018 The wookey project team <wookey@ssi.gouv.fr>
 --   - Ryad     Benadjila
 --   - Arnauld  Michelizza
@@ -123,7 +123,6 @@ is
       tsk.isr_count         := 0;
 #end if;
 
-#if CONFIG_KERNEL_DMA_ENABLE
       tsk.num_dma_shms      := 0;
       tsk.dma_shm           :=
         (others => ewok.exported.dma.t_dma_shm_info'
@@ -135,7 +134,6 @@ is
 
       tsk.num_dma_id        := 0;
       tsk.dma_id            := (others => ewok.dma_shared.ID_DMA_UNUSED);
-#end if;
 
       tsk.init_done         := false;
       tsk.num_devs          := 0;
@@ -309,7 +307,6 @@ is
          tasks_list(id).isr_count   := 0;
 #end if;
 
-#if CONFIG_KERNEL_DMA_ENABLE
          tasks_list(id).num_dma_shms   := 0;
          tasks_list(id).dma_shm        :=
            (others => ewok.exported.dma.t_dma_shm_info'
@@ -321,7 +318,6 @@ is
          tasks_list(id).num_dma_id     := 0;
          tasks_list(id).dma_id         :=
            (others => ewok.dma_shared.ID_DMA_UNUSED);
-#end if;
 
          tasks_list(id).num_devs          := 0;
          tasks_list(id).num_devs_mounted  := 0;

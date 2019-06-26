@@ -26,7 +26,6 @@ with ewok.sched;
 with ewok.softirq;
 with ewok.syscalls.cfg.dev;
 with ewok.syscalls.cfg.gpio;
-with ewok.syscalls.dma;
 with ewok.syscalls.gettick;
 with ewok.syscalls.init;
 with ewok.syscalls.ipc;
@@ -38,6 +37,11 @@ with ewok.syscalls.yield;
 with ewok.syscalls.exiting;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
+
+#if CONFIG_KERNEL_DMA_ENABLE
+with ewok.syscalls.dma;
+#end if;
+
 with m4.cpu.instructions;
 
 package body ewok.syscalls.handler
@@ -158,13 +162,21 @@ is
             return frame_a;
 
          when SVC_REGISTER_DMA      =>
+#if CONFIG_KERNEL_DMA_ENABLE
             ewok.syscalls.dma.svc_register_dma
               (current_id, svc_params_a.all, current_a.all.mode);
+#else
+            set_return_value (current_id, current_a.all.mode, SYS_E_DENIED);
+#end if;
             return frame_a;
 
          when SVC_REGISTER_DMA_SHM  =>
+#if CONFIG_KERNEL_DMA_ENABLE
             ewok.syscalls.dma.svc_register_dma_shm
               (current_id, svc_params_a.all, current_a.all.mode);
+#else
+            set_return_value (current_id, current_a.all.mode, SYS_E_DENIED);
+#end if;
             return frame_a;
 
          when SVC_GET_TASKID =>
@@ -210,18 +222,30 @@ is
             return frame_a;
 
          when SVC_DMA_RECONF  =>
+#if CONFIG_KERNEL_DMA_ENABLE
             ewok.syscalls.dma.svc_dma_reconf
               (current_id, svc_params_a.all, current_a.all.mode);
+#else
+            set_return_value (current_id, current_a.all.mode, SYS_E_DENIED);
+#end if;
             return frame_a;
 
          when SVC_DMA_RELOAD  =>
+#if CONFIG_KERNEL_DMA_ENABLE
             ewok.syscalls.dma.svc_dma_reload
               (current_id, svc_params_a.all, current_a.all.mode);
+#else
+            set_return_value (current_id, current_a.all.mode, SYS_E_DENIED);
+#end if;
             return frame_a;
 
          when SVC_DMA_DISABLE =>
+#if CONFIG_KERNEL_DMA_ENABLE
             ewok.syscalls.dma.svc_dma_disable
               (current_id, svc_params_a.all, current_a.all.mode);
+#else
+            set_return_value (current_id, current_a.all.mode, SYS_E_DENIED);
+#end if;
             return frame_a;
 
          when SVC_DEV_MAP     =>

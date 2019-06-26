@@ -202,11 +202,9 @@ is
          end if;
       end loop;
 
-#if CONFIG_KERNEL_DMA_ENABLE
       for i in 1 .. TSK.tasks_list(caller_id).num_dma_id loop
          ewok.dma.enable_dma_irq (TSK.tasks_list(caller_id).dma_id(i));
       end loop;
-#end if;
 
       TSK.tasks_list(caller_id).init_done := true;
 

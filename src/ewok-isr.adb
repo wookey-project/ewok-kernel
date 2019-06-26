@@ -24,7 +24,6 @@ with soc.interrupts; use soc.interrupts;
 with ewok.posthook;
 with ewok.softirq;
 with ewok.dma;
-with ewok.dma.interfaces;
 with soc.dma;
 with soc.nvic;
 
@@ -37,30 +36,40 @@ is
       handler  : in ewok.interrupts.t_interrupt_handler_access;
       task_id  : in ewok.tasks_shared.t_task_id)
    is
+
+      pragma warnings (off); -- Size differ
+      function to_unsigned_32 is new ada.unchecked_conversion
+        (soc.dma.t_dma_stream_int_status, unsigned_32);
+      pragma warnings (on);
+
+      dma_status  : soc.dma.t_dma_stream_int_status;
       status      : unsigned_32 := 0;
       data        : unsigned_32 := 0;
       isr_params  : ewok.softirq.t_isr_parameters;
+      ok          : boolean;
    begin
 
       -- Acknowledge interrupt:
       -- - DMAs are managed by the kernel
       -- - Devices managed by user tasks should use the posthook mechanism
-      --   to acknowledge interrupt (in order to avoid bursts). Note that
-      --   posthook execution is mandatory for hardware devices that wait for
+      --   to acknowledge interrupt (in order to avoid bursts).
+      -- Note:
+      --   Posthook execution is mandatory for hardware devices that wait for
       --   a quick answer from the driver. It permit to execute some
       --   instructions (reading and writing registers) and to return some
-      --   results in the 'args' parameter.
+      --   value (former 'status' and 'data' parameters)
 
-#if CONFIG_KERNEL_DMA_ENABLE
       if soc.dma.soc_is_dma_irq (intr) then
-         status := ewok.dma.interfaces.dma_get_status (task_id, intr);
+         ewok.dma.get_status_register (task_id, intr, dma_status, ok);
+         if ok then
+            status := to_unsigned_32 (dma_status) and 2#0011_1101#;
+         else
+            raise program_error;
+         end if;
          ewok.dma.clear_dma_interrupts (task_id, intr);
       else
          ewok.posthook.exec (intr, status, data);
       end if;
-#else
-      ewok.posthook.exec (intr, status, data);
-#end if;
 
       -- All user ISR have their Pending IRQ bit clean here
       soc.nvic.clear_pending_irq (soc.nvic.to_irq_number (intr));
