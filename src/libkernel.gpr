@@ -169,19 +169,19 @@ library project Libkernel is
             for Switches ("soc-gpio.adb")                use perf_switches & debug & verif;
             for Switches ("soc-gpio-interfaces.adb")     use perf_switches & debug & verif;
          when "release" =>
-            for Default_Switches ("ada") use size_switches & no_verif;
-            for Switches ("ewok-sched.adb")              use perf_switches & no_verif;
-            for Switches ("ewok-tasks.adb")              use perf_switches & no_verif;
-            for Switches ("ewok-interrupts-handler.adb") use perf_switches & no_verif;
-            for Switches ("ewok-syscalls-handler.adb")   use perf_switches & no_verif;
-            for Switches ("ewok-syscalls-ipc.adb")       use perf_switches & no_verif;
-            for Switches ("ewok-isr.adb")                use perf_switches & no_verif;
-            for Switches ("ewok-posthook.adb")           use perf_switches & no_verif;
-            for Switches ("ewok-softirq.adb")            use perf_switches & no_verif;
-            for Switches ("soc-nvic.adb")                use perf_switches & no_verif;
-            for Switches ("soc-dma.adb")                 use perf_switches & no_verif;
-            for Switches ("soc-gpio.adb")                use perf_switches & no_verif;
-            for Switches ("soc-gpio-interfaces.adb")     use perf_switches & no_verif;
+            for Default_Switches ("ada") use size_switches & verif;
+            for Switches ("ewok-sched.adb")              use perf_switches & verif;
+            for Switches ("ewok-tasks.adb")              use perf_switches & verif;
+            for Switches ("ewok-interrupts-handler.adb") use perf_switches & verif;
+            for Switches ("ewok-syscalls-handler.adb")   use perf_switches & verif;
+            for Switches ("ewok-syscalls-ipc.adb")       use perf_switches & verif;
+            for Switches ("ewok-isr.adb")                use perf_switches & verif;
+            for Switches ("ewok-posthook.adb")           use perf_switches & verif;
+            for Switches ("ewok-softirq.adb")            use perf_switches & verif;
+            for Switches ("soc-nvic.adb")                use perf_switches & verif;
+            for Switches ("soc-dma.adb")                 use perf_switches & verif;
+            for Switches ("soc-gpio.adb")                use perf_switches & verif;
+            for Switches ("soc-gpio-interfaces.adb")     use perf_switches & verif;
             -- Proved SPARK code
             for Switches ("ewok-perm.adb")               use perf_switches & no_verif;
             for Switches ("soc-interrupts.adb")          use perf_switches & no_verif;
