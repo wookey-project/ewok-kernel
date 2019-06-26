@@ -155,8 +155,7 @@ $(APP_BUILD_DIR):
 
 __clean: libkernel.gpr
 	$(call cmd,ada_clean)
-	-rm C/generated/*
-	-rm Ada/generated/*
+	-rm generated/*
 	-rm $(APP_BUILD_DIR)/$(BIN_NAME) $(HEX_NAME) $(OBJ) $(DEP)
 
 __distclean: libkernel.gpr
@@ -170,8 +169,7 @@ __distclean: libkernel.gpr
 # account in the kernel
 #
 clean_headers:
-	-rm C/generated/*
-	-rm Ada/generated/*
+	-rm generated/*
 	rm -rf $(APP_BUILD_DIR)/kernel.*.hex
 	rm -rf $(APP_BUILD_DIR)/*.elf
 

@@ -100,14 +100,10 @@ is
       --
 
 #if CONFIG_DBGLEVEL >= 7
-      declare
-         len  : constant natural := types.c.len (TSK.tasks_list(req.caller_id).name.all);
-         name : string (1 .. len);
-      begin
-         to_ada (name, TSK.tasks_list(req.caller_id).name.all);
-         debug.log (debug.INFO, name & ": svc"
-            & ewok.syscalls.t_svc'image (svc));
-      end;
+      pragma DEBUG (debug.log (debug.INFO,
+         TSK.tasks_list(req.caller_id).name.all
+         & ": svc"
+         & ewok.syscalls.t_svc'image (svc)));
 #end if;
 
       --

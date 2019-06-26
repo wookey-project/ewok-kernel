@@ -60,14 +60,16 @@ is
       m4.systick.init;
 
       -- Configure the USART for debugging purpose
-#if    CONFIG_KERNEL_USART = 1
-      ewok.debug.init (1);
-#elsif CONFIG_KERNEL_USART = 4
-      ewok.debug.init (4);
-#elsif CONFIG_KERNEL_USART = 6
-      ewok.debug.init (6);
-#else
+#if CONFIG_KERNEL_SERIAL
+   #if    CONFIG_KERNEL_USART = 1
+      debug.init (1);
+   #elsif CONFIG_KERNEL_USART = 4
+      debug.init (4);
+   #elsif CONFIG_KERNEL_USART = 6
+      debug.init (6);
+   #else
       raise program_error;
+   #end if;
 #end if;
 
       -- Initialize DWT (required for precise time measurement)
@@ -76,7 +78,7 @@ is
       -- Initialize the platform TRNG
       soc.rng.init (ok);
       if not ok then
-         debug.alert ("Unable to use TRNG");
+         pragma DEBUG (debug.log (debug.ERROR, "Unable to use TRNG"));
       end if;
 
 #if CONFIG_KERNEL_DMA_ENABLE
@@ -97,7 +99,7 @@ is
             soc.system.init (base_address - ewok.layout.VTORS_SIZE);
          end;
       else
-         ewok.debug.panic ("No kernel base address: unable to support PIE!");
+         debug.panic ("No kernel base address: unable to support PIE!");
       end if;
 
       -- Initialize the MPU
@@ -105,7 +107,7 @@ is
       -- can generate memory fault in case of invalid access.
       ewok.mpu.init (ok);
       if not ok then
-         ewok.debug.panic ("MPU configuration failed!");
+         debug.panic ("MPU configuration failed!");
       end if;
 
       m4.cpu.instructions.full_memory_barrier;
@@ -119,7 +121,7 @@ is
       -- Let's run tasks!
       ewok.sched.init;
 
-      ewok.debug.panic ("Why am I here?");
+      debug.panic ("Why am I here?");
 
    end main;
 

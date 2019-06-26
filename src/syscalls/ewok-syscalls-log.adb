@@ -54,7 +54,9 @@ is
          goto ret_inval;
       end if;
 
-      debug.log (ewok.tasks.tasks_list(caller_id).name & " " & msg & ASCII.CR, false);
+      pragma DEBUG (debug.log
+        (ewok.tasks.tasks_list(caller_id).name & " " & msg & ASCII.CR,
+         false));
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

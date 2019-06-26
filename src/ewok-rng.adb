@@ -46,7 +46,7 @@ is
 
          soc.rng.random (rand, ok);
          if not ok then
-            ewok.debug.alert ("RNG failed!");
+            pragma DEBUG (debug.log (debug.ERROR, "RNG failed!"));
             success := false;
             return;
          end if;
@@ -73,7 +73,7 @@ is
    begin
       soc.rng.random (rand, success);
       if not success then
-         ewok.debug.alert ("RNG failed!");
+         pragma DEBUG (debug.log (debug.ERROR, "RNG failed!"));
       end if;
    end random;
 
