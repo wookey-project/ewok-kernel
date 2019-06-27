@@ -46,7 +46,6 @@ is
       function get_region_size (size : t_region_size) return unsigned_32
          is (2**(natural (size) + 1));
 
-      region_config  : m4.mpu.t_region_config;
    begin
 
       --
@@ -86,30 +85,20 @@ is
          return;
       end if;
 
-      region_config :=
+      set_region
         (region_number  => KERN_CODE_REGION,
          addr           => applications.txt_kern_region_base,
          size           => applications.txt_kern_region_size,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RO_USER_NO,
-         xn             => false,
-         b              => false,
-         s              => false);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_KERN_CODE,
+         subregion_mask => 0);
 
       -- Region: devices that may be accessed by the kernel
-      region_config :=
+      set_region
         (region_number  => KERN_DEVICES_REGION,
          addr           => soc.layout.PERIPH_BASE,
          size           => REGION_SIZE_512MB,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RW_USER_NO,
-         xn             => true,
-         b              => true,
-         s              => true);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_KERN_DEVICES,
+         subregion_mask => 0);
 
       -- Region: kernel data + stack
       if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
@@ -118,17 +107,12 @@ is
          return;
       end if;
 
-      region_config :=
+      set_region
         (region_number  => KERN_DATA_REGION,
          addr           => ewok.layout.KERN_DATA_BASE,
          size           => REGION_SIZE_64KB,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RW_USER_NO,
-         xn             => true,
-         b              => false,
-         s              => true);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_KERN_DATA,
+         subregion_mask => 0);
 
       -- Region: user data
       -- Note: This is for the whole area. Each task will use only a fixed
@@ -138,17 +122,12 @@ is
          return;
       end if;
 
-      region_config :=
+      set_region
         (region_number  => USER_DATA_REGION,
          addr           => ewok.layout.USER_DATA_BASE,
          size           => REGION_SIZE_128KB,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RW_USER_RW,
-         xn             => true,
-         b              => false,
-         s              => true);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_USER_DATA,
+         subregion_mask => 0);
 
       -- Region: user code
       -- Note: This is for the whole area. Each task will use only a fixed
@@ -158,30 +137,20 @@ is
          return;
       end if;
 
-      region_config :=
+      set_region
         (region_number  => USER_CODE_REGION,
          addr           => applications.txt_user_region_base,
          size           => applications.txt_user_region_size,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RO_USER_RO,
-         xn             => false,
-         b              => false,
-         s              => false);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_USER_CODE,
+         subregion_mask => 0);
 
       -- Region: user ISR stack
-      region_config :=
+      set_region
         (region_number  => USER_ISR_STACK_REGION,
          addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
          size           => REGION_SIZE_4KB,
-         subregion_mask => 0,
-         access_perm    => REGION_PERM_PRIV_RW_USER_RW,
-         xn             => true,
-         b              => false,
-         s              => true);
-
-      m4.mpu.configure_region (region_config);
+         region_type    => REGION_TYPE_ISR_STACK,
+         subregion_mask => 0);
 
       pragma DEBUG (debug.log (debug.INFO, "MPU is configured"));
       m4.mpu.enable;
@@ -204,101 +173,91 @@ is
    end disable_unrestricted_kernel_access;
 
 
-   procedure regions_schedule
+   procedure set_region
      (region_number  : in  m4.mpu.t_region_number;
       addr           : in  system_address;
       size           : in  m4.mpu.t_region_size;
       region_type    : in  t_region_type;
       subregion_mask : in  unsigned_8)
    is
+      access_perm    : m4.mpu.t_region_perm;
+      xn, b, s       : boolean;
       region_config  : m4.mpu.t_region_config;
    begin
       -- A memory region must never be mapped RWX
       case (region_type) is
-         when REGION_TYPE_USER_DEV =>
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => subregion_mask,
-               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
-               xn             => true,
-               b              => true,
-               s              => true);
 
-            m4.mpu.configure_region (region_config);
+         when REGION_TYPE_KERN_CODE =>
+            access_perm := REGION_PERM_PRIV_RO_USER_NO;
+            xn          := false;
+            b           := false;
+            s           := false;
 
-         when REGION_TYPE_RO_USER_DEV =>
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => subregion_mask,
-               access_perm    => REGION_PERM_PRIV_RW_USER_RO,
-               xn             => true,
-               b              => true,
-               s              => true);
+         when REGION_TYPE_KERN_DATA =>
+            access_perm := REGION_PERM_PRIV_RW_USER_NO;
+            xn          := true;
+            b           := false;
+            s           := true;
 
-            m4.mpu.configure_region (region_config);
+         when REGION_TYPE_KERN_DEVICES =>
+            access_perm := REGION_PERM_PRIV_RW_USER_NO;
+            xn          := true;
+            b           := true;
+            s           := true;
 
          when REGION_TYPE_USER_CODE =>
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => subregion_mask,
-               access_perm    => REGION_PERM_PRIV_RO_USER_RO,
-               xn             => false,
-               b              => false,
-               s              => false);
-
-            m4.mpu.update_subregion_mask (region_config);
+            access_perm := REGION_PERM_PRIV_RO_USER_RO;
+            xn          := false;
+            b           := false;
+            s           := false;
 
          when REGION_TYPE_USER_DATA =>
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => subregion_mask,
-               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
-               xn             => true,
-               b              => false,
-               s              => true);
+            access_perm := REGION_PERM_PRIV_RW_USER_RW;
+            xn          := true;
+            b           := false;
+            s           := true;
 
-            m4.mpu.update_subregion_mask (region_config);
+         when REGION_TYPE_USER_DEV =>
+            access_perm := REGION_PERM_PRIV_RW_USER_RW;
+            xn          := true;
+            b           := true;
+            s           := true;
 
-         when REGION_TYPE_BOOT_ROM =>
+         when REGION_TYPE_USER_DEV_RO =>
+            access_perm := REGION_PERM_PRIV_RW_USER_RO;
+            xn          := true;
+            b           := true;
+            s           := true;
 
-            -- MPU makes Boot ROM region unattainable to avoid ROP attacks
-
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => 0,
-               access_perm    => REGION_PERM_PRIV_NO_USER_NO,
-               xn             => true,
-               b              => false,
-               s              => false);
-
-            m4.mpu.configure_region (region_config);
-
-         when REGION_TYPE_ISR_DATA =>
-            region_config :=
-              (region_number  => region_number,
-               addr           => addr,
-               size           => size,
-               subregion_mask => 0,
-               access_perm    => REGION_PERM_PRIV_RW_USER_RW,
-               xn             => true,
-               b              => false,
-               s              => true);
-
-            m4.mpu.configure_region (region_config);
-
+         when REGION_TYPE_ISR_STACK =>
+            access_perm := REGION_PERM_PRIV_RW_USER_RW;
+            xn          := true;
+            b           := false;
+            s           := true;
       end case;
 
-   end regions_schedule;
+      region_config :=
+        (region_number  => region_number,
+         addr           => addr,
+         size           => size,
+         access_perm    => access_perm,
+         xn             => xn,
+         b              => b,
+         s              => s,
+         subregion_mask => subregion_mask);
+
+      m4.mpu.configure_region (region_config);
+
+   end set_region;
+
+
+   procedure update_subregions
+     (region_number  : in  m4.mpu.t_region_number;
+      subregion_mask : in  unsigned_8)
+   is
+   begin
+      m4.mpu.update_subregion_mask (region_number, subregion_mask);
+   end update_subregions;
 
 
    procedure bytes_to_region_size

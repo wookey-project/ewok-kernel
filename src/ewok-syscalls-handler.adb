@@ -70,7 +70,7 @@ is
       -- or 'current_a.all.isr_ctx.frame_a')
       --
 
-      if ewok.tasks.get_mode (current_id) = TASK_MODE_MAINTHREAD then
+      if current_a.all.mode = TASK_MODE_MAINTHREAD then
          current_a.all.ctx.frame_a := frame_a;
       else
          current_a.all.isr_ctx.frame_a := frame_a;
