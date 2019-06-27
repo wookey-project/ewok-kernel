@@ -312,11 +312,11 @@ is
          end if;
 
          -- Mapping the ISR stack
-         ewok.mpu.regions_schedule
+         ewok.mpu.set_region
            (region_number  => ewok.mpu.USER_ISR_STACK_REGION,
             addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
             size           => m4.mpu.REGION_SIZE_4KB,
-            region_type    => ewok.mpu.REGION_TYPE_ISR_DATA,
+            region_type    => ewok.mpu.REGION_TYPE_ISR_STACK,
             subregion_mask => 0);
 
       else
@@ -367,19 +367,12 @@ is
             mask(new_task.slot + i) := 0;
          end loop;
 
-         ewok.mpu.regions_schedule
+         ewok.mpu.update_subregions
            (region_number  => ewok.mpu.USER_CODE_REGION,
-            addr           => applications.txt_user_region_base,
-            size           => applications.txt_user_region_size,
-            region_type    => ewok.mpu.REGION_TYPE_USER_CODE,
             subregion_mask => to_unsigned_8 (mask));
 
-         -- FIXME: 128KB for user RAM is SoC Specific
-         ewok.mpu.regions_schedule
+         ewok.mpu.update_subregions
            (region_number  => ewok.mpu.USER_DATA_REGION,
-            addr           => ewok.layout.USER_DATA_BASE,
-            size           => m4.mpu.REGION_SIZE_128KB,
-            region_type    => ewok.mpu.REGION_TYPE_USER_DATA,
             subregion_mask => to_unsigned_8 (mask));
       end;
 

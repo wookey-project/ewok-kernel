@@ -34,15 +34,16 @@ is
    ------------
    subtype t_region_number is unsigned_8 range 0 .. 7;
    subtype t_region_size is bits_5 range 4 .. 31;
+   subtype t_region_perm is bits_3;
 
    type t_region_config is record
       region_number  : t_region_number;
       addr           : system_address;
       size           : t_region_size;
-      access_perm    : bits_3;
-      xn             : bool;
-      b              : bool;
-      s              : bool;
+      access_perm    : t_region_perm;
+      xn             : boolean;
+      b              : boolean;
+      s              : boolean;
       subregion_mask : unsigned_8; -- 0: sub-region enabled, 1: disabled
    end record;
 
@@ -81,14 +82,14 @@ is
    --       - privileged : read/write access
    --       - user       : no access
 
-   REGION_PERM_PRIV_NO_USER_NO   : constant bits_3 := 2#000#;
-   REGION_PERM_PRIV_RW_USER_NO   : constant bits_3 := 2#001#;
-   REGION_PERM_PRIV_RW_USER_RO   : constant bits_3 := 2#010#;
-   REGION_PERM_PRIV_RW_USER_RW   : constant bits_3 := 2#011#;
-   REGION_PERM_UNUSED            : constant bits_3 := 2#100#;
-   REGION_PERM_PRIV_RO_USER_NO   : constant bits_3 := 2#101#;
-   REGION_PERM_PRIV_RO_USER_RO   : constant bits_3 := 2#110#;
-   REGION_PERM_PRIV_RO_USER_RO2  : constant bits_3 := 2#111#;
+   REGION_PERM_PRIV_NO_USER_NO   : constant t_region_perm := 2#000#;
+   REGION_PERM_PRIV_RW_USER_NO   : constant t_region_perm := 2#001#;
+   REGION_PERM_PRIV_RW_USER_RO   : constant t_region_perm := 2#010#;
+   REGION_PERM_PRIV_RW_USER_RW   : constant t_region_perm := 2#011#;
+   REGION_PERM_UNUSED            : constant t_region_perm := 2#100#;
+   REGION_PERM_PRIV_RO_USER_NO   : constant t_region_perm := 2#101#;
+   REGION_PERM_PRIV_RO_USER_RO   : constant t_region_perm := 2#110#;
+   REGION_PERM_PRIV_RO_USER_RO2  : constant t_region_perm := 2#111#;
 
    ---------------
    -- Functions --
@@ -155,18 +156,10 @@ is
             and region_not_rwx (region);
 
    procedure update_subregion_mask
-     (region   : in t_region_config)
+     (region_number  : in t_region_number;
+      subregion_mask : in unsigned_8)
       with
-         global => (in_out => (MPU)),
-         pre =>
-           (region.region_number < 8
-            and
-            (region.addr and 2#11111#) = 0
-            and
-            region.size >= 4
-            and
-            (region.addr and get_region_size_mask(region.size)) = 0)
-            and region_not_rwx (region);
+         global => (in_out => (MPU));
 
    pragma warnings (on);
 
@@ -175,7 +168,7 @@ is
    -----------------------
 
    type t_MPU_TYPE is record
-      SEPARAT  : bool       := true;   -- Support for separate instruction and date memory maps
+      SEPARAT  : boolean    := true;   -- Support for separate instruction and date memory maps
       DREGION  : unsigned_8 := 8;      -- Number of supported MPU data regions
       IREGION  : unsigned_8 := 0;      -- Number of supported MPU instruction regions
    end record
@@ -196,11 +189,11 @@ is
    --------------------------
 
    type t_MPU_CTRL is record
-      ENABLE      : bool;  -- Enables the MPU
-      HFNMIENA    : bool;  -- Enables the operation of MPU during hard fault,
-                           -- NMI, and FAULTMASK handlers
-      PRIVDEFENA  : bool;  -- Enables privileged software access to the default
-                           -- memory map
+      ENABLE      : boolean;  -- Enables the MPU
+      HFNMIENA    : boolean;  -- Enables the operation of MPU during hard fault,
+                              -- NMI, and FAULTMASK handlers
+      PRIVDEFENA  : boolean;  -- Enables privileged software access to the
+                              -- default memory map
    end record
    with size => 32;
 
@@ -234,7 +227,7 @@ is
 
    type t_MPU_RBAR is record
       REGION   : bits_4 range 0 .. 7;
-      VALID    : bool;
+      VALID    : boolean;
       ADDR     : bits_27;
    end record
    with size => 32;
@@ -254,15 +247,15 @@ is
    --------------------------------------------
 
    type t_MPU_RASR is record
-      ENABLE   : bool;        -- Enable region
+      ENABLE   : boolean;        -- Enable region
       SIZE     : t_region_size;
-      SRD      : unsigned_8;  -- Subregion disable bits (0 = enabled, 1 = disabled)
-      B        : bool;
-      C        : bool;
-      S        : bool;        -- Shareable
-      TEX      : bits_3;      -- Memory attributes
-      AP       : bits_3;      -- Permissions
-      XN       : bool;        -- Instruction fetches disabled
+      SRD      : unsigned_8;     -- Subregion disable bits (0 = enabled, 1 = disabled)
+      B        : boolean;
+      C        : boolean;
+      S        : boolean;        -- Shareable
+      TEX      : bits_3;         -- Memory attributes
+      AP       : t_region_perm;  -- Permissions
+      XN       : boolean;        -- Instruction fetches disabled
    end record
    with size => 32;
 

@@ -29,18 +29,19 @@ package ewok.mpu
 is
 
    type t_region_type is
-     (REGION_TYPE_USER_DATA,
+     (REGION_TYPE_KERN_CODE,
+      REGION_TYPE_KERN_DATA,
+      REGION_TYPE_KERN_DEVICES,
       REGION_TYPE_USER_CODE,
+      REGION_TYPE_USER_DATA,
       REGION_TYPE_USER_DEV,
-      REGION_TYPE_RO_USER_DEV,
-      REGION_TYPE_BOOT_ROM,
-      REGION_TYPE_ISR_DATA)
+      REGION_TYPE_USER_DEV_RO,
+      REGION_TYPE_ISR_STACK)
    with size => 32;
 
    KERN_CODE_REGION        : constant m4.mpu.t_region_number := 0;
    KERN_DEVICES_REGION     : constant m4.mpu.t_region_number := 1;
    KERN_DATA_REGION        : constant m4.mpu.t_region_number := 2;
-
    USER_DATA_REGION        : constant m4.mpu.t_region_number := 3; -- USER_RAM
    USER_CODE_REGION        : constant m4.mpu.t_region_number := 4; -- USER_TXT
    USER_ISR_STACK_REGION   : constant m4.mpu.t_region_number := 5;
@@ -51,8 +52,10 @@ is
 
    -- How many devices can be mapped in memory
    MAX_DEVICE_REGIONS   : constant := 2;
-   device_regions       : array (unsigned_8 range 1 .. MAX_DEVICE_REGIONS)
-      of m4.mpu.t_region_number := (USER_DEV1_REGION, USER_DEV2_REGION);
+   device_regions       :
+      constant array (unsigned_8 range 1 .. MAX_DEVICE_REGIONS) of
+         m4.mpu.t_region_number
+      := (USER_DEV1_REGION, USER_DEV2_REGION);
 
    ---------------
    -- Functions --
@@ -85,7 +88,7 @@ is
    pragma warnings
      (off, "condition can only be False if invalid values present");
 
-   procedure regions_schedule
+   procedure set_region
      (region_number  : in  m4.mpu.t_region_number;
       addr           : in  system_address;
       size           : in  m4.mpu.t_region_size;
@@ -103,6 +106,12 @@ is
             (addr and get_region_size_mask(size)) = 0);
 
    pragma warnings (on);
+
+   procedure update_subregions
+     (region_number  : in  m4.mpu.t_region_number;
+      subregion_mask : in  unsigned_8)
+      with
+         global => (in_out => (m4.mpu.MPU));
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;

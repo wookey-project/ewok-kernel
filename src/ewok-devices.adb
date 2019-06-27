@@ -632,12 +632,12 @@ is
       end if;
 
       if is_user_device_region_ro (dev_id) then
-         region_type := ewok.mpu.REGION_TYPE_RO_USER_DEV;
+         region_type := ewok.mpu.REGION_TYPE_USER_DEV_RO;
       else
          region_type := ewok.mpu.REGION_TYPE_USER_DEV;
       end if;
 
-      ewok.mpu.regions_schedule
+      ewok.mpu.set_region
         (region_number  => region,
          addr           => get_user_device_addr (dev_id),
          size           => mpu_region_size,
