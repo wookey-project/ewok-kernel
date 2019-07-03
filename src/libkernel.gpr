@@ -82,7 +82,6 @@ library project Libkernel is
       "ewok.exti",
       "ewok.exti.handler",
       "ewok.gpio",
-      "ewok.init",
       "ewok.interrupts",
       "ewok.interrupts.handler",
       "ewok.ipc",
