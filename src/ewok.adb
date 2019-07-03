@@ -20,7 +20,6 @@
 --
 --
 
-with m4.cpu;
 with m4.cpu.instructions;
 with m4.systick;
 with soc.dwt;
@@ -38,7 +37,7 @@ with ewok.sched;
 with ewok.tasks;
 
 
-package body ewok.init
+package body ewok
    with spark_mode => off
 is
 
@@ -123,4 +122,4 @@ is
 
    end main;
 
-end ewok.init;
+end ewok;

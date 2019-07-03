@@ -31,7 +31,7 @@
 
 /* Specific Ada runtime elaboration code */
 extern void kernelinit(void);
-extern void ewok_init(int, char**);
+extern void ewok_main(int, char**);
 
 #if __GNUC__
 #if __clang__
@@ -46,7 +46,7 @@ int main(int argc, char *args[])
     kernelinit();
 
     /* Main Ada kernel code */
-    ewok_init (argc, args);
+    ewok_main (argc, args);
     return 1;
 }
 #if __clang__
