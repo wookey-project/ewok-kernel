@@ -56,7 +56,7 @@ ALIB = $(APP_BUILD_DIR)/Ada/lib/libkernel.a
 ADIR = $(APP_BUILD_DIR)/Ada/lib
 
 SOC_DIR := $(PROJ_FILES)/kernel/src/arch/socs/$(SOC)
-SOC_SRC := startup_$(SOC).s
+SOC_SRC := startup.s
 SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/asm/%.o,$(SOC_SRC))
 
 OUT_DIRS = $(dir $(KERNEL_OBJ)) $(dir $(AALI)) $(dir $(ROBJ)) $(dir $(ALIB))

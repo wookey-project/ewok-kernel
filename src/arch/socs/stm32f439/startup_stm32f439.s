@@ -1,1 +1,0 @@
-../stm32f429/startup_stm32f429.s
