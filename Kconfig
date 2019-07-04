@@ -146,12 +146,6 @@ config SCHED_PERIOD
   Set the scheduling period duration. Beware, this value has a huge
   impact on the overall system behavior.
 
-if !SCHED_MLQ_RR
-# FISR violate the MLQ_RR priority management. FISR is efficient for
-# Round-Robbin management for sporadic high reactivity constraints
-# When using MLQ_RR, please use priority-based configuration to
-# manage reactivity of tasks and ISRs
-
 config SCHED_SUPPORT_FISR
   bool "ISR may force immediate one time main thread execution (perm based)"
   default y
@@ -162,8 +156,6 @@ config SCHED_SUPPORT_FISR
   as been configured with the flag IRQ_ISR_FORCE_MAINTHREAD.
   This execution slot can still be preempted by a physical IRQ or another
   ISR scheduling.
-
-endif
 
 config SCHED_SUPPORT_FIPC
   bool "IPC send may force immediate one time target task execution (perm based)"
