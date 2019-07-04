@@ -30,7 +30,6 @@ with ewok.debug;
 with ewok.dma;
 with ewok.exti;
 with ewok.interrupts;
-with ewok.layout;
 with ewok.mpu;
 with ewok.softirq;
 with ewok.sched;
@@ -42,11 +41,18 @@ package body ewok
 is
 
    procedure main
-     (argc  : in  integer;
-      args  : in  system_address)
    is
+
+      VTOR_address : system_address
+         with
+            import,
+            convention     => assembly,
+            external_name  => "VTOR_address";
+
       ok    : boolean;
+
    begin
+
       m4.cpu.disable_irq;
 
       -- Initialize devices structures
@@ -88,16 +94,7 @@ is
 
       -- The kernel is a PIE executable. Its base address is given in first
       -- argument, based on the loader informations
-      if argc = 1 then
-         declare
-            base_address : system_address
-               with address => to_address (args);
-         begin
-            soc.system.init (base_address - ewok.layout.VTORS_SIZE);
-         end;
-      else
-         debug.panic ("No kernel base address: unable to support PIE!");
-      end if;
+      soc.system.init (VTOR_address);
 
       -- Initialize the MPU
       -- After this sequence, the kernel is executed with the MPU activated and
