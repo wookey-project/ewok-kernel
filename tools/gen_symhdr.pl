@@ -51,8 +51,6 @@ EOF
 # Ada body
 #-----------------------------------------------------------------------------
 
-my $slot = 1;
-
 print $OUT_ADS "
 --
 -- Applications data regions
@@ -115,8 +113,6 @@ pragma warnings (off, \"condition is always True\");
 pragma warnings (off, \"condition is always False\");
 ";
 
-my $slot = 1;
-
 foreach my $i (grep {!/_/} sort(keys(%hash))) {
 
     my $mode = uc($firmnum);
@@ -148,7 +144,6 @@ foreach my $i (grep {!/_/} sort(keys(%hash))) {
       end if;
 ";
 
-  $slot++;
 }
 
 

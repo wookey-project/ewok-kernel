@@ -517,7 +517,7 @@ is
          if blocking then
             TSK.set_state
               (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_SEND_BLOCKED);
-#if CONFIG_IPC_SCHED_VIOL
+#if CONFIG_SCHED_SUPPORT_FIPC
             if TSK.get_state (id_receiver, TASK_MODE_MAINTHREAD)
                   = TASK_STATE_RUNNABLE
                or
@@ -573,7 +573,7 @@ is
       if blocking then
          TSK.set_state
            (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_IPC_WAIT_ACK);
-#if CONFIG_IPC_SCHED_VIOL
+#if CONFIG_SCHED_SUPPORT_FIPC
          if receiver_a.all.state = TASK_STATE_RUNNABLE or
             receiver_a.all.state = TASK_STATE_IDLE
          then

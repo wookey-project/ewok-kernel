@@ -45,7 +45,6 @@ get_apps_from_config();
 EOF
 ;
 
-my $slot = 1;
 
 foreach my $i (sort(keys(%hash))) {
 
