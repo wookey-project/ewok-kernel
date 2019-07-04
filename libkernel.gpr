@@ -48,14 +48,14 @@ library project Libkernel is
    for Languages use ("Ada");
 
    for Source_Dirs use
-     ("arch/Ada",
-      "arch/cores/" & external("ARCH"),
-      "arch/socs/" & external("SOCNAME"),
-      "arch/socs/" & external("SOCNAME") & "/generated",
-      ".",
-      "./syscalls",
-      "./exported",
-      "./generated");
+     ("src",
+      "src/arch/Ada",
+      "src/arch/cores/" & external("ARCH"),
+      "src/arch/socs/" & external("SOCNAME"),
+      "src/arch/socs/" & external("SOCNAME") & "/generated",
+      "src/syscalls",
+      "src/exported",
+      "src/generated");
 
    for Library_Dir   use external("BUILD_DIR") & "/Ada/lib";
    for Object_Dir    use external("BUILD_DIR") & "/Ada";

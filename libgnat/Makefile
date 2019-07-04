@@ -1,5 +1,5 @@
 LIB_NAME ?= libgnat
-PROJ_FILES = ../../../
+PROJ_FILES = ../../
 LIB_FULL_NAME = $(LIB_NAME).a
 
 include $(PROJ_FILES)/m_config.mk
