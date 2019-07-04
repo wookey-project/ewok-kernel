@@ -58,10 +58,8 @@ is
         (system_address, t_parameters_access);
 
    procedure main
-     (argc  : in  integer;
-      args  : in  system_address)
-   with  convention     => c,
-         export         => true,
-         external_name  => "ewok_main";
+      with  convention     => c,
+            export         => true,
+            external_name  => "ewok_main";
 
 end ewok;

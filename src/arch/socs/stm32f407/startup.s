@@ -35,10 +35,7 @@
 .fpu softvfp
 .thumb
 
-.global g_pfnVectors
-.global g_BaseAddress
-.global g_StackAddress
-
+.global VTOR_address
 .extern Default_SubHandler
 
 /* start address for the initialization values of the .data section. defined in linker script */
@@ -56,75 +53,71 @@
 .word   _egot
 
 
-/*
-.word   _svtors
-.word   _evtors
-*/
-/*
- * @brief Globals variables
- * @param  None
- * @retval None
- *
- */
-
 .section .data
-g_BaseAddress:
-    .word 0
-g_StackAddress:
-    .word 0
+VTOR_address: .word 0
+
 
 /*
- * @brief  This is the code that gets called when the processor first
- *          starts execution following a reset event. Only the absolutely
- *          necessary set is performed, after which the application
- *          supplied main() routine is called.
- * @param  None
- * @retval None
+ * Very first code executed after a reset event
  */
-
 .section .text.Reset_Handler
     .weak  Reset_Handler
     .type  Reset_Handler, %function
 Reset_Handler:
     bl  _start                  /* Entry point address */
+
 _start:
     cpsid   i
+
+    /* Retrieve Reset_Handler address */
     movs    r5, lr
-    sub     r5, #5              /* In thumb mode LR is pointing to PC + 4 bytes  + 1 because in thumb mode LR must be odd aligned*/
-    sub     r2, r5, #0x188      /* Compute vector table address FIXME: We should use dynimic value for VTORS_SIZE */
+    sub     r5, #5              /* In thumb mode LR is pointing to PC + 4 bytes  + 1 (odd aligned) */
+
+    /* Compute vector table address
+     * FIXME: We should use dynimic value for VTORS_SIZE */
+    sub     r2, r5, #0x188
+    movs    r5, r2
+
+    /* Note: we can't store VTOR address in VTOR_address variable here because
+     * .data section will be zeroed */
+
     ldr     r2, [r2]
     msr     msp, r2             /* Reset stack address to default 0x20002000 */
-
     movs  r1, #0
     b       LoopCopyDataInit
+
 CopyDataInit:                   /* Copy the data segment initializers from flash to SRAM */
     ldr     r3, =_sidata        /* start address for the initialization values of the .data section. */
     ldr     r3, [r3, r1]
     str     r3, [r0, r1]
     adds    r1, r1, #4
+
 LoopCopyDataInit:
     ldr     r0, =_sdata         /* start address for the .data section */
     ldr     r3, =_edata         /* end address for the .data section */
     adds    r2, r0, r1
     cmp     r2, r3
     bcc     CopyDataInit
-
-
     ldr     r2, =_sbss          /* start address for the .bss section */
     b       LoopFillZerobss
+
 FillZerobss:                     /* Zero fill the bss segment. */
     movs    r3, #0
     str     r3, [r2], #4
+
 LoopFillZerobss:
     ldr     r3, = _ebss          /* end address for the .bss section */
     cmp     r2, r3
     bcc     FillZerobss
-    movs    r0, #1
-    ldr     r1, = g_BaseAddress
+
+    /* Store computed VTOR address (in r5) in VTOR_address */
+    ldr     r1, = VTOR_address
     str     r5, [r1]
-    dmb
-    bl      main
+
+    bl      kernelinit  /* Ada elaboration phase  */
+    bl      ewok_main   /* Ada kernel entry point */
     bx      lr
+
 
 .size  Reset_Handler, .-Reset_Handler
 
@@ -219,10 +212,10 @@ kern_mode:
  *
  ******************************************************************************/
 .section  .isr_vector,"a",%progbits
-  .type  g_pfnVectors, %object
-  .size  g_pfnVectors, .-g_pfnVectors
+  .type  VTOR_table, %object
+  .size  VTOR_table, .-VTOR_table
 
-g_pfnVectors:
+VTOR_table:
   .word  _estack
   .word  Reset_Handler
   .word  Default_Handler

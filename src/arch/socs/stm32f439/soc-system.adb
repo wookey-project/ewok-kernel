@@ -33,15 +33,9 @@ is
    begin
       soc.rcc.reset;
       soc.rcc.init;
-
-      --
-      -- Set VTOR
-      --
-
-      m4.cpu.instructions.DMB; -- Data Memory Barrier
-      m4.scb.SCB.VTOR := vtor_addr;
-      m4.cpu.instructions.DSB; -- Data Synchronization Barrier
-
+      m4.cpu.instructions.DMB;      -- Data Memory Barrier
+      m4.scb.SCB.VTOR := vtor_addr; -- Set VTOR
+      m4.cpu.instructions.DSB;      -- Data Synchronization Barrier
    end init;
 
 end soc.system;

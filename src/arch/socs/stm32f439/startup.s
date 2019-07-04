@@ -1,1 +1,1 @@
-../stm32f429/startup.s
+../stm32f407/startup.s
