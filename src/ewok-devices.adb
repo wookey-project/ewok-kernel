@@ -44,17 +44,6 @@ is
 
    --pragma debug_policy (IGNORE);
 
-   procedure init
-   is begin
-      for i in registered_device'range loop
-         registered_device(i).status    := DEV_STATE_UNUSED;
-         registered_device(i).task_id   := ID_UNUSED;
-         registered_device(i).periph_id := NO_PERIPH;
-         -- FIXME initialize registered_device(i).udev with 0 values
-      end loop;
-   end init;
-
-
    function get_task_from_id (dev_id : t_device_id)
       return t_task_id
    is

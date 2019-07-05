@@ -48,10 +48,10 @@ is
 
    type t_user_device is record
       name           : t_device_name;
-      base_addr      : system_address;
-      size           : unsigned_32;
-      interrupt_num  : unsigned_8 range 0 .. MAX_INTERRUPTS;
-      gpio_num       : unsigned_8 range 0 .. MAX_GPIOS;
+      base_addr      : system_address                       := 0;
+      size           : unsigned_32                          := 0;
+      interrupt_num  : unsigned_8 range 0 .. MAX_INTERRUPTS := 0;
+      gpio_num       : unsigned_8 range 0 .. MAX_GPIOS      := 0;
       map_mode       : t_dev_map_mode;
       interrupts     : t_interrupt_config_array (1 .. MAX_INTERRUPTS);
       gpios          : t_gpio_config_array (1 .. MAX_GPIOS);

@@ -25,7 +25,6 @@ with m4.systick;
 with soc.dwt;
 with soc.rng;
 with soc.system;
-with ewok.devices;
 with ewok.debug;
 with ewok.dma;
 with ewok.exti;
@@ -54,9 +53,6 @@ is
    begin
 
       m4.cpu.disable_irq;
-
-      -- Initialize devices structures
-      ewok.devices.init;
 
       -- Initialize interrupts, handlers & priorities
       ewok.interrupts.init;

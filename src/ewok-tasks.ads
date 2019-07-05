@@ -21,8 +21,8 @@
 --
 
 
-with ewok.tasks_shared; use ewok.tasks_shared;
-with ewok.devices_shared;
+with ewok.tasks_shared;    use ewok.tasks_shared;
+with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.ipc;
 with ewok.exported.dma;
 with ewok.dma_shared;
@@ -92,14 +92,14 @@ is
       TASK_TYPE_USER);
 
    type t_main_context is record
-      frame_a       : ewok.t_stack_frame_access;
+      frame_a       : ewok.t_stack_frame_access                := NULL;
    end record;
 
    type t_isr_context is record
-      entry_point   : system_address;
-      device_id     : ewok.devices_shared.t_device_id;
-      sched_policy  : ewok.tasks_shared.t_scheduling_post_isr;
-      frame_a       : ewok.t_stack_frame_access;
+      entry_point   : system_address                           := 0;
+      device_id     : ewok.devices_shared.t_device_id          := ID_DEV_UNUSED;
+      sched_policy  : ewok.tasks_shared.t_scheduling_post_isr  := ISR_STANDARD;
+      frame_a       : ewok.t_stack_frame_access                := NULL;
    end record;
 
    --
@@ -112,56 +112,56 @@ is
    MAX_DMA_SHM_PER_TASK    : constant := 4;
 
    type t_registered_dma_index_list is array (unsigned_32 range <>) of
-      ewok.dma_shared.t_user_dma_index;
+      ewok.dma_shared.t_user_dma_index
+         with default_component_value => ewok.dma_shared.ID_DMA_UNUSED;
 
    type t_dma_shm_info_list is array (unsigned_32 range <>) of
       ewok.exported.dma.t_dma_shm_info;
 
    type t_device_id_list is array (unsigned_8 range <>) of
-      ewok.devices_shared.t_device_id;
+      ewok.devices_shared.t_device_id
+         with default_component_value => ID_DEV_UNUSED;
 
    type t_ipc_endpoint_id_list is array (ewok.tasks_shared.t_task_id) of
-      ewok.ipc.t_extended_endpoint_id;
+      ewok.ipc.t_extended_endpoint_id
+         with default_component_value => ewok.ipc.ID_ENDPOINT_UNUSED;
 
 
    type t_task is record
-      name              : t_task_name;
-      entry_point       : system_address;
-      ttype             : t_task_type;
-      mode              : t_task_mode;
-      id                : ewok.tasks_shared.t_task_id;
-      slot              : unsigned_8; -- 1: first slot (0: unused)
-      num_slots         : unsigned_8;
-      prio              : unsigned_8;
+      name              : t_task_name     := "          ";
+      entry_point       : system_address  := 0;
+      ttype             : t_task_type     := TASK_TYPE_USER;
+      mode              : t_task_mode     := TASK_MODE_MAINTHREAD;
+      id                : ewok.tasks_shared.t_task_id := ID_UNUSED;
+      slot              : unsigned_8      := 0; -- 1: first slot (0: unused)
+      num_slots         : unsigned_8      := 0;
+      prio              : unsigned_8      := 0;
 #if CONFIG_KERNEL_DOMAIN
-      domain            : unsigned_8;
+      domain            : unsigned_8      := 0;
 #end if;
 #if CONFIG_KERNEL_SCHED_DEBUG
-      count             : unsigned_32;
-      force_count       : unsigned_32;
-      isr_count         : unsigned_32;
+      count             : unsigned_32     := 0;
+      force_count       : unsigned_32     := 0;
+      isr_count         : unsigned_32     := 0;
 #end if;
-
-      num_dma_shms      : unsigned_32 range 0 .. MAX_DMA_SHM_PER_TASK;
+      num_dma_shms      : unsigned_32 range 0 .. MAX_DMA_SHM_PER_TASK   := 0;
       dma_shm           : t_dma_shm_info_list (1 .. MAX_DMA_SHM_PER_TASK);
-      num_dma_id        : unsigned_32 range 0 .. MAX_DMAS_PER_TASK;
+      num_dma_id        : unsigned_32 range 0 .. MAX_DMAS_PER_TASK      := 0;
       dma_id            : t_registered_dma_index_list (1 .. MAX_DMAS_PER_TASK);
-
-      num_devs          : unsigned_8 range 0 .. MAX_DEVS_PER_TASK;
+      num_devs          : unsigned_8 range 0 .. MAX_DEVS_PER_TASK       := 0;
       device_id         : t_device_id_list (1 .. MAX_DEVS_PER_TASK);
-      num_devs_mounted  : unsigned_8 range 0 .. ewok.mpu.MAX_DEVICE_REGIONS;
+      num_devs_mounted  : unsigned_8 range 0 .. ewok.mpu.MAX_DEVICE_REGIONS := 0;
       mounted_device    : t_device_id_list (1 .. ewok.mpu.MAX_DEVICE_REGIONS);
-
-      init_done         : boolean;
-      data_slot_start   : system_address;
-      data_slot_end     : system_address;
-      txt_slot_start    : system_address;
-      txt_slot_end      : system_address;
-      stack_bottom      : system_address;
-      stack_top         : system_address;
-      stack_size        : unsigned_16;
-      state             : t_task_state;
-      isr_state         : t_task_state;
+      init_done         : boolean         := false;
+      data_slot_start   : system_address  := 0;
+      data_slot_end     : system_address  := 0;
+      txt_slot_start    : system_address  := 0;
+      txt_slot_end      : system_address  := 0;
+      stack_bottom      : system_address  := 0;
+      stack_top         : system_address  := 0;
+      stack_size        : unsigned_16     := 0;
+      state             : t_task_state    := TASK_STATE_EMPTY;
+      isr_state         : t_task_state    := TASK_STATE_EMPTY;
       ipc_endpoint_id   : t_ipc_endpoint_id_list;
       ctx               : aliased t_main_context;
       isr_ctx           : aliased t_isr_context;
@@ -212,7 +212,6 @@ is
             pc <= soc.layout.FLASH_BASE + soc.layout.FLASH_SIZE
            ),
          global => ( in_out => tasks_list );
-
 
    procedure set_default_values (tsk : out t_task);
 
