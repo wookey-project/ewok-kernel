@@ -21,9 +21,9 @@
 --
 
 
+with interfaces;  use interfaces;
+with types;       use types;
 with ada.unchecked_conversion;
-with interfaces; use interfaces;
-with types; use types;
 with m4.cpu;
 
 package ewok
@@ -56,10 +56,5 @@ is
 
    function to_parameters_access is new ada.unchecked_conversion
         (system_address, t_parameters_access);
-
-   procedure main
-      with  convention     => c,
-            export         => true,
-            external_name  => "ewok_main";
 
 end ewok;
