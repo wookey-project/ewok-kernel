@@ -45,15 +45,13 @@ is
 
    type t_device is record
       udev        : aliased t_checked_user_device;
-      task_id     : t_task_id;
-      periph_id   : soc.devmap.t_periph_id;
-      status      : t_device_state;
+      task_id     : t_task_id                := ID_UNUSED;
+      periph_id   : soc.devmap.t_periph_id   := soc.devmap.NO_PERIPH;
+      status      : t_device_state           := DEV_STATE_UNUSED;
    end record;
 
    registered_device : array (t_device_id range ID_DEV1 .. ID_DEV18) of t_device;
 
-
-   procedure init;
 
    procedure get_registered_device_entry
      (dev_id   : out t_device_id;

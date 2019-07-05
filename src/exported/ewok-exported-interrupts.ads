@@ -100,8 +100,8 @@ is
    end record;
 
    type t_interrupt_config is record
-      handler     : ewok.interrupts.t_interrupt_handler_access;
-      interrupt   : soc.interrupts.t_interrupt;
+      handler     : ewok.interrupts.t_interrupt_handler_access := NULL;
+      interrupt   : soc.interrupts.t_interrupt                 := soc.interrupts.INT_NONE;
       mode        : ewok.tasks_shared.t_scheduling_post_isr;
       posthook    : t_interrupt_posthook;
    end record;

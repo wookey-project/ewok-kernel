@@ -69,11 +69,11 @@ is
    -- 'granted' to configure the DMA with an address that belongs to
    -- the 'accessed' task.
    type t_dma_shm_info is record
-      granted_id     : t_task_id;
-      accessed_id    : t_task_id; -- caller
-      base           : system_address;
-      size           : unsigned_32;
-      access_type    : t_dma_shm_access;
+      granted_id     : t_task_id          := ID_UNUSED;
+      accessed_id    : t_task_id          := ID_UNUSED; -- caller
+      base           : system_address     := 0;
+      size           : unsigned_32        := 0;
+      access_type    : t_dma_shm_access   := SHM_ACCESS_READ;
    end record;
 
 end ewok.exported.dma;

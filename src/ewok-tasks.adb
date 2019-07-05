@@ -26,7 +26,6 @@ with m4.cpu.instructions;
 with m4.mpu;
 with ewok.debug;
 with ewok.layout;          use ewok.layout;
-with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.ipc;             use ewok.ipc;
 with ewok.rng;
 with ewok.softirq;
@@ -135,11 +134,11 @@ is
       tsk.num_dma_id        := 0;
       tsk.dma_id            := (others => ewok.dma_shared.ID_DMA_UNUSED);
 
-      tsk.init_done         := false;
       tsk.num_devs          := 0;
-      tsk.num_devs_mounted  := 0;
       tsk.device_id         := (others => ewok.devices_shared.ID_DEV_UNUSED);
+      tsk.num_devs_mounted  := 0;
       tsk.mounted_device    := (others => ewok.devices_shared.ID_DEV_UNUSED);
+      tsk.init_done         := false;
       tsk.data_slot_start   := 0;
       tsk.data_slot_end     := 0;
       tsk.txt_slot_start    := 0;
@@ -300,30 +299,6 @@ is
 #if CONFIG_KERNEL_DOMAIN
          tasks_list(id).domain   := applications.list(id).domain;
 #end if;
-
-#if CONFIG_KERNEL_SCHED_DEBUG
-         tasks_list(id).count       := 0;
-         tasks_list(id).force_count := 0;
-         tasks_list(id).isr_count   := 0;
-#end if;
-
-         tasks_list(id).num_dma_shms   := 0;
-         tasks_list(id).dma_shm        :=
-           (others => ewok.exported.dma.t_dma_shm_info'
-              (granted_id  => ID_UNUSED,
-               accessed_id => ID_UNUSED,
-               base        => 0,
-               size        => 0,
-               access_type => ewok.exported.dma.SHM_ACCESS_READ));
-         tasks_list(id).num_dma_id     := 0;
-         tasks_list(id).dma_id         :=
-           (others => ewok.dma_shared.ID_DMA_UNUSED);
-
-         tasks_list(id).num_devs          := 0;
-         tasks_list(id).num_devs_mounted  := 0;
-         tasks_list(id).device_id         := (others => ID_DEV_UNUSED);
-         tasks_list(id).mounted_device    := (others => ID_DEV_UNUSED);
-         tasks_list(id).init_done         := false;
 
          tasks_list(id).data_slot_start   :=
             USER_DATA_BASE
