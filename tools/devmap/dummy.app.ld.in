@@ -1,0 +1,110 @@
+/* dummy.app.fw1.ld */
+
+/* this dummy application linker script is used in order to link any 
+ * application into a generic, not-SoC specific binary.
+ * This permit to calculate the application sections size to generate
+ * the kernel applications.ads and config.mpu.layout.ads application
+ * layouting, based on each application memory consumption.
+ *
+ * This ldscript is FW/DFU specific as the is_fw/is_dfu may impact the
+ * application behavior (including call graph).
+ * We considering here that has is_flip/is_flop is dynamically checked
+ * (not using preprocessing), the section size is not impacted by the
+ * flip/flop usage
+ */
+STARTUP ( libstd.a )
+
+ENTRY(do_starttask)
+
+MEMORY
+{
+  /* sample flash, 512k */
+  FLASH_APP (rx) : ORIGIN = 0x08000000, LENGTH = 512*1024
+  /* sample RAM, 256k */
+  RAM_APP   (rx) : ORIGIN = 0x20000000, LENGTH = 256*1024
+}
+
+__is_flip = @SELECTMODE@; /* TRUE=240, FALSE=0*/
+__is_flop = @SELECTMODE@;
+__is_fw   = @SELECTMODE@;
+__is_dfu  = @SELECTMODE@;
+
+/* Define output sections */
+SECTIONS
+{
+	/* The program code and other data goes into FLASH */
+	/* this is the kernel code part */
+	.text :
+	{
+		_s_text = .;	            /* create a global symbol at data start */
+		*startup*(.text.do_starttask)
+		*(.text*)
+		*(.rodata)         	/* .rodata sections (constants, strings, etc.) */
+		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */
+		*(.glue_7)         	/* glue arm to thumb code */
+		*(.glue_7t)        	/* glue thumb to arm code */
+		*(.eh_frame)
+		KEEP (*(.init))
+		KEEP (*(.fini))
+		__e_text = .;        	/* define a global symbols at end of code */
+	}>FLASH_APP
+
+	. = ALIGN(4);
+
+	/* used by the startup to initialize got */
+	.got :
+	{
+		_s_got = .;
+		*(.got)
+		*(.got*)
+		/* declaring variables for various task slots and add them to flash */
+		__e_got = .;
+	}>FLASH_APP
+
+	. = ALIGN(4);
+	_s_data_in_flash = .;
+
+	.stacking :
+	{
+		_s_stack = .;         /* define a global symbol after .data+.bss+.stack size content */
+		. = . + @STACKSIZE@;  /*  thread stack, to update */
+		_e_stack = .;         /* define a global symbol after .data+.bss+.stack size content */
+	}>RAM_APP
+
+	. = ALIGN(4);
+
+	/* Initialized data sections goes into RAM, load LMA copy after code *
+	 * Used at the startup to initialize data                            */
+	.data : AT (_s_data_in_flash)
+	{
+		_s_data = .;        /* create a global symbol at data start */
+		*(.data)           /* .data sections */
+		*(.data*)          /* .data* sections */
+		_e_data = .;        /* define a global symbol at data end */
+	}>RAM_APP
+
+	. = ALIGN(4);
+
+	/* Uninitialized data section */
+	.bss : AT (.)
+	{
+		/* This is used by the startup in order to initialize the .bss section */
+		_s_bss = .;         /* define a global symbol at bss start */
+		_bss_start__ = _s_bss;
+		*debug.o(.bss)
+		*(.bss)
+		*(.bss*)
+		*(COMMON)
+		_e_bss = .;         /* define a global symbol at bss end */
+	}>RAM_APP
+
+	. = ALIGN(4);
+
+	/* Remove information from the standard libraries */
+	/DISCARD/ :
+	{
+		libgcc.a ( * )
+	}
+
+}
+
