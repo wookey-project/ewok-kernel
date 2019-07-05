@@ -66,6 +66,7 @@ library project Libkernel is
 
    for Library_Interface use
      ("applications",
+      "main",
       "ewok",
       "ewok.debug",
       "ewok.devices",
