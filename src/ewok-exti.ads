@@ -34,14 +34,14 @@ is
    -- Functions --
    ---------------
 
-   -- \brief initialize the EXTI module
+   -- Initialize the EXTI module
    procedure init;
 
 
-   -- \brief Disable a given line
-   -- \returns 0 of EXTI line has been properly disabled, or non-null value
+   -- Disable a given line
    procedure disable
-     (ref : in  ewok.exported.gpios.t_gpio_ref);
+     (ref : in  ewok.exported.gpios.t_gpio_ref)
+      with inline;
 
    -- Enable (i.e. activate at EXTI and NVIC level) the EXTI line.
    -- This is done by calling soc_exti_enable() only. No generic call here.
@@ -53,7 +53,7 @@ is
      (ref : ewok.exported.gpios.t_gpio_ref)
       return boolean;
 
-   -- \brief Register a new EXTI line.
+   -- Brief Register a new EXTI line.
    -- Check that the EXTI line is not already registered.
    procedure register
      (conf     : in  ewok.exported.gpios.t_gpio_config_access;

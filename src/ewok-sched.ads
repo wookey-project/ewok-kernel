@@ -32,31 +32,34 @@ is
    -- SPARK/ghost specific function
    function current_task_is_valid
       return boolean
-   with ghost;
+         with ghost;
 
-   function get_current return ewok.tasks_shared.t_task_id
-   with
-      inline,
-      pre => (current_task_is_valid);
+   function get_current
+      return ewok.tasks_shared.t_task_id
+         with
+            inline,
+            pre => (current_task_is_valid);
 
    procedure request_schedule
-   with spark_mode => off;
+      with
+         inline,
+         spark_mode => off;
 
    function task_elect return t_task_id
-   with spark_mode => off;
+      with spark_mode => off;
 
    procedure init
-   with spark_mode => off;
+      with spark_mode => off;
 
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with spark_mode => off;
+      with spark_mode => off;
 
    function do_schedule
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   renames pendsv_handler;
+      renames pendsv_handler;
 
 end ewok.sched;
 
