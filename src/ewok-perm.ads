@@ -57,22 +57,7 @@ is
 
    pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
 
-   --
-   -- \brief test if a task is allow to declare a DMA SHM with another task
-   --
-   -- Here we are based on a symetric paradigm (i.e. when a
-   -- task is allowed to declare a DMA SHM with another task, the other
-   -- task is allowed to host a DMA SHM from it). Nonetheless it
-   -- is still an half duplex communication channel (DMA SHM are
-   -- read-only or write-only, accessible only by the DMA controler
-   -- and never mapped into the task memory slot).
-   --
-   -- \param[in] from the task which want to declare a DMA SHM
-   -- \param[in] tto  the task target of the DMA SHM peering
-   --
-   -- \return true if the permission is granted, of false
-   --
-
+   -- Test if a task is allowed to share a DMA SHM with another task
    function dmashm_is_granted
      (from    : in t_real_task_id;
       to      : in t_real_task_id)
@@ -83,15 +68,7 @@ is
          Contract_Cases => (ewok.perm_auto.com_dmashm_perm(from,to) => dmashm_is_granted'Result,
                             others                                  => not dmashm_is_granted'Result);
 
-   --
-   -- \brief test if a task is allow to send an IPC to another task
-   --
-   -- \param[in] from the task which want to send an IPC data
-   -- \param[in] to  the task target of the IPC
-   --
-   -- \return true if the 'from' task is granted to send a message to the 'to' task
-   --
-
+   -- Test if a task is allowed to send an IPC to another task
    function ipc_is_granted
      (from    : in t_real_task_id;
       to      : in t_real_task_id)
@@ -112,20 +89,7 @@ is
          Post      => (if (from = to) then is_same_domain'Result = false);
 #end if;
 
-   --
-   -- \brief test if the ressource is allowed for the task
-   --
-   -- A typical example of such an API is the following:
-   -- if (!perm_ressource_is_granted(PERM_RES_DEV_DMA, mytask)) {
-   --     goto ret_denied;
-   -- }
-   --
-   -- \param[in] perm_name the name of the permission
-   -- \param[in] task the task requiring the permission
-   --
-   -- \return true if the permission is granted, of false
-   --
-
+   -- Test if a task is allowed to use a resource
    function ressource_is_granted
      (perm_name : in t_perm_name;
       task_id   : in applications.t_real_task_id)
