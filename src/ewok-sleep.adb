@@ -36,14 +36,12 @@ is
       mode        : in  t_sleep_mode)
    is
    begin
-      sleep_info(task_id).sleep_until :=
+      awakening_time(task_id) :=
          m4.systick.get_ticks + m4.systick.to_ticks (ms);
 
       if mode = SLEEP_MODE_INTERRUPTIBLE then
-         sleep_info(task_id).interruptible   := true;
          TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING);
-      else
-         sleep_info(task_id).interruptible   := false;
+      else -- SLEEP_MODE_DEEP
          TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_SLEEPING_DEEP);
       end if;
 
@@ -57,7 +55,7 @@ is
       for id in applications.list'range loop
          if (TSK.tasks_list(id).state = TASK_STATE_SLEEPING or
             TSK.tasks_list(id).state = TASK_STATE_SLEEPING_DEEP) and then
-            t > sleep_info(id).sleep_until
+            t > awakening_time(id)
          then
             TSK.set_state (id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
          end if;
@@ -69,8 +67,8 @@ is
      (task_id : in  t_real_task_id)
    is
    begin
-      if sleep_info(task_id).sleep_until < m4.systick.get_ticks or
-         sleep_info(task_id).interruptible
+      if TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING or else
+         awakening_time(task_id) < m4.systick.get_ticks
       then
          TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
       end if;
@@ -85,7 +83,7 @@ is
       if TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING or
          TSK.tasks_list(task_id).state = TASK_STATE_SLEEPING_DEEP
       then
-         if sleep_info(task_id).sleep_until > m4.systick.get_ticks then
+         if awakening_time(task_id) > m4.systick.get_ticks then
             return true;
          else
             TSK.set_state (task_id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);

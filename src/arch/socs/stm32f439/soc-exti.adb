@@ -31,18 +31,12 @@ is
    procedure init
    is
    begin
-      deinit;
+      for line in t_exti_line_index'range loop
+         clear_pending(line);
+         disable(line);
+      end loop;
       soc.rcc.RCC.APB2ENR.SYSCFGEN := true;
    end init;
-
-   procedure deinit
-   is
-   begin
-     for line in t_exti_line_index'range loop
-       clear_pending(line);
-       disable(line);
-     end loop;
-   end deinit;
 
 
    function is_line_pending

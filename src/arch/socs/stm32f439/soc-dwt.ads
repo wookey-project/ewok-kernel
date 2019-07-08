@@ -44,124 +44,106 @@ is
    -- SPARK ghost functions and procedures
    -----------------------------------------------------
 
-   function init_is_done
-      return boolean
-   with
-      ghost;
+   function init_is_done return boolean
+      with ghost;
 
 
-   function check_32bits_overflow
-      return boolean
-   with
-      ghost;
+   function check_32bits_overflow return boolean
+      with ghost;
 
    --------------------------------------------------
    -- The Data Watchpoint and Trace unit (DWT)     --
    -- (Cf. ARMv7-M Arch. Ref. Manual, C1.8, p.779) --
    --------------------------------------------------
 
-
    -- Reset the DWT-based timer
    procedure reset_timer
-   with
-       pre           => not init_is_done,
-       global        => (input  => Ini_F,
-                         in_out => (Dem, Ctrl),
-                         output => (Lar_register, Cnt)),
-       depends       => (Dem          =>+ null,
-                         Lar_register => null,
-                         Cnt          => null,
-                         Ctrl         =>+ null,
-                         null         => Ini_F);
+      with
+         pre      => not init_is_done,
+         global   => (input   => Ini_F,
+                      in_out  => (Dem, Ctrl),
+                      output  => (Lar_register, Cnt)),
+          depends => (Dem           =>+ null,
+                      Lar_register  =>  null,
+                      Cnt           =>  null,
+                      Ctrl          =>+ null,
+                      null          =>  Ini_F);
 
-
-   -- Start the DWT timer. The register is counting the number of
-   -- CPU cycles
+   -- Start the DWT timer. The register is counting the number of CPU cycles
    procedure start_timer
-   with
-      pre             => not init_is_done,
-      global          => (input        => Ini_F,
-                          in_out       => Ctrl),
-      depends         => (Ctrl        =>+ null,
-                          null        => Ini_F);
+      with
+         pre      => not init_is_done,
+         global   => (input   => Ini_F,
+                      in_out  => Ctrl),
+         depends  => (Ctrl    =>+ null,
+                      null    => Ini_F);
 
-
-   -- stop the DWT timer
+   -- Stop the DWT timer
    procedure stop_timer
-   with
-      pre            => init_is_done,
-      global         => (input => Ini_F,
-                        in_out => Ctrl),
-      depends        => (Ctrl       =>+ null,
-                        null        => Ini_F);
+      with
+        pre       => init_is_done,
+        global    => (input  => Ini_F,
+                      in_out => Ctrl),
+        depends   => (Ctrl   =>+ null,
+                      null   => Ini_F);
 
-
-   -- periodically check the DWT CYCCNT register for overflow. This permit
+   -- Periodically check the DWT CYCCNT register for overflow. This permit
    -- to detect each time an overflow happends and increment the
    -- overflow counter to keep a valid 64 bit time value
    -- precondition check that the package has been initialized and that
    -- dwt_loop doesn't overflow
    procedure ovf_manage
-   with
-      pre            => check_32bits_overflow;
+      with
+         pre => check_32bits_overflow;
 
-   -- initialize the DWT module
-   -- This procedure is called by the kernel main() function, and as
-   -- a consequence exported to C
+   -- Initialize the DWT module
    procedure init
-   with
-      pre            => not init_is_done,
-      global         => (in_out => (Ini_F,
-                                    Ctrl,
-                                    Dem),
-                         output => (Last,
-                                    Loo,
-                                    Cnt,
-                                    Lar_register));
+      with
+         pre      => not init_is_done,
+         global   => (in_out => (Ini_F, Ctrl, Dem),
+                      output => (Last, Loo, Cnt, Lar_register));
 
-
-   -- get the DWT timer (without overflow support, keep a 32bit value)
+   -- Get the DWT timer (without overflow support, keep a 32bit value)
    procedure get_cycles_32(cycles : out unsigned_32)
-     with
-       pre            => init_is_done,
-       global         => (input  => Ini_F,
-                          in_out => Cnt),
-       depends        => (Cnt        =>+ null,
-                          cycles     => Cnt,
-                          null       => Ini_F);
+      with
+         inline,
+         pre      => init_is_done,
+         global   => (input   => Ini_F,
+                      in_out  => Cnt),
+         depends  => (Cnt     =>+ null,
+                      cycles  => Cnt,
+                      null    => Ini_F);
 
-
-   -- get the DWT timer with overflow support. permits linear measurement
+   -- Get the DWT timer with overflow support. permits linear measurement
    -- on 64 bits cycles time window (approx. 1270857 days)
    procedure get_cycles (cycles : out unsigned_64)
-     with
-       pre            => init_is_done,
-       global         => (input  => (Ini_F, Loo),
-                          in_out => Cnt),
-       depends        => (Cnt        =>+ null,
-                          cycles     => (Cnt, Loo),
-                          null       => Ini_F);
-
+      with
+         pre      => init_is_done,
+         global   => (input   => (Ini_F, Loo),
+                      in_out  => Cnt),
+         depends  => (Cnt     =>+ null,
+                      cycles  => (Cnt, Loo),
+                      null    => Ini_F);
 
    procedure get_microseconds (micros : out unsigned_64)
-   with
-     pre             => init_is_done,
-     global          => (input   => (Ini_F, Loo),
-                         in_out  => Cnt),
-     depends         => (micros     => (Cnt, Loo),
-                         Cnt        =>+ null,
-                         null       => Ini_F);
-
+      with
+         inline,
+         pre      => init_is_done,
+         global   => (input   => (Ini_F, Loo),
+                      in_out  => Cnt),
+         depends  => (micros  => (Cnt, Loo),
+                      Cnt     =>+ null,
+                      null    => Ini_F);
 
    procedure get_milliseconds (milli : out unsigned_64)
-   with
-     pre             => init_is_done,
-     global          => (in_out  => Cnt,
-                         input => (Loo, Ini_F)),
-     depends         => (milli      => (Cnt, Loo),
-                         Cnt        =>+ null,
-                         null       => Ini_F);
-
+      with
+         inline,
+         pre      => init_is_done,
+         global   => (in_out  => Cnt,
+                      input   => (Loo, Ini_F)),
+         depends  => (milli   => (Cnt, Loo),
+                      Cnt     =>+ null,
+                      null    => Ini_F);
 
 private
 
@@ -235,7 +217,6 @@ private
          volatile,
          address => system'to_address (16#E000_1004#),
          part_of => Cnt;
-
 
    -- Specify the package state. Set to true by init().
    init_done : boolean := false with part_of => Ini_F;
@@ -341,7 +322,5 @@ private
            volatile,
            address => system'to_address (16#E000_EDFC#),
            part_of => Dem;
-
-
 
 end soc.dwt;

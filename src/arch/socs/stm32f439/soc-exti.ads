@@ -39,8 +39,6 @@ is
    -- Initialize EXTI by enabling SYSCFG.APB2 clock
    procedure init;
 
-   procedure deinit;
-
    function is_line_pending
      (line : t_exti_line_index)
       return boolean;
@@ -52,7 +50,8 @@ is
      (line : in t_exti_line_index);
 
    procedure disable
-     (line : in t_exti_line_index);
+     (line : in t_exti_line_index)
+      with inline;
 
    function is_enabled
      (line : in t_exti_line_index)
