@@ -71,7 +71,7 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
     while (my $line = <INLD>) {
         chomp($line);
         if ($line =~ m/^__is_flip = \@SELECTMODE\@/) {
-            $line = "__in_flip = $is_flip;"
+            $line = "__is_flip = $is_flip;"
         }
         if ($line =~ m/^__is_flop = \@SELECTMODE\@/) {
             $line =    "__is_flop = $is_flop;"
