@@ -20,8 +20,8 @@
 --
 --
 
-with ewok.tasks;        use ewok.tasks;
-with ewok.tasks_shared; use ewok.tasks_shared;
+with ewok.tasks;              use ewok.tasks;
+with ewok.tasks_shared;       use ewok.tasks_shared;
 with ewok.devices_shared;     use ewok.devices_shared;
 with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices;
@@ -112,9 +112,9 @@ is
          goto ret_busy;
       end if;
 
-      if udev.size > 0                 and
-         udev.map_mode = DEV_MAP_AUTO  and
-         TSK.tasks_list(caller_id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS
+      if (udev.map_mode = DEV_MAP_AUTO  and  -- Device should be automatically mapped...
+          udev.size > 0)
+         and then not ewok.mpu.can_be_mapped -- ...but no sufficient resources
       then
          pragma DEBUG (debug.log (debug.ERROR,
             "svc_register_device(): no free region left to map the device"));
@@ -125,7 +125,8 @@ is
       -- Registering the device
       --
 
-      ewok.devices.register_device (caller_id, udev'unchecked_access, dev_id, ok);
+      ewok.devices.register_device
+        (caller_id, udev'unchecked_access, dev_id, ok);
 
       if not ok then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -137,15 +138,14 @@ is
       -- Recording registered devices in the task record
       --
 
-      TSK.append_device
-        (caller_id, dev_id, descriptor, ok);
+      TSK.append_device (caller_id, dev_id, descriptor, ok);
       if not ok then
          raise program_error; -- Should never happen here
       end if;
 
       -- Mount DEV_MAP_AUTO devices in memory
       if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
-         TSK.mount_device (caller_id, dev_id, ok);
+         TSK.mount_device (caller_id, descriptor, ok);
          if not ok then
             raise program_error; -- Should never happen here
          end if;
@@ -177,8 +177,9 @@ is
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode)
    is
-      ok   : boolean;
-      udev : ewok.devices.t_checked_user_device_access;
+      ok       : boolean;
+      udev     : ewok.devices.t_checked_user_device_access;
+      dev_id   : ewok.devices_shared.t_device_id;
    begin
 
       -- Forbidden after end of task initialization
@@ -187,14 +188,13 @@ is
       end if;
 
       -- We enable auto mapped devices (MAP_AUTO)
-      for i in TSK.tasks_list(caller_id).device_id'range loop
-         if TSK.tasks_list(caller_id).device_id(i) /= ID_DEV_UNUSED then
-            udev := ewok.devices.get_user_device
-                       (TSK.tasks_list(caller_id).device_id(i));
+      for i in TSK.tasks_list(caller_id).devices'range loop
+         dev_id := TSK.tasks_list(caller_id).devices(i).device_id;
+         if dev_id /= ID_DEV_UNUSED then
+            udev := ewok.devices.get_user_device (dev_id);
             if udev.all.map_mode = DEV_MAP_AUTO then
                -- FIXME - Create new syscalls for enabling/disabling devices?
-               ewok.devices.enable_device
-                  (TSK.tasks_list(caller_id).device_id(i), ok);
+               ewok.devices.enable_device (dev_id, ok);
                if not ok then
                   goto ret_denied;
                end if;

@@ -44,7 +44,7 @@ is
    is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
-      dev_id      : ewok.devices_shared.t_device_id;
+      dev_id      : ewok.devices_shared.t_registered_device_id;
       dev         : ewok.devices.t_checked_user_device_access;
       ok          : boolean;
    begin
@@ -74,7 +74,7 @@ is
       end if;
 
       -- Valid device descriptor ?
-      if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
+      if dev_descriptor not in TSK.tasks_list(caller_id).devices'range
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
@@ -82,15 +82,17 @@ is
          goto ret_inval;
       end if;
 
-      dev_id   := TSK.tasks_list(caller_id).device_id (dev_descriptor);
-
       -- Used device descriptor ?
-      if dev_id = ID_DEV_UNUSED then
+      if TSK.tasks_list(caller_id).devices(dev_descriptor).device_id
+            = ID_DEV_UNUSED
+      then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": dev_map(): unused device"));
          goto ret_inval;
       end if;
+
+      dev_id := TSK.tasks_list(caller_id).devices(dev_descriptor).device_id;
 
       -- Defensive programming. Verifying that the device really belongs to the
       -- task
@@ -109,7 +111,7 @@ is
       end if;
 
       -- Verifying that the device is not already mapped
-      if TSK.is_mounted (caller_id, dev_id) then
+      if TSK.is_mounted (caller_id, dev_descriptor) then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": dev_map(): the device is already mapped"));
@@ -120,7 +122,7 @@ is
       -- Mapping the device
       --
 
-      TSK.mount_device (caller_id, dev_id, ok);
+      TSK.mount_device (caller_id, dev_descriptor, ok);
 
       if not ok then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -166,7 +168,7 @@ is
    is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
-      dev_id         : ewok.devices_shared.t_device_id;
+      dev_id         : ewok.devices_shared.t_registered_device_id;
       dev            : ewok.devices.t_checked_user_device_access;
       ok             : boolean;
    begin
@@ -196,7 +198,7 @@ is
       end if;
 
       -- Valid device descriptor ?
-      if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
+      if dev_descriptor not in TSK.tasks_list(caller_id).devices'range
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
@@ -204,15 +206,17 @@ is
          goto ret_inval;
       end if;
 
-      dev_id   := TSK.tasks_list(caller_id).device_id (dev_descriptor);
-
       -- Used device descriptor ?
-      if dev_id = ID_DEV_UNUSED then
+      if TSK.tasks_list(caller_id).devices(dev_descriptor).device_id
+            = ID_DEV_UNUSED
+      then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": dev_unmap(): unused device"));
          goto ret_inval;
       end if;
+
+      dev_id := TSK.tasks_list(caller_id).devices(dev_descriptor).device_id;
 
       -- Defensive programming. Verifying that the device really belongs to the
       -- task
@@ -230,11 +234,19 @@ is
          goto ret_denied;
       end if;
 
+      -- Verifying that the device is not already mapped
+      if not TSK.is_mounted (caller_id, dev_descriptor) then
+         pragma DEBUG (debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": dev_unmap(): the device is not mapped"));
+         goto ret_denied;
+      end if;
+
       --
       -- Unmapping the device
       --
 
-      TSK.unmount_device (caller_id, dev_id, ok);
+      TSK.unmount_device (caller_id, dev_descriptor, ok);
 
       if not ok then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -267,7 +279,7 @@ is
    is
       dev_descriptor : unsigned_8
          with address => params(1)'address;
-      dev_id         : ewok.devices_shared.t_device_id;
+      dev_id         : ewok.devices_shared.t_registered_device_id;
       ok             : boolean;
    begin
 
@@ -280,7 +292,7 @@ is
       end if;
 
       -- Valid device descriptor ?
-      if dev_descriptor not in  TSK.tasks_list(caller_id).device_id'range
+      if dev_descriptor not in TSK.tasks_list(caller_id).devices'range
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
@@ -288,15 +300,17 @@ is
          goto ret_inval;
       end if;
 
-      dev_id   := TSK.tasks_list(caller_id).device_id (dev_descriptor);
-
       -- Used device descriptor ?
-      if dev_id = ID_DEV_UNUSED then
+      if TSK.tasks_list(caller_id).devices(dev_descriptor).device_id
+            = ID_DEV_UNUSED
+      then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": dev_release(): unused device"));
          goto ret_inval;
       end if;
+
+      dev_id := TSK.tasks_list(caller_id).devices(dev_descriptor).device_id;
 
       -- Defensive programming. Verifying that the device really belongs to the
       -- task
@@ -309,18 +323,15 @@ is
       --
 
       -- Unmounting the device
-      if TSK.is_mounted (caller_id, dev_id) then
-         TSK.unmount_device (caller_id, dev_id, ok);
+      if TSK.is_mounted (caller_id, dev_descriptor) then
+         TSK.unmount_device (caller_id, dev_descriptor, ok);
          if not ok then
             raise program_error; -- Should never happen
          end if;
       end if;
 
       -- Removing it from the task's list of used devices
-      TSK.remove_device (caller_id, dev_id, ok);
-      if not ok then
-         raise program_error; -- Should never happen
-      end if;
+      TSK.remove_device (caller_id, dev_descriptor);
 
       -- Release GPIOs, EXTIs and interrupts
       ewok.devices.release_device (caller_id, dev_id, ok);

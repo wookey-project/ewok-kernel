@@ -24,7 +24,6 @@ with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.exported.devices;
 with ewok.exported.interrupts;
-with m4.mpu;
 with soc.interrupts;
 with soc.devmap;
 
@@ -50,31 +49,31 @@ is
       status      : t_device_state           := DEV_STATE_UNUSED;
    end record;
 
-   registered_device : array (t_device_id range ID_DEV1 .. ID_DEV18) of t_device;
+   registered_device : array (t_registered_device_id) of t_device;
 
 
    procedure get_registered_device_entry
      (dev_id   : out t_device_id;
       success  : out boolean);
 
-   procedure release_registered_device_entry (dev_id : t_device_id);
+   procedure release_registered_device_entry (dev_id : t_registered_device_id);
 
-   function get_task_from_id(dev_id : t_device_id)
+   function get_task_from_id(dev_id : t_registered_device_id)
       return t_task_id;
 
-   function get_user_device (dev_id : t_device_id)
+   function get_user_device (dev_id : t_registered_device_id)
       return t_checked_user_device_access;
 
-   function get_user_device_size (dev_id : t_device_id)
+   function get_device_size (dev_id : t_registered_device_id)
       return unsigned_32;
 
-   function get_user_device_addr (dev_id : t_device_id)
+   function get_device_addr (dev_id : t_registered_device_id)
       return system_address;
 
-   function is_user_device_region_ro (dev_id : t_device_id)
+   function is_device_region_ro (dev_id : t_registered_device_id)
       return boolean;
 
-   function get_user_device_subregions_mask (dev_id : t_device_id)
+   function get_device_subregions_mask (dev_id : t_registered_device_id)
       return unsigned_8;
 
    function get_interrupt_config_from_interrupt
@@ -89,11 +88,11 @@ is
 
    procedure release_device
      (task_id  : in  t_task_id;
-      dev_id   : in  t_device_id;
+      dev_id   : in  t_registered_device_id;
       success  : out boolean);
 
    procedure enable_device
-     (dev_id   : in  t_device_id;
+     (dev_id   : in  t_registered_device_id;
       success  : out boolean);
 
    function sanitize_user_defined_device
@@ -101,9 +100,11 @@ is
       task_id  : in  t_task_id)
       return boolean;
 
-   procedure mpu_mapping_device
-     (dev_id   : in  t_device_id;
-      region   : in  m4.mpu.t_region_number;
+   procedure map_device
+     (dev_id   : in  t_registered_device_id;
       success  : out boolean);
+
+   procedure unmap_device
+     (dev_id   : in  t_registered_device_id);
 
 end ewok.devices;

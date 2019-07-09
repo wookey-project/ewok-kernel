@@ -44,7 +44,7 @@ is
 
    --pragma debug_policy (IGNORE);
 
-   function get_task_from_id (dev_id : t_device_id)
+   function get_task_from_id (dev_id : t_registered_device_id)
       return t_task_id
    is
    begin
@@ -52,7 +52,7 @@ is
    end get_task_from_id;
 
 
-   function get_user_device (dev_id : t_device_id)
+   function get_user_device (dev_id : t_registered_device_id)
       return t_checked_user_device_access
    is
    begin
@@ -60,36 +60,36 @@ is
    end get_user_device;
 
 
-   function get_user_device_size (dev_id : t_device_id)
+   function get_device_size (dev_id : t_registered_device_id)
       return unsigned_32
    is
    begin
-      return registered_device(dev_id).udev.size;
-   end get_user_device_size;
+      return soc.devmap.periphs(registered_device(dev_id).periph_id).size;
+   end get_device_size;
 
 
-   function get_user_device_addr (dev_id : t_device_id)
+   function get_device_addr (dev_id : t_registered_device_id)
       return system_address
    is
    begin
-      return registered_device(dev_id).udev.base_addr;
-   end get_user_device_addr;
+      return soc.devmap.periphs(registered_device(dev_id).periph_id).addr;
+   end get_device_addr;
 
 
-   function is_user_device_region_ro (dev_id : t_device_id)
+   function is_device_region_ro (dev_id : t_registered_device_id)
       return boolean
    is
    begin
       return soc.devmap.periphs(registered_device(dev_id).periph_id).ro;
-   end is_user_device_region_ro;
+   end is_device_region_ro;
 
 
-   function get_user_device_subregions_mask (dev_id : t_device_id)
+   function get_device_subregions_mask (dev_id : t_registered_device_id)
       return unsigned_8
    is
    begin
       return soc.devmap.periphs(registered_device(dev_id).periph_id).subregions;
-   end get_user_device_subregions_mask;
+   end get_device_subregions_mask;
 
 
    function get_interrupt_config_from_interrupt
@@ -138,7 +138,7 @@ is
    end get_registered_device_entry;
 
 
-   procedure release_registered_device_entry (dev_id : t_device_id)
+   procedure release_registered_device_entry (dev_id : t_registered_device_id)
    is begin
       registered_device(dev_id).status    := DEV_STATE_UNUSED;
       registered_device(dev_id).task_id   := ID_UNUSED;
@@ -305,7 +305,7 @@ is
 
    procedure release_device
      (task_id  : in  t_task_id;
-      dev_id   : in  t_device_id;
+      dev_id   : in  t_registered_device_id;
       success  : out boolean)
    is
    begin
@@ -341,7 +341,7 @@ is
 
 
    procedure enable_device
-     (dev_id   : in  t_device_id;
+     (dev_id   : in  t_registered_device_id;
       success  : out boolean)
    is
       irq         : soc.nvic.t_irq_index;
@@ -585,56 +585,40 @@ is
    end sanitize_user_defined_device;
 
 
-   procedure mpu_mapping_device
-     (dev_id   : in  t_device_id;
-      region   : in  m4.mpu.t_region_number;
+   procedure map_device
+     (dev_id   : in  t_registered_device_id;
       success  : out boolean)
    is
-      dev_size          : unsigned_32;
-      mpu_region_size   : m4.mpu.t_region_size;
       region_type       : ewok.mpu.t_region_type;
-      ok                : boolean;
    begin
 
-      if dev_id = ID_DEV_UNUSED then
-         pragma DEBUG (debug.log ("mpu_mapping_device(): unused device"));
-         success := false;
-         return;
-      end if;
-
-      dev_size := get_user_device_size (dev_id);
-
-      if dev_size = 0 then
-         pragma DEBUG (debug.log ("mpu_mapping_device(): device size = 0"));
-         success := false;
-         return;
-      end if;
-
-      ewok.mpu.bytes_to_region_size
-        (dev_size, mpu_region_size, ok);
-
-      if not ok then
-         pragma DEBUG
-           (debug.log ("mpu_mapping_device(): bytes_to_region_size() failed!"));
-         success := false;
-         return;
-      end if;
-
-      if is_user_device_region_ro (dev_id) then
+      if is_device_region_ro (dev_id) then
          region_type := ewok.mpu.REGION_TYPE_USER_DEV_RO;
       else
          region_type := ewok.mpu.REGION_TYPE_USER_DEV;
       end if;
 
-      ewok.mpu.set_region
-        (region_number  => region,
-         addr           => get_user_device_addr (dev_id),
-         size           => mpu_region_size,
+      ewok.mpu.map
+        (addr           => get_device_addr (dev_id),
+         size           => get_device_size (dev_id),
          region_type    => region_type,
-         subregion_mask => get_user_device_subregions_mask (dev_id));
+         subregion_mask => get_device_subregions_mask (dev_id),
+         success        => success);
 
-      success := true;
-   end mpu_mapping_device;
+      if not success then
+         pragma DEBUG
+           (debug.log ("mpu_mapping_device(): can not be mapped"));
+      end if;
+
+   end map_device;
+
+
+   procedure unmap_device
+     (dev_id   : in  t_registered_device_id)
+   is
+   begin
+      ewok.mpu.unmap (get_device_addr (dev_id));
+   end unmap_device;
 
 
 end ewok.devices;

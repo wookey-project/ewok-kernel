@@ -26,7 +26,6 @@ with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.ipc;
 with ewok.exported.dma;
 with ewok.dma_shared;
-with ewok.mpu;
 with soc;
 with soc.layout;
 
@@ -118,9 +117,12 @@ is
    type t_dma_shm_info_list is array (unsigned_32 range <>) of
       ewok.exported.dma.t_dma_shm_info;
 
-   type t_device_id_list is array (unsigned_8 range <>) of
-      ewok.devices_shared.t_device_id
-         with default_component_value => ID_DEV_UNUSED;
+   type t_device is record
+      device_id   : ewok.devices_shared.t_device_id   := ID_DEV_UNUSED;
+      mounted     : boolean                           := false;
+   end record;
+
+   type t_device_list is array (unsigned_8 range <>) of t_device;
 
    type t_ipc_endpoint_id_list is array (ewok.tasks_shared.t_task_id) of
       ewok.ipc.t_extended_endpoint_id
@@ -149,9 +151,7 @@ is
       num_dma_id        : unsigned_32 range 0 .. MAX_DMAS_PER_TASK      := 0;
       dma_id            : t_registered_dma_index_list (1 .. MAX_DMAS_PER_TASK);
       num_devs          : unsigned_8 range 0 .. MAX_DEVS_PER_TASK       := 0;
-      device_id         : t_device_id_list (1 .. MAX_DEVS_PER_TASK);
-      num_devs_mounted  : unsigned_8 range 0 .. ewok.mpu.MAX_DEVICE_REGIONS := 0;
-      mounted_device    : t_device_id_list (1 .. ewok.mpu.MAX_DEVICE_REGIONS);
+      devices           : t_device_list (1 .. MAX_DEVS_PER_TASK);
       init_done         : boolean         := false;
       data_slot_start   : system_address  := 0;
       data_slot_end     : system_address  := 0;
@@ -287,27 +287,25 @@ is
                      descriptor = 0
                   else
                      descriptor > 0 and
-                     descriptor < tasks_list(id).device_id'last
-                  );
+                     descriptor < tasks_list(id).devices'last);
 
    procedure remove_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean);
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8);
 
    function is_mounted
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id)
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8)
       return boolean;
 
    procedure mount_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean);
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8;
+      success        : out boolean);
 
    procedure unmount_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean);
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8;
+      success        : out boolean);
 
 end ewok.tasks;

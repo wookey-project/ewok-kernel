@@ -144,14 +144,6 @@ is
          region_type    => REGION_TYPE_USER_CODE,
          subregion_mask => 0);
 
-      -- Region: user ISR stack
-      set_region
-        (region_number  => USER_ISR_STACK_REGION,
-         addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
-         size           => REGION_SIZE_4KB,
-         region_type    => REGION_TYPE_ISR_STACK,
-         subregion_mask => 0);
-
       pragma DEBUG (debug.log (debug.INFO, "MPU is configured"));
       m4.mpu.enable;
       pragma DEBUG (debug.log (debug.INFO, "MPU is enabled"));
@@ -300,5 +292,75 @@ is
             success     := false;
       end case;
    end bytes_to_region_size;
+
+
+   function can_be_mapped return boolean
+   is
+   begin
+      for region in regions_pool'range loop
+         if not regions_pool(region).used then
+            return true;
+         end if;
+      end loop;
+      return false;
+   end can_be_mapped;
+
+
+   procedure map
+     (addr           : in  system_address;
+      size           : in  unsigned_32;
+      region_type    : in  ewok.mpu.t_region_type;
+      subregion_mask : in  unsigned_8;
+      success        : out boolean)
+   is
+      region_size    : m4.mpu.t_region_size;
+      ok             : boolean;
+   begin
+      for region in regions_pool'range loop
+         if not regions_pool(region).used then
+            ewok.mpu.bytes_to_region_size (size, region_size, ok);
+            if not ok then
+               raise program_error;
+            end if;
+            regions_pool(region).used := true;
+            regions_pool(region).addr := addr;
+            ewok.mpu.set_region
+              (region, addr, region_size, region_type, subregion_mask);
+            success := true;
+            return;
+         end if;
+      end loop;
+      success := false;
+   end map;
+
+
+   procedure unmap
+     (addr           : in  system_address)
+   is
+   begin
+      for region in regions_pool'range loop
+         if regions_pool(region).addr = addr and then
+            regions_pool(region).used
+         then
+            m4.mpu.disable_region (region);
+            regions_pool(region) := (false, 0);
+            return;
+         end if;
+      end loop;
+      raise program_error;
+   end unmap;
+
+
+   procedure unmap_all
+   is
+   begin
+      for region in regions_pool'range loop
+         if regions_pool(region).used then
+            regions_pool(region) := (false, 0);
+            m4.mpu.disable_region (region);
+         end if;
+      end loop;
+   end unmap_all;
+
 
 end ewok.mpu;

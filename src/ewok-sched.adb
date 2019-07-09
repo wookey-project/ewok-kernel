@@ -35,7 +35,6 @@ with ewok.debug;
 with soc.interrupts;
 with soc.dwt;
 with m4.scb;
-with m4.mpu;
 with m4.systick;
 with applications; -- Automatically generated
 
@@ -276,76 +275,63 @@ is
       ok       : boolean;
    begin
 
-      -- Notes about mapping user devices:
-      --
-      --  - EXTIs are a special case where an interrupt can trigger a
-      --    user ISR without any device_id associated
-      --  - DMAs are not registered in devices
-
       -- Kernel tasks are already granted with privileged accesses
       if new_task.ttype = TASK_TYPE_KERNEL then
          return;
       end if;
 
-      -- User task
+      -- Deallocate previously allocated regions and release them
+      ewok.mpu.unmap_all;
+
+      --
+      -- ISR mode
+      --
       if new_task.mode = TASK_MODE_ISRTHREAD then
 
-         --------------
-         -- ISR mode --
-         --------------
+         -- Mapping the ISR stack
+         ewok.mpu.map
+           (addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
+            size           => 4096,
+            region_type    => ewok.mpu.REGION_TYPE_ISR_STACK,
+            subregion_mask => 0,
+            success        => ok);
 
+         if not ok then
+            debug.panic ("mpu_switching(): mapping ISR stack failed!");
+         end if;
+
+         -- Mapping the ISR device
          dev_id   := new_task.isr_ctx.device_id;
 
          if dev_id /= ID_DEV_UNUSED then
-
-            ewok.devices.mpu_mapping_device
-              (dev_id, ewok.mpu.USER_ISR_DEVICE_REGION, ok);
+            ewok.devices.map_device (dev_id, ok);
 
             if not ok then
                debug.panic ("mpu_switching(): mapping device failed!");
             end if;
-
-         else
-            -- Unmapping devices eventually mapped by other tasks
-            -- Note: can be time consumming if no device was mapped
-            m4.mpu.disable_region (ewok.mpu.USER_ISR_DEVICE_REGION);
          end if;
 
-         -- Mapping the ISR stack
-         ewok.mpu.set_region
-           (region_number  => ewok.mpu.USER_ISR_STACK_REGION,
-            addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
-            size           => m4.mpu.REGION_SIZE_4KB,
-            region_type    => ewok.mpu.REGION_TYPE_ISR_STACK,
-            subregion_mask => 0);
-
+      --
+      -- Main thread
+      --
       else
-         -----------------
-         -- Main thread --
-         -----------------
 
-         --
          -- Mapping the user devices
          --
+         -- Design note:
+         --  - EXTIs are a special case where an interrupt can trigger a
+         --    user ISR without any device_id associated
+         --  - DMAs are not registered in devices
 
-         for i in new_task.mounted_device'range loop
-            dev_id   := new_task.mounted_device(i);
-
-            if dev_id /= ID_DEV_UNUSED then
-
-               ewok.devices.mpu_mapping_device
-                 (dev_id, ewok.mpu.device_regions(i), ok);
-
+         for i in new_task.devices'range loop
+            if new_task.devices(i).device_id /= ID_DEV_UNUSED and then
+               new_task.devices(i).mounted = true
+            then
+               ewok.devices.map_device (new_task.devices(i).device_id, ok);
                if not ok then
                   debug.panic ("mpu_switching(): mapping device failed!");
                end if;
-
-            else
-               -- Unmapping devices eventually mapped by other tasks
-               -- Note: can be time consumming if no device was mapped
-               m4.mpu.disable_region (ewok.mpu.device_regions(i));
             end if;
-
          end loop;
 
       end if; -- ISR or MAIN thread

@@ -90,11 +90,11 @@ is
       user_task   : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
-      for i in user_task.device_id'range loop
-         dev_id   := user_task.device_id(i);
+      for i in user_task.devices'range loop
+         dev_id   := user_task.devices(i).device_id;
          if dev_id /= ID_DEV_UNUSED then
-            dev_addr := ewok.devices.get_user_device_addr (dev_id);
-            dev_size := ewok.devices.get_user_device_size (dev_id);
+            dev_addr := ewok.devices.get_device_addr (dev_id);
+            dev_size := ewok.devices.get_device_size (dev_id);
             if ptr >= dev_addr         and
                ptr + 4 >= dev_addr     and
                ptr + 4 < dev_addr + dev_size
@@ -135,11 +135,11 @@ is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
-      for i in user_task.device_id'range loop
-         dev_id   := user_task.device_id(i);
+      for i in user_task.devices'range loop
+         dev_id   := user_task.devices(i).device_id;
          if dev_id /= ID_DEV_UNUSED then
-            user_device_size := ewok.devices.get_user_device_size(dev_id);
-            user_device_addr := ewok.devices.get_user_device_addr(dev_id);
+            user_device_size := ewok.devices.get_device_size (dev_id);
+            user_device_addr := ewok.devices.get_device_addr (dev_id);
             if ptr >= user_device_addr                            and
                ptr + size <= user_device_addr + user_device_size
             then

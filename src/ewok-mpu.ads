@@ -42,20 +42,12 @@ is
    KERN_CODE_REGION        : constant m4.mpu.t_region_number := 0;
    KERN_DEVICES_REGION     : constant m4.mpu.t_region_number := 1;
    KERN_DATA_REGION        : constant m4.mpu.t_region_number := 2;
-   USER_DATA_REGION        : constant m4.mpu.t_region_number := 3; -- USER_RAM
-   USER_CODE_REGION        : constant m4.mpu.t_region_number := 4; -- USER_TXT
-   USER_ISR_STACK_REGION   : constant m4.mpu.t_region_number := 5;
-   USER_DEV1_REGION        : constant m4.mpu.t_region_number := 5;
-   USER_ISR_DEVICE_REGION  : constant m4.mpu.t_region_number := 6;
-   USER_DEV2_REGION        : constant m4.mpu.t_region_number := 6;
-   USER_SHARED_REGION      : constant m4.mpu.t_region_number := 7;
+   USER_CODE_REGION        : constant m4.mpu.t_region_number := 3; -- USER_TXT
+   USER_DATA_REGION        : constant m4.mpu.t_region_number := 4; -- USER_RAM
+   USER_DATA_SHARED_REGION : constant m4.mpu.t_region_number := 5;
+   USER_FREE_1_REGION      : constant m4.mpu.t_region_number := 6;
+   USER_FREE_2_REGION      : constant m4.mpu.t_region_number := 7;
 
-   -- How many devices can be mapped in memory
-   MAX_DEVICE_REGIONS   : constant := 2;
-   device_regions       :
-      constant array (unsigned_8 range 1 .. MAX_DEVICE_REGIONS) of
-         m4.mpu.t_region_number
-      := (USER_DEV1_REGION, USER_DEV2_REGION);
 
    ---------------
    -- Functions --
@@ -118,5 +110,34 @@ is
       region_size : out m4.mpu.t_region_size;
       success     : out boolean)
       with global => null;
+
+   -------------------------------
+   -- Pool of available regions --
+   -------------------------------
+
+   type t_region_entry is record
+      used     : boolean := false;  -- is region used?
+      addr     : system_address;    -- base address
+   end record;
+
+   regions_pool   : array
+     (m4.mpu.t_region_number range USER_FREE_1_REGION .. USER_FREE_2_REGION)
+      of t_region_entry
+         := (others => (false, 0));
+
+   function can_be_mapped return boolean;
+
+   procedure map
+     (addr           : in  system_address;
+      size           : in  unsigned_32;
+      region_type    : in  ewok.mpu.t_region_type;
+      subregion_mask : in  unsigned_8;
+      success        : out boolean);
+
+   procedure unmap
+     (addr           : in  system_address);
+
+   procedure unmap_all;
+
 
 end ewok.mpu;

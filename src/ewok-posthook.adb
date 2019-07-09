@@ -85,7 +85,7 @@ is
          return;
       end if;
 
-      dev_addr := ewok.devices.get_user_device_addr (dev_id);
+      dev_addr := ewok.devices.get_device_addr (dev_id);
 
       for i in config.all.posthook.action'range loop
          case config.all.posthook.action(i).instr is

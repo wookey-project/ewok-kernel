@@ -27,23 +27,10 @@ is
 
    type t_device_id is
      (ID_DEV_UNUSED,
-      ID_DEV1,
-      ID_DEV2,
-      ID_DEV3,
-      ID_DEV4,
-      ID_DEV5,
-      ID_DEV6,
-      ID_DEV7,
-      ID_DEV8,
-      ID_DEV9,
-      ID_DEV10,
-      ID_DEV11,
-      ID_DEV12,
-      ID_DEV13,
-      ID_DEV14,
-      ID_DEV15,
-      ID_DEV16,
-      ID_DEV17,
-      ID_DEV18);
+      ID_DEV1,  ID_DEV2,  ID_DEV3,  ID_DEV4,  ID_DEV5,  ID_DEV6,
+      ID_DEV7,  ID_DEV8,  ID_DEV9,  ID_DEV10, ID_DEV11, ID_DEV12,
+      ID_DEV13, ID_DEV14, ID_DEV15, ID_DEV16, ID_DEV17, ID_DEV18);
+
+   subtype t_registered_device_id is t_device_id range ID_DEV1 .. ID_DEV18;
 
 end ewok.devices_shared;
