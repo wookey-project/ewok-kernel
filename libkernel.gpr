@@ -23,8 +23,9 @@ library project Libkernel is
       "-gnata");        -- Enable pragma Assert | Debug
 
    verif :=
-     ("-gnato",         -- Turn on all checks
-      "-gnatVa");       -- Turn on all validity checks
+     ("-gnato");        -- Turn on all checks
+--     ("-gnato",         -- Turn on all checks
+--      "-gnatVa");       -- Turn on all validity checks
 
    no_verif :=
      ("-gnatp",         -- Turn off all checks

@@ -23,7 +23,6 @@
 
 with m4.cpu;
 with m4.cpu.instructions;
-with m4.mpu;
 with ewok.debug;
 with ewok.layout;          use ewok.layout;
 with ewok.ipc;             use ewok.ipc;
@@ -135,9 +134,7 @@ is
       tsk.dma_id            := (others => ewok.dma_shared.ID_DMA_UNUSED);
 
       tsk.num_devs          := 0;
-      tsk.device_id         := (others => ewok.devices_shared.ID_DEV_UNUSED);
-      tsk.num_devs_mounted  := 0;
-      tsk.mounted_device    := (others => ewok.devices_shared.ID_DEV_UNUSED);
+      tsk.devices           := (others => (ewok.devices_shared.ID_DEV_UNUSED, false));
       tsk.init_done         := false;
       tsk.data_slot_start   := 0;
       tsk.data_slot_end     := 0;
@@ -517,10 +514,11 @@ is
          return;
       end if;
 
-      for i in tasks_list(id).device_id'range loop
-         if tasks_list(id).device_id(i) = ID_DEV_UNUSED then
-            tasks_list(id).device_id(i)   := dev_id;
-            tasks_list(id).num_devs       := tasks_list(id).num_devs + 1;
+      for i in tasks_list(id).devices'range loop
+         if tasks_list(id).devices(i).device_id = ID_DEV_UNUSED then
+            tasks_list(id).devices(i).device_id := dev_id;
+            tasks_list(id).devices(i).mounted   := false;
+            tasks_list(id).num_devs             := tasks_list(id).num_devs + 1;
             descriptor  := i;
             success     := true;
             return;
@@ -532,106 +530,66 @@ is
 
 
    procedure remove_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean)
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8)
    is
    begin
-      for i in tasks_list(id).device_id'range loop
-         if tasks_list(id).device_id(i) = dev_id then
-            tasks_list(id).device_id(i)   := ID_DEV_UNUSED;
-            tasks_list(id).num_devs       := tasks_list(id).num_devs - 1;
-            success := true;
-            return;
-         end if;
-      end loop;
-      success := false;
+      tasks_list(id).devices(dev_descriptor).device_id := ID_DEV_UNUSED;
+      tasks_list(id).devices(dev_descriptor).mounted   := false;
+      tasks_list(id).num_devs := tasks_list(id).num_devs - 1;
    end remove_device;
 
 
    function is_mounted
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id)
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8)
       return boolean
    is
    begin
-      for i in tasks_list(id).mounted_device'range loop
-         if tasks_list(id).mounted_device(i) = dev_id then
-            return true;
-         end if;
-      end loop;
-      return false;
+      -- FIXME: defensive programming, should be removed
+      if tasks_list(id).devices(dev_descriptor).device_id = ID_DEV_UNUSED then
+         raise program_error;
+      end if;
+      return tasks_list(id).devices(dev_descriptor).mounted;
    end is_mounted;
 
 
    procedure mount_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean)
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8;
+      success        : out boolean)
    is
-      ok : boolean;
    begin
-
-      -- The device is already mounted
-      if is_mounted (id, dev_id) then
-         success     := false;
-         return;
+      -- FIXME: defensive programming, should be removed
+      if is_mounted (id, dev_descriptor) then
+         raise program_error;
       end if;
 
-      -- No available MPU region to map the device in memory
-      if tasks_list(id).num_devs_mounted = ewok.mpu.MAX_DEVICE_REGIONS then
-         success     := false;
-         return;
+      -- Mapping the device
+      ewok.devices.map_device
+        (tasks_list(id).devices(dev_descriptor).device_id,
+         success);
+      if success then
+         tasks_list(id).devices(dev_descriptor).mounted := true;
       end if;
-
-      -- Mounting the device
-      for i in tasks_list(id).mounted_device'range loop
-         if tasks_list(id).mounted_device(i) = ID_DEV_UNUSED then
-            tasks_list(id).mounted_device(i) := dev_id;
-            tasks_list(id).num_devs_mounted  :=
-               tasks_list(id).num_devs_mounted + 1;
-
-            -- Mapping the device in its related MPU region
-            ewok.devices.mpu_mapping_device
-              (dev_id, ewok.mpu.device_regions(i), ok);
-
-            if not ok then
-               tasks_list(id).mounted_device(i) := ID_DEV_UNUSED;
-               tasks_list(id).num_devs_mounted  :=
-                  tasks_list(id).num_devs_mounted - 1;
-               success := false;
-               return;
-            end if;
-
-            success     := true;
-            return;
-         end if;
-      end loop;
-
-      raise program_error;
    end mount_device;
 
 
    procedure unmount_device
-     (id       : in  ewok.tasks_shared.t_task_id;
-      dev_id   : in  ewok.devices_shared.t_device_id;
-      success  : out boolean)
+     (id             : in  ewok.tasks_shared.t_task_id;
+      dev_descriptor : in  unsigned_8;
+      success        : out boolean)
    is
    begin
-      for i in tasks_list(id).mounted_device'range loop
-         if tasks_list(id).mounted_device(i) = dev_id then
-            tasks_list(id).mounted_device(i) := ID_DEV_UNUSED;
-            tasks_list(id).num_devs_mounted  :=
-               tasks_list(id).num_devs_mounted - 1;
+      -- FIXME: defensive programming, should be removed
+      if not is_mounted (id, dev_descriptor) then
+         raise program_error;
+      end if;
 
-            -- Unmapping the device from its related MPU region
-            m4.mpu.disable_region (ewok.mpu.device_regions(i));
-
-            success     := true;
-            return;
-         end if;
-      end loop;
-      success := false;
+      -- Unmapping the device
+      ewok.devices.unmap_device
+        (tasks_list(id).devices(dev_descriptor).device_id);
+      success := true;
    end unmount_device;
 
 
