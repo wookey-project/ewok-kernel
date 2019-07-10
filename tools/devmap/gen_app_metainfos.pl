@@ -30,14 +30,14 @@ sub main {
         # generate configuration file
         #   req: dummy ELF file
         open(CFGH, ">", "$builddir/apps/layout.\L$mode\E.cfg") or die "unable to open app cfg file for writing: $!";
-        @applines = gen_application_layout($action);
+        @applines = dump_applications_metainfo();
         foreach my $appinfo (@applines) {
             format_appinfo_for_cfg(*CFGH, $appinfo);
         }
         close(CFGH);
     }
     elsif ($action =~ m/action=generic/) {
-        @applines = gen_application_layout($action);
+        @applines = gen_kernel_generic();
         foreach my $appinfo (@applines) {
             print format_appinfo_for_kernel($appinfo);
         }
@@ -52,130 +52,79 @@ sub main {
 ################################################################
 # Iterate over all apps in current mode
 #
-#
-sub gen_kernel_membackend {
-    my @applines;
-    my @cfglines;
-    my @applications = <"$builddir/apps/*/*.dummy.\L$mode\E.elf">;
-    my $appid = 1;
-
-    # initialize memory layout
-    Devmap::Mpu::elf2mem::set_numslots(8);
-    Devmap::Mpu::elf2mem::set_ram_size(262144);
-    Devmap::Mpu::elf2mem::set_flash_size(524288);
-
-
-    foreach my $application (@applications) {
-        # 1) open the ELF file
-        Devmap::Elfinfo::openelf($application);
-
-        # 2) get back the requested RAM and Flash size, using the ELF binary
-        my $flash_size = get_flash_size();
-        my $ram_size = get_ram_size();
-
-        my %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
-        my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d),",
-            $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
-            $hash{'ram_slot_start'}, $hash{'ram_slot_num'});
-
-        push @applines, $appline;
-
-        $appid += 1;
-    }
-    foreach my $line (@applines) {
-        print($line);
-    }
-}
-
-
-
 
 ################################################################
-# Iterate over all apps in current mode
+# This function dump all dummy ELF applications of a given
+# mode (FW1, FW2, DFU1 or DFU2) and get back various informations
+# needed by the kernel:
+#    o generic memory footprint
+#       - sections size (.text, .rodata, .data, .bss, .stack)
+#    o SoC specific memory constraints
+#       - memory slotting for MPU-based SoCs
+#       - memory paging for MMU-based SoCs
 #
-# Here we get back each application dummy LD script in order to
-# calculate each application sizing informations.
-# We get back:
-# - .text size
-# - .rodata size
-# - .got size
-# - .data size
-# - .bss size
-# - .stack size
-# All these sections size together define the application memory
-# footprint, which permit to generates:
-# - EwoK applications metainformations for task initialization
-# - EwoK memory module SoC specific informations to handle
-#   slotting/paging (depending on the current SoC).
+# All these informations are saved into a hashtable in
+# the application build directory ($builddir/apps/) under
+# the name layout.<mode>.cfg, where mode is the curent firmware
+# mode construct (fw1, fw2, dfu1 dfu2).
 #
+# In order to be informed of the requested input informations
+# (including the storage memory mapping and size, the RAM physical
+# address and the slotting constraints for MPU-based devices, this
+# script use a SoC specific configuration file, saved in the kernel
+# arch/socs/$(SOC)/soclayout.cfg file, through a hashtable format.
 #
-sub gen_application_layout {
-    my ($action) = @_;
-
+# When this file is generated, dummy ELF files are no more needed and
+# final application LDScripts can be generated using this file as an
+# autonomous input.
+#
+sub dump_applications_metainfo {
     my @applines;
     my @applications = <"$builddir/apps/*/*.\L$mode\E.elf">;
     my $appid = 1;
+
+    # get back current SoC specificites into sochash hash table
+    #
+    my $socinfo = dirname(abs_path $0) . "/../../src/arch/socs/" . $ENV{SOC} . "/socinfo.cfg";
+
+    open(SOCINFO, "<", "$socinfo") or die("unable to open $socinfo: $!");
+    my %sochash;
+    while (<SOCINFO>)
+    {
+        chomp;
+        if ($_ =~ m/^[a-z]+\..+=.+/) {
+            my ($key, $val) = split (/=/, $_);
+            $sochash{$key} = $val;
+        }
+    }
+    close(SOCINFO);
+
+
+    # initialize memory layout for MPU-based device, setting requested properties
+    Devmap::Mpu::elf2mem::set_numslots($sochash{"mpu.subregions_number"});
+    Devmap::Mpu::elf2mem::set_ram_size($sochash{"memory.ram.size"});
+    Devmap::Mpu::elf2mem::set_ram_addr($sochash{"memory.ram.addr"});
+    Devmap::Mpu::elf2mem::set_flash_size($sochash{"memory.flash.\L$mode\E.size"});
+    Devmap::Mpu::elf2mem::set_flash_addr($sochash{"memory.flash.\L$mode\E.addr"});
+
+
     foreach my $application (@applications) {
 
         my $appname;
-
+        my %appinfo;
 
         # when generating cfg, we parse dummy ELF files to get back all
         # needed informations. This is the lonely time where we parse ELF
         # files
-        if ($action =~ m/action=genappcfg/) {
 
-            $appname = basename($application,  ".dummy.\L$mode\E.elf");
-            next if ($application =~ m/.*\/[^.]*\.\L$mode\E.elf/);
+        $appname = basename($application,  ".dummy.\L$mode\E.elf");
+        next if ($application =~ m/.*\/[^.]*\.\L$mode\E.elf/);
 
-            # 1) open the ELF file
-            Devmap::Elfinfo::openelf($application);
+        # 1) open the ELF file
+        Devmap::Elfinfo::openelf($application);
 
-        } elsif  ($action =~ m/action=generic/) {
-            $appname = basename($application,  ".\L$mode\E.elf");
-            next if ($application =~ m/.*\.dummy\.\L$mode\E.elf/);
-        }
-
-        # 3) Generate the arch-independent generic structure 'config.application_layout.ads
-
-        my $appinfo = create_app_generic_info($action, $appname, $appid);
-        push @applines, $appinfo;
-
-        $appid += 1;
-
-    }
-    return @applines;
-}
-
-
-#---
-# Utility functions
-#---
-
-# given an application, create the arch-generic, application specific layout
-#
-# @argument:     the application ELF file
-# @prerequisite: Devmap::Elfinfo::openelf() must have been previously called
-# @return:       a hash table corresponding to the application layout
-#
-sub create_app_generic_info {
-    my ($action, $application, $id) = @_;
-
-    # preparing the application hashtab, with default values
-    my %appinfo = {
-        name        => "",
-        id          => "",
-        text_addr   => '0',
-        text_size   => '0',
-        data_addr   => '0',
-        data_size   => '0',
-        bss_size    => '0',
-        stack_size  => '0',
-    };
-
-    if ($action =~ m/action=genappcfg/) {
-        # foreach requested sections, get back needed informations to
-        # the hash table
+        # 2) get back the generic info (sections size are valid but not
+        #    correctly memory mapped)
         if (Devmap::Elfinfo::elf_section_exists('.text')) {
             my %hash = Devmap::Elfinfo::elf_get_section('.text');
             # then add its size
@@ -199,10 +148,109 @@ sub create_app_generic_info {
             $appinfo{'stack_size'} = $hash{'size'};
         }
 
-        $appinfo{'name'} = $application;
-        $appinfo{'id'} = $id;
+        $appinfo{'name'} = $appname;
+        $appinfo{'id'} = $appid;
 
-    } elsif ($action =~ m/action=generic/) {
+        # 3) calculate flash and RAM consumption of the task (in bytes)
+        my $app_flash_size = hex($appinfo{'text_size'}) +
+                             hex($appinfo{'data_size'});
+
+        my $app_ram_size   = hex($appinfo{'data_size'}) +
+                             hex($appinfo{'bss_size'}) +
+                             hex($appinfo{'stack_size'});
+
+        # 4) Now that the application constraints in term of memory footprint are
+        #    knwon, let's map it to the SoC memory
+        my %app_memorymap = Devmap::Mpu::elf2mem::map_application($app_flash_size, $app_ram_size);
+
+        # 5) the memory mapper has returned informations about 
+        $appinfo{'text_addr'} = $app_memorymap{'flash_slot_addr'};
+        $appinfo{'data_addr'} = $app_memorymap{'ram_slot_addr'};
+
+        # 3) Generate the arch-independent generic structure 'config.application_layout.ads
+
+        push @applines, \%appinfo;
+
+        $appid += 1;
+
+    }
+    return @applines;
+}
+
+
+
+
+#
+sub gen_kernel_membackend {
+    my @applines;
+    my @cfglines;
+    my @applications = <"$builddir/apps/*/*.dummy.\L$mode\E.elf">;
+    my $appid = 1;
+
+    # initialize memory layout
+    Devmap::Mpu::elf2mem::set_numslots(8);
+    Devmap::Mpu::elf2mem::set_ram_size(262144);
+    Devmap::Mpu::elf2mem::set_flash_size(524288);
+
+
+    foreach my $application (@applications) {
+        my %hash;
+        open(CFGH, "<", "$builddir/apps/layout.\L$mode\E.cfg") or die "unable to open app cfg file for writing: $!";
+        while (<CFGH>)
+        {
+            chomp;
+            if ($_ =~ m/^app$appid\./) {
+                my ($key, $val) = split (/=/, $_);
+                $hash{$key} = $val;
+            }
+        }
+        close(CFGH);
+
+        print("app${appid}.textsize: $hash{\"app${appid}.textsize\"}");
+        # 2) get back the requested RAM and Flash size, using the ELF binary
+        my $flash_size = hex($hash{"app${appid}.textsize"}) +
+                         hex($hash{"app${appid}.datasize"});
+
+        my $ram_size   = hex($hash{"app${appid}.datasize"}) +
+                         hex($hash{"app${appid}.bsssize"}) +
+                         hex($hash{"app${appid}.stacksize"});
+
+        my %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
+        my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d, %x),",
+            $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
+            $hash{'ram_slot_start'}, $hash{'ram_slot_num'}, $hash{'ram_free_space'});
+
+        push @applines, $appline;
+
+        $appid += 1;
+    }
+    foreach my $line (@applines) {
+        print($line);
+    }
+}
+
+
+
+
+################################################################
+sub gen_kernel_generic {
+    my @applines;
+    my @applications = <"$builddir/apps/*/*.\L$mode\E.elf">;
+    my $appid = 1;
+
+    foreach my $application (@applications) {
+
+        my $appname;
+        my $appinfo;
+
+        # when generating cfg, we parse dummy ELF files to get back all
+        # needed informations. This is the lonely time where we parse ELF
+        # files
+        $appname = basename($application,  ".\L$mode\E.elf");
+        next if ($application =~ m/.*\.dummy\.\L$mode\E.elf/);
+
+        $appinfo = create_app_generic_info($appname, $appid);
+
         # here the application config file has already been generated, we
         # can open it to get back all requested information. ELF are no more
         # needed
@@ -212,25 +260,85 @@ sub create_app_generic_info {
         while (<CFGH>)
         {
             chomp;
-            if ($_ =~ m/^app$id\./) {
+            if ($_ =~ m/^app$appid\./) {
                 my ($key, $val) = split (/=/, $_);
                 $hash{$key} = $val;
             }
         }
         close(CFGH);
 
-        %appinfo = (
-            name        => $hash{"app${id}.name"},
-            id          => "$id",
-            text_addr   => $hash{"app${id}.textaddr"},
-            text_size   => $hash{"app${id}.textsize"},
-            data_addr   => $hash{"app${id}.dataaddr"},
-            data_size   => $hash{"app${id}.datasize"},
-            bss_size    => $hash{"app${id}.bsssize"},
-            stack_size  => $hash{"app${id}.stacksize"}
+        my %appinfo = (
+            name        => $hash{"app${appid}.name"},
+            id          => "$appid",
+            text_addr   => $hash{"app${appid}.textaddr"},
+            text_size   => $hash{"app${appid}.textsize"},
+            data_addr   => $hash{"app${appid}.dataaddr"},
+            data_size   => $hash{"app${appid}.datasize"},
+            bss_size    => $hash{"app${appid}.bsssize"},
+            stack_size  => $hash{"app${appid}.stacksize"}
         );
 
+        # 3) Generate the arch-independent generic structure 'config.application_layout.ads
+
+        push @applines, $appinfo;
+        $appid += 1;
     }
+
+    return @applines;
+}
+
+
+#---
+# Utility functions
+#---
+
+# given an application, create the arch-generic, application specific layout
+#
+# @argument:     the application ELF file
+# @prerequisite: Devmap::Elfinfo::openelf() must have been previously called
+# @return:       a hash table corresponding to the application layout
+#
+sub create_app_generic_info {
+    my ($application, $id) = @_;
+
+    # preparing the application hashtab, with default values
+    my %appinfo = {
+        name        => "",
+        id          => "",
+        text_addr   => '0',
+        text_size   => '0',
+        data_addr   => '0',
+        data_size   => '0',
+        bss_size    => '0',
+        stack_size  => '0',
+    };
+
+    # here the application config file has already been generated, we
+    # can open it to get back all requested information. ELF are no more
+    # needed
+
+    my %hash;
+    open(CFGH, "<", "$builddir/apps/layout.\L$mode\E.cfg") or die "unable to open app cfg file for writing: $!";
+    while (<CFGH>)
+    {
+        chomp;
+        if ($_ =~ m/^app$id\./) {
+            my ($key, $val) = split (/=/, $_);
+            $hash{$key} = $val;
+        }
+    }
+    close(CFGH);
+
+    %appinfo = (
+        name        => $hash{"app${id}.name"},
+        id          => "$id",
+        text_addr   => $hash{"app${id}.textaddr"},
+        text_size   => $hash{"app${id}.textsize"},
+        data_addr   => $hash{"app${id}.dataaddr"},
+        data_size   => $hash{"app${id}.datasize"},
+        bss_size    => $hash{"app${id}.bsssize"},
+        stack_size  => $hash{"app${id}.stacksize"}
+    );
 
 
     # now we create the Ada table line. This line will have to be added
@@ -278,7 +386,7 @@ sub format_appinfo_for_cfg {
     print FH "app$id.textaddr=$appinfo->{'text_addr'}";
     print FH "app$id.textsize=$appinfo->{'text_size'}";
     print FH "app$id.dataaddr=$appinfo->{'data_addr'}";
-    print FH "app$id.datasize=$appinfo->{'data_addr'}";
+    print FH "app$id.datasize=$appinfo->{'data_size'}";
     print FH "app$id.bsssize=$appinfo->{'bss_size'}";
     print FH "app$id.stacksize=$appinfo->{'stack_size'}";
 }
