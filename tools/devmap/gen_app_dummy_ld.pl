@@ -2,6 +2,7 @@
 #
 
 use strict;
+use File::Path qw(make_path);
 
 #---
 # Usage: ./gen_app_layout.pl <build_dir> <dummy_layout> <mode> <.config_file>
@@ -17,6 +18,8 @@ my $builddir = shift;
 my $dummy    = shift;
 my $mode     = shift;
 my %hash;
+
+my $DEBUG = 0;
 
 #---
 # Generate dummy ldscript file
@@ -52,18 +55,19 @@ if ($mode =~ "DFU2") {
 # Iterate over all apps
 for my $i (grep {!/_/} sort(keys(%hash))) {
 
-    print "[+] handling $i";
+    if ($DEBUG) { print "[+] handling $i"; }
     # Leave if this app is not for current mode
     my $stem_mode=($mode=~s/[12]$//r);
     next if (not defined($hash{"${i}_${stem_mode}"}));
 
-    print "[+] $i has to be handled in $mode";
+    if ($DEBUG) { print "[+] $i has to be handled in $mode"; }
 
-    print "[+] opening output ldscript $builddir/apps/\L$i/$i.dummy.$mode\E.ld";
+    if ($DEBUG) { print "[+] opening output ldscript $builddir/apps/\L$i/$i.dummy.$mode\E.ld"; }
+    make_path("$builddir/apps/\L$i");
     open(OUTLD, '>', "$builddir/apps/\L$i/$i.dummy.$mode\E.ld")
         or die "unable to open $builddir/apps/\L$i/$i.$mode\E.ld";
 
-    print "[+] opening intput dummy ldscript $dummy";
+    if ($DEBUG) { print "[+] opening intput dummy ldscript $dummy"; }
     open(INLD, '<',"$dummy") or die "unable to open $dummy";
 
     my $stacksize = $hash{"${i}_STACKSIZE"} // 8192; # fallbacking to 8192
