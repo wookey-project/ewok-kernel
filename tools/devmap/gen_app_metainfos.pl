@@ -1,7 +1,8 @@
 #!/usr/bin/perl -l
 #
 ##---
-# Usage: ./gen_app_layout.pl <build_dir> <mode> <action>
+# ENV request: SOC holding soc name (e.g. stm32f439)
+# Usage: SOC=<socname> ./gen_app_layout.pl <build_dir> <mode> <action>
 #---
 
 use strict;
@@ -23,6 +24,23 @@ my    $mode     = shift;
 my    $action   = shift;
 
 
+#
+# main entry point. There is three possible actions:
+# 1) action=genappcfg
+#   This action generate the build dir apps/layout.<mode>.cfg config file by reading the generated dummy ELF file. Here,
+#   we calculate each application section size and set it to this config file. This config file will be used by other
+#   actions to calculate potential slotting/mapping and heap size constraints
+# 2) action=generic
+#   This action generate the arch-independent part of the kernel Ada headers (config.applications.ads)  for the kernel,
+#   using the above config file. This header specify generic informations about tasks (identifier, size of various sections, etc.
+# 3) action=membackend
+#   This action generate the arch-specific part of the kernel Ada headers (config.memlayout.ads) for the kernel.
+#   This header is handled by the memory arch-specific unit (mpu or mmu package) in order to handle memory mapping or
+#   regions/subregion handling. It hold every informations which are specific to the way the memory is mapped for
+#   applications (for example, number of MPU subregions for an application, and so on).
+#
+# All kernel headers table are indexed by the task identifier, which is the same for every kernel components (t_real_task_id).
+#
 sub main {
     my @applines;
     print "$action";
@@ -38,11 +56,18 @@ sub main {
     }
     elsif ($action =~ m/action=generic/) {
         @applines = gen_kernel_generic();
+        open(KERN_GENAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.applications.ads") or die "unable to open output ada file for writing $!";
         foreach my $appinfo (@applines) {
-            print format_appinfo_for_kernel($appinfo);
+            print KERN_GENAPP format_appinfo_for_kernel($appinfo);
         }
+        close(KERN_GENAPP);
     } elsif ($action =~ m/action=membackend/) {
-        gen_kernel_membackend();
+        @applines = gen_kernel_membackend();
+        open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.memlayout.ads") or die "unable to open output ada file for writing $!";
+        foreach my $line (@applines) {
+            print KERN_ARCHAPP "$line";
+        }
+        close(KERN_ARCHAPP);
     } else {
         print ("unknown action $action !");
         exit 1;
@@ -50,8 +75,30 @@ sub main {
 }
 
 ################################################################
-# Iterate over all apps in current mode
+# get back architecture specific informations from the current
+# SoC given as environment variable (SOC)
 #
+
+sub get_arch_informations {
+    # get back current SoC specificites into sochash hash table
+    #
+    my $socinfo = dirname(abs_path $0) . "/../../src/arch/socs/" . $ENV{SOC} . "/socinfo.cfg";
+
+    open(SOCINFO, "<", "$socinfo") or die("unable to open $socinfo: $!");
+    my %sochash;
+    while (<SOCINFO>)
+    {
+        chomp;
+        if ($_ =~ m/^[a-z]+\..+=.+/) {
+            my ($key, $val) = split (/=/, $_);
+            $sochash{$key} = $val;
+        }
+    }
+    close(SOCINFO);
+    return \%sochash;
+
+}
+
 
 ################################################################
 # This function dump all dummy ELF applications of a given
@@ -83,29 +130,14 @@ sub dump_applications_metainfo {
     my @applications = <"$builddir/apps/*/*.\L$mode\E.elf">;
     my $appid = 1;
 
-    # get back current SoC specificites into sochash hash table
-    #
-    my $socinfo = dirname(abs_path $0) . "/../../src/arch/socs/" . $ENV{SOC} . "/socinfo.cfg";
-
-    open(SOCINFO, "<", "$socinfo") or die("unable to open $socinfo: $!");
-    my %sochash;
-    while (<SOCINFO>)
-    {
-        chomp;
-        if ($_ =~ m/^[a-z]+\..+=.+/) {
-            my ($key, $val) = split (/=/, $_);
-            $sochash{$key} = $val;
-        }
-    }
-    close(SOCINFO);
-
+    my $socinfos = get_arch_informations();
 
     # initialize memory layout for MPU-based device, setting requested properties
-    Devmap::Mpu::elf2mem::set_numslots($sochash{"mpu.subregions_number"});
-    Devmap::Mpu::elf2mem::set_ram_size($sochash{"memory.ram.size"});
-    Devmap::Mpu::elf2mem::set_ram_addr($sochash{"memory.ram.addr"});
-    Devmap::Mpu::elf2mem::set_flash_size($sochash{"memory.flash.\L$mode\E.size"});
-    Devmap::Mpu::elf2mem::set_flash_addr($sochash{"memory.flash.\L$mode\E.addr"});
+    Devmap::Mpu::elf2mem::set_numslots($socinfos->{"mpu.subregions_number"});
+    Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.size"});
+    Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.addr"});
+    Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.size"});
+    Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.addr"});
 
 
     foreach my $application (@applications) {
@@ -167,31 +199,38 @@ sub dump_applications_metainfo {
         $appinfo{'text_addr'} = $app_memorymap{'flash_slot_addr'};
         $appinfo{'data_addr'} = $app_memorymap{'ram_slot_addr'};
 
-        # 3) Generate the arch-independent generic structure 'config.application_layout.ads
 
+        # push the hashtable for higher level treatment (including Ada file generation) into an
+        # applications list
         push @applines, \%appinfo;
 
         $appid += 1;
 
     }
+    # return the applications metainformation lists to caller
     return @applines;
 }
 
 
 
 
-#
+################################################
+# construct the kernel arch-specific Ada header from the 
 sub gen_kernel_membackend {
     my @applines;
     my @cfglines;
+    # here we only get back the list of application. ELF file are not opened
+    # FIXME: this could be obtain directly in the layout file, as the application list
+    # can be dumped from it
     my @applications = <"$builddir/apps/*/*.dummy.\L$mode\E.elf">;
     my $appid = 1;
 
-    # initialize memory layout
-    Devmap::Mpu::elf2mem::set_numslots(8);
-    Devmap::Mpu::elf2mem::set_ram_size(262144);
-    Devmap::Mpu::elf2mem::set_flash_size(524288);
+    my $socinfos = get_arch_informations();
 
+    # initialize memory layout
+    Devmap::Mpu::elf2mem::set_numslots($socinfos->{'mpu.subregions_number'});
+    Devmap::Mpu::elf2mem::set_ram_size($socinfos->{'memory.ram.size'});
+    Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.size"});
 
     foreach my $application (@applications) {
         my %hash;
@@ -206,7 +245,6 @@ sub gen_kernel_membackend {
         }
         close(CFGH);
 
-        print("app${appid}.textsize: $hash{\"app${appid}.textsize\"}");
         # 2) get back the requested RAM and Flash size, using the ELF binary
         my $flash_size = hex($hash{"app${appid}.textsize"}) +
                          hex($hash{"app${appid}.datasize"});
@@ -216,6 +254,7 @@ sub gen_kernel_membackend {
                          hex($hash{"app${appid}.stacksize"});
 
         my %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
+
         my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d, %x),",
             $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
             $hash{'ram_slot_start'}, $hash{'ram_slot_num'}, $hash{'ram_free_space'});
@@ -224,9 +263,7 @@ sub gen_kernel_membackend {
 
         $appid += 1;
     }
-    foreach my $line (@applines) {
-        print($line);
-    }
+    return @applines;
 }
 
 
@@ -250,33 +287,6 @@ sub gen_kernel_generic {
         next if ($application =~ m/.*\.dummy\.\L$mode\E.elf/);
 
         $appinfo = create_app_generic_info($appname, $appid);
-
-        # here the application config file has already been generated, we
-        # can open it to get back all requested information. ELF are no more
-        # needed
-
-        my %hash;
-        open(CFGH, "<", "$builddir/apps/layout.\L$mode\E.cfg") or die "unable to open app cfg file for writing: $!";
-        while (<CFGH>)
-        {
-            chomp;
-            if ($_ =~ m/^app$appid\./) {
-                my ($key, $val) = split (/=/, $_);
-                $hash{$key} = $val;
-            }
-        }
-        close(CFGH);
-
-        my %appinfo = (
-            name        => $hash{"app${appid}.name"},
-            id          => "$appid",
-            text_addr   => $hash{"app${appid}.textaddr"},
-            text_size   => $hash{"app${appid}.textsize"},
-            data_addr   => $hash{"app${appid}.dataaddr"},
-            data_size   => $hash{"app${appid}.datasize"},
-            bss_size    => $hash{"app${appid}.bsssize"},
-            stack_size  => $hash{"app${appid}.stacksize"}
-        );
 
         # 3) Generate the arch-independent generic structure 'config.application_layout.ads
 
@@ -346,11 +356,14 @@ sub create_app_generic_info {
     return \%appinfo;
 }
 
+###########################################################
+# format hex string (0x[0-9a-f]{8}) into Ada formated hexadecimal
+#
 sub format_ada_hex {
     my ($val) = @_;
     # iThe output is in Ada, we translate here from the
     # generic 0x08p format into Ada hexadecimal format
-    $val =~ s/0x(\d{4})(\d{4})/16#$1_$2#/;
+    $val =~ s/0x([0-9a-f]{4})([0-9a-f]{4})/16#$1_$2#/;
     return $val;
 }
 
