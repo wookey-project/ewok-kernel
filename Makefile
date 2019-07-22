@@ -112,7 +112,7 @@ $(SOC_OBJ): $(SOC_DIR)/$(SOC_ASM)
 	$(call if_changed,cc_o_asm)
 
 # LDSCRIPT. All are built in one time
-$(LDSCRIPT_NAME): $(APP_NAME).ld.in
+$(LDSCRIPT_NAME): kernel.ld.in
 	$(call if_changed,k_ldscript)
 
 # ELF

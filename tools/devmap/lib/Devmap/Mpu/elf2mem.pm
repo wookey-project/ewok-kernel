@@ -18,6 +18,7 @@ my $cur_flash_slot = 0;
 # set current MPU slot number per region
 sub set_numslots {
     my ($val) = @_;
+    print("## set numslots to $val");
     $numslot = $val;
     $cur_ram_slot = 0;
     $cur_flash_slot = 0;
@@ -68,7 +69,6 @@ sub map_application {
         flash_slot_num   => $flash_slot_consumed
     );
 
-    print("slot size: $ram_slot_size, consumed: $app_ram_size");
     $cur_ram_slot += $ram_slot_consumed;
     $cur_flash_slot += $flash_slot_consumed;
     return %appslotting;
