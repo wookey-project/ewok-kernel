@@ -38,6 +38,7 @@ SECTIONS
 	{
 		_s_text = .;	            /* create a global symbol at data start */
 		*startup*(.text.do_starttask)
+		*(.text.do_startisr)
 		*(.text*)
 		*(.rodata)         	/* .rodata sections (constants, strings, etc.) */
 		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */

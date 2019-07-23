@@ -14,6 +14,7 @@ use lib dirname(dirname abs_path $0) . '/devmap/lib';
 # now include local modules
 use Devmap::Elfinfo;
 use Devmap::Mpu::elf2mem;
+use Kconfig::Application;
 
 # Check the inputs
 @ARGV == 3 or usage();
@@ -43,6 +44,7 @@ my    $action   = shift;
 #
 sub main {
     my @applines;
+    mkdir(dirname(abs_path($0)) .  "/../../kernel/src/generated/",0755) if !-d "kernel/src/generated/";
     print "$action";
     if ($action =~ m/action=genappcfg/) {
         # generate configuration file
@@ -55,8 +57,35 @@ sub main {
         close(CFGH);
     }
     elsif ($action =~ m/action=generic/) {
-        @applines = gen_kernel_generic();
+        #
+        # Here we generate the config.applications.ads, based on the
+        # applines metainformations we get back
+        # These informations are language independent and are formated
+        # for Ada output here
+        #
+        #
         open(KERN_GENAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.applications.ads") or die "unable to open output ada file for writing $!";
+        @applines = gen_kernel_generic();
+
+        #
+        # First we print the template constant content into the file
+        #
+        open(KERN_GENAPP_TPL, "<", dirname(abs_path($0)) . "/templates/config.applications.ads.tpl") or die "unable to open output ada file for writing $!";
+        while (<KERN_GENAPP_TPL>) {
+            chomp;
+            print KERN_GENAPP "$_";
+        }
+        close(KERN_GENAPP_TPL);
+        # then we add the app number to the end of the task_real_id_t type
+        print KERN_GENAPP "      range ID_APP1 .. ID_APP" . ($#applines + 1) . ";\n";
+
+        for my $id (0 .. $#applines) {
+            # In Ada, index start at 1
+            print KERN_GENAPP format_appid_for_kernel($applines[$id], $id + 1);
+        }
+        foreach my $appinfo (@applines) {
+            print KERN_GENAPP format_appname_for_kernel($appinfo);
+        }
         foreach my $appinfo (@applines) {
             print KERN_GENAPP format_appinfo_for_kernel($appinfo);
         }
@@ -109,6 +138,7 @@ sub get_arch_informations {
 #    o SoC specific memory constraints
 #       - memory slotting for MPU-based SoCs
 #       - memory paging for MMU-based SoCs
+#    o Application generic metainfo (domain...) from current config
 #
 # All these informations are saved into a hashtable in
 # the application build directory ($builddir/apps/) under
@@ -143,6 +173,7 @@ sub dump_applications_metainfo {
     foreach my $application (@applications) {
 
         my $appname;
+        my $appprefix;
         my %appinfo;
 
         # when generating cfg, we parse dummy ELF files to get back all
@@ -151,6 +182,10 @@ sub dump_applications_metainfo {
 
         $appname = basename($application,  ".dummy.\L$mode\E.elf");
         next if ($application =~ m/.*\/[^.]*\.\L$mode\E.elf/);
+
+        $appprefix = $appname;
+        $appprefix =~ s/(.*)\.dummy.*/$1/;
+        print "appprefix is $appprefix";
 
         # 1) open the ELF file
         Devmap::Elfinfo::openelf($application);
@@ -179,6 +214,10 @@ sub dump_applications_metainfo {
             # then add its size
             $appinfo{'stack_size'} = $hash{'size'};
         }
+        # here entrypoints addresses are calculated relative to text_addr start.
+        # These offsets can then be used in a PIE mode
+        $appinfo{'entrypoint'} = sprintf("0x%x", hex(Devmap::Elfinfo::elf_get_symbol_address("do_starttask")) - hex($appinfo{'text_addr'}));
+        $appinfo{'isr_entrypoint'} = sprintf("0x%x", hex(Devmap::Elfinfo::elf_get_symbol_address("do_startisr")) - hex($appinfo{'text_addr'}));
 
         $appinfo{'name'} = $appname;
         $appinfo{'id'} = $appid;
@@ -199,6 +238,13 @@ sub dump_applications_metainfo {
         $appinfo{'text_addr'} = $app_memorymap{'flash_slot_addr'};
         $appinfo{'data_addr'} = $app_memorymap{'ram_slot_addr'};
 
+
+        # 6) now get back .config info for app
+
+        my $appcfginfo = Kconfig::Application::dump_application_config(dirname(abs_path($0)) . "/../../../.config", $appprefix);
+
+        $appinfo{'domain'} = $appcfginfo->{'domain'};
+        $appinfo{'prio'} = $appcfginfo->{'prio'};
 
         # push the hashtable for higher level treatment (including Ada file generation) into an
         # applications list
@@ -321,6 +367,10 @@ sub create_app_generic_info {
         data_size   => '0',
         bss_size    => '0',
         stack_size  => '0',
+        entrypoint  => '0',
+        isr_entrypoint => '0',
+        domain      => '0',
+        prio        => '0'
     };
 
     # here the application config file has already been generated, we
@@ -347,7 +397,11 @@ sub create_app_generic_info {
         data_addr   => $hash{"app${id}.dataaddr"},
         data_size   => $hash{"app${id}.datasize"},
         bss_size    => $hash{"app${id}.bsssize"},
-        stack_size  => $hash{"app${id}.stacksize"}
+        stack_size  => $hash{"app${id}.stacksize"},
+        entrypoint  => $hash{"app${id}.entrypoint"},
+        isr_entrypoint  => $hash{"app${id}.isr_entrypoint"},
+        domain      => $hash{"app${id}.domain"},
+        prio        => $hash{"app${id}.prio"}
     );
 
 
@@ -363,7 +417,11 @@ sub format_ada_hex {
     my ($val) = @_;
     # iThe output is in Ada, we translate here from the
     # generic 0x08p format into Ada hexadecimal format
-    $val =~ s/0x([0-9a-f]{4})([0-9a-f]{4})/16#$1_$2#/;
+    if ($val =~ m/0x([0-9a-f]{1,4})([0-9a-f]{4})/) {
+        $val =~ s/0x([0-9a-f]{1,4})([0-9a-f]{4})/16#$1_$2#/;
+    } elsif ($val =~ m/0x([0-9a-f]{1,4})/) {
+        $val =~ s/0x([0-9a-f]{1,4})/16#$1#/;
+    }
     return $val;
 }
 
@@ -375,15 +433,49 @@ sub format_ada_hex {
 sub format_appinfo_for_kernel {
     my $appinfo = @_[0];
 
-    my $appline = sprintf("ID_APP%d => (%s_name, %s, %s, %s, %s, %s, %s),",
-    $appinfo->{'id'}, $appinfo->{'name'}, format_ada_hex($appinfo->{'text_addr'}),
+    my $name = uc($appinfo->{'name'});
+    my $domain = $appinfo->{'domain'};
+    # default domain is 0
+    if ($domain eq "") {
+        $domain = "0";
+    }
+    my $prio = $appinfo->{'prio'};
+    # default prio is 0
+    if ($prio eq "") {
+        $prio = "0";
+    }
+
+
+    my $appline = sprintf("      ID_APP%d => (%s_name, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),",
+    $appinfo->{'id'}, ${name}, format_ada_hex($appinfo->{'text_addr'}),
     format_ada_hex($appinfo->{'text_size'}), format_ada_hex($appinfo->{'data_addr'}),
     format_ada_hex($appinfo->{'data_size'}), format_ada_hex($appinfo->{'bss_size'}),
-    format_ada_hex($appinfo->{'stack_size'}));
+    format_ada_hex($appinfo->{'stack_size'}), format_ada_hex($appinfo->{'entrypoint'}),
+    format_ada_hex($appinfo->{'isr_entrypoint'}), $domain, $prio);
 
     # then we return the line to the caller
     return $appline;
 }
+
+sub format_appname_for_kernel {
+    my $appinfo = @_[0];
+    my $name = uc($appinfo->{'name'});
+
+    my $appname = sprintf("
+   ${name}_name : t_task_name :=
+      \"${name}\" \& \"" . " " x (10 - length(${name})) . "\";");
+    return $appname;
+}
+
+sub format_appid_for_kernel {
+    my ($appinfo, $id) = @_;
+    my $name = uc($appinfo->{'name'});
+     
+
+    my $appname = sprintf("   ${name} : constant t_real_task_id := ID_APP${id};");
+    return $appname;
+}
+
 
 #
 # Formatting:
@@ -402,26 +494,12 @@ sub format_appinfo_for_cfg {
     print FH "app$id.datasize=$appinfo->{'data_size'}";
     print FH "app$id.bsssize=$appinfo->{'bss_size'}";
     print FH "app$id.stacksize=$appinfo->{'stack_size'}";
+    print FH "app$id.entrypoint=$appinfo->{'entrypoint'}";
+    print FH "app$id.isr_entrypoint=$appinfo->{'isr_entrypoint'}";
+    print FH "app$id.domain=$appinfo->{'domain'}";
+    print FH "app$id.prio=$appinfo->{'prio'}";
 }
 
-
-# utility basics: get size of the given section
-sub get_section_size {
-    if (Devmap::Elfinfo::elf_section_exists($_)) {
-        my %hash = Devmap::Elfinfo::elf_get_section($_);
-        return hex($hash{'size'});
-    }
-    return 0;
-}
-
-# utility basics: get logical memory address of the current section
-sub get_section_lma {
-    if (Devmap::Elfinfo::elf_section_exists($_)) {
-        my %hash = Devmap::Elfinfo::elf_get_section($_);
-        return hex($hash{'lma'});
-    }
-    return 0;
-}
 
 # get flash size for current application
 #

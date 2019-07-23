@@ -9,9 +9,12 @@ our @EXPORT_OK = qw(openelf elf_get_section elf_section_exists);
 
 my @objdump_raw;
 
+my @objdump_syms;
+
 sub openelf {
     my ($binary) = @_;
     @objdump_raw=`${CROSS_COMPILE}objdump -h $binary`;
+    @objdump_syms=`${CROSS_COMPILE}objdump -j .text -j .vdso --syms $binary`
 }
 
 sub elf_section_exists {
@@ -22,6 +25,17 @@ sub elf_section_exists {
         }
     }
     return 0;
+}
+
+
+sub elf_get_symbol_address {
+    my ($sym) = @_;
+    foreach my $line (@objdump_syms) {
+        if ($line =~ m/([0-9a-f]{8}).*$sym/) {
+            return "0x$1";
+        }
+    }
+    return "0";
 }
 
 sub elf_get_section {
