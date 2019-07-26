@@ -20,27 +20,36 @@ with types;             use types;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.tasks;	    use ewok.tasks;
 
+
 package applications is
+
+   -- we define a memory offset as an unsigned value up to 4Mb. On a
+   -- microkernel system, this should be enough for nearly all needs.
+   -- FIXME: this type can be added to the types.ads package after the
+   -- end of the newmem tests
+   type memory_offset is unsigned_32 range 0 .. 4194304;
+   -- an application section can be up to 512K length
+   subtype application_section_size is unsigned_32 range 0 .. 524288;
 
    type t_application is record
       -- task name
       name              : ewok.tasks.t_task_name;
       -- task text section addr in flash
-      text_addr         : system_address;
+      text_off          : memory_offset;
       -- task text size, in bytes
-      text_size         : system_address;
+      text_size         : application_section_size;
       -- task data address, in RAM
-      data_addr         : system_address;
+      data_off          : memory_offset;
       -- task data size
-      data_size         : system_address;
+      data_size         : application_section_size;
       -- task BSS size
-      bss_size          : system_address;
+      bss_size          : application_section_size;
       -- task requested stack size
-      stack_size        : system_address;
-      -- entrypoint offset, starting at text_addr
-      entrypoint_off    : system_address;
-      -- isr_entrypoint offset, starting at text_addr
-      isr_entrypoint_off: system_address;
+      stack_size        : application_section_size;
+      -- entrypoint offset, starting at application text start addr
+      entrypoint_off    : memory_offset;
+      -- isr_entrypoint offset, starting at  application text start addr
+      isr_entrypoint_off: memory_offset;
       -- task security domain
       domain            : unsigned_8;
       -- task priority
