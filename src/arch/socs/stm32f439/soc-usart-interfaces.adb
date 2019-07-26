@@ -46,7 +46,9 @@ is
 
       usart.all.CR1.UE     := true; -- USART enable
       usart.all.CR1.TE     := true; -- Transmitter enable
-      usart.all.CR1.RE     := true; -- Receiver enable
+      -- The kernel does not attempt to receive any char from its
+      -- console
+      usart.all.CR1.RE     := false; -- Receiver enable
 
       set_baudrate (usart, baudrate);
 
