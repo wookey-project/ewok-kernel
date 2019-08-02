@@ -21,7 +21,6 @@
 --
 
 
-with ewok.syscalls;     use ewok.syscalls;
 with ewok.tasks;        use ewok.tasks;
 with ewok.debug;
 with ewok.devices;
@@ -29,9 +28,7 @@ with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with ewok.interrupts;
 with ewok.layout;
-with ewok.mpu;
 with ewok.sched;
-with ewok.syscalls.log;
 with soc.interrupts; use type soc.interrupts.t_interrupt;
 with soc.nvic;
 with m4.cpu;
@@ -52,7 +49,6 @@ is
    is
    begin
       p_isr_requests.init (isr_queue);
-      p_syscall_requests.init (syscall_queue);
       pragma DEBUG (debug.log (debug.INFO, "SOFTIRQ initialized"));
    end init;
 
@@ -71,80 +67,6 @@ is
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
    end push_isr;
-
-
-   procedure push_syscall
-     (task_id     : in  ewok.tasks_shared.t_task_id;
-      svc         : in  ewok.syscalls.t_svc)
-   is
-      req   : constant t_syscall_request := (task_id, svc, WAITING);
-      ok    : boolean;
-   begin
-      p_syscall_requests.write (syscall_queue, req, ok);
-      if not ok then
-         debug.panic ("push_syscall() failed.");
-      end if;
-      ewok.tasks.set_state
-        (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
-   end push_syscall;
-
-
-   procedure syscall_handler (req : in  t_syscall_request)
-   is
-   begin
-
-#if CONFIG_DBGLEVEL >= 7
-      pragma DEBUG (debug.log (debug.INFO,
-         TSK.tasks_list(req.caller_id).name.all
-         & ": svc"
-         & ewok.syscalls.t_svc'image (svc)));
-#end if;
-
-      --
-      -- Mapping user space
-      --
-
-      declare
-         type t_mask is array (unsigned_8 range 1 .. 8) of bit
-            with pack, size => 8;
-
-         function to_unsigned_8 is new ada.unchecked_conversion
-           (t_mask, unsigned_8);
-
-         mask : t_mask := (others => 1);
-      begin
-         for i in 0 .. TSK.tasks_list(req.caller_id).num_slots - 1 loop
-            mask(TSK.tasks_list(req.caller_id).slot + i) := 0;
-         end loop;
-
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_CODE_REGION,
-            subregion_mask => to_unsigned_8 (mask));
-
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_DATA_REGION,
-            subregion_mask => to_unsigned_8 (mask));
-      end;
-
-      --
-      -- Calling the handler
-      --
-
-      declare
-         svc_params_a : constant t_parameters_access :=
-            to_parameters_access
-              (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
-      begin
-          case req.svc is
-             when SVC_LOG =>
-                ewok.syscalls.log.svc_log
-                  (req.caller_id, svc_params_a.all, TASK_MODE_MAINTHREAD);
-             when others =>
-                raise program_error;
-          end case;
-      end;
-
-   end syscall_handler;
 
 
    procedure isr_handler (req : in  t_isr_request)
@@ -224,7 +146,6 @@ is
    procedure main_task
    is
       isr_req  : t_isr_request;
-      sys_req  : t_syscall_request;
       ok       : boolean;
    begin
 
@@ -236,58 +157,28 @@ is
 
          loop
             m4.cpu.disable_irq;
+
             p_isr_requests.read (isr_queue, isr_req, ok);
-            m4.cpu.enable_irq;
-
-            exit when not ok;
-
-            if isr_req.state = WAITING then
-               if TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_LOCKED and
-                  TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_SLEEPING_DEEP
-               then
-                  m4.cpu.disable_irq;
-                  isr_handler (isr_req);
-                  isr_req.state := DONE;
-                  ewok.sched.request_schedule;
-                  m4.cpu.enable_irq;
-                  m4.cpu.instructions.full_memory_barrier;
-               else
-                  m4.cpu.disable_irq;
-                  p_isr_requests.write (isr_queue, isr_req, ok);
-                  if not ok then
-                     debug.panic ("SOFTIRQ failed to add ISR request");
-                  end if;
-                  ewok.sched.request_schedule;
-                  m4.cpu.enable_irq;
-                  m4.cpu.instructions.full_memory_barrier;
-               end if;
-            else
-               -- TODO - Proving that it can never happen
-               raise program_error;
+            if not ok then
+               exit;
             end if;
 
-         end loop;
-
-         --
-         -- Syscalls
-         --
-
-         loop
-
-            m4.cpu.disable_irq;
-            p_syscall_requests.read (syscall_queue, sys_req, ok);
-            m4.cpu.enable_irq;
-
-            exit when not ok;
-
-            if sys_req.state = WAITING then
-               m4.cpu.disable_irq;
-               syscall_handler (sys_req);
-               sys_req.state := DONE;
+            if TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_LOCKED and
+               TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_SLEEPING_DEEP
+            then
+               isr_handler (isr_req);
+               isr_req.state := DONE;
+               ewok.sched.request_schedule;
                m4.cpu.enable_irq;
+               m4.cpu.instructions.full_memory_barrier;
             else
-               -- TODO - Proving that it can never happen
-               raise program_error;
+               p_isr_requests.write (isr_queue, isr_req, ok);
+               if not ok then
+                  debug.panic ("SOFTIRQ failed to add ISR request");
+               end if;
+               ewok.sched.request_schedule;
+               m4.cpu.enable_irq;
+               m4.cpu.instructions.full_memory_barrier;
             end if;
          end loop;
 
@@ -295,11 +186,7 @@ is
          -- Set softirq task as IDLE if there is no more request to handle
          --
 
-         m4.cpu.disable_irq;
-
-         if p_isr_requests.state (isr_queue) = p_isr_requests.EMPTY and
-            p_syscall_requests.state (syscall_queue) = p_syscall_requests.EMPTY
-         then
+         if p_isr_requests.state (isr_queue) = p_isr_requests.EMPTY then
             ewok.tasks.set_state
               (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_IDLE);
             m4.cpu.instructions.full_memory_barrier;
