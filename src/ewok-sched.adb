@@ -275,13 +275,21 @@ is
       ok       : boolean;
    begin
 
-      -- Kernel tasks are already granted with privileged accesses
+      -- Release previously dynamically allocated regions (used for mapping
+      -- devices and ISR stack)
+      ewok.mpu.unmap_all;
+
+      -- Kernel tasks
       if new_task.ttype = TASK_TYPE_KERNEL then
+         ewok.mpu.update_subregions
+           (region_number  => ewok.mpu.USER_CODE_REGION,
+            subregion_mask => 16#FF#);
+
+         ewok.mpu.update_subregions
+           (region_number  => ewok.mpu.USER_DATA_REGION,
+            subregion_mask => 16#FF#);
          return;
       end if;
-
-      -- Deallocate previously allocated regions and release them
-      ewok.mpu.unmap_all;
 
       --
       -- ISR mode
