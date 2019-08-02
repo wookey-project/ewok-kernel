@@ -47,6 +47,7 @@ is
 
    sched_period            : unsigned_32  := 0;
    current_task_id         : t_task_id    := ID_KERNEL;
+   current_task_mode       : t_task_mode  := TASK_MODE_MAINTHREAD;
    last_main_user_task_id  : t_task_id    := applications.list'first;
 
 
@@ -279,12 +280,11 @@ is
       -- devices and ISR stack)
       ewok.mpu.unmap_all;
 
-      -- Kernel tasks
+      -- Kernel tasks have no access to user regions
       if new_task.ttype = TASK_TYPE_KERNEL then
          ewok.mpu.update_subregions
            (region_number  => ewok.mpu.USER_CODE_REGION,
             subregion_mask => 16#FF#);
-
          ewok.mpu.update_subregions
            (region_number  => ewok.mpu.USER_DATA_REGION,
             subregion_mask => 16#FF#);
@@ -378,10 +378,12 @@ is
       return ewok.t_stack_frame_access
    with spark_mode => off
    is
+      old_task_id    : constant t_task_id    := current_task_id;
+      old_task_mode  : constant t_task_mode  := current_task_mode;
    begin
 
       -- Keep ISR threads running until they finish
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and then
+      if current_task_mode = TASK_MODE_ISRTHREAD and then
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
@@ -389,20 +391,26 @@ is
       end if;
 
       -- Save current context
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
+      if current_task_mode = TASK_MODE_ISRTHREAD then
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
          TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
       end if;
 
       -- Elect a new task and change current_task_id
-      current_task_id := task_elect;
+      current_task_id   := task_elect;
+      current_task_mode := TSK.tasks_list(current_task_id).mode;
 
       -- Apply MPU specific configuration
-      mpu_switching (current_task_id);
+      if not
+           (current_task_id = old_task_id and
+            current_task_mode = old_task_mode)
+      then
+         mpu_switching (current_task_id);
+      end if;
 
       -- Return the new context
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
+      if current_task_mode = TASK_MODE_ISRTHREAD then
          return TSK.tasks_list(current_task_id).isr_ctx.frame_a;
       else
          return TSK.tasks_list(current_task_id).ctx.frame_a;
@@ -416,6 +424,8 @@ is
       return ewok.t_stack_frame_access
       with spark_mode => off
    is
+      old_task_id    : constant t_task_id    := current_task_id;
+      old_task_mode  : constant t_task_mode  := current_task_mode;
    begin
 
       m4.systick.increment;
@@ -436,7 +446,7 @@ is
       ewok.sleep.check_is_awoke;
 
       -- Keep ISR threads running until they finish
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD and then
+      if current_task_mode = TASK_MODE_ISRTHREAD and then
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
@@ -444,7 +454,7 @@ is
       end if;
 
       -- Save current context
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
+      if current_task_mode = TASK_MODE_ISRTHREAD then
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
          TSK.tasks_list(current_task_id).ctx.frame_a := frame_a;
@@ -452,12 +462,18 @@ is
 
       -- Elect a new task
       current_task_id   := task_elect;
+      current_task_mode := TSK.tasks_list(current_task_id).mode;
 
       -- Apply MPU specific configuration
-      mpu_switching (current_task_id);
+      if not
+           (current_task_id = old_task_id and
+            current_task_mode = old_task_mode)
+      then
+         mpu_switching (current_task_id);
+      end if;
 
       -- Return the new context
-      if TSK.tasks_list(current_task_id).mode = TASK_MODE_ISRTHREAD then
+      if current_task_mode = TASK_MODE_ISRTHREAD then
          return TSK.tasks_list(current_task_id).isr_ctx.frame_a;
       else
          return TSK.tasks_list(current_task_id).ctx.frame_a;
