@@ -23,13 +23,13 @@
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.sched;
-with ewok.softirq;
 with ewok.syscalls.cfg.dev;
 with ewok.syscalls.cfg.gpio;
 with ewok.syscalls.gettick;
 with ewok.syscalls.init;
 with ewok.syscalls.ipc;
 with ewok.syscalls.lock;
+with ewok.syscalls.log;
 with ewok.syscalls.reset;
 with ewok.syscalls.rng;
 with ewok.syscalls.sleep;
@@ -143,18 +143,9 @@ is
 
          when SVC_LOG            =>
 
-            -- Svc_log() syscall is postponed (asynchronously executed)
-            if current_a.all.mode = TASK_MODE_MAINTHREAD then
-               ewok.softirq.push_syscall (current_id, svc);
-               ewok.tasks.set_state (current_id, TASK_MODE_MAINTHREAD,
-                  TASK_STATE_SVC_BLOCKED);
-               return ewok.sched.do_schedule (frame_a);
-            else
-               -- Postponed syscalls are forbidden in ISR mode
-               set_return_value
-                 (current_id, TASK_MODE_ISRTHREAD, SYS_E_DENIED);
-               return frame_a;
-            end if;
+            ewok.syscalls.log.svc_log
+              (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
 
          when SVC_REGISTER_DEVICE   =>
             ewok.syscalls.init.svc_register_device
