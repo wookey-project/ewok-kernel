@@ -29,6 +29,7 @@ with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with ewok.interrupts;
 with ewok.layout;
+with ewok.mpu;
 with ewok.sched;
 with ewok.syscalls.log;
 with soc.interrupts; use type soc.interrupts.t_interrupt;
@@ -90,14 +91,7 @@ is
 
    procedure syscall_handler (req : in  t_syscall_request)
    is
-      svc_params_a : constant t_parameters_access :=
-         to_parameters_access
-           (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
    begin
-
-      --
-      -- Logging
-      --
 
 #if CONFIG_DBGLEVEL >= 7
       pragma DEBUG (debug.log (debug.INFO,
@@ -107,16 +101,48 @@ is
 #end if;
 
       --
+      -- Mapping user space
+      --
+
+      declare
+         type t_mask is array (unsigned_8 range 1 .. 8) of bit
+            with pack, size => 8;
+
+         function to_unsigned_8 is new ada.unchecked_conversion
+           (t_mask, unsigned_8);
+
+         mask : t_mask := (others => 1);
+      begin
+         for i in 0 .. TSK.tasks_list(req.caller_id).num_slots - 1 loop
+            mask(TSK.tasks_list(req.caller_id).slot + i) := 0;
+         end loop;
+
+         ewok.mpu.update_subregions
+           (region_number  => ewok.mpu.USER_CODE_REGION,
+            subregion_mask => to_unsigned_8 (mask));
+
+         ewok.mpu.update_subregions
+           (region_number  => ewok.mpu.USER_DATA_REGION,
+            subregion_mask => to_unsigned_8 (mask));
+      end;
+
+      --
       -- Calling the handler
       --
 
-      case req.svc is
-         when SVC_LOG =>
-            ewok.syscalls.log.svc_log
-              (req.caller_id, svc_params_a.all, TASK_MODE_MAINTHREAD);
-         when others =>
-            raise program_error;
-      end case;
+      declare
+         svc_params_a : constant t_parameters_access :=
+            to_parameters_access
+              (TSK.tasks_list(req.caller_id).ctx.frame_a.all.R0);
+      begin
+          case req.svc is
+             when SVC_LOG =>
+                ewok.syscalls.log.svc_log
+                  (req.caller_id, svc_params_a.all, TASK_MODE_MAINTHREAD);
+             when others =>
+                raise program_error;
+          end case;
+      end;
 
    end syscall_handler;
 
@@ -236,6 +262,7 @@ is
                   m4.cpu.instructions.full_memory_barrier;
                end if;
             else
+               -- TODO - Proving that it can never happen
                raise program_error;
             end if;
 
@@ -254,9 +281,12 @@ is
             exit when not ok;
 
             if sys_req.state = WAITING then
+               m4.cpu.disable_irq;
                syscall_handler (sys_req);
                sys_req.state := DONE;
+               m4.cpu.enable_irq;
             else
+               -- TODO - Proving that it can never happen
                raise program_error;
             end if;
          end loop;
