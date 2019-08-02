@@ -64,7 +64,14 @@ is
       return unsigned_32
    is
    begin
-      return soc.devmap.periphs(registered_device(dev_id).periph_id).size;
+      -- pure GPIO devices are registed has 'NO_PERIPH', has they are
+      -- not a SoC local mappable peripheral but pure IO.
+      -- These devices have no size (e.g. LEDs, Buttons....)
+      if registered_device(dev_id).periph_id /= NO_PERIPH then
+         return soc.devmap.periphs(registered_device(dev_id).periph_id).size;
+      else
+         return 0;
+      end if;
    end get_device_size;
 
 
