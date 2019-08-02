@@ -22,7 +22,6 @@
 
 
 with ewok.tasks_shared; use ewok.tasks_shared;
-with ewok.syscalls;
 with soc.interrupts;
 with rings;
 
@@ -45,12 +44,6 @@ is
       params      : t_isr_parameters;
    end record;
 
-   type t_syscall_request is record
-      caller_id   : ewok.tasks_shared.t_task_id;
-      svc         : ewok.syscalls.t_svc;
-      state       : t_state;
-   end record;
-
    -- softirq input queue depth. Can be configured depending
    -- on the devices behavior (IRQ bursts)
    -- defaulting to 20 (see Kconfig)
@@ -61,22 +54,11 @@ is
 
    isr_queue      : p_isr_requests.ring;
 
-   package p_syscall_requests is new rings (t_syscall_request, MAX_QUEUE_SIZE);
-   use p_syscall_requests;
-
-   syscall_queue  : p_syscall_requests.ring;
-
    procedure init;
 
    procedure push_isr
      (task_id     : in  ewok.tasks_shared.t_task_id;
       params      : in  t_isr_parameters);
-
-   procedure push_syscall
-     (task_id     : in  ewok.tasks_shared.t_task_id;
-      svc         : in  ewok.syscalls.t_svc);
-
-   procedure syscall_handler (req : in  t_syscall_request);
 
    procedure isr_handler (req : in  t_isr_request);
 
