@@ -30,6 +30,8 @@
   ******************************************************************************
   */
 
+#include "autoconf.h"
+
 .syntax unified
 .cpu cortex-m4
 .fpu softvfp
@@ -125,7 +127,9 @@ LoopFillZerobss:
     .weak  Default_Handler
     .type  Default_Handler, %function
 Default_Handler:
+#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsid   i
+#endif
 
     /*
      * The NVIC has already saved R0-R3, R12, LR, PC and xPSR registers on the
@@ -179,7 +183,9 @@ Default_Handler:
 msp_use:
     /* That branch should never be executed as every task use the PSP */
     msr     msp, r0     /* MSP <- r0 */
+#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
+#endif
     bx      lr
 
 psp_use:
@@ -193,14 +199,18 @@ user_mode:
     mov     r0, #3
     msr     control, r0
     isb
+#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
+#endif
     bx      lr
 
 kern_mode:
     mov     r0, #2
     msr     control, r0
     isb
+#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
+#endif
     bx      lr
 .size Default_Handler, .-Default_Handler
 

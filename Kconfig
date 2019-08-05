@@ -263,7 +263,16 @@ config KERNEL_EXPERT_MODE
   these options. They may have a great impact on the
   kernel behavior and make the overall system unstable!!!
 
+if KERNEL_EXPERT_MODE
 
+  config KERNEL_EXP_REENTRANCY
+  bool "(Experimental) Enable handler mode reentrancy support"
+  default n
+  ---help---
+  Make kernel interruption handling reentrant to support
+  IRQ preemptions and handling reentrancy based on hardware
+  interrupts priorities
+endif
 
 endmenu
 
