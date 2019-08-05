@@ -1,1 +1,0 @@
-../stm32f407/startup.s

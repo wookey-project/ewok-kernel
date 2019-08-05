@@ -391,11 +391,16 @@ is
       end if;
 
       -- Save current context
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- This global variable write access is not reentrant, but, by
       -- construction can't be accedded concurently in a monoprocessor
       -- system due to processor's IRQ priority.
       -- Although, we make IRQ locked here for future compatibility
+      --
+      -- TODO: define a clear denomination for locking/unlocking critical
+      --       sections in kernel instead of directly calling HW primitives
       m4.cpu.disable_irq;
+#end if;
 
       if current_task_mode = TASK_MODE_ISRTHREAD then
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
@@ -407,8 +412,10 @@ is
       current_task_id   := task_elect;
       current_task_mode := TSK.tasks_list(current_task_id).mode;
 
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- End of global variables WR access
       m4.cpu.enable_irq;
+#end if;
 
       -- Apply MPU specific configuration
       if not
@@ -452,6 +459,7 @@ is
       end if;
 
       -- Waking-up sleeping tasks
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- This global variable write access is not reentrant, but, by
       -- construction can't be accedded concurently in a monoprocessor
       -- system due to processor's IRQ priority.
@@ -459,6 +467,7 @@ is
       -- Here we lock down to the end of globals usage to avoid to
       -- many successive disable/enable of IRQs
       m4.cpu.disable_irq;
+#end if;
 
       ewok.sleep.check_is_awoke;
 
@@ -467,7 +476,9 @@ is
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
+#if CONFIG_KERNEL_EXP_REENTRANCY
          m4.cpu.enable_irq;
+#end if;
          return frame_a;
       end if;
 
@@ -482,8 +493,10 @@ is
       current_task_id   := task_elect;
       current_task_mode := TSK.tasks_list(current_task_id).mode;
 
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- End of global variable access
       m4.cpu.enable_irq;
+#end if;
 
       -- Apply MPU specific configuration
       if not

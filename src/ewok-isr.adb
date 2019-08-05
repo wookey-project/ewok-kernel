@@ -68,7 +68,8 @@ is
          end if;
          ewok.dma.clear_dma_interrupts (task_id, intr);
       else
-         -- INFO: this function locks IRQ during its execution
+         -- INFO: this function should be executed as a critical section
+         -- (ToCToU risk)
          ewok.posthook.exec (intr, status, data);
       end if;
 
@@ -81,7 +82,7 @@ is
       isr_params.posthook_status  := status;
       isr_params.posthook_data    := data;
 
-      -- INFO: this function locks IRQ during its execution
+      -- INFO: this function is not reentrant
       ewok.softirq.push_isr (task_id, isr_params);
 
       return;

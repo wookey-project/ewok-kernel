@@ -19,15 +19,17 @@ APP_BUILD_DIR = $(BUILD_DIR)/$(DIR_NAME)
 
 BUILD_DIR ?= $(PROJ_FILE)build
 
+AFLAGS += -I$(PROJ_FILES)include/generated
+
 EXTRA_LDFLAGS ?= -Tkernel.ld
 LDFLAGS += $(EXTRA_LDFLAGS) -L$(APP_BUILD_DIR) $(AFLAGS_GCC) -fno-builtin -nostdlib -nostartfiles -Xlinker
 
 LD_LIBS = -lkernel -L$(APP_BUILD_DIR)/Ada/lib
 LD_LIBS += -lgnat -L$(BUILD_DIR)/kernel/libgnat
 
-SOC_ASM := startup.s
+SOC_ASM := startup.S
 SOC_DIR := src/arch/socs/$(SOC)
-SOC_OBJ := $(patsubst %.s,$(APP_BUILD_DIR)/asm/%.o,$(SOC_ASM))
+SOC_OBJ := $(patsubst %.S,$(APP_BUILD_DIR)/asm/%.o,$(SOC_ASM))
 
 # all files in Ada dir will replace C equivalent
 ALIB = $(APP_BUILD_DIR)/Ada/lib/libkernel.a

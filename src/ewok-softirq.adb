@@ -60,14 +60,20 @@ is
       req   : constant t_isr_request := (task_id, WAITING, params);
       ok    : boolean;
    begin
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- accessing the softirq input queue is not reentrant
       m4.cpu.disable_irq;
+#end if;
       p_isr_requests.write (isr_queue, req, ok);
       if not ok then
+#if CONFIG_KERNEL_EXP_REENTRANCY
          m4.cpu.enable_irq;
+#end if;
          debug.panic ("push_isr() failed.");
       end if;
+#if CONFIG_KERNEL_EXP_REENTRANCY
       m4.cpu.enable_irq;
+#end if;
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
    end push_isr;

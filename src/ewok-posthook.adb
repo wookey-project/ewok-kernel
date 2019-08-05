@@ -87,17 +87,21 @@ is
 
       dev_addr := ewok.devices.get_device_addr (dev_id);
 
+#if CONFIG_KERNEL_EXP_REENTRANCY
       -- posthooks are, by now, executed with ISR disabled, to avoid temporal holes
       -- when reading/writing data in device's registers and generating potential
       -- ToCToU
       m4.cpu.disable_irq;
+#end if;
 
       for i in config.all.posthook.action'range loop
          case config.all.posthook.action(i).instr is
 
             when POSTHOOK_NIL    =>
+#if CONFIG_KERNEL_EXP_REENTRANCY
                -- No subsequent action. Returning.
                m4.cpu.enable_irq;
+#end if;
                return;
 
             when POSTHOOK_READ   =>
@@ -218,8 +222,10 @@ is
          end case;
       end loop;
 
-      -- let's enable again IRQs
+#if CONFIG_KERNEL_EXP_REENTRANCY
+      -- Let's enable again IRQs
       m4.cpu.enable_irq;
+#end if;
    end exec;
 
 end ewok.posthook;
