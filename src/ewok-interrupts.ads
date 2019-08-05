@@ -86,6 +86,7 @@ is
 
    function get_device_from_interrupt
      (interrupt : soc.interrupts.t_interrupt)
-      return ewok.devices_shared.t_device_id;
+      return ewok.devices_shared.t_device_id
+      with inline_always;
 
 end ewok.interrupts;

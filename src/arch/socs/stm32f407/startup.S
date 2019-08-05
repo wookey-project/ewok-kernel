@@ -187,6 +187,7 @@ Default_Handler:
 msp_use:
     /* That branch should never be executed as every task use the PSP */
     msr     msp, r0     /* MSP <- r0 */
+    isb
     cpsie   i
     bx      lr
 

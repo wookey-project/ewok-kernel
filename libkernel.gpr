@@ -119,7 +119,6 @@ library project Libkernel is
       "soc.dma",
       "soc.dma.interfaces",
       "soc.dwt",
-      "soc.dwt.interfaces",
       "soc.exti",
       "soc.gpio",
       "soc.gpio.interfaces",

@@ -98,23 +98,23 @@ is
    procedure is_mpu_available
      (success  : out boolean)
       with
-         inline,
+         inline_always,
          Global         => (In_Out => MPU);
 
    procedure enable
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    procedure disable
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    procedure disable_region
      (region_number : in t_region_number)
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    -- Only used by SPARK prover
@@ -130,12 +130,12 @@ is
 
    procedure enable_unrestricted_kernel_access
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    procedure disable_unrestricted_kernel_access
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    -- That function is only used by SPARK prover
@@ -165,7 +165,7 @@ is
      (region_number  : in t_region_number;
       subregion_mask : in unsigned_8)
       with
-         inline,
+         inline_always,
          global => (in_out => (MPU));
 
    pragma warnings (on);

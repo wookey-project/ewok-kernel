@@ -62,7 +62,8 @@ is
       return t_task_id;
 
    function get_user_device (dev_id : t_registered_device_id)
-      return t_checked_user_device_access;
+      return t_checked_user_device_access
+      with inline_always;
 
    function get_device_size (dev_id : t_registered_device_id)
       return unsigned_32;
@@ -105,6 +106,7 @@ is
       success  : out boolean);
 
    procedure unmap_device
-     (dev_id   : in  t_registered_device_id);
+     (dev_id   : in  t_registered_device_id)
+      with inline_always;
 
 end ewok.devices;

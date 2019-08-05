@@ -99,7 +99,6 @@ is
             else
                debug.panic ("Unhandled exception " & t_interrupt'image (it));
             end if;
-
          else
          -- External interrupts
             -- Execute kernel ISR
@@ -145,7 +144,6 @@ is
       -- Nested exceptions
       --
       elsif frame_a.all.exc_return = 16#FFFF_FFF1# then
-
          -- System exceptions
          if it < INT_WWDG then
             case it is

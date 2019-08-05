@@ -32,31 +32,31 @@ is
       with size => 16;
 
    procedure ISB
-      with inline;
+      with inline_always;
 
    procedure DSB
-      with inline;
+      with inline_always;
 
    procedure DMB
-      with inline;
+      with inline_always;
 
    -- Full Memory barrier (D+I)
    -- Force data and instruction synchronisation barrier.
    -- (privileged mode)
    procedure full_memory_barrier
-      with inline;
+      with inline_always;
 
    procedure REV (value : in out unsigned_32)
-      with inline;
+      with inline_always;
 
    procedure REV16 (value : in out unsigned_32)
-      with inline;
+      with inline_always;
 
    procedure BKPT
-      with inline;
+      with inline_always;
 
    procedure WFI
-      with inline;
+      with inline_always;
 
    procedure wait_for_interrupt renames WFI;
 
