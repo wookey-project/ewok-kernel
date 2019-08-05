@@ -391,6 +391,12 @@ is
       end if;
 
       -- Save current context
+      -- This global variable write access is not reentrant, but, by
+      -- construction can't be accedded concurently in a monoprocessor
+      -- system due to processor's IRQ priority.
+      -- Although, we make IRQ locked here for future compatibility
+      m4.cpu.disable_irq;
+
       if current_task_mode = TASK_MODE_ISRTHREAD then
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
@@ -400,6 +406,9 @@ is
       -- Elect a new task and change current_task_id
       current_task_id   := task_elect;
       current_task_mode := TSK.tasks_list(current_task_id).mode;
+
+      -- End of global variables WR access
+      m4.cpu.enable_irq;
 
       -- Apply MPU specific configuration
       if not
@@ -443,6 +452,14 @@ is
       end if;
 
       -- Waking-up sleeping tasks
+      -- This global variable write access is not reentrant, but, by
+      -- construction can't be accedded concurently in a monoprocessor
+      -- system due to processor's IRQ priority.
+      -- Although, we make IRQ locked here for future compatibility
+      -- Here we lock down to the end of globals usage to avoid to
+      -- many successive disable/enable of IRQs
+      m4.cpu.disable_irq;
+
       ewok.sleep.check_is_awoke;
 
       -- Keep ISR threads running until they finish
@@ -450,6 +467,7 @@ is
          ewok.tasks.get_state
            (current_task_id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
       then
+         m4.cpu.enable_irq;
          return frame_a;
       end if;
 
@@ -463,6 +481,9 @@ is
       -- Elect a new task
       current_task_id   := task_elect;
       current_task_mode := TSK.tasks_list(current_task_id).mode;
+
+      -- End of global variable access
+      m4.cpu.enable_irq;
 
       -- Apply MPU specific configuration
       if not
