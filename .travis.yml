@@ -59,7 +59,7 @@ jobs:
               - export PROJROOT=$PWD;
               - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
               - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd $PROJROOT; fi
-              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && for dep in $(git log --oneline refs/pull/${TRAVIS_PULL_REQUEST}/head -n 1 | sed -re 's/.*#depends\((.+)\).*/\1/g'); do cd ${dep%:*}; git fetch github ${dep#*:} && git checkout FETCH_HEAD; cd $OLDPWD; done; cd $PROJROOT; fi
+              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && for dep in $(git log --oneline refs/pull/${TRAVIS_PULL_REQUEST}/head -n 1 | sed -re 's/.*#depends\((.+)\).*/\1/g'); do cd ${dep%:*} && git fetch github ${dep#*:} && git checkout FETCH_HEAD && cd $OLDPWD; done; cd $PROJROOT; fi
               - source setenv.sh
               - make boards/32f407disco/configs/disco_blinky_ada_defconfig
               - make
@@ -72,7 +72,7 @@ jobs:
               - export PROJROOT=$PWD;
               - echo 'CROSS_COMPILE=arm-eabi-' > setenv.local.sh
               - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && git fetch github refs/pull/${TRAVIS_PULL_REQUEST}/head && git checkout FETCH_HEAD; cd ..; fi
-              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && for dep in $(git log --oneline refs/pull/${TRAVIS_PULL_REQUEST}/head -n 1 | sed -re 's/.*#depends\((.+)\).*/\1/g'); do cd ${dep%:*}; git fetch github ${dep#*:} && git checkout FETCH_HEAD; cd $OLDPWD; done; cd $PROJROOT; fi
+              - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then cd kernel && for dep in $(git log --oneline refs/pull/${TRAVIS_PULL_REQUEST}/head -n 1 | sed -re 's/.*#depends\((.+)\).*/\1/g'); do cd ${dep%:*} && git fetch github ${dep#*:} && git checkout FETCH_HEAD && cd $OLDPWD; done; cd $PROJROOT; fi
               - source setenv.sh
               - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
               - make
