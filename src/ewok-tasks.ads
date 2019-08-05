@@ -219,7 +219,8 @@ is
    procedure init_idle_task;
    procedure init_apps;
 
-   function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean;
+   function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean
+      with inline_always;
 
 #if CONFIG_KERNEL_DOMAIN
    function get_domain (id : in ewok.tasks_shared.t_task_id)

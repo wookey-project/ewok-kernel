@@ -223,8 +223,8 @@ is
      (intr : soc.interrupts.t_interrupt)
       return t_irq_index
    with
-      inline,
-      pre => intr >= soc.interrupts.INT_WWDG;
+      -- pre => intr >= soc.interrupts.INT_WWDG;
+      inline;
 
    procedure enable_irq
      (irq : in t_irq_index)

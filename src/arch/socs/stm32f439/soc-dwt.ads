@@ -94,7 +94,8 @@ is
    -- dwt_loop doesn't overflow
    procedure ovf_manage
       with
-         pre => check_32bits_overflow;
+         --pre => check_32bits_overflow,
+         inline_always;
 
    -- Initialize the DWT module
    procedure init

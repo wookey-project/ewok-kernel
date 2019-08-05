@@ -66,11 +66,13 @@ is
 
    procedure enable_unrestricted_kernel_access
       with
-         global => (in_out => (m4.mpu.MPU));
+         global => (in_out => (m4.mpu.MPU)),
+         inline_always;
 
    procedure disable_unrestricted_kernel_access
       with
-         global => (in_out => (m4.mpu.MPU));
+         global => (in_out => (m4.mpu.MPU)),
+         inline_always;
 
    -- That function is only used by SPARK prover
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
@@ -103,7 +105,8 @@ is
      (region_number  : in  m4.mpu.t_region_number;
       subregion_mask : in  unsigned_8)
       with
-         global => (in_out => (m4.mpu.MPU));
+         global => (in_out => (m4.mpu.MPU)),
+         inline_always;
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;

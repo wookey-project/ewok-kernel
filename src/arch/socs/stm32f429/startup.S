@@ -172,7 +172,7 @@ Default_Handler:
     /* Registers LR, R4-R11 are restored */
     ldmfd   r0!, {r4-r11, lr}
 
-    /* 
+    /*
      * Adjusting PSP/MSP so that the NVIC can restore the remaining registers
      * and setting the execution mode (privileged or unprivileged)
      */
@@ -183,6 +183,7 @@ Default_Handler:
 msp_use:
     /* That branch should never be executed as every task use the PSP */
     msr     msp, r0     /* MSP <- r0 */
+    isb
 #ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
 #endif

@@ -143,17 +143,18 @@ is
          volatile_function;
 
    function to_ticks (ms : milliseconds) return t_tick
-      with inline;
+      with inline_always;
 
    function to_milliseconds (t : t_tick) return milliseconds
-      with inline;
+      with inline_always;
 
    function to_microseconds (t : t_tick) return microseconds
-      with inline;
+      with inline_always;
 
    -- Note: default Systick IRQ handler is defined in package
    --       ewok.interrupts.handler and call 'increment' procedure
-   procedure increment;
+   procedure increment
+      with inline_always;
 
 private
 

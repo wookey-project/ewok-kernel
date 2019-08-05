@@ -49,11 +49,13 @@ is
 
    procedure write_pin
      (ref      : in  ewok.exported.gpios.t_gpio_ref;
-      value    : in  bit);
+      value    : in  bit)
+      with inline_always;
 
    function read_pin
      (ref      : in  ewok.exported.gpios.t_gpio_ref)
-      return bit;
+      return bit
+      with inline_always;
 
    function belong_to
      (task_id  : in  ewok.tasks_shared.t_task_id;

@@ -159,59 +159,59 @@ is
    -- Enable IRQs by clearing the I-bit in the CPSR.
    -- (privileged mode)
    procedure enable_irq
-      with  inline;
+      with inline_always;
 
    -- Disable IRQs by setting the I-bit in the CPSR.
    -- (privileged mode)
    procedure disable_irq
-      with  inline;
+      with inline_always;
 
    -- Get the Control register.
    function get_control_register return t_control_register
-      with inline;
+      with inline_always;
 
    -- Set the Control register.
    procedure set_control_register (cr : in t_control_register)
-      with inline;
+      with inline_always;
 
    -- Get the IPSR register.
    function get_ipsr_register return t_IPSR_register
-      with inline;
+      with inline_always;
 
    -- Get the APSR register.
    function get_apsr_register return t_APSR_register
-      with inline;
+      with inline_always;
 
    -- Get the EPSR register.
    function get_epsr_register return t_EPSR_register
-      with inline;
+      with inline_always;
 
    -- Get the LR register
    function get_lr_register return unsigned_32
-      with inline;
+      with inline_always;
 
    -- Get the process stack pointer (PSP)
    function get_psp_register return system_address
-      with inline;
+      with inline_always;
 
    -- Set the process stack pointer (PSP)
    procedure set_psp_register (addr : in system_address)
-      with inline;
+      with inline_always;
 
    -- Get the main stack pointer (MSP)
    function get_msp_register return system_address
-      with inline;
+      with inline_always;
 
    -- Set the main stack pointer (MSP)
    procedure set_msp_register (addr : system_address)
-      with inline;
+      with inline_always;
 
    -- Get the priority mask value
    function get_primask_register return unsigned_32
-      with inline;
+      with inline_always;
 
    -- Set the priority mask value
    procedure set_primask_register (mask : in unsigned_32)
-      with inline;
+      with inline_always;
 
 end m4.cpu;

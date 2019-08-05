@@ -32,7 +32,6 @@ with ewok.sched;
 with soc.interrupts; use type soc.interrupts.t_interrupt;
 with soc.nvic;
 with m4.cpu;
-with m4.cpu.instructions;
 
 #if CONFIG_DBGLEVEL >= 7
 with types.c; use types.c;
@@ -161,10 +160,7 @@ is
 
       loop
 
-         --
-         -- User ISRs
-         --
-
+         -- Read pending user ISRs
          loop
             m4.cpu.disable_irq;
 
@@ -179,7 +175,6 @@ is
                isr_handler (isr_req);
                ewok.sched.request_schedule;
                m4.cpu.enable_irq;
-               m4.cpu.instructions.full_memory_barrier;
             else
                p_isr_requests.write (isr_queue, isr_req, ok);
                if not ok then
@@ -187,18 +182,13 @@ is
                end if;
                ewok.sched.request_schedule;
                m4.cpu.enable_irq;
-               m4.cpu.instructions.full_memory_barrier;
             end if;
          end loop;
 
-         --
-         -- Set softirq task as IDLE if there is no more request to handle
-         --
-
+         -- No more pending request: Softirq task is IDLE
          if p_isr_requests.state (isr_queue) = p_isr_requests.EMPTY then
             ewok.tasks.set_state
               (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_IDLE);
-            m4.cpu.instructions.full_memory_barrier;
             ewok.sched.request_schedule;
          end if;
 

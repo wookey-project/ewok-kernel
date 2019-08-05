@@ -93,9 +93,9 @@ is
 
 
    procedure ovf_manage
-   with
-      Refined_Post   => (dwt_loops = dwt_loops'Old
-                         or dwt_loops = (dwt_loops'Old + 1))
+   --with
+   --   Refined_Post   => (dwt_loops = dwt_loops'Old
+   --                      or dwt_loops = (dwt_loops'Old + 1))
    is
       dwt : unsigned_32;
    begin
