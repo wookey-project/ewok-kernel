@@ -27,7 +27,7 @@ with ewok.exported.devices;   use ewok.exported.devices;
 with ewok.devices;
 with ewok.sanitize;
 with ewok.dma;
-with ewok.mpu;
+with ewok.memory;
 with ewok.perm;
 with ewok.sched;
 with ewok.debug;
@@ -114,7 +114,7 @@ is
 
       if (udev.map_mode = DEV_MAP_AUTO  and  -- Device should be automatically mapped...
           udev.size > 0)
-         and then not ewok.mpu.can_be_mapped -- ...but no sufficient resources
+         and then not ewok.memory.can_be_mapped -- ...but no sufficient resources
       then
          pragma DEBUG (debug.log (debug.ERROR,
             "svc_register_device(): no free region left to map the device"));

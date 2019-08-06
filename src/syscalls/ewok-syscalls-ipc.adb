@@ -30,7 +30,7 @@ with ewok.sanitize;
 with ewok.perm;
 with ewok.sleep;
 with ewok.debug;
-with ewok.mpu;
+with ewok.memory;
 with types.c;           use types.c;
 
 
@@ -303,9 +303,9 @@ is
             -- data region in memory can not be accessed (even by the kernel).
             -- The following temporary open the access to every task's data
             -- region, perform the writing, and then restore the MPU.
-            ewok.mpu.enable_unrestricted_kernel_access;
+            ewok.memory.map_task(id_sender);
             set_return_value (id_sender, TASK_MODE_MAINTHREAD, SYS_E_DONE);
-            ewok.mpu.disable_unrestricted_kernel_access;
+            ewok.memory.map_task(caller_id);
 
             TSK.set_state
               (id_sender, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -564,10 +564,10 @@ is
 
          -- Unrestrict kernel access to memory to change a value located
          -- in the receiver's stack frame
-         ewok.mpu.enable_unrestricted_kernel_access;
+         ewok.memory.map_task(id_receiver);
          receiver_a.all.ctx.frame_a.all.PC :=
             receiver_a.all.ctx.frame_a.all.PC - 2;
-         ewok.mpu.disable_unrestricted_kernel_access;
+         ewok.memory.map_task(caller_id);
       end if;
 
       if blocking then

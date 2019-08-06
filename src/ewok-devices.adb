@@ -28,7 +28,6 @@ with ewok.interrupts;            use ewok.interrupts;
 with ewok.sanitize;
 with ewok.gpio;
 with ewok.exti;
-with ewok.mpu;
 with ewok.debug;
 with ewok.devices.perms;
 with soc.devmap;                 use soc.devmap;
@@ -90,12 +89,12 @@ is
    end get_device_addr;
 
 
-   function is_device_region_ro (dev_id : t_registered_device_id)
+   function is_device_ro (dev_id : t_registered_device_id)
       return boolean
    is
    begin
       return soc.devmap.periphs(registered_device(dev_id).periph_id).ro;
-   end is_device_region_ro;
+   end is_device_ro;
 
 
    function get_device_subregions_mask (dev_id : t_registered_device_id)
@@ -598,41 +597,6 @@ is
 
    end sanitize_user_defined_device;
 
-
-   procedure map_device
-     (dev_id   : in  t_registered_device_id;
-      success  : out boolean)
-   is
-      region_type       : ewok.mpu.t_region_type;
-   begin
-
-      if is_device_region_ro (dev_id) then
-         region_type := ewok.mpu.REGION_TYPE_USER_DEV_RO;
-      else
-         region_type := ewok.mpu.REGION_TYPE_USER_DEV;
-      end if;
-
-      ewok.mpu.map
-        (addr           => get_device_addr (dev_id),
-         size           => get_device_size (dev_id),
-         region_type    => region_type,
-         subregion_mask => get_device_subregions_mask (dev_id),
-         success        => success);
-
-      if not success then
-         pragma DEBUG
-           (debug.log ("mpu_mapping_device(): can not be mapped"));
-      end if;
-
-   end map_device;
-
-
-   procedure unmap_device
-     (dev_id   : in  t_registered_device_id)
-   is
-   begin
-      ewok.mpu.unmap (get_device_addr (dev_id));
-   end unmap_device;
 
 
 end ewok.devices;

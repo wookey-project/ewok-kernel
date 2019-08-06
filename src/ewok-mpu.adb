@@ -350,6 +350,16 @@ is
       raise program_error;
    end unmap;
 
+   procedure unmap_userspace
+   is
+   begin
+      update_subregions
+         (region_number  => USER_CODE_REGION,
+         subregion_mask  => 16#FF#);
+      update_subregions
+         (region_number  => USER_DATA_REGION,
+         subregion_mask  => 16#FF#);
+   end unmap_userspace;
 
    procedure unmap_all
    is

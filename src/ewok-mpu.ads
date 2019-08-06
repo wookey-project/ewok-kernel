@@ -137,7 +137,14 @@ is
    procedure unmap
      (addr           : in  system_address);
 
-   procedure unmap_all;
+
+   procedure unmap_userspace
+      with
+         inline;
+
+   procedure unmap_all
+      with
+         inline;
 
 
 end ewok.mpu;

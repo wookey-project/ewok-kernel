@@ -70,7 +70,7 @@ is
    function get_device_addr (dev_id : t_registered_device_id)
       return system_address;
 
-   function is_device_region_ro (dev_id : t_registered_device_id)
+   function is_device_ro (dev_id : t_registered_device_id)
       return boolean;
 
    function get_device_subregions_mask (dev_id : t_registered_device_id)
@@ -99,12 +99,5 @@ is
      (udev     : in  ewok.exported.devices.t_user_device_access;
       task_id  : in  t_task_id)
       return boolean;
-
-   procedure map_device
-     (dev_id   : in  t_registered_device_id;
-      success  : out boolean);
-
-   procedure unmap_device
-     (dev_id   : in  t_registered_device_id);
 
 end ewok.devices;
