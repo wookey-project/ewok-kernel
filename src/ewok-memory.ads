@@ -49,10 +49,8 @@ is
    --    this function does not handle memory space swith neither
    --    See belowing API for theses actions.
    -- 
-   procedure map_task(id        : in  t_real_task_id)
-      with
-         inline;
-
+   procedure map_task(id        : in  t_real_task_id);
+   pragma Inline (map_task);
 
    -- unmap the currently scheduled task id. This is a basic implementation
    -- no more userspace task is mapped.
@@ -64,44 +62,40 @@ is
    -- CAUTION: this function does NOT handle specific mapping or unmapping
    -- (memory devices or ISR map, etc.)
    -- See belowing API for theses actions.
-   procedure unmap_task
-      with
-         inline;
+   procedure unmap_task;
+   pragma Inline (unmap_task);
 
 
    -- Map a given device into the task memory space
    procedure map_device
      (dev_id   : in  ewok.devices_shared.t_registered_device_id;
-      success  : out boolean)
-      with
-         inline;
+      success  : out boolean);
+   pragma Inline (map_device);
 
 
    -- Unmap the currently scheduled task id
    procedure unmap_device
-     (dev_id   : in  ewok.devices_shared.t_registered_device_id)
-     with
-        inline;
+     (dev_id   : in  ewok.devices_shared.t_registered_device_id);
+   pragma Inline (unmap_device);
 
 
    -- Unmap the overall userspace content
-   procedure unmap_userspace
-      with inline;
+   procedure unmap_userspace;
+   pragma Inline (unmap_userspace);
 
 
    -- Unmap the dynamic content from the currently scheduled task
    -- This include:
    --   - IOMapped device(s)
    --   - ISR stack
-   procedure unmap_dynamics
-      with
-         inline;
+   procedure unmap_dynamics;
+   pragma Inline (unmap_dynamics);
 
 
    -- Return true if there is enough space in the memory backend
    -- to map another element to the currently scheduled task
-   function can_be_mapped return boolean
-      with inline;
+   function can_be_mapped return boolean;
+   pragma Inline (can_be_mapped);
 
 
    -- Handle a memory backend switch, from one task to another.
@@ -113,5 +107,6 @@ is
    --   - In standard thread mode, map the task's devices
    procedure switch
      (id : in t_task_id);
+   pragma Inline (switch);
 
 end ewok.memory;

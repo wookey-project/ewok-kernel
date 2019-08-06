@@ -168,9 +168,11 @@ library project Libkernel is
             for Switches ("soc-dma.adb")                 use perf_switches & debug & verif;
             for Switches ("soc-gpio.adb")                use perf_switches & debug & verif;
             for Switches ("soc-gpio-interfaces.adb")     use perf_switches & debug & verif;
+            for Switches ("ewok-memory.adb")             use perf_switches & debug & verif;
          when "release" =>
             for Default_Switches ("ada") use size_switches & verif;
             for Switches ("ewok-sched.adb")              use perf_switches & verif;
+            for Switches ("ewok-memory.adb")             use perf_switches & verif;
             for Switches ("ewok-tasks.adb")              use perf_switches & verif;
             for Switches ("ewok-interrupts-handler.adb") use perf_switches & verif;
             for Switches ("ewok-syscalls-handler.adb")   use perf_switches & verif;
