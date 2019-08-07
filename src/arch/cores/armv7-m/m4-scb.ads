@@ -302,6 +302,15 @@ is
    end record
       with size => 32;
 
+   --------------------------------
+   -- Bus Fault Address Register --
+   --------------------------------
+
+   type t_SCB_BFAR is record
+      ADDRESS  : system_address;
+   end record
+      with size => 32;
+
    --------------------
    -- SCB peripheral --
    --------------------
@@ -320,6 +329,7 @@ is
       CFSR  : t_SCB_CFSR;
       HFSR  : t_SCB_HFSR;
       MMFAR : t_SCB_MMFAR;
+      BFAR  : t_SCB_BFAR;
    end record;
 
    for t_SCB_peripheral use record
@@ -334,6 +344,7 @@ is
       CFSR  at 16#28# range 0 .. 31;
       HFSR  at 16#2C# range 0 .. 31;
       MMFAR at 16#34# range 0 .. 31;
+      BFAR  at 16#38# range 0 .. 31;
    end record;
 
    -----------------
