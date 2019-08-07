@@ -66,12 +66,11 @@ private
    type ring_range is new integer range 1 .. size;
    type buffer is array (ring_range) of object;
 
-   type ring is
-      record
-         buf      : buffer;
-         top      : ring_range   := ring_range'first; -- place to write
-         bottom   : ring_range   := ring_range'first; -- place to read
-         state    : ring_state   := EMPTY;
-      end record;
+   type ring is record
+      buf      : buffer;
+      top      : ring_range   := ring_range'first; -- place to write
+      bottom   : ring_range   := ring_range'first; -- place to read
+      state    : ring_state   := EMPTY;
+   end record;
 
 end rings;
