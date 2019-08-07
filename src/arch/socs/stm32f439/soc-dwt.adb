@@ -144,9 +144,8 @@ is
    is
       cyccnt : unsigned_64;
    begin
-      cyccnt := unsigned_64(DWT_CYCCNT);
-      cyccnt := cyccnt and 16#0000_0000_ffff_ffff#;
-      cycles := interfaces.shift_left (dwt_loops, 32) + cyccnt;
+      cyccnt := unsigned_64 (DWT_CYCCNT);
+      cycles := dwt_loops * 16#1_0000_0000# + cyccnt;
    end get_cycles;
 
 
