@@ -29,8 +29,6 @@ package ewok.softirq
   with spark_mode => off
 is
 
-   type t_state is (DONE, WAITING);
-
    type t_isr_parameters is record
       handler           : system_address;
       interrupt         : soc.interrupts.t_interrupt;
@@ -40,7 +38,6 @@ is
 
    type t_isr_request is record
       caller_id   : ewok.tasks_shared.t_task_id;
-      state       : t_state;
       params      : t_isr_parameters;
    end record;
 

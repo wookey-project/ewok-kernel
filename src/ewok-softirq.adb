@@ -57,7 +57,7 @@ is
      (task_id     : in  ewok.tasks_shared.t_task_id;
       params      : in  t_isr_parameters)
    is
-      req   : constant t_isr_request := (task_id, WAITING, params);
+      req   : constant t_isr_request := (task_id, params);
       ok    : boolean;
    begin
 #if CONFIG_KERNEL_EXP_REENTRANCY
@@ -177,7 +177,6 @@ is
                TSK.tasks_list(isr_req.caller_id).state /= TASK_STATE_SLEEPING_DEEP
             then
                isr_handler (isr_req);
-               isr_req.state := DONE;
                ewok.sched.request_schedule;
                m4.cpu.enable_irq;
                m4.cpu.instructions.full_memory_barrier;
