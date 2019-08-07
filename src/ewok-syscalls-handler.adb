@@ -56,12 +56,9 @@ is
    is
       svc            : t_svc;
       svc_params_a   : t_parameters_access;
-      current_id     : t_task_id;
-      current_a      : t_task_access;
+      current_id     : constant t_task_id       := ewok.sched.current_task_id;
+      current_a      : constant t_task_access   := ewok.tasks.tasks_list(current_id)'access;
    begin
-
-      current_id  := ewok.sched.get_current;
-      current_a   := ewok.tasks.tasks_list(current_id)'access;
 
       --
       -- We must save the frame pointer because synchronous syscall don't refer
