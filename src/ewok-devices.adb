@@ -64,8 +64,8 @@ is
       return unsigned_32
    is
    begin
-      -- pure GPIO devices are registed has 'NO_PERIPH', has they are
-      -- not a SoC local mappable peripheral but pure IO.
+      -- Pure GPIO devices are registed has 'NO_PERIPH', has they are
+      --  not a SoC local mappable peripheral but pure IO.
       -- These devices have no size (e.g. LEDs, Buttons....)
       if registered_device(dev_id).periph_id /= NO_PERIPH then
          return soc.devmap.periphs(registered_device(dev_id).periph_id).size;
@@ -79,8 +79,8 @@ is
       return system_address
    is
    begin
-      -- pure GPIO devices are registed has 'NO_PERIPH', has they are
-      -- not a SoC local mappable peripheral but pure IO.
+      -- Pure GPIO devices are registed has 'NO_PERIPH', has they are
+      --  not a SoC local mappable peripheral but pure IO.
       -- These devices have no address (e.g. LEDs, Buttons....)
       if registered_device(dev_id).periph_id /= NO_PERIPH then
          return soc.devmap.periphs(registered_device(dev_id).periph_id).addr;
