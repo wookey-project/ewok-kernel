@@ -30,7 +30,6 @@ with ewok.sched;
 with ewok.debug;
 with ewok.interrupts;
 with soc.interrupts;
-with m4.scb;
 
 package body ewok.mpu.handler
    with spark_mode => off
@@ -40,49 +39,16 @@ is
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
    is
-
 #if not CONFIG_KERNEL_PANIC_FREEZE
       new_frame_a : t_stack_frame_access
 #end if;
-
    begin
-
-      if m4.scb.SCB.CFSR.MMFSR.MMARVALID then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: MMFAR.ADDRESS = " &
-            system_address'image (m4.scb.SCB.MMFAR.ADDRESS)));
-      end if;
-
-      if m4.scb.SCB.CFSR.MMFSR.MLSPERR then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: MemManage fault during floating-point lazy state preservation"));
-      end if;
-
-      if m4.scb.SCB.CFSR.MMFSR.MSTKERR then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: stacking for an exception entry has caused access violation"));
-      end if;
-
-      if m4.scb.SCB.CFSR.MMFSR.MUNSTKERR then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: unstack for an exception return has caused access violation"));
-      end if;
-
-      if m4.scb.SCB.CFSR.MMFSR.DACCVIOL then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: the processor attempted a load or store at a location that does not permit the operation"));
-      end if;
-
-      if m4.scb.SCB.CFSR.MMFSR.IACCVIOL then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "MPU: the processor attempted an instruction fetch from a location that does not permit execution"));
-      end if;
-
       pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state
-        (ewok.sched.get_current, TASK_MODE_MAINTHREAD, ewok.tasks.TASK_STATE_FAULT);
+        (ewok.sched.current_task_id, TASK_MODE_MAINTHREAD,
+         ewok.tasks.TASK_STATE_FAULT);
 
 #if CONFIG_KERNEL_PANIC_FREEZE
       debug.panic ("Memory fault!");
