@@ -22,6 +22,7 @@
 with ewok.debug;
 with ewok.sched;
 with ewok.tasks;
+with m4.scb;
 
 package body ewok.tasks.debug
    with spark_mode => off
@@ -31,8 +32,40 @@ is
 
    procedure crashdump (frame_a : in ewok.t_stack_frame_access)
    is
+      cfsr : constant m4.scb.t_SCB_CFSR := m4.scb.SCB.CFSR;
    begin
-      DBG.log (DBG.ERROR, ewok.tasks.tasks_list(ewok.sched.get_current).name);
+
+      if cfsr.MMFSR.IACCVIOL  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.IACCVIOL")); end if;
+      if cfsr.MMFSR.DACCVIOL  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.DACCVIOL")); end if;
+      if cfsr.MMFSR.MUNSTKERR then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.MUNSTKERR")); end if;
+      if cfsr.MMFSR.MSTKERR   then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.MSTKERR")); end if;
+      if cfsr.MMFSR.MLSPERR   then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.MLSPERR")); end if;
+      if cfsr.MMFSR.MMARVALID then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.MMFSR.MMARVALID")); end if;
+      if cfsr.MMFSR.MMARVALID then
+         pragma DEBUG (DBG.log (DBG.ERROR, "MMFAR.ADDRESS = " &
+            system_address'image (m4.scb.SCB.MMFAR.ADDRESS)));
+      end if;
+
+      if cfsr.BFSR.IBUSERR    then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.IBUSERR")); end if;
+      if cfsr.BFSR.PRECISERR  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.PRECISERR")); end if;
+      if cfsr.BFSR.IMPRECISERR then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.IMPRECISERR")); end if;
+      if cfsr.BFSR.UNSTKERR   then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.UNSTKERR")); end if;
+      if cfsr.BFSR.STKERR     then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.STKERR")); end if;
+      if cfsr.BFSR.LSPERR     then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.LSPERR")); end if;
+      if cfsr.BFSR.BFARVALID  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.BFSR.BFARVALID")); end if;
+      if cfsr.BFSR.BFARVALID  then
+         pragma DEBUG (DBG.log (DBG.ERROR, "BFAR.ADDRESS = " &
+            system_address'image (m4.scb.SCB.BFAR.ADDRESS)));
+      end if;
+
+      if cfsr.UFSR.UNDEFINSTR then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.UNDEFINSTR")); end if;
+      if cfsr.UFSR.INVSTATE   then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.INVSTATE")); end if;
+      if cfsr.UFSR.INVPC      then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.INVPC")); end if;
+      if cfsr.UFSR.NOCP       then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.NOCP")); end if;
+      if cfsr.UFSR.UNALIGNED  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.UNALIGNED")); end if;
+      if cfsr.UFSR.DIVBYZERO  then pragma DEBUG (DBG.log (DBG.ERROR, "+cfsr.UFSR.DIVBYZERO")); end if;
+
+      DBG.log (DBG.ERROR, ewok.tasks.tasks_list(ewok.sched.current_task_id).name);
 
       DBG.alert ("Frame ");
       DBG.alert (system_address'image (to_system_address (frame_a)));

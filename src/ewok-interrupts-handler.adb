@@ -22,7 +22,6 @@
 
 with system.machine_code;
 
-with m4.scb;
 with m4.systick;
 with soc.interrupts;       use soc.interrupts;
 with ewok.debug;
@@ -33,52 +32,37 @@ with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use type ewok.devices_shared.t_device_id;
 with ewok.isr;
 
+
 package body ewok.interrupts.handler
    with spark_mode => off
 is
+
+   function busfault_handler
+     (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
+   is
+   begin
+      pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
+      debug.panic ("Bus fault!");
+      return frame_a;
+   end busfault_handler;
 
    function usagefault_handler
      (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
    is
    begin
-      pragma DEBUG (debug.log (debug.ERROR, "UsageFault"));
-      return hardfault_handler (frame_a);
+      pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
+      debug.panic ("Usage fault!");
+      return frame_a;
    end usagefault_handler;
 
 
    function hardfault_handler
      (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
    is
-      cfsr : constant m4.scb.t_SCB_CFSR := m4.scb.SCB.CFSR;
    begin
-
-      if cfsr.MMFSR.IACCVIOL  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.IACCVIOL")); end if;
-      if cfsr.MMFSR.DACCVIOL  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.DACCVIOL")); end if;
-      if cfsr.MMFSR.MUNSTKERR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MUNSTKERR")); end if;
-      if cfsr.MMFSR.MSTKERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MSTKERR")); end if;
-      if cfsr.MMFSR.MLSPERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MLSPERR")); end if;
-      if cfsr.MMFSR.MMARVALID then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.MMFSR.MMARVALID")); end if;
-
-      if cfsr.BFSR.IBUSERR    then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.IBUSERR")); end if;
-      if cfsr.BFSR.PRECISERR  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.PRECISERR")); end if;
-      if cfsr.BFSR.IMPRECISERR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.IMPRECISERR")); end if;
-      if cfsr.BFSR.UNSTKERR   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.UNSTKERR")); end if;
-      if cfsr.BFSR.STKERR     then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.STKERR")); end if;
-      if cfsr.BFSR.LSPERR     then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.LSPERR")); end if;
-      if cfsr.BFSR.BFARVALID  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.BFSR.BFARVALID")); end if;
-
-      if cfsr.UFSR.UNDEFINSTR then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.UNDEFINSTR")); end if;
-      if cfsr.UFSR.INVSTATE   then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.INVSTATE")); end if;
-      if cfsr.UFSR.INVPC      then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.INVPC")); end if;
-      if cfsr.UFSR.NOCP       then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.NOCP")); end if;
-      if cfsr.UFSR.UNALIGNED  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.UNALIGNED")); end if;
-      if cfsr.UFSR.DIVBYZERO  then pragma DEBUG (debug.log (debug.ERROR, "+cfsr.UFSR.DIVBYZERO")); end if;
-
       pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
       debug.panic ("Hard fault!");
-
       return frame_a;
-
    end hardfault_handler;
 
 
@@ -97,7 +81,6 @@ is
       return t_stack_frame_access
    is
       it          : t_interrupt;
-      current_id  : ewok.tasks_shared.t_task_id;
       new_frame_a : t_stack_frame_access;
       ttype       : t_task_type;
    begin
@@ -144,9 +127,8 @@ is
          --    R0 - address of the task frame
          --    R1 - execution mode
 
-         current_id := ewok.sched.get_current;
-         if current_id /= ID_UNUSED then
-            ttype := ewok.tasks.tasks_list(current_id).ttype;
+         if ewok.sched.current_task_id /= ID_UNUSED then
+            ttype := ewok.tasks.tasks_list(ewok.sched.current_task_id).ttype;
          else
             ttype := TASK_TYPE_KERNEL;
          end if;
@@ -200,28 +182,17 @@ is
 
          return frame_a;
 
-      --
-      -- Privileged exceptions
-      --
+      -- Privileged exceptions should never happen because threads never
+      -- use the main stack (MSP) but the process stack (PSP).
       elsif frame_a.all.exc_return = 16#FFFF_FFF9# then
-
-         -- Note: should never happen as threads use the process stack
-         --       (they never use the main stack)
-
-         if interrupt_table(it).task_id = ewok.tasks_shared.ID_KERNEL then
-            new_frame_a := interrupt_table(it).task_switch_handler (frame_a);
-         end if;
          debug.panic ("Privileged exception " & t_interrupt'image (it));
-         return new_frame_a;
+         raise program_error;
 
-      --
       -- Unsupported EXC_RETURN
-      --
       else
          debug.panic ("EXC_RETURN not supported");
-         return frame_a;
+         raise program_error;
       end if;
-
 
    end default_sub_handler;
 
