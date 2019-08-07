@@ -36,7 +36,6 @@ with soc.interrupts;
 with soc.dwt;
 with m4.scb;
 with m4.systick;
-with applications; -- Automatically generated
 
 
 package body ewok.sched
@@ -44,12 +43,6 @@ package body ewok.sched
 is
 
    package TSK renames ewok.tasks;
-
-   sched_period            : unsigned_32  := 0;
-   current_task_id         : t_task_id    := ID_KERNEL;
-   current_task_mode       : t_task_mode  := TASK_MODE_MAINTHREAD;
-   last_main_user_task_id  : t_task_id    := applications.list'first;
-
 
    -----------------------------------------------
    -- SPARK/ghost specific functions & procedures
@@ -65,13 +58,6 @@ is
    ----------------------------------------------
    -- sched functions
    ----------------------------------------------
-
-   function get_current return ewok.tasks_shared.t_task_id
-   is
-   begin
-      return current_task_id;
-   end get_current;
-
 
    procedure request_schedule
    with spark_mode => off
@@ -390,7 +376,6 @@ is
          return frame_a;
       end if;
 
-      -- Save current context
 #if CONFIG_KERNEL_EXP_REENTRANCY
       -- This global variable write access is not reentrant, but, by
       -- construction can't be accedded concurently in a monoprocessor
@@ -402,6 +387,7 @@ is
       m4.cpu.disable_irq;
 #end if;
 
+      -- Save current context
       if current_task_mode = TASK_MODE_ISRTHREAD then
          TSK.tasks_list(current_task_id).isr_ctx.frame_a := frame_a;
       else
@@ -458,7 +444,6 @@ is
          sched_period := 0;
       end if;
 
-      -- Waking-up sleeping tasks
 #if CONFIG_KERNEL_EXP_REENTRANCY
       -- This global variable write access is not reentrant, but, by
       -- construction can't be accedded concurently in a monoprocessor
@@ -469,6 +454,7 @@ is
       m4.cpu.disable_irq;
 #end if;
 
+      -- Waking-up sleeping tasks
       ewok.sleep.check_is_awoke;
 
       -- Keep ISR threads running until they finish
