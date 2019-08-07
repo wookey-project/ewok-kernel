@@ -127,9 +127,7 @@ LoopFillZerobss:
     .weak  Default_Handler
     .type  Default_Handler, %function
 Default_Handler:
-#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsid   i
-#endif
 
     /*
      * The NVIC has already saved R0-R3, R12, LR, PC and xPSR registers on the
@@ -167,12 +165,18 @@ Default_Handler:
      * Valid R1 values are privileged (0) or unprivileged (1).
      */
 
+#ifdef CONFIG_KERNEL_EXP_REENTRANCY
+    cpsie   i
+#endif
     bl      Default_SubHandler
+#ifdef CONFIG_KERNEL_EXP_REENTRANCY
+    cpsid   i
+#endif
 
     /* Registers LR, R4-R11 are restored */
     ldmfd   r0!, {r4-r11, lr}
 
-    /* 
+    /*
      * Adjusting PSP/MSP so that the NVIC can restore the remaining registers
      * and setting the execution mode (privileged or unprivileged)
      */
@@ -183,9 +187,7 @@ Default_Handler:
 msp_use:
     /* That branch should never be executed as every task use the PSP */
     msr     msp, r0     /* MSP <- r0 */
-#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
-#endif
     bx      lr
 
 psp_use:
@@ -199,18 +201,14 @@ user_mode:
     mov     r0, #3
     msr     control, r0
     isb
-#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
-#endif
     bx      lr
 
 kern_mode:
     mov     r0, #2
     msr     control, r0
     isb
-#ifndef CONFIG_KERNEL_EXP_REENTRANCY
     cpsie   i
-#endif
     bx      lr
 .size Default_Handler, .-Default_Handler
 
