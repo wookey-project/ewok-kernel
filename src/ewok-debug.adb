@@ -30,6 +30,8 @@ with ewok.gpio;
 with soc.gpio;
 with soc.usart;            use soc.usart;
 with soc.usart.interfaces;
+with soc.rcc;
+with soc.devmap;
 
 #if CONFIG_KERNEL_PANIC_WIPE
 with soc;
@@ -133,11 +135,24 @@ is
 
       ewok.gpio.config (TX_pin_config'access);
 
+      case kernel_usart_id is
+         when 1 =>
+            soc.rcc.enable_clock (soc.devmap.USART1);
+         when 4 =>
+            soc.rcc.enable_clock (soc.devmap.UART4);
+         when 6 =>
+            soc.rcc.enable_clock (soc.devmap.USART6);
+         when others =>
+            raise program_error;
+      end case;
+
+
       soc.usart.interfaces.configure
         (kernel_usart_id, 115_200, DATA_9BITS, PARITY_ODD, STOP_1, ok);
       if not ok then
          raise program_error;
       end if;
+
 
       log (INFO,
          "EwoK: USART" & unsigned_8'image (kernel_usart_id) & " initialized");
