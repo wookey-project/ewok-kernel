@@ -26,12 +26,9 @@ with system.machine_code;
 with ewok.tasks;           use ewok.tasks;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sleep;
-with ewok.devices;
 with ewok.syscalls.handler;
-with ewok.mpu;
-with ewok.layout;
+with ewok.memory;
 with ewok.interrupts;
-with ewok.debug;
 with soc.interrupts;
 with soc.dwt;
 with m4.scb;
@@ -253,112 +250,6 @@ is
    end task_elect;
 
 
-   procedure mpu_switching
-     (id : in t_task_id)
-   with spark_mode => off
-   is
-      new_task : t_task renames ewok.tasks.tasks_list(id);
-      dev_id   : t_device_id;
-      ok       : boolean;
-   begin
-
-      -- Release previously dynamically allocated regions (used for mapping
-      -- devices and ISR stack)
-      ewok.mpu.unmap_all;
-
-      -- Kernel tasks have no access to user regions
-      if new_task.ttype = TASK_TYPE_KERNEL then
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_CODE_REGION,
-            subregion_mask => 16#FF#);
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_DATA_REGION,
-            subregion_mask => 16#FF#);
-         return;
-      end if;
-
-      --
-      -- ISR mode
-      --
-      if new_task.mode = TASK_MODE_ISRTHREAD then
-
-         -- Mapping the ISR stack
-         ewok.mpu.map
-           (addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
-            size           => 4096,
-            region_type    => ewok.mpu.REGION_TYPE_ISR_STACK,
-            subregion_mask => 0,
-            success        => ok);
-
-         if not ok then
-            debug.panic ("mpu_switching(): mapping ISR stack failed!");
-         end if;
-
-         -- Mapping the ISR device
-         dev_id   := new_task.isr_ctx.device_id;
-
-         if dev_id /= ID_DEV_UNUSED then
-            ewok.devices.map_device (dev_id, ok);
-
-            if not ok then
-               debug.panic ("mpu_switching(): mapping device failed!");
-            end if;
-         end if;
-
-      --
-      -- Main thread
-      --
-      else
-
-         -- Mapping the user devices
-         --
-         -- Design note:
-         --  - EXTIs are a special case where an interrupt can trigger a
-         --    user ISR without any device_id associated
-         --  - DMAs are not registered in devices
-
-         for i in new_task.devices'range loop
-            if new_task.devices(i).device_id /= ID_DEV_UNUSED and then
-               new_task.devices(i).mounted = true
-            then
-               ewok.devices.map_device (new_task.devices(i).device_id, ok);
-               if not ok then
-                  debug.panic ("mpu_switching(): mapping device failed!");
-               end if;
-            end if;
-         end loop;
-
-      end if; -- ISR or MAIN thread
-
-      --------------------------------
-      -- Mapping user code and data --
-      --------------------------------
-
-      declare
-         type t_mask is array (unsigned_8 range 1 .. 8) of bit
-            with pack, size => 8;
-
-         function to_unsigned_8 is new ada.unchecked_conversion
-           (t_mask, unsigned_8);
-
-         mask : t_mask := (others => 1);
-      begin
-         for i in 0 .. new_task.num_slots - 1 loop
-            mask(new_task.slot + i) := 0;
-         end loop;
-
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_CODE_REGION,
-            subregion_mask => to_unsigned_8 (mask));
-
-         ewok.mpu.update_subregions
-           (region_number  => ewok.mpu.USER_DATA_REGION,
-            subregion_mask => to_unsigned_8 (mask));
-      end;
-
-   end mpu_switching;
-
-
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
@@ -408,7 +299,7 @@ is
            (current_task_id = old_task_id and
             current_task_mode = old_task_mode)
       then
-         mpu_switching (current_task_id);
+         ewok.memory.map_task (current_task_id);
       end if;
 
       -- Return the new context
@@ -489,7 +380,7 @@ is
            (current_task_id = old_task_id and
             current_task_mode = old_task_mode)
       then
-         mpu_switching (current_task_id);
+         ewok.memory.map_task (current_task_id);
       end if;
 
       -- Return the new context

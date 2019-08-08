@@ -89,6 +89,7 @@ library project Libkernel is
       "ewok.ipc",
       "ewok.isr",
       "ewok.layout",
+      "ewok.memory",
       "ewok.mpu",
       "ewok.mpu.handler",
       "ewok.perm",
