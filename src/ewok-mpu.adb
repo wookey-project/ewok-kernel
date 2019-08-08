@@ -62,7 +62,7 @@ is
 
       -- Register memory fault handler
       -- Note: unproved because SPARK doesn't allow "'address" attribute
-      ewok.mpu.handler.init; -- not PARK compatible
+      ewok.mpu.handler.init;
 
       -- Disable MPU
       m4.mpu.disable;
@@ -152,17 +152,11 @@ is
 
 
    procedure enable_unrestricted_kernel_access
-   is
-   begin
-      m4.mpu.enable_unrestricted_kernel_access;
-   end enable_unrestricted_kernel_access;
+      renames m4.mpu.enable_unrestricted_kernel_access;
 
 
    procedure disable_unrestricted_kernel_access
-   is
-   begin
-      m4.mpu.disable_unrestricted_kernel_access;
-   end disable_unrestricted_kernel_access;
+      renames m4.mpu.disable_unrestricted_kernel_access;
 
 
    procedure set_region
@@ -294,73 +288,77 @@ is
    end bytes_to_region_size;
 
 
-   function can_be_mapped return boolean
-   is
-   begin
-      for region in regions_pool'range loop
-         if not regions_pool(region).used then
-            return true;
-         end if;
-      end loop;
-      return false;
-   end can_be_mapped;
+   package body allocator is
 
-
-   procedure map
-     (addr           : in  system_address;
-      size           : in  unsigned_32;
-      region_type    : in  ewok.mpu.t_region_type;
-      subregion_mask : in  unsigned_8;
-      success        : out boolean)
-   is
-      region_size    : m4.mpu.t_region_size;
-      ok             : boolean;
-   begin
-      for region in regions_pool'range loop
-         if not regions_pool(region).used then
-            ewok.mpu.bytes_to_region_size (size, region_size, ok);
-            if not ok then
-               raise program_error;
+      function free_region_exist return boolean
+      is
+      begin
+         for region in regions_pool'range loop
+            if not regions_pool(region).used then
+               return true;
             end if;
-            regions_pool(region).used := true;
-            regions_pool(region).addr := addr;
-            ewok.mpu.set_region
-              (region, addr, region_size, region_type, subregion_mask);
-            success := true;
-            return;
+         end loop;
+         return false;
+      end free_region_exist;
+
+
+      procedure map_in_pool
+        (addr           : in  system_address;
+         size           : in  unsigned_32; -- in bytes
+         region_type    : in  ewok.mpu.t_region_type;
+         subregion_mask : in  unsigned_8;
+         success        : out boolean)
+      is
+         region_size    : m4.mpu.t_region_size;
+         ok             : boolean;
+      begin
+
+         ewok.mpu.bytes_to_region_size (size, region_size, ok);
+         if not ok then
+            raise program_error;
          end if;
-      end loop;
-      success := false;
-   end map;
+
+         for region in regions_pool'range loop
+            if not regions_pool(region).used then
+               regions_pool(region) := (used => true, addr => addr);
+               ewok.mpu.set_region
+                 (region, addr, region_size, region_type, subregion_mask);
+               success := true;
+               return;
+            end if;
+         end loop;
+
+         success  := false;
+
+      end map_in_pool;
 
 
-   procedure unmap
-     (addr           : in  system_address)
-   is
-   begin
-      for region in regions_pool'range loop
-         if regions_pool(region).addr = addr and then
-            regions_pool(region).used
-         then
+      procedure unmap_from_pool
+        (addr : in  system_address)
+      is
+      begin
+         for region in regions_pool'range loop
+            if regions_pool(region).addr = addr and
+               regions_pool(region).used
+            then
+               m4.mpu.disable_region (region);
+               regions_pool(region) := (used => false, addr => 0);
+               return;
+            end if;
+         end loop;
+         raise program_error;
+      end unmap_from_pool;
+
+
+      procedure unmap_all_from_pool
+      is
+      begin
+         for region in regions_pool'range loop
             m4.mpu.disable_region (region);
-            regions_pool(region) := (false, 0);
-            return;
-         end if;
-      end loop;
-      raise program_error;
-   end unmap;
+            regions_pool(region) := (used => false, addr => 0);
+         end loop;
+      end unmap_all_from_pool;
 
-
-   procedure unmap_all
-   is
-   begin
-      for region in regions_pool'range loop
-         if regions_pool(region).used then
-            regions_pool(region) := (false, 0);
-            m4.mpu.disable_region (region);
-         end if;
-      end loop;
-   end unmap_all;
-
+   end allocator;
 
 end ewok.mpu;

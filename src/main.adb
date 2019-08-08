@@ -34,7 +34,7 @@ with ewok.debug;
 with ewok.dma;
 with ewok.exti;
 with ewok.interrupts;
-with ewok.mpu;
+with ewok.memory;
 with ewok.softirq;
 with ewok.sched;
 with ewok.tasks;
@@ -93,12 +93,12 @@ begin
    -- argument, based on the loader informations
    soc.system.init (VTOR_address);
 
-   -- Initialize the MPU
-   -- After this sequence, the kernel is executed with the MPU activated and
-   -- can generate memory fault in case of invalid access.
-   ewok.mpu.init (ok);
+   -- Initialize the memory (MPU or MMU)
+   -- After this sequence, the kernel is executed with restricted rights and
+   -- invalid accesses can generate memory faults.
+   ewok.memory.init (ok);
    if not ok then
-      ewok.debug.panic ("MPU configuration failed!");
+      ewok.debug.panic ("Memory configuration failed!");
    end if;
 
    m4.cpu.instructions.full_memory_barrier;

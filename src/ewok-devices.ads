@@ -101,12 +101,4 @@ is
       task_id  : in  t_task_id)
       return boolean;
 
-   procedure map_device
-     (dev_id   : in  t_registered_device_id;
-      success  : out boolean);
-
-   procedure unmap_device
-     (dev_id   : in  t_registered_device_id)
-      with inline_always;
-
 end ewok.devices;

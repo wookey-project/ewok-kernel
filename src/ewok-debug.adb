@@ -146,13 +146,11 @@ is
             raise program_error;
       end case;
 
-
       soc.usart.interfaces.configure
         (kernel_usart_id, 115_200, DATA_9BITS, PARITY_ODD, STOP_1, ok);
       if not ok then
          raise program_error;
       end if;
-
 
       log (INFO,
          "EwoK: USART" & unsigned_8'image (kernel_usart_id) & " initialized");

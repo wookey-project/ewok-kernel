@@ -66,13 +66,11 @@ is
 
    procedure enable_unrestricted_kernel_access
       with
-         global => (in_out => (m4.mpu.MPU)),
-         inline_always;
+         global => (in_out => (m4.mpu.MPU));
 
    procedure disable_unrestricted_kernel_access
       with
-         global => (in_out => (m4.mpu.MPU)),
-         inline_always;
+         global => (in_out => (m4.mpu.MPU));
 
    -- That function is only used by SPARK prover
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
@@ -105,8 +103,7 @@ is
      (region_number  : in  m4.mpu.t_region_number;
       subregion_mask : in  unsigned_8)
       with
-         global => (in_out => (m4.mpu.MPU)),
-         inline_always;
+         global => (in_out => (m4.mpu.MPU));
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;
@@ -118,29 +115,33 @@ is
    -- Pool of available regions --
    -------------------------------
 
-   type t_region_entry is record
-      used     : boolean := false;  -- is region used?
-      addr     : system_address;    -- base address
-   end record;
+   package allocator is
 
-   regions_pool   : array
-     (m4.mpu.t_region_number range USER_FREE_1_REGION .. USER_FREE_2_REGION)
-      of t_region_entry
-         := (others => (false, 0));
+      type t_region_entry is record
+         used     : boolean := false;  -- Is region used?
+         addr     : system_address;    -- Base address
+      end record;
 
-   function can_be_mapped return boolean;
+      regions_pool   : array
+        (m4.mpu.t_region_number range USER_FREE_1_REGION .. USER_FREE_2_REGION)
+         of t_region_entry
+            := (others => (false, 0));
 
-   procedure map
-     (addr           : in  system_address;
-      size           : in  unsigned_32;
-      region_type    : in  ewok.mpu.t_region_type;
-      subregion_mask : in  unsigned_8;
-      success        : out boolean);
+      function free_region_exist return boolean;
 
-   procedure unmap
-     (addr           : in  system_address);
+      procedure map_in_pool
+        (addr           : in  system_address;
+         size           : in  unsigned_32;
+         region_type    : in  ewok.mpu.t_region_type;
+         subregion_mask : in  unsigned_8;
+         success        : out boolean);
 
-   procedure unmap_all;
+      procedure unmap_from_pool
+        (addr           : in  system_address);
+
+      procedure unmap_all_from_pool;
+
+   end allocator;
 
 
 end ewok.mpu;

@@ -28,7 +28,7 @@ with ewok.layout;          use ewok.layout;
 with ewok.ipc;             use ewok.ipc;
 with ewok.rng;
 with ewok.softirq;
-with ewok.devices;
+with ewok.memory;
 with types.c;              use type types.c.t_retval;
 
 with applications; -- Automatically generated
@@ -566,7 +566,7 @@ is
       end if;
 
       -- Mapping the device
-      ewok.devices.map_device
+      ewok.memory.map_device
         (tasks_list(id).devices(dev_descriptor).device_id,
          success);
       if success then
@@ -587,7 +587,7 @@ is
       end if;
 
       -- Unmapping the device
-      ewok.devices.unmap_device
+      ewok.memory.unmap_device
         (tasks_list(id).devices(dev_descriptor).device_id);
       success := true;
    end unmount_device;
