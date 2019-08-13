@@ -23,9 +23,10 @@
 
 with m4.mpu;
 with m4.scb;
+with ewok.interrupts;
 
 package ewok.mpu
-  with spark_mode => on
+   with spark_mode => on
 is
 
    type t_region_type is
@@ -58,12 +59,12 @@ is
    -- Initialize the MPU
    procedure init
      (success : out boolean)
-      with global => (in_out => (m4.mpu.MPU, m4.scb.SCB));
+      with
+         global => (in_out => (m4.mpu.MPU,
+                               m4.scb.SCB,
+                               ewok.interrupts.interrupt_table));
 
-   --
-   -- Utilities so that the kernel can temporary access the whole memory space
-   --
-
+   -- Allows the kernel to access the whole memory
    procedure enable_unrestricted_kernel_access
       with
          global => (in_out => (m4.mpu.MPU));
@@ -72,7 +73,7 @@ is
       with
          global => (in_out => (m4.mpu.MPU));
 
-   -- That function is only used by SPARK prover
+   -- Used by SPARK
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
       is (2**(natural (size) + 1) - 1)
       with ghost;
@@ -109,39 +110,11 @@ is
      (bytes       : in  unsigned_32;
       region_size : out m4.mpu.t_region_size;
       success     : out boolean)
-      with global => null;
-
-   -------------------------------
-   -- Pool of available regions --
-   -------------------------------
-
-   package allocator is
-
-      type t_region_entry is record
-         used     : boolean := false;  -- Is region used?
-         addr     : system_address;    -- Base address
-      end record;
-
-      regions_pool   : array
-        (m4.mpu.t_region_number range USER_FREE_1_REGION .. USER_FREE_2_REGION)
-         of t_region_entry
-            := (others => (false, 0));
-
-      function free_region_exist return boolean;
-
-      procedure map_in_pool
-        (addr           : in  system_address;
-         size           : in  unsigned_32;
-         region_type    : in  ewok.mpu.t_region_type;
-         subregion_mask : in  unsigned_8;
-         success        : out boolean);
-
-      procedure unmap_from_pool
-        (addr           : in  system_address);
-
-      procedure unmap_all_from_pool;
-
-   end allocator;
-
+      with
+         global => null,
+         -- Bytes (region size) is a power of 2
+         pre    => ((bytes >= 32) and (bytes and (bytes - 1)) = 0),
+         -- 4GB region size is not considered by this function
+         post   => region_size < 31;
 
 end ewok.mpu;

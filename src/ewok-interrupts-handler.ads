@@ -22,7 +22,7 @@
 
 
 package ewok.interrupts.handler
-   with spark_mode => off
+   with spark_mode => on
 is
 
    function hardfault_handler

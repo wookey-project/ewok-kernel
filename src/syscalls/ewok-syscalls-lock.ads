@@ -24,7 +24,7 @@ with ewok.tasks;
 with ewok.tasks_shared;
 
 package ewok.syscalls.lock
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure svc_lock_enter

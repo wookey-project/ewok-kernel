@@ -23,7 +23,7 @@
 with ewok.tasks_shared;
 
 package ewok.syscalls.cfg.dev
-   with spark_mode => off
+   with spark_mode => on
 is
    procedure svc_dev_map
      (caller_id   : in     ewok.tasks_shared.t_task_id;

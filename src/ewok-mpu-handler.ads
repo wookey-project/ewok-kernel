@@ -22,12 +22,14 @@
 
 
 with ewok; use ewok;
+with ewok.interrupts;
 
 package ewok.mpu.handler
-   with spark_mode => off -- all _access variabls are not SPARK compatible
+   with spark_mode => on
 is
 
-   procedure init;
+   procedure init
+      with global => (in_out => (ewok.interrupts.interrupt_table));
 
    function memory_fault_handler
      (frame_a : t_stack_frame_access)

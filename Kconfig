@@ -174,11 +174,11 @@ choice
   prompt "Kernel specific build size selection"
   default KERN_OPTIM_SIZE
   config KERN_OPTIM_SIZE
-    bool "Optimization for size"
-  config KERN_OPTIM_PERF
-    bool "Optimization for perf, may be very size consuming"
+    bool "Optimized for size (-Os)"
   config KERN_OPTIM_HYBRID
-    bool "Optimization for size with performanced keeped for some critical modules"
+    bool "Optimized for size (-Os) and for performance for critical modules (-O2)"
+  config KERN_OPTIM_PERF
+    bool "Optimized for perf (-O2)"
 endchoice
 
 config KERN_CFLAGS

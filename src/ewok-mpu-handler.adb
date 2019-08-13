@@ -28,7 +28,6 @@ with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sched;
 with ewok.debug;
-with ewok.interrupts;
 with soc.interrupts;
 
 package body ewok.mpu.handler

@@ -23,7 +23,7 @@
 with system;
 
 package soc.rng
-   with spark_mode => off
+   with spark_mode => on
 is
 
    -----------------------------------

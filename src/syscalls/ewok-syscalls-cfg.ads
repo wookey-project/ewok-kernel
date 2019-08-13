@@ -22,6 +22,6 @@
 
 
 package ewok.syscalls.cfg
-   with spark_mode => off
+   with spark_mode => on
 is
 end ewok.syscalls.cfg;

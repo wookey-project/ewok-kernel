@@ -21,7 +21,7 @@
 --
 
 package ewok.debug
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_level is (DEBUG, INFO, WARNING, ERROR, ALERT);

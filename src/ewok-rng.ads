@@ -21,7 +21,7 @@
 --
 
 package ewok.rng
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure random_array

@@ -21,7 +21,7 @@
 --
 
 package soc.system
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure init (vtor_addr : in  system_address);

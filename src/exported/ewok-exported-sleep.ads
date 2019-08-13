@@ -21,7 +21,7 @@
 --
 
 package ewok.exported.sleep
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_sleep_mode is

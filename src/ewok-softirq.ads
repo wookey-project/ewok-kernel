@@ -30,15 +30,15 @@ package ewok.softirq
 is
 
    type t_isr_parameters is record
-      handler           : system_address;
-      interrupt         : soc.interrupts.t_interrupt;
-      posthook_status   : unsigned_32;
-      posthook_data     : unsigned_32;
+      handler         : system_address             := 0;
+      interrupt       : soc.interrupts.t_interrupt := soc.interrupts.INT_NONE;
+      posthook_status : unsigned_32                := 0;
+      posthook_data   : unsigned_32                := 0;
    end record;
 
    type t_isr_request is record
-      caller_id   : ewok.tasks_shared.t_task_id;
-      params      : t_isr_parameters;
+      caller_id   : ewok.tasks_shared.t_task_id    := ID_UNUSED;
+      params      : t_isr_parameters               := (others => <>);
    end record;
 
    -- softirq input queue depth. Can be configured depending
@@ -46,7 +46,8 @@ is
    -- defaulting to 20 (see Kconfig)
    MAX_QUEUE_SIZE : constant := $CONFIG_KERNEL_SOFTIRQ_QUEUE_DEPTH;
 
-   package p_isr_requests is new rings (t_isr_request, MAX_QUEUE_SIZE);
+   package p_isr_requests is new rings
+     (t_isr_request, MAX_QUEUE_SIZE, t_isr_request'(others => <>));
    use p_isr_requests;
 
    isr_queue      : p_isr_requests.ring;

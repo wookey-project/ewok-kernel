@@ -22,7 +22,7 @@
 
 
 package ewok.exti.handler
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure exti_handler

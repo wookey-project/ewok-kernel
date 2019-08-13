@@ -125,7 +125,7 @@ is
    --
 
    type t_IPSR_register is record
-      ISR_NUMBER  : unsigned_8;
+      ISR_NUMBER  : unsigned_8 range 0 .. 90;
    end record
       with size => 32;
 

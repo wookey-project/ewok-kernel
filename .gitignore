@@ -1,4 +1,5 @@
 .placeholder
+libgnat/gnat/s-assert.ads
 libgnat/gnat/s-imgint.adb
 libgnat/gnat/s-imgint.ads
 libgnat/gnat/s-imglli.adb

@@ -26,7 +26,7 @@ with ewok.devices_shared;
 with applications; use applications; -- generated
 
 package ewok.memory
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_mask is array (unsigned_8 range 1 .. 8) of bit

@@ -28,13 +28,14 @@ package ewok.sanitize
    with spark_mode => on
 is
 
+   -- Assertions are ignored in compilation
+   pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
+
    function is_range_in_devices_slot
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean;
-
-   pragma warnings (off, "explicit membership test may be optimized");
 
    function is_word_in_data_slot
      (ptr      : system_address;
@@ -42,16 +43,16 @@ is
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
          global => null,
-         post  => (if (ptr + 4 not in system_address'range) then is_word_in_data_slot'result = false);
+         post   => (if ptr > system_address'last - 3 then
+                     is_word_in_data_slot'result = false);
 
    function is_word_in_txt_slot
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id) return boolean
       with
          global => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post  => (if (ptr + 4 not in system_address'range) then is_word_in_txt_slot'result = false);
+         post   => (if ptr > system_address'last - 3 then
+                     is_word_in_txt_slot'result = false);
 
    function is_word_in_allocated_device
      (ptr      : system_address;
@@ -64,9 +65,8 @@ is
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
          global => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post  => (if (ptr + 4 not in system_address'range) then is_word_in_any_slot'result = false);
+         post   => (if ptr > system_address'last - 3 then
+                     is_word_in_any_slot'result = false);
 
    function is_range_in_data_slot
      (ptr      : system_address;
@@ -75,9 +75,8 @@ is
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
          global => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post  => (if (ptr + size not in system_address'range) then is_range_in_data_slot'result = false);
+         post   => (if size > 0 and ptr > system_address'last - (size - 1) then
+                     is_range_in_data_slot'result = false);
 
    function is_range_in_txt_slot
      (ptr      : system_address;
@@ -85,9 +84,8 @@ is
       task_id  : ewok.tasks_shared.t_task_id) return boolean
       with
          global => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post  => (if (ptr + size not in system_address'range) then is_range_in_txt_slot'result = false);
+         post   => (if size > 0 and ptr > system_address'last - (size - 1) then
+                     is_range_in_txt_slot'result = false);
 
    function is_range_in_any_slot
      (ptr      : system_address;
@@ -96,9 +94,8 @@ is
       mode     : ewok.tasks_shared.t_task_mode) return boolean
       with
          global => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post  => (if (ptr + size not in system_address'range) then is_range_in_any_slot'result = false);
+         post   => (if size > 0 and ptr > system_address'last - (size - 1) then
+                     is_range_in_any_slot'result = false);
 
    function is_range_in_dma_shm
      (ptr         : system_address;
@@ -106,12 +103,8 @@ is
       dma_access  : ewok.exported.dma.t_dma_shm_access;
       task_id     : ewok.tasks_shared.t_task_id) return boolean
       with
-         spark_mode => off,
-         global     => null,
-         -- there is now hypothesis on input values, yet we impose some
-         -- specific behavior for various overflows
-         post       => (if (ptr + size not in system_address'range) then is_range_in_dma_shm'result = false);
-
-   pragma warnings (on);
+         global => null,
+         post   => (if size > 0 and ptr > system_address'last - (size - 1) then
+                     is_range_in_dma_shm'result = false);
 
 end ewok.sanitize;

@@ -28,7 +28,7 @@ with ewok.devices;
 with ewok.exported.dma; use type ewok.exported.dma.t_dma_shm_access;
 
 package body ewok.sanitize
-   with spark_mode => on
+   with spark_mode => off
 is
 
    function is_word_in_data_slot
@@ -36,7 +36,6 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
@@ -64,7 +63,6 @@ is
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
@@ -82,7 +80,6 @@ is
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off
    is
       dev_id      : ewok.devices_shared.t_device_id;
       dev_size    : unsigned_32;
@@ -113,7 +110,6 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off
    is
    begin
       return
@@ -127,7 +123,6 @@ is
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off
    is
       user_device_size : unsigned_32;
       user_device_addr : unsigned_32;
@@ -159,7 +154,6 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
@@ -188,7 +182,6 @@ is
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
@@ -209,7 +202,6 @@ is
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
       return boolean
-      with spark_mode => off
    is
    begin
       return
@@ -224,7 +216,6 @@ is
       dma_access  : ewok.exported.dma.t_dma_shm_access;
       task_id     : ewok.tasks_shared.t_task_id)
       return boolean
-      with spark_mode => off
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin

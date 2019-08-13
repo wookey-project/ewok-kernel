@@ -35,7 +35,7 @@ is
       ID_APP5,
       ID_APP6,
       ID_APP7,
-      ID_SOFTIRQ,    -- Softirq thread 
+      ID_SOFTIRQ,    -- Softirq thread
       ID_KERNEL);    -- Idle thread
 
    type t_task_mode is

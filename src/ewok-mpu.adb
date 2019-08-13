@@ -36,7 +36,6 @@ is
 
    procedure init
      (success : out boolean)
-     with spark_mode => off  -- handler is not SPARK compatible
    is
       -- Layout mapping validation of generated constants
       pragma assert
@@ -78,17 +77,13 @@ is
       -- Configuring MPU regions
       --
 
-      -- Region: kernel code
-      if get_region_size (REGION_SIZE_64KB) /= ewok.layout.FW1_KERN_SIZE then
-         pragma DEBUG
-           (debug.log (debug.ERROR, "MPU: invalid 'KERNEL CODE' size"));
-         return;
-      end if;
+      -- TODO: kernel code and data size should not be fixed to 64KB
 
+      -- Region: kernel code
       set_region
         (region_number  => KERN_CODE_REGION,
          addr           => applications.txt_kern_region_base,
-         size           => applications.txt_kern_region_size,
+         size           => REGION_SIZE_64KB,
          region_type    => REGION_TYPE_KERN_CODE,
          subregion_mask => 0);
 
@@ -286,79 +281,5 @@ is
             success     := false;
       end case;
    end bytes_to_region_size;
-
-
-   package body allocator is
-
-      function free_region_exist return boolean
-      is
-      begin
-         for region in regions_pool'range loop
-            if not regions_pool(region).used then
-               return true;
-            end if;
-         end loop;
-         return false;
-      end free_region_exist;
-
-
-      procedure map_in_pool
-        (addr           : in  system_address;
-         size           : in  unsigned_32; -- in bytes
-         region_type    : in  ewok.mpu.t_region_type;
-         subregion_mask : in  unsigned_8;
-         success        : out boolean)
-      is
-         region_size    : m4.mpu.t_region_size;
-         ok             : boolean;
-      begin
-
-         ewok.mpu.bytes_to_region_size (size, region_size, ok);
-         if not ok then
-            raise program_error;
-         end if;
-
-         for region in regions_pool'range loop
-            if not regions_pool(region).used then
-               regions_pool(region) := (used => true, addr => addr);
-               ewok.mpu.set_region
-                 (region, addr, region_size, region_type, subregion_mask);
-               success := true;
-               return;
-            end if;
-         end loop;
-
-         success  := false;
-
-      end map_in_pool;
-
-
-      procedure unmap_from_pool
-        (addr : in  system_address)
-      is
-      begin
-         for region in regions_pool'range loop
-            if regions_pool(region).addr = addr and
-               regions_pool(region).used
-            then
-               m4.mpu.disable_region (region);
-               regions_pool(region) := (used => false, addr => 0);
-               return;
-            end if;
-         end loop;
-         raise program_error;
-      end unmap_from_pool;
-
-
-      procedure unmap_all_from_pool
-      is
-      begin
-         for region in regions_pool'range loop
-            m4.mpu.disable_region (region);
-            regions_pool(region) := (used => false, addr => 0);
-         end loop;
-      end unmap_all_from_pool;
-
-   end allocator;
 
 end ewok.mpu;

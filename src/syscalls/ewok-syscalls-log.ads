@@ -25,7 +25,7 @@ with ewok.tasks_shared;
 
 
 package ewok.syscalls.log
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure svc_log

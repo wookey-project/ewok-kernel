@@ -23,11 +23,10 @@
 with soc.interrupts;
 
 package ewok.posthook
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_args is new unsigned_32_array (1 .. 2);
-   type t_args_access is access all t_args;
 
    -- Execute posthook for a given interrupt
    procedure exec

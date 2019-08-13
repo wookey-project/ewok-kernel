@@ -22,7 +22,7 @@
 
 
 package ewok.syscalls.handler
-   with spark_mode => off
+   with spark_mode => on
 is
    function svc_handler
      (frame_a : t_stack_frame_access)

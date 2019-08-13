@@ -24,7 +24,7 @@
 with ada.unchecked_conversion;
 
 package ewok.syscalls
-   with spark_mode => off
+   with spark_mode => on
 is
 
    subtype t_syscall_ret is unsigned_32;
