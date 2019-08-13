@@ -21,13 +21,15 @@
 --
 
 
-
-package body rings is
+package body rings
+   with spark_mode => off
+is
 
    procedure init
      (r : out ring)
    is
    begin
+      r.buf    := (others => default_object);
       r.top    := ring_range'first;
       r.bottom := ring_range'first;
       r.state  := EMPTY;

@@ -37,6 +37,7 @@ is
          with
             address  => rand'address,
             size     => 4 * byte'size;
+
       index       : unsigned_32;
       ok          : boolean;
    begin

@@ -123,7 +123,9 @@ is
 
       -- Retrieve the configured GPIO point associated to this line
       ref.pin  := t_gpio_pin_index'val (t_exti_line_index'pos (line));
-      ref.port := soc.syscfg.get_exti_port (ref.pin);
+      soc.syscfg.get_exti_port
+        (ref.pin,   -- input
+         ref.port); -- output
 
       -- Retrieving the GPIO configuration associated to that GPIO point.
       -- Permit to get the "real" user ISR.

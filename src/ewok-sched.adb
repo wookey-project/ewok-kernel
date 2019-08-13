@@ -57,7 +57,6 @@ is
    ----------------------------------------------
 
    procedure request_schedule
-   with spark_mode => off
    is
    begin
       m4.scb.SCB.ICSR.PENDSVSET := 1;
@@ -66,7 +65,6 @@ is
 
    function task_elect
       return t_task_id
-   with spark_mode => off
    is
       elected  : t_task_id;
    begin
@@ -253,7 +251,6 @@ is
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-   with spark_mode => off
    is
       old_task_id    : constant t_task_id    := current_task_id;
       old_task_mode  : constant t_task_mode  := current_task_mode;
@@ -315,7 +312,6 @@ is
    function systick_handler
      (frame_a : ewok.t_stack_frame_access)
       return ewok.t_stack_frame_access
-      with spark_mode => off
    is
       old_task_id    : constant t_task_id    := current_task_id;
       old_task_mode  : constant t_task_mode  := current_task_mode;
@@ -394,7 +390,6 @@ is
 
 
    procedure init
-      with spark_mode => off
    is
       idle_task   : t_task renames ewok.tasks.tasks_list(ID_KERNEL);
       ok          : boolean;

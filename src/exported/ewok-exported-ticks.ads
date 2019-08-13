@@ -22,7 +22,7 @@
 
 
 package ewok.exported.ticks
-   with spark_mode => off
+   with spark_mode => on
 is
 
    type t_precision is

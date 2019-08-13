@@ -23,7 +23,7 @@
 with ewok.tasks_shared;
 
 package ewok.syscalls.init
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure svc_register_device

@@ -22,20 +22,8 @@
 
 with system;
 
-pragma Annotate (GNATprove,
-                 Intentional,
-                 "initialization of init_done is not mentioned in Initializes contract",
-                 "init_done is not a register, while it is a volatile");
-
 package soc.dwt
-   with
-      spark_mode => on,
-      abstract_state => ((Ctrl         with external), -- this is a register
-                         (Cnt          with external),  -- this is a register
-                         (Lar_register with external), -- this is a register
-                         (Dem          with external), -- this is a register
-                          Ini_F, Loo, Last),
-      initializes => (Ctrl, Cnt, Dem, Ini_F) -- assumed as initialized
+   with spark_mode => on
 is
 
    pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
@@ -44,8 +32,7 @@ is
    -- SPARK ghost functions and procedures
    -----------------------------------------------------
 
-   function init_is_done return boolean
-      with ghost;
+   function init_is_done return boolean;
 
 
    function check_32bits_overflow return boolean
@@ -59,33 +46,17 @@ is
    -- Reset the DWT-based timer
    procedure reset_timer
       with
-         pre      => not init_is_done,
-         global   => (input   => Ini_F,
-                      in_out  => (Dem, Ctrl),
-                      output  => (Lar_register, Cnt)),
-          depends => (Dem           =>+ null,
-                      Lar_register  =>  null,
-                      Cnt           =>  null,
-                      Ctrl          =>+ null,
-                      null          =>  Ini_F);
+         pre      => not init_is_done;
 
    -- Start the DWT timer. The register is counting the number of CPU cycles
    procedure start_timer
       with
-         pre      => not init_is_done,
-         global   => (input   => Ini_F,
-                      in_out  => Ctrl),
-         depends  => (Ctrl    =>+ null,
-                      null    => Ini_F);
+         pre      => not init_is_done;
 
    -- Stop the DWT timer
    procedure stop_timer
       with
-        pre       => init_is_done,
-        global    => (input  => Ini_F,
-                      in_out => Ctrl),
-        depends   => (Ctrl   =>+ null,
-                      null   => Ini_F);
+        pre       => init_is_done;
 
    -- Periodically check the DWT CYCCNT register for overflow. This permit
    -- to detect each time an overflow happends and increment the
@@ -100,51 +71,29 @@ is
    -- Initialize the DWT module
    procedure init
       with
-         pre      => not init_is_done,
-         global   => (in_out => (Ini_F, Ctrl, Dem),
-                      output => (Last, Loo, Cnt, Lar_register));
+         pre      => not init_is_done;
 
    -- Get the DWT timer (without overflow support, keep a 32bit value)
    procedure get_cycles_32(cycles : out unsigned_32)
       with
          inline,
-         pre      => init_is_done,
-         global   => (input   => Ini_F,
-                      in_out  => Cnt),
-         depends  => (Cnt     =>+ null,
-                      cycles  => Cnt,
-                      null    => Ini_F);
+         pre      => init_is_done;
 
    -- Get the DWT timer with overflow support. permits linear measurement
    -- on 64 bits cycles time window (approx. 1270857 days)
    procedure get_cycles (cycles : out unsigned_64)
       with
-         pre      => init_is_done,
-         global   => (input   => (Ini_F, Loo),
-                      in_out  => Cnt),
-         depends  => (Cnt     =>+ null,
-                      cycles  => (Cnt, Loo),
-                      null    => Ini_F);
+         pre      => init_is_done;
 
    procedure get_microseconds (micros : out unsigned_64)
       with
          inline,
-         pre      => init_is_done,
-         global   => (input   => (Ini_F, Loo),
-                      in_out  => Cnt),
-         depends  => (micros  => (Cnt, Loo),
-                      Cnt     =>+ null,
-                      null    => Ini_F);
+         pre      => init_is_done;
 
    procedure get_milliseconds (milli : out unsigned_64)
       with
          inline,
-         pre      => init_is_done,
-         global   => (in_out  => Cnt,
-                      input   => (Loo, Ini_F)),
-         depends  => (milli   => (Cnt, Loo),
-                      Cnt     =>+ null,
-                      null    => Ini_F);
+         pre      => init_is_done;
 
 private
 
@@ -203,8 +152,7 @@ private
       with
          import,
          volatile,
-         address => system'to_address (16#E000_1000#),
-         part_of => Ctrl;
+         address => system'to_address (16#E000_1000#);
 
    --
    -- CYCCNT register
@@ -216,11 +164,10 @@ private
       with
          import,
          volatile,
-         address => system'to_address (16#E000_1004#),
-         part_of => Cnt;
+         address => system'to_address (16#E000_1004#);
 
    -- Specify the package state. Set to true by init().
-   init_done : boolean := false with part_of => Ini_F;
+   init_done : boolean := false;
 
    --
    -- DWT CYCCNT register overflow counting
@@ -228,14 +175,14 @@ private
    -- with a time window of 64bits length (instead of 32bits)
    --
 
-   dwt_loops : unsigned_64 with part_of => Loo;
+   dwt_loops : unsigned_64;
 
    --
    -- Last measured DWT CYCCNT. Compared with current measurement,
    -- we can detect if the register has generated an overflow or not
    --
 
-   last_dwt    : unsigned_32 with part_of => Last;
+   last_dwt    : unsigned_32;
 
    --------------------------------------------------
    -- CoreSight Software Lock registers            --
@@ -252,8 +199,7 @@ private
       with
          import,
          volatile,
-         address => system'to_address (16#E000_1FB0#),
-         part_of => Lar_register;
+         address => system'to_address (16#E000_1FB0#);
 
    LAR_ENABLE_WRITE_KEY : constant := 16#C5AC_CE55#;
 
@@ -321,7 +267,6 @@ private
    DEMCR       : t_DEMCR
       with import,
            volatile,
-           address => system'to_address (16#E000_EDFC#),
-           part_of => Dem;
+           address => system'to_address (16#E000_EDFC#);
 
 end soc.dwt;

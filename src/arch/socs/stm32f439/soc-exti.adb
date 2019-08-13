@@ -43,8 +43,10 @@ is
      (line : t_exti_line_index)
       return boolean
    is
+      request : t_request;
    begin
-      return (EXTI.PR.line(line) = PENDING_REQUEST);
+      request := EXTI.PR.line(line);
+      return (request = PENDING_REQUEST);
    end is_line_pending;
 
 
@@ -74,8 +76,10 @@ is
    function is_enabled (line : in t_exti_line_index)
       return boolean
    is
+      mask : t_mask;
    begin
-      return EXTI.IMR.line(line) = NOT_MASKED;
+      mask := EXTI.IMR.line(line);
+      return mask = NOT_MASKED;
    end;
 
 end soc.exti;

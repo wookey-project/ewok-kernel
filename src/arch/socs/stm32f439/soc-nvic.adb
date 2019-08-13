@@ -22,7 +22,7 @@
 
 
 package body soc.nvic
-   with spark_mode => off
+   with spark_mode => on
 is
 
    function to_irq_number
@@ -39,9 +39,28 @@ is
    is
    begin
       case irq is
-         when 0 .. 31  => NVIC.ISER0.irq(irq) := IRQ_ENABLED;
-         when 32 .. 63 => NVIC.ISER1.irq(irq) := IRQ_ENABLED;
-         when 64 .. 80 => NVIC.ISER2.irq(irq) := IRQ_ENABLED;
+         -- NOTE: Rather cumbersome but implied by SPARK verifications
+         when 0 .. 31  => -- NVIC.ISER0.irq(irq) := IRQ_ENABLED;
+            declare
+               irq_states : t_irq_states (0 .. 31) := NVIC.ISER0.irq;
+            begin
+               irq_states(irq)   := IRQ_ENABLED;
+               NVIC.ISER0.irq    := irq_states;
+            end;
+         when 32 .. 63 =>-- NVIC.ISER1.irq(irq) := IRQ_ENABLED;
+            declare
+               irq_states : t_irq_states (32 .. 63) := NVIC.ISER1.irq;
+            begin
+               irq_states(irq)   := IRQ_ENABLED;
+               NVIC.ISER1.irq    := irq_states;
+            end;
+         when 64 .. 90 =>-- NVIC.ISER2.irq(irq) := IRQ_ENABLED;
+            declare
+               irq_states : t_irq_states (64 .. 90) := NVIC.ISER2.irq;
+            begin
+               irq_states(irq)   := IRQ_ENABLED;
+               NVIC.ISER2.irq    := irq_states;
+            end;
       end case;
    end enable_irq;
 
@@ -51,9 +70,27 @@ is
    is
    begin
       case irq is
-         when 0 .. 31  => NVIC.ICPR0.irq(irq) := CLEAR_PENDING;
-         when 32 .. 63 => NVIC.ICPR1.irq(irq) := CLEAR_PENDING;
-         when 64 .. 80 => NVIC.ICPR2.irq(irq) := CLEAR_PENDING;
+         when 0 .. 31  => -- NVIC.ICPR0.irq(irq) := CLEAR_PENDING;
+            declare
+               irq_pendings : t_irq_pendings (0 .. 31) := NVIC.ICPR0.irq;
+            begin
+               irq_pendings(irq) := CLEAR_PENDING;
+               NVIC.ICPR0.irq    := irq_pendings;
+            end;
+         when 32 .. 63 => -- NVIC.ICPR1.irq(irq) := CLEAR_PENDING;
+            declare
+               irq_pendings : t_irq_pendings (32 .. 63) := NVIC.ICPR1.irq;
+            begin
+               irq_pendings(irq) := CLEAR_PENDING;
+               NVIC.ICPR1.irq    := irq_pendings;
+            end;
+         when 64 .. 90 => -- NVIC.ICPR2.irq(irq) := CLEAR_PENDING;
+            declare
+               irq_pendings : t_irq_pendings (64 .. 90) := NVIC.ICPR2.irq;
+            begin
+               irq_pendings(irq) := CLEAR_PENDING;
+               NVIC.ICPR2.irq    := irq_pendings;
+            end;
       end case;
    end clear_pending_irq;
 

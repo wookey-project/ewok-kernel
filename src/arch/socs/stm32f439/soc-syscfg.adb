@@ -22,25 +22,25 @@
 
 
 package body soc.syscfg
-   with spark_mode => off
+   with spark_mode => on
 is
 
 
-   function get_exti_port
-     (pin : soc.gpio.t_gpio_pin_index)
-      return soc.gpio.t_gpio_port_index
+   procedure get_exti_port
+     (pin   : in  soc.gpio.t_gpio_pin_index;
+      port  : out soc.gpio.t_gpio_port_index)
    is
    begin
 
       case pin is
          when 0 .. 3    =>
-            return SYSCFG.EXTICR1.exti(pin);
+            port := SYSCFG.EXTICR1.exti(pin);
          when 4 .. 7    =>
-            return SYSCFG.EXTICR2.exti(pin);
+            port := SYSCFG.EXTICR2.exti(pin);
          when 8 .. 11   =>
-            return SYSCFG.EXTICR3.exti(pin);
+            port := SYSCFG.EXTICR3.exti(pin);
          when 12 .. 15  =>
-            return SYSCFG.EXTICR4.exti(pin);
+            port := SYSCFG.EXTICR4.exti(pin);
       end case;
 
    end get_exti_port;
@@ -52,14 +52,34 @@ is
    is
    begin
       case pin is
-         when 0 .. 3    =>
-            SYSCFG.EXTICR1.exti(pin) := port;
-         when 4 .. 7    =>
-            SYSCFG.EXTICR2.exti(pin) := port;
-         when 8 .. 11   =>
-            SYSCFG.EXTICR3.exti(pin) := port;
-         when 12 .. 15  =>
-            SYSCFG.EXTICR4.exti(pin) := port;
+         when 0 .. 3    => -- SYSCFG.EXTICR1.exti(pin) := port;
+            declare
+               exticr_list : t_exticr_list (0 .. 3) := SYSCFG.EXTICR1.exti;
+            begin
+               exticr_list(pin)     := port;
+               SYSCFG.EXTICR1.exti  := exticr_list;
+            end;
+         when 4 .. 7    => -- SYSCFG.EXTICR2.exti(pin) := port;
+            declare
+               exticr_list : t_exticr_list (4 .. 7) := SYSCFG.EXTICR2.exti;
+            begin
+               exticr_list(pin)     := port;
+               SYSCFG.EXTICR2.exti  := exticr_list;
+            end;
+         when 8 .. 11   => -- SYSCFG.EXTICR3.exti(pin) := port;
+            declare
+               exticr_list : t_exticr_list (8 .. 11) := SYSCFG.EXTICR3.exti;
+            begin
+               exticr_list(pin)     := port;
+               SYSCFG.EXTICR3.exti  := exticr_list;
+            end;
+         when 12 .. 15  => -- SYSCFG.EXTICR4.exti(pin) := port;
+            declare
+               exticr_list : t_exticr_list (12 .. 15) := SYSCFG.EXTICR4.exti;
+            begin
+               exticr_list(pin)     := port;
+               SYSCFG.EXTICR4.exti  := exticr_list;
+            end;
       end case;
    end set_exti_port;
 

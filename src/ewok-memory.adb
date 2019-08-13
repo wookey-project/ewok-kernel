@@ -28,6 +28,7 @@ with ewok.tasks;           use type ewok.tasks.t_task_type;
 with ewok.devices;
 with ewok.layout;
 with ewok.mpu;
+with ewok.mpu.allocator;
 with ewok.debug;
 
 package body ewok.memory
@@ -129,7 +130,6 @@ is
 
    procedure map_task
      (id : in t_task_id)
-      with spark_mode => off
    is
       new_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(id);
       dev_id   : t_device_id;

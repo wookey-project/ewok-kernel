@@ -42,19 +42,15 @@ is
 
    procedure request_schedule
       with
-         inline,
-         spark_mode => off;
+         inline;
 
-   function task_elect return t_task_id
-      with spark_mode => off;
+   function task_elect return t_task_id;
 
-   procedure init
-      with spark_mode => off;
+   procedure init;
 
    function pendsv_handler
      (frame_a : ewok.t_stack_frame_access)
-      return ewok.t_stack_frame_access
-      with spark_mode => off;
+      return ewok.t_stack_frame_access;
 
    function do_schedule
      (frame_a : ewok.t_stack_frame_access)

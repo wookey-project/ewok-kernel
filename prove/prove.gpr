@@ -22,7 +22,7 @@ project Prove is
    end Builder;
 
    package Prove is
-      for Switches use
+      for Proof_Switches ("Ada") use
         ("-j0",         -- will use all cores of the machine
          "--steps=0",   -- maximum number of proof steps (0 = unlimited)
          "--level=4",

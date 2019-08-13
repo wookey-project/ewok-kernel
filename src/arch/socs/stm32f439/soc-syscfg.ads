@@ -25,7 +25,7 @@ with soc.gpio;
 with system;
 
 package soc.syscfg
-   with spark_mode => off
+   with spark_mode => on
 is
 
    --------------------------------------------------
@@ -162,9 +162,9 @@ is
          address => system'to_address (soc.layout.SYSCFG_BASE); -- 0x40013800
 
 
-   function get_exti_port
-     (pin : soc.gpio.t_gpio_pin_index)
-      return soc.gpio.t_gpio_port_index;
+   procedure get_exti_port
+     (pin   : in  soc.gpio.t_gpio_pin_index;
+      port  : out soc.gpio.t_gpio_port_index);
 
    procedure set_exti_port
      (pin   : in soc.gpio.t_gpio_pin_index;

@@ -69,7 +69,9 @@ with ewok.tasks;	use ewok.tasks;
 with m4.mpu;
 with soc.layout;    use soc.layout;
 
-package $ada_pkg_name is
+package $ada_pkg_name
+   with spark_mode => on
+is
 
    type t_application is record
       name         : ewok.tasks.t_task_name;

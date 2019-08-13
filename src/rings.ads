@@ -27,9 +27,12 @@
 
 generic
    type object is private;
-   size : in integer := 512;
+   size           : in integer := 512;
+   default_object : object;
 
-package rings is
+package rings
+   with spark_mode => off
+is
    pragma Preelaborate;
 
    type ring is private;
@@ -67,7 +70,7 @@ private
    type buffer is array (ring_range) of object;
 
    type ring is record
-      buf      : buffer;
+      buf      : buffer       := (others => default_object);
       top      : ring_range   := ring_range'first; -- place to write
       bottom   : ring_range   := ring_range'first; -- place to read
       state    : ring_state   := EMPTY;

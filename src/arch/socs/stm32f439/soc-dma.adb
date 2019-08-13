@@ -22,6 +22,7 @@
 
 with soc.interrupts; use soc.interrupts;
 with soc.rcc;
+with soc.devmap;
 
 
 package body soc.dma
@@ -31,8 +32,8 @@ is
    procedure enable_clocks
    is
    begin
-      soc.rcc.RCC.AHB1ENR.DMA1EN := true;
-      soc.rcc.RCC.AHB1ENR.DMA2EN := true;
+      soc.rcc.enable_clock (soc.devmap.DMA1_STR0);
+      soc.rcc.enable_clock (soc.devmap.DMA2_STR0);
    end enable_clocks;
 
 

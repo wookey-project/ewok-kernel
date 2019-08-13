@@ -20,14 +20,14 @@
 --
 --
 
+with ewok.tasks_shared; use ewok.tasks_shared;
 
-with ewok.tasks_shared;        use ewok.tasks_shared;
 
 package ewok.syscalls.rng
-   with spark_mode => off
+   with spark_mode => on
 is
 
-   -- return a random content from the TRNG hardware (if there is one) or
+   -- Return random content from the TRNG hardware (if there is one) or
    -- from a pseudorandom source into a given buffer.
    -- The length must not be greater than 16 bytes.
    procedure svc_get_random

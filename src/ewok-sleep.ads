@@ -20,12 +20,13 @@
 --
 --
 
-with applications;       use applications;
-with ewok.exported.sleep; use ewok.exported.sleep;
+with applications;         use applications;
+with ewok.exported.sleep;  use ewok.exported.sleep;
+with ewok.tasks;
 with m4.systick;
 
 package ewok.sleep
-   with spark_mode => off
+   with spark_mode => on
 is
 
    awakening_time : array (t_real_task_id'range) of m4.systick.t_tick
@@ -44,13 +45,13 @@ is
    -- For each task, check if it's sleeping time is over
    procedure check_is_awoke
    with
-      global => (In_Out => awakening_time);
+      global => (In_Out => (awakening_time, ewok.tasks.tasks_list));
 
    -- Try to awake a task
    procedure try_waking_up
      (task_id : in  t_real_task_id)
    with
-      global => (In_Out => awakening_time);
+      global => (In_Out => (awakening_time, ewok.tasks.tasks_list));
 
    -- Check if a task is currently sleeping
    function is_sleeping

@@ -54,8 +54,6 @@ is
      (from    : in t_real_task_id;
       to      : in t_real_task_id)
       return boolean
-      with
-         spark_mode => off -- implies tasks.get_domain() to be SPARK compatible
    is
    begin
       return

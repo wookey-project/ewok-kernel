@@ -23,7 +23,7 @@
 with system;
 
 package m4.fpu
-   with spark_mode => off
+   with spark_mode => on
 is
 
    -------------------------------------------------

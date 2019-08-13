@@ -31,7 +31,7 @@ package soc.nvic
 is
 
    -- Up to 81 interrupts (see Cortex-M4 prog. manual, p. 194)
-   type t_irq_index is new natural range 0 .. 80;
+   type t_irq_index is new natural range 0 .. 90;
 
    ----------
    -- IRQs --
@@ -93,12 +93,12 @@ is
 
    -- ISER2
    type t_NVIC_ISER2 is record
-      irq : t_irq_states (64 .. 80);
+      irq : t_irq_states (64 .. 90);
    end record
       with size => 32, volatile_full_access;
 
    for t_NVIC_ISER2 use record
-      irq at 0 range 0 .. 16;
+      irq at 0 range 0 .. 26;
    end record;
 
    ---------------------------------------------------
@@ -119,12 +119,12 @@ is
 
    -- ICER2
    type t_NVIC_ICER2 is record
-      irq : t_irq_states (64 .. 80);
+      irq : t_irq_states (64 .. 90);
    end record
       with size => 32, volatile_full_access;
 
    for t_NVIC_ICER2 use record
-      irq at 0 range 0 .. 16;
+      irq at 0 range 0 .. 26;
    end record;
 
    ----------------------------------------------------
@@ -154,19 +154,19 @@ is
 
    -- ICPR2
    type t_NVIC_ICPR2 is record
-      irq : t_irq_pendings (64 .. 80);
+      irq : t_irq_pendings (64 .. 90);
    end record
       with size => 32, volatile_full_access;
 
    for t_NVIC_ICPR2 use record
-      irq at 0 range 0 .. 16;
+      irq at 0 range 0 .. 26;
    end record;
 
    ----------------------------------------------
    -- Interrupt priority registers (NVIC_IPRx) --
    ----------------------------------------------
 
-   -- NVIC_IPR0-IPR80 registers provide an 8-bit priority field for each
+   -- NVIC_IPR0-IPR90 registers provide an 8-bit priority field for each
    -- interrupt.
 
    type t_IPR is record
@@ -176,7 +176,7 @@ is
       with pack, size => 8, volatile_full_access;
 
    type t_IPRs is array (t_irq_index) of t_IPR
-      with pack, size => 8 * 81;
+      with pack, size => 8 * 91;
 
    ---------------------
    -- NVIC peripheral --
@@ -206,7 +206,7 @@ is
       ICPR0 at 16#180# range 0 .. 31;
       ICPR1 at 16#184# range 0 .. 31;
       ICPR2 at 16#188# range 0 .. 31;
-      IPR   at 16#300# range 0 .. (8*81)-1;
+      IPR   at 16#300# range 0 .. (8*91)-1;
    end record;
 
    NVIC : t_NVIC_periph
@@ -223,7 +223,7 @@ is
      (intr : soc.interrupts.t_interrupt)
       return t_irq_index
    with
-      -- pre => intr >= soc.interrupts.INT_WWDG;
+      pre => intr >= soc.interrupts.INT_WWDG,
       inline;
 
    procedure enable_irq

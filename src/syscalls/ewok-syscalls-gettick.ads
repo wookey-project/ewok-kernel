@@ -23,7 +23,7 @@
 with ewok.tasks_shared;
 
 package ewok.syscalls.gettick
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure svc_gettick

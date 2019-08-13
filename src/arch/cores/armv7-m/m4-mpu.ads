@@ -41,7 +41,7 @@ is
       addr           : system_address;
       size           : t_region_size;
       access_perm    : t_region_perm;
-      xn             : boolean;
+      xn             : boolean;  -- Execute Never
       b              : boolean;
       s              : boolean;
       subregion_mask : unsigned_8; -- 0: sub-region enabled, 1: disabled
@@ -118,10 +118,11 @@ is
          global => (in_out => (MPU));
 
    -- Only used by SPARK prover
-   function region_not_rwx(region : t_region_config) return boolean
-      is (region.xn = true or
-          region.access_perm = REGION_PERM_PRIV_RO_USER_RO or
-          region.access_perm = REGION_PERM_PRIV_NO_USER_NO)
+   function region_rwx(region : t_region_config) return boolean
+      is (region.xn = false and
+          (region.access_perm = REGION_PERM_PRIV_RW_USER_NO or
+           region.access_perm = REGION_PERM_PRIV_RW_USER_RO or
+           region.access_perm = REGION_PERM_PRIV_RW_USER_RW))
       with ghost;
 
    procedure init
@@ -159,7 +160,7 @@ is
             region.size >= 4
             and
             (region.addr and get_region_size_mask(region.size)) = 0)
-            and region_not_rwx (region);
+            and not region_rwx (region);
 
    procedure update_subregion_mask
      (region_number  : in t_region_number;

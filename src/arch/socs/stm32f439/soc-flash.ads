@@ -22,7 +22,7 @@
 with system;
 
 package soc.flash
-   with spark_mode => off
+   with spark_mode => on
 is
 
    -----------------------------------------------

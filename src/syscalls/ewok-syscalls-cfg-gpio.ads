@@ -23,7 +23,7 @@
 with ewok.tasks_shared;
 
 package ewok.syscalls.cfg.gpio
-   with spark_mode => off
+   with spark_mode => on
 is
    procedure svc_gpio_set
      (caller_id   : in     ewok.tasks_shared.t_task_id;
