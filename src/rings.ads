@@ -31,7 +31,7 @@ generic
    default_object : object;
 
 package rings
-   with spark_mode => off
+   with spark_mode => on
 is
    pragma Preelaborate;
 
@@ -41,28 +41,25 @@ is
    procedure init
      (r : out ring);
 
-   -- write some new data and increment top counter
+   -- Write new data and increment top counter
    procedure write
-     (r        : out ring;
-      item     : in  object;
-      success  : out boolean);
+     (r        : in out ring;
+      item     : in     object;
+      success  : out    boolean);
 
-   -- read some data and increment bottom counter
+   -- Read data and increment bottom counter
    procedure read
      (r        : in out ring;
-      item     : out object;
-      success  : out boolean);
+      item     : out    object;
+      success  : out    boolean);
 
-   -- decrement top counter
+   -- Decrement top counter
    procedure unwrite
-     (r        : out ring;
-      success  : out boolean);
+     (r        : in out ring;
+      success  : out    boolean);
 
-   -- return ring state (empty, used or full)
-   function state
-     (r : in ring)
-      return ring_state;
-   pragma inline (state);
+   -- Return ring state (empty, used or full)
+   function state (r : ring) return ring_state;
 
 private
 

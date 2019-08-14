@@ -196,6 +196,7 @@ library project Libkernel is
       for Switches ("processor.adb")               use perf_switches & no_verif;
       for Switches ("ewok-perm.adb")               use perf_switches & no_verif;
       for Switches ("ewok-mpu.adb")                use perf_switches & no_verif;
+      for Switches ("rings.adb")                   use perf_switches & no_verif;
 
       -- Debugging / error handling code
       for Switches ("ewok-tasks-debug.adb")        use size_switches & no_verif;

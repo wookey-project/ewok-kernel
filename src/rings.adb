@@ -22,7 +22,7 @@
 
 
 package body rings
-   with spark_mode => off
+   with spark_mode => on
 is
 
    procedure init
@@ -37,9 +37,9 @@ is
 
 
    procedure write
-     (r        : out ring;
-      item     : in  object;
-      success  : out boolean)
+     (r        : in out ring;
+      item     : in     object;
+      success  : out    boolean)
    is
    begin
 
@@ -48,17 +48,17 @@ is
          return;
       end if;
 
-      -- write
+      -- Write
       r.buf(r.top) := item;
 
-      -- increment top
+      -- Increment top
       if r.top = r.buf'last then
          r.top := r.buf'first;
       else
          r.top := r.top + 1;
       end if;
 
-      -- adjust state
+      -- Adjust state
       if r.top = r.bottom then
          r.state := FULL;
       else
@@ -72,28 +72,29 @@ is
 
    procedure read
      (r        : in out ring;
-      item     : out object;
-      success  : out boolean)
+      item     : out    object;
+      success  : out    boolean)
    is
    begin
 
-      -- read data only if buffer is not empty
+      -- Read data only if buffer is not empty
       if r.state = EMPTY then
-         success := false;
+         success  := false;
+         item     := default_object;
          return;
       end if;
 
-      -- read
+      -- Read
       item := r.buf(r.bottom);
 
-      -- incrementing bottom
+      -- Incrementing bottom
       if r.bottom = r.buf'last then
          r.bottom := r.buf'first;
       else
          r.bottom := r.bottom + 1;
       end if;
 
-      -- adjust state
+      -- Adjust state
       if r.bottom = r.top then
          r.state := EMPTY;
       else
@@ -106,8 +107,8 @@ is
 
 
    procedure unwrite
-     (r        : out ring;
-      success  : out boolean)
+     (r        : in out ring;
+      success  : out    boolean)
    is
    begin
 
@@ -116,14 +117,14 @@ is
          return;
       end if;
 
-      -- decrementing top counter
+      -- Decrementing top counter
       if r.top = r.buf'first then
          r.top := r.buf'last;
       else
          r.top := r.top - 1;
       end if;
 
-      -- adjust state
+      -- Adjust state
       if r.bottom = r.top then
          r.state := EMPTY;
       else
@@ -135,9 +136,7 @@ is
    end unwrite;
 
 
-   function state
-     (r : in ring)
-      return ring_state
+   function state (r : ring) return ring_state
    is
    begin
       return r.state;
