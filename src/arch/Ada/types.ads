@@ -86,9 +86,11 @@ is
    for bool use (true => 1, false => 0);
 
    function to_bit
-     (u : unsigned_8) return types.bit;
+     (u : unsigned_8) return types.bit
+      with pre => u <= 1;
 
    function to_bit
-     (u : unsigned_32) return types.bit;
+     (u : unsigned_32) return types.bit
+      with pre => u <= 1;
 
 end types;

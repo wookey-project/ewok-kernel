@@ -22,11 +22,12 @@
 
 
 with ewok.tasks_shared; use ewok.tasks_shared;
+with ewok.tasks;
 with soc.interrupts;
 with rings;
 
 package ewok.softirq
-  with spark_mode => off
+  with spark_mode => on
 is
 
    type t_isr_parameters is record
@@ -58,9 +59,11 @@ is
      (task_id     : in  ewok.tasks_shared.t_task_id;
       params      : in  t_isr_parameters);
 
-   procedure isr_handler (req : in  t_isr_request);
+   procedure isr_handler (req : in  t_isr_request)
+      with global => (in_out => ewok.tasks.tasks_list);
 
-   procedure main_task;
+   procedure main_task
+      with global => (in_out => ewok.tasks.tasks_list);
 
 private
 
