@@ -28,6 +28,7 @@ with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sched;
 with soc.interrupts;
+with ewok.debug;
 
 package body ewok.mpu.handler
    with spark_mode => off
@@ -37,7 +38,7 @@ is
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
    is
-#if not CONFIG_KERNEL_PANIC_FREEZE
+#if CONFIG_KERNEL_PANIC_FAULT
       new_frame_a : t_stack_frame_access;
 #end if;
    begin
@@ -48,12 +49,19 @@ is
         (ewok.sched.current_task_id, TASK_MODE_MAINTHREAD,
          ewok.tasks.TASK_STATE_FAULT);
 
-#if CONFIG_KERNEL_PANIC_FREEZE
+#if CONFIG_KERNEL_PANIC_FAULT
+      if (ewok.tasks.is_real_user(ewok.sched.current_task_id)) then
+         new_frame_a := ewok.sched.do_schedule (frame_a);
+         return new_frame_a;
+      else
+         -- panic happen in a kernel task (softirq...)
+         debug.panic ("Memory fault!");
+         return frame_a;
+      end if;
+#else
+      -- leave the panic function handling the other panic actions
       debug.panic ("Memory fault!");
       return frame_a;
-#else
-      new_frame_a := ewok.sched.do_schedule (frame_a);
-      return new_frame_a;
 #end if;
 
    end memory_fault_handler;

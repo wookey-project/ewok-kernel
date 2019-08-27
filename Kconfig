@@ -65,6 +65,13 @@ endif
 choice
   prompt "Kernel Panic behavior"
   default KERNEL_PANIC_FREEZE
+    config KERNEL_PANIC_FAULT
+    bool "Set the task as fault"
+    ---help---
+       When a panic() happen due to a userspace fault, lock the
+       responsible task, making it unschedulable. Other task can
+       still be schedule. This imply a new scheduling event.
+       INFO: This is not a safe behavior on embedded systems!
     config KERNEL_PANIC_FREEZE
     bool "Freeze on panic"
     ---help---
