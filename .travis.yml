@@ -76,6 +76,9 @@ jobs:
               - source setenv.sh
               - make boards/wookey/configs/wookey2_graphic_ada_hs_defconfig
               - make
+              - rm -rf build
+              - make boards/wookey/configs/wookey2_production_defconfig
+              - make
         - stage: doc
           script: make doc
 
