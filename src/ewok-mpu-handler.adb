@@ -27,7 +27,6 @@ with ewok.tasks.debug;
 with ewok.tasks_shared;    use ewok.tasks_shared;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sched;
-with ewok.debug;
 with soc.interrupts;
 
 package body ewok.mpu.handler
@@ -39,7 +38,7 @@ is
       return t_stack_frame_access
    is
 #if not CONFIG_KERNEL_PANIC_FREEZE
-      new_frame_a : t_stack_frame_access
+      new_frame_a : t_stack_frame_access;
 #end if;
    begin
       pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));

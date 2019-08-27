@@ -589,6 +589,7 @@ is
       -- Unmapping the device
       ewok.memory.unmap_device
         (tasks_list(id).devices(dev_descriptor).device_id);
+      tasks_list(id).devices(dev_descriptor).mounted := false;
       success := true;
    end unmount_device;
 
