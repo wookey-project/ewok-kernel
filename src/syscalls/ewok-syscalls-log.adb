@@ -54,8 +54,14 @@ is
          goto ret_inval;
       end if;
 
+      -- here, we print the userspace message with a prefix named after the
+      -- calling task name. The newline char is under the responsability of
+      -- the calling task (standard printf() behavior), meaning that no newline
+      -- char means that no line return is created.
+      -- In case of multiple newline chars in msg, the debug.log handles the
+      -- carriage return for each of them
       pragma DEBUG (debug.log
-        (ewok.tasks.tasks_list(caller_id).name & " " & msg & ASCII.CR,
+        (ewok.tasks.tasks_list(caller_id).name & " " & msg,
          false));
 
       set_return_value (caller_id, mode, SYS_E_DONE);
