@@ -32,13 +32,14 @@ addons:
             - zip
             - unzip
             - bash
+            - wget
 
 # installing dependencies
 before_install:
     - sudo sed -i '/PDF/s/none/read|write/' /etc/ImageMagick-6/policy.xml
     - pip install --user intelhex
     - sudo pip3 install kconfiglib
-    - curl -o /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin https://community.download.adacore.com/v1/6696259f92b40178ab1cc1d3e005acf705dc4162?filename=gnat-community-2019-20190517-arm-elf-linux64-bin
+    - wget -O /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin https://community.download.adacore.com/v1/6696259f92b40178ab1cc1d3e005acf705dc4162?filename=gnat-community-2019-20190517-arm-elf-linux64-bin
     - chmod +x /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin
     - git clone https://github.com/AdaCore/gnat_community_install_script.git /tmp/gnat_install
     - /tmp/gnat_install/install_package.sh /tmp/gnat-community-2018-20180524-arm-elf-linux64-bin /opt/adacore-arm-eabi
