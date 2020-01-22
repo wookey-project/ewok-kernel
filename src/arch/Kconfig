@@ -36,10 +36,17 @@ choice
     bool "Support for Wookey v1 layout"
     help
       Select Wookey v1 layouting (GPIO mapping, peripheral listing...)
+      board before 1.4
   config WOOKEY_V2
     bool "Support for Wookey v2 layout"
     help
       Select Wookey v2 layouting (GPIO mapping, peripheral listing...)
+      board 1.4 and upper
+  config WOOKEY_V3
+    bool "Support for Wookey v3 layout"
+    help
+      Select Wookey v3 layouting (GPIO mapping, peripheral listing...)
+      board 1.7 and upper
 endchoice
 
 endif
@@ -52,6 +59,7 @@ config BOARD_RELEASE
    string
    default "v1" if WOOKEY_V1
    default "v2" if WOOKEY_V2
+   default "v3" if WOOKEY_V3
    default "" if DISCO407 || DISCO429
 
 menu "SoC and Core setup"
