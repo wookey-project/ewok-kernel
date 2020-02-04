@@ -36,6 +36,7 @@ SECTIONS
 	/* this is the kernel code part */
 	.text :
 	{
+                heapsize = @HEAPSIZE@;
 		_s_text = .;	            /* create a global symbol at data start */
 		*startup*(.text.do_starttask)
 		*(.text.do_startisr)
@@ -100,6 +101,13 @@ SECTIONS
 	}>RAM_APP
 
 	. = ALIGN(4);
+
+	.heap : AT (.)
+	{
+		_s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
+		. = . + @HEAPSIZE@;  /*  thread stack, to update */
+		_e_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
+	}>RAM_APP
 
 	/* Remove information from the standard libraries */
 	/DISCARD/ :

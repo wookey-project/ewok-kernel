@@ -136,11 +136,30 @@ sub main {
         # the config.applications.ads file, which is portable.
         #
 
-        @applines = gen_kernel_membackend();
+      my $socinfos = Devmap::Appinfo::get_arch_informations();
+      @applines = gen_kernel_membackend();
         open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.memlayout.ads") or die "unable to open output ada file for writing $!";
-        foreach my $line (@applines) {
-            print KERN_ARCHAPP "$line";
+
+        #
+        # First we print the template constant content into the file
+        #
+        open(KERN_ARCHAPP_TPL, "<", dirname(abs_path($0)) . "/templates/config.memlayout.ads.tpl") or die "unable to open output ada file for writing $!";
+        while (<KERN_ARCHAPP_TPL>) {
+            chomp;
+            print KERN_ARCHAPP "$_";
         }
+        close(KERN_ARCHAPP_TPL);
+
+        my $i = 0;
+        foreach my $line (@applines) {
+            chop $line if (++$i == @applines);
+            print KERN_ARCHAPP "      $line";
+        }
+
+        print KERN_ARCHAPP "   );
+
+end config.memlayout\n";
+
         close(KERN_ARCHAPP);
     } else {
         print ("unknown action $action !");
@@ -191,13 +210,14 @@ sub gen_kernel_membackend {
 
         my $ram_size   = hex($hash{"app${appid}.datasize"}) +
                          hex($hash{"app${appid}.bsssize"}) +
-                         hex($hash{"app${appid}.stacksize"});
+                         hex($hash{"app${appid}.stacksize"}) +
+                         hex($hash{"app${appid}.heapsize"});
 
         my %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
 
-        my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d, %x),",
+        my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d, %s),",
             $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
-            $hash{'ram_slot_start'}, $hash{'ram_slot_num'}, $hash{'ram_free_space'});
+            $hash{'ram_slot_start'}, $hash{'ram_slot_num'}, Ada::Format::format_ada_hex($hash{'ram_free_space'}));
 
         push @applines, $appline;
 

@@ -71,6 +71,7 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
     open(INLD, '<',"$dummy") or die "unable to open $dummy";
 
     my $stacksize = $hash{"${i}_STACKSIZE"} // 8192; # fallbacking to 8192
+    my $heapsize = $hash{"${i}_HEAPSIZE"} // 0;
 
     while (my $line = <INLD>) {
         chomp($line);
@@ -88,6 +89,9 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
         }
         if ($line =~ m/\. = \. \+ \@STACKSIZE\@/) {
             $line =~ s/\. = \. \+ \@STACKSIZE\@/. = . + $stacksize;/;
+        }
+        if ($line =~ m/\@HEAPSIZE\@/) {
+            $line =~ s/\@HEAPSIZE\@/$heapsize/;
         }
         print OUTLD "$line";
     }

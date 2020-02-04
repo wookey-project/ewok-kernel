@@ -125,7 +125,15 @@ sub dump_elf_metainfo {
         # then add its size
         $appinfo{'stack_size'} = $hash{'size'};
     }
-    # here entrypoints addresses are calculated relative to text_addr start.
+    if (Devmap::Elfinfo::elf_section_exists('.heap')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.heap');
+        print(%hash);
+        # then add its size
+        $appinfo{'heap_size'} = $hash{'size'};
+    } else {
+        $appinfo{'heap_size'} = 0;
+        print("section HEAP not found !\n");
+    }
     # These offsets can then be used in a PIE mode
     $appinfo{'entrypoint'} = sprintf("0x%x", hex(Devmap::Elfinfo::elf_get_symbol_address("do_starttask")) - hex($appinfo{'text_addr'}));
     $appinfo{'isr_entrypoint'} = sprintf("0x%x", hex(Devmap::Elfinfo::elf_get_symbol_address("do_startisr")) - hex($appinfo{'text_addr'}));

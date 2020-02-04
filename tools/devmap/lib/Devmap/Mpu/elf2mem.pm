@@ -63,7 +63,7 @@ sub map_application {
         ram_slot_addr  => sprintf("0x%08x", (hex($ramaddr) + ($cur_ram_slot * ($ramsize / $numslot)))),
         ram_slot_start => $cur_ram_slot,
         ram_slot_num   => $ram_slot_consumed,
-        ram_free_space => (($ram_slot_size * $ram_slot_consumed) - $app_ram_size),
+        ram_free_space => sprintf("0x%08x",(($ram_slot_size * $ram_slot_consumed) - $app_ram_size)),
         flash_slot_addr  =>  sprintf("0x%08x", (hex($flashaddr) + ($cur_flash_slot * ($flashsize / $numslot)))),
         flash_slot_start => $cur_flash_slot,
         flash_slot_num   => $flash_slot_consumed
