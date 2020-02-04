@@ -20,7 +20,7 @@ sub openelf {
 sub elf_section_exists {
     my ($section_name) = @_;
     foreach my $line (@objdump_raw) {
-        if ($line =~ m/^[[:space:]]+[[:digit:]]{1,}[[:space:]]$section_name/) {
+        if ($line =~ m/^\s+\d+\s+$section_name/) {
             return 1;
         }
     }
@@ -43,19 +43,19 @@ sub elf_get_section {
     my %sectioninfo;
     # does the section exists ?
     foreach my $line (@objdump_raw) {
-        if ($line =~ m/^[[:space:]]+[[:digit:]]{1,}[[:space:]]$section_name/) {
+        if ($line =~ m/^\s+\d+\s+$section_name/) {
             chomp($line);
             # forge section hashtable
             my $size = $line;
-            $size =~ s/^[[:space:]]+[[:digit:]]{1,}[[:space:]][\.0-9a-zA-Z_]+[[:space:]]+([0-9a-f]+)[[:space:]]+.*/0x$1/;
+            $size =~ s/^\s+\d+\s+[\.0-9a-zA-Z_]+\s+([0-9a-f]+)\s+.*/0x$1/;
             my $vma = $line;
-            $vma =~ s/^[[:space:]]+[[:digit:]]{1,}[[:space:]][\.0-9a-zA-Z_]+[[:space:]]+[0-9a-f]+[[:space:]]+([0-9a-f]+)[[:space:]]+.*/0x$1/;
+            $vma =~ s/^\s+\d+\s+[\.0-9a-zA-Z_]+\s+[0-9a-f]+\s+([0-9a-f]+)\s+.*/0x$1/;
             my $lma = $line;
-            $lma =~ s/^[[:space:]]+[[:digit:]]{1,}[[:space:]][\.0-9a-zA-Z_]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+([0-9a-f]+)[[:space:]]+.*/0x$1/;
+            $lma =~ s/^\s+\d{1,}\s[\.0-9a-zA-Z_]+\s+[0-9a-f]+\s+[0-9a-f]+\s+([0-9a-f]+)\s+.*/0x$1/;
             my $offset = $line;
-            $offset =~ s/^[[:space:]]+[[:digit:]]{1,}[[:space:]][\.0-9a-zA-Z_]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+([0-9a-f]+)[[:space:]]+.*/0x$1/;
+            $offset =~ s/^\s+\d{1,}\s[\.0-9a-zA-Z_]+\s+[0-9a-f]+\s+[0-9a-f]+\s+[0-9a-f]+\s+([0-9a-f]+)\s+.*/0x$1/;
             my $align = $line;
-            $align =~ s/^[[:space:]]+[[:digit:]]{1,}[[:space:]][\.0-9a-zA-Z_]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+[0-9a-f]+[[:space:]]+2\*\*(.*)/$1/;
+            $align =~ s/^\s+\d{1,}\s[\.0-9a-zA-Z_]+\s+[0-9a-f]+\s+[0-9a-f]+\s+[0-9a-f]+\s+[0-9a-f]+\s+2\*\*(.*)/$1/;
             $align = 2 ** $align;
             %sectioninfo = (
                 name => "$section_name",
