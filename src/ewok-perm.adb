@@ -64,7 +64,7 @@ is
 
    function ressource_is_granted
      (perm_name : in t_perm_name;
-      task_id   : in applications.t_real_task_id)
+      task_id   : in config.applications.t_real_task_id)
       return boolean
    is
    begin

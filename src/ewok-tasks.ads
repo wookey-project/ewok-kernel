@@ -159,7 +159,7 @@ is
       txt_slot_end      : system_address  := 0;
       stack_bottom      : system_address  := 0;
       stack_top         : system_address  := 0;
-      stack_size        : unsigned_16     := 0;
+      stack_size        : unsigned_32     := 0;
       state             : t_task_state    := TASK_STATE_EMPTY;
       isr_state         : t_task_state    := TASK_STATE_EMPTY;
       ipc_endpoint_id   : t_ipc_endpoint_id_list;

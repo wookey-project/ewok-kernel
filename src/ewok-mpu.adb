@@ -28,7 +28,7 @@ with ewok.mpu.handler;
 with ewok.layout;
 with ewok.debug;
 with soc.layout;
-with applications; -- generated
+with config.applications; -- generated
 
 package body ewok.mpu
   with spark_mode => on
@@ -39,8 +39,8 @@ is
    is
       -- Layout mapping validation of generated constants
       pragma assert
-        (applications.txt_kern_size + applications.txt_kern_region_base
-            <= applications.txt_user_region_base);
+        (config.applications.txt_kern_size + config.applications.txt_kern_region_base
+            <= config.applications.txt_user_region_base);
 
       function get_region_size (size : t_region_size) return unsigned_32
          is (2**(natural (size) + 1));
@@ -82,7 +82,7 @@ is
       -- Region: kernel code
       set_region
         (region_number  => KERN_CODE_REGION,
-         addr           => applications.txt_kern_region_base,
+         addr           => config.applications.txt_kern_region_base,
          size           => REGION_SIZE_64KB,
          region_type    => REGION_TYPE_KERN_CODE,
          subregion_mask => 0);
@@ -134,8 +134,8 @@ is
 
       set_region
         (region_number  => USER_CODE_REGION,
-         addr           => applications.txt_user_region_base,
-         size           => applications.txt_user_region_size,
+         addr           => config.applications.txt_user_region_base,
+         size           => config.applications.txt_user_region_size,
          region_type    => REGION_TYPE_USER_CODE,
          subregion_mask => 0);
 

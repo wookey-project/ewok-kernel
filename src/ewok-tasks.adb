@@ -31,7 +31,8 @@ with ewok.softirq;
 with ewok.memory;
 with types.c;              use type types.c.t_retval;
 
-with applications; -- Automatically generated
+with config.applications; -- Automatically generated
+with config.memlayout; -- Automatically generated
 with sections;     -- Automatically generated
 
 package body ewok.tasks
@@ -264,22 +265,22 @@ is
       ok          : boolean;
    begin
 
-      if applications.t_real_task_id'last > ID_APP7 then
+      if config.applications.t_real_task_id'last > ID_APP7 then
          debug.panic ("Too many apps");
       end if;
 
-      user_base := applications.txt_user_region_base;
+      user_base := config.applications.txt_user_region_base;
 
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
 
          set_default_values (tasks_list(id));
 
-         tasks_list(id).name := applications.list(id).name;
+         tasks_list(id).name := config.applications.list(id).name;
 
          tasks_list(id).entry_point  :=
             user_base
-            + to_unsigned_32 (applications.list(id).slot - 1)
-               * applications.txt_user_size / 8; -- this is MPU specific
+            + config.applications.list(id).text_off
+            + config.applications.list(id).entrypoint_off;
 
          if tasks_list(id).entry_point mod 2 = 0 then
             tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
@@ -288,37 +289,47 @@ is
          tasks_list(id).ttype := TASK_TYPE_USER;
          tasks_list(id).id    := id;
 
-         tasks_list(id).slot      := applications.list(id).slot;
-         tasks_list(id).num_slots := applications.list(id).num_slots;
+         --tasks_list(id).slot      := applications.list(id).slot;
+         --tasks_list(id).num_slots := applications.list(id).num_slots;
 
-         tasks_list(id).prio  := applications.list(id).priority;
+         tasks_list(id).prio  := config.applications.list(id).priority;
 
 #if CONFIG_KERNEL_DOMAIN
-         tasks_list(id).domain   := applications.list(id).domain;
+         tasks_list(id).domain   := config.applications.list(id).domain;
 #end if;
 
          tasks_list(id).data_slot_start   :=
             USER_DATA_BASE
-            + to_unsigned_32 (tasks_list(id).slot - 1)
-               * USER_DATA_SIZE;
+            + config.applications.list(id).data_off;
 
          tasks_list(id).data_slot_end     :=
             USER_DATA_BASE
-            + to_unsigned_32
-                 (tasks_list(id).slot + tasks_list(id).num_slots - 1)
-               * USER_DATA_SIZE;
+            + config.applications.list(id).data_off
+            + config.applications.list(id).stack_size
+            + config.applications.list(id).data_size
+            + config.applications.list(id).bss_size
+            + config.applications.list(id).heap_size
+            + config.memlayout.list(id).ram_free_space;
 
-         tasks_list(id).txt_slot_start := tasks_list(id).entry_point - 1;
+         tasks_list(id).txt_slot_start :=
+            user_base
+            + config.applications.list(id).text_off;
 
          tasks_list(id).txt_slot_end   :=
             user_base
-            + to_unsigned_32
-                (applications.list(id).slot + tasks_list(id).num_slots - 1)
-               * applications.txt_user_size / 8; -- this is MPU specific
+            + config.applications.list(id).text_off
+            + config.applications.list(id).text_size
+            + config.applications.list(id).data_size;
 
-         tasks_list(id).stack_bottom   := applications.list(id).stack_bottom;
-         tasks_list(id).stack_top      := applications.list(id).stack_top;
-         tasks_list(id).stack_size     := applications.list(id).stack_size;
+         tasks_list(id).stack_bottom   :=
+            USER_DATA_BASE
+            + config.applications.list(id).data_off;
+         tasks_list(id).stack_top      :=
+            USER_DATA_BASE
+            + config.applications.list(id).data_off
+            + config.applications.list(id).stack_size;
+         tasks_list(id).stack_size     :=
+            config.applications.list(id).stack_size;
 
          tasks_list(id).state       := TASK_STATE_RUNNABLE;
          tasks_list(id).isr_state   := TASK_STATE_IDLE;
@@ -329,10 +340,10 @@ is
 
          -- Zeroing the stack
          declare
-            stack : byte_array(1 .. unsigned_32 (tasks_list(id).stack_size))
+            stack : byte_array(1 .. tasks_list(id).stack_size)
                with address => to_address
                  (tasks_list(id).data_slot_end -
-                  unsigned_32 (tasks_list(id).stack_size));
+                  tasks_list(id).stack_size);
          begin
             stack := (others => 0);
          end;
@@ -356,7 +367,11 @@ is
             params,
             tasks_list(id).ctx.frame_a);
 
-         tasks_list(id).isr_ctx.entry_point := applications.list(id).start_isr;
+         tasks_list(id).isr_ctx.entry_point :=
+            user_base
+            + config.applications.list(id).text_off
+            + config.applications.list(id).entrypoint_off;
+
 
          pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
@@ -413,7 +428,7 @@ is
       end;
 
    begin
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
          if is_same (tasks_list(id).name, name) then
             return id;
          end if;
@@ -597,7 +612,7 @@ is
    function is_real_user (id : ewok.tasks_shared.t_task_id) return boolean
    is
    begin
-      return (id in applications.t_real_task_id);
+      return (id in config.applications.t_real_task_id);
    end is_real_user;
 
 

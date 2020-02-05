@@ -12,16 +12,14 @@ my $ramaddr = 0;
 my $flashsize = 0;
 my $flashaddr = 0;
 
-my $cur_ram_slot = 0;
-my $cur_flash_slot = 0;
+my $cur_ram_slot = 1;
+my $cur_flash_slot = 1;
 
 # set current MPU slot number per region
 sub set_numslots {
     my ($val) = @_;
     print("## set numslots to $val");
     $numslot = $val;
-    $cur_ram_slot = 0;
-    $cur_flash_slot = 0;
 }
 
 sub set_ram_size {

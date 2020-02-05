@@ -73,7 +73,7 @@ is
       -- Execute pending user ISRs first
       --
 
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
          if TSK.tasks_list(id).mode = TASK_MODE_ISRTHREAD
             and then
             ewok.tasks.get_state (id, TASK_MODE_ISRTHREAD) = TASK_STATE_RUNNABLE
@@ -89,7 +89,7 @@ is
       -- Execute tasks in critical sections
       --
 
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
          if TSK.tasks_list(id).state = TASK_STATE_LOCKED then
             elected := id;
             if TSK.tasks_list(id).mode = TASK_MODE_MAINTHREAD then
@@ -103,7 +103,7 @@ is
       -- Updating finished ISRs state
       --
 
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
 
          if TSK.tasks_list(id).mode = TASK_MODE_ISRTHREAD
             and then
@@ -144,7 +144,7 @@ is
       -- IPC can force task election to reduce IPC overhead
       --
 
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
          if TSK.tasks_list(id).state = TASK_STATE_FORCED then
             ewok.tasks.set_state
               (id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
@@ -162,18 +162,18 @@ is
          pragma unreferenced (ok);
       begin
          ewok.rng.random (random'access, ok);
-         id := t_task_id'val ((applications.list'first)'pos +
-                            (random mod applications.list'length));
-         for i in 1 .. applications.list'length loop
+         id := t_task_id'val ((config.applications.list'first)'pos +
+                            (random mod config.applications.list'length));
+         for i in 1 .. config.applications.list'length loop
             if ewok.tasks.get_state
               (id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE then
                elected := id;
                goto ok_return;
             end if;
-            if id /= applications.list'last then
+            if id /= config.applications.list'last then
                id := t_task_id'succ (id);
             else
-               id := applications.list'first;
+               id := config.applications.list'first;
             end if;
          end loop;
       end;
@@ -184,11 +184,11 @@ is
          id : t_task_id;
       begin
          id := last_main_user_task_id;
-         for i in 1 .. applications.list'length loop
-            if id < applications.list'last then
+         for i in 1 .. config.applications.list'length loop
+            if id < config.applications.list'last then
                id := t_task_id'succ (id);
             else
-               id := applications.list'first;
+               id := config.applications.list'first;
             end if;
             if ewok.tasks.get_state
               (id, TASK_MODE_MAINTHREAD) = TASK_STATE_RUNNABLE then
@@ -207,7 +207,7 @@ is
       begin
 
          -- Max priority
-         for id in applications.list'range loop
+         for id in config.applications.list'range loop
             if TSK.tasks_list(id).prio > max_prio
                and
                ewok.tasks.get_state (id, TASK_MODE_MAINTHREAD)
@@ -219,11 +219,11 @@ is
 
          -- Round Robin election on tasks with the max priority
          id := last_main_user_task_id;
-         for i in 1 .. applications.list'length loop
-            if id < applications.list'last then
+         for i in 1 .. config.applications.list'length loop
+            if id < config.applications.list'last then
                id := t_task_id'succ (id);
             else
-               id := applications.list'first;
+               id := config.applications.list'first;
             end if;
             if TSK.tasks_list(id).prio = max_prio
                and

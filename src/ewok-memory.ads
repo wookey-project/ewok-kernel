@@ -23,7 +23,7 @@
 
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.devices_shared;
-with applications; use applications; -- generated
+with config.applications; use config.applications; -- generated
 
 package ewok.memory
    with spark_mode => on

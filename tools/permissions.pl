@@ -316,7 +316,7 @@ sub generate_ada_header
   my @apps = (grep {!/_/} (sort keys %hash));
 
   my $head_string="
-with applications;      use applications;
+with config.applications;      use config.applications;
 with ewok.tasks_shared; use ewok.tasks_shared;
 
 package ewok.perm_auto
