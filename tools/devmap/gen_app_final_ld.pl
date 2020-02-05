@@ -118,7 +118,13 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
    $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", (hex($socinfos->{"memory.flash.$mode2.addr"})+$hashcfg{"textoff"})))/e;
    $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", hex($hashcfg{"textsize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"gotsize"})))/e;
    $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", hex($socinfos->{"memory.ram.addr"})+$hashcfg{"dataoff"}))/e;
-   $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", hex($hashcfg{"stacksize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"bsssize"})+hex($hashcfg{"heapsize"})))/e;
+   # INFO: why +wordsize here ???? Good question :-)
+   # ldscripts hold _s_data, _e_data, _s_bss, _e_bss, and so one symbols, which permit to get back addresses of various sections in RAM.
+   # This sections are used in order to calculate application mapping and typically used by the allocator.
+   # Although, if some of these symbols address are hold in the corresponding section, there is an exception for _e_data, because this section
+   # is specific, having a differenciate VMA & LMA and being calculated differently from the other by the Ldscript. As a consequence, the
+   # .bss section start wordsize bytes *after* the end of the .data section, instead of directly after it. This particularity is hold here.
+   $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", hex($hashcfg{"stacksize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"bsssize"})+hex($hashcfg{"heapsize"}) + $socinfos->{"arch.wordsize"} ))/e;
 
    print OUTLD "$final_ldscript";
    close OUTLD;
