@@ -103,12 +103,12 @@ SECTIONS
 
 	. = ALIGN(4);
 
+		_s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 	.heap : AT (.)
 	{
-		_s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 		. = . + @HEAPSIZE@;  /*  thread stack, to update */
-		_e_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 	}>RAM_APP
+		_e_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 
 	/* Remove information from the standard libraries */
 	/DISCARD/ :

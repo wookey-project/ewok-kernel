@@ -36,6 +36,7 @@ SECTIONS
 	/* this is the kernel code part */
 	.text :
 	{
+        heapsize = 0;
 		_s_text = .;	            /* create a global symbol at data start */
 		*startup*(.vdso.do_starttask)
 		*(.vdso.do_startisr)
@@ -85,7 +86,7 @@ SECTIONS
 		_e_data = .;        /* define a global symbol at data end */
 	}>RAM_APP
 
-/*	. = ALIGN(4); */
+    . = ALIGN(4);
 
 	/* Uninitialized data section */
 	.bss : AT (.)
@@ -100,7 +101,7 @@ SECTIONS
 		_e_bss = .;         /* define a global symbol at bss end */
 	}>RAM_APP
 
-/*	. = ALIGN(4); */
+  	. = ALIGN(4);
 
         _s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 	.heap : AT (.)
