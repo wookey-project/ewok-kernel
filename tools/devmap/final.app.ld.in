@@ -40,6 +40,7 @@ SECTIONS
 		*startup*(.vdso.do_starttask)
 		*(.vdso.do_startisr)
 		*(.vdso*)
+		*(.text*)
 		*(.rodata)         	/* .rodata sections (constants, strings, etc.) */
 		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */
 		*(.glue_7)         	/* glue arm to thumb code */
