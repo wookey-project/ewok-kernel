@@ -116,7 +116,7 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
 
    my $mode2=lc($mode);
    $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", (hex($socinfos->{"memory.flash.$mode2.addr"})+$hashcfg{"textoff"})))/e;
-   $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", hex($hashcfg{"textsize"})+hex($hashcfg{"datasize"})))/e;
+   $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", hex($hashcfg{"textsize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"gotsize"})))/e;
    $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", hex($socinfos->{"memory.ram.addr"})+$hashcfg{"dataoff"}))/e;
    $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", hex($hashcfg{"stacksize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"bsssize"})+$hashcfg{"heapsize"}))/e;
 
