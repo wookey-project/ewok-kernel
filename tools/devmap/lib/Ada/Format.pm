@@ -122,8 +122,16 @@ sub format_appinfo_for_cfg {
     my $id = $appinfo->{'id'};
     print FH "app$id.name=$appinfo->{'name'}";
     print FH "app$id.textoff=$appinfo->{'text_off'}";
+    print FH "app$id.textaddr=$appinfo->{'text_addr'}";
     print FH "app$id.textsize=$appinfo->{'text_size'}";
+    print FH "app$id.gotoff=$appinfo->{'got_addr'}";
+    print FH "app$id.gotsize=$appinfo->{'got_size'}";
+    print FH "app$id.vdsooff=$appinfo->{'vdso_addr'}";
+    print FH "app$id.vdsosize=$appinfo->{'vdso_size'}";
+    print FH "app$id.rodataoff=$appinfo->{'rodata_addr'}";
+    print FH "app$id.rodatasize=$appinfo->{'rodata_size'}";
     print FH "app$id.dataoff=$appinfo->{'data_off'}";
+    print FH "app$id.dataaddr=$appinfo->{'data_addr'}";
     print FH "app$id.datasize=$appinfo->{'data_size'}";
     print FH "app$id.bsssize=$appinfo->{'bss_size'}";
     print FH "app$id.stacksize=$appinfo->{'stack_size'}";

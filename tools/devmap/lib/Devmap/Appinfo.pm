@@ -115,6 +115,30 @@ sub dump_elf_metainfo {
         $appinfo{'data_addr'} = $hash{'lma'};
         $appinfo{'data_size'} = $hash{'size'};
     }
+    $appinfo{'rodata_addr'} = 0;
+    $appinfo{'rodata_size'} = 0;
+    if (Devmap::Elfinfo::elf_section_exists('.rodata')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.rodata');
+        # then add its size
+        $appinfo{'rodata_addr'} = $hash{'lma'};
+        $appinfo{'rodata_size'} = $hash{'size'};
+    }
+    $appinfo{'got_addr'} = 0;
+    $appinfo{'got_size'} = 0;
+    if (Devmap::Elfinfo::elf_section_exists('.got')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.got');
+        # then add its size
+        $appinfo{'got_addr'} = $hash{'lma'};
+        $appinfo{'got_size'} = $hash{'size'};
+    }
+    $appinfo{'vdso_addr'} = 0;
+    $appinfo{'vdso_size'} = 0;
+    if (Devmap::Elfinfo::elf_section_exists('.vdso')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.vdso');
+        # then add its size
+        $appinfo{'vdso_addr'} = $hash{'lma'};
+        $appinfo{'vdso_size'} = $hash{'size'};
+    }
     if (Devmap::Elfinfo::elf_section_exists('.bss')) {
         my %hash = Devmap::Elfinfo::elf_get_section('.bss');
         # then add its size
@@ -143,11 +167,13 @@ sub dump_elf_metainfo {
 
     # 3) calculate flash and RAM consumption of the task (in bytes)
     my $app_flash_size = hex($appinfo{'text_size'}) +
-    hex($appinfo{'data_size'});
+    hex($appinfo{'data_size'}) + hex($appinfo{'got_size'}) +
+        hex($appinfo{'rodata_size'}) + hex($appinfo{'vdso_size'});
 
     my $app_ram_size   = hex($appinfo{'data_size'}) +
     hex($appinfo{'bss_size'}) +
-    hex($appinfo{'stack_size'});
+    hex($appinfo{'stack_size'}) +
+    hex($appinfo{'heap_size'});
 
     # 4) Now that the application constraints in term of memory footprint are
     #    knwon, let's map it to the SoC memory
