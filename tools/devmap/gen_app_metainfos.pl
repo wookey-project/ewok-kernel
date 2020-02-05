@@ -29,6 +29,7 @@ my    $action   = shift;
 
 #
 # main entry point. There is three possible actions:
+# all of them depend on the previously executed gen_app_dummy_ld.pl
 # 1) action=genappcfg
 #   This action generate the build dir apps/layout.<mode>.cfg config file by reading the generated dummy ELF file. Here,
 #   we calculate each application section size and set it to this config file. This config file will be used by other
