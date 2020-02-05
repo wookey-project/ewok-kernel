@@ -141,7 +141,7 @@ sub main {
       my $socinfos = Devmap::Appinfo::get_arch_informations();
       @applines = @{gen_kernel_membackend()};
       print "cacaboudin @applines";
-        open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.memlayout.ads") or die "unable to open output ada file for writing $!";
+        open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config-memlayout.ads") or die "unable to open output ada file for writing $!";
 
         #
         # First we print the template constant content into the file
@@ -283,6 +283,7 @@ sub create_app_generic_info {
         data_off    => '0',
         data_size   => '0',
         bss_size    => '0',
+        heap_size   => '0',
         stack_size  => '0',
         entrypoint  => '0',
         isr_entrypoint => '0',
@@ -314,6 +315,7 @@ sub create_app_generic_info {
         data_off    => $hash{"app${id}.dataoff"},
         data_size   => $hash{"app${id}.datasize"},
         bss_size    => $hash{"app${id}.bsssize"},
+        heap_size   => $hash{"app${id}.heapsize"},
         stack_size  => $hash{"app${id}.stacksize"},
         entrypoint  => $hash{"app${id}.entrypoint"},
         isr_entrypoint  => $hash{"app${id}.isr_entrypoint"},
