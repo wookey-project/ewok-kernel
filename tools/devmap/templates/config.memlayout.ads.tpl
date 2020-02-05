@@ -25,7 +25,7 @@ with ewok.tasks;	use ewok.tasks;
 
 package config.memlayout is
 
-   type t_mpu_slot_range is unsigned_32 range 0 .. 7;
+   type t_mpu_slot_range is new unsigned_32 range 0 .. 7;
 
    type t_application_memlayout is record
       flash_slot_start    : t_mpu_slot_range;

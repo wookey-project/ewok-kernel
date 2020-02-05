@@ -27,7 +27,7 @@ package applications is
    -- microkernel system, this should be enough for nearly all needs.
    -- FIXME: this type can be added to the types.ads package after the
    -- end of the newmem tests
-   type memory_offset is unsigned_32 range 0 .. 4194304;
+   type memory_offset is new unsigned_32 range 0 .. 4194304;
    -- an application section can be up to 512K length
    subtype application_section_size is unsigned_32 range 0 .. 524288;
 
