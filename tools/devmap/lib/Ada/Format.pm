@@ -51,8 +51,8 @@ sub format_appinfo_for_kernel {
          %s,        -- task RAM offset in memory
          %s,        -- .data section size
          %s,        -- .bss section size
-         %s,        -- stack size
          %s,        -- heap size
+         %s,        -- stack size
          %s,        -- entrypoint offset in .text
          %s,        -- isr entrypoint offset in .text
          %s,        -- task domain
@@ -61,7 +61,7 @@ sub format_appinfo_for_kernel {
     $appinfo->{'id'}, ${name}, format_ada_hex($appinfo->{'text_off'}),
     format_ada_hex($appinfo->{'text_size'}), format_ada_hex($appinfo->{'data_off'}),
     format_ada_hex($appinfo->{'data_size'}), format_ada_hex($appinfo->{'bss_size'}),
-    format_ada_hex($appinfo->{'stack_size'}), format_ada_hex($appinfo->{'heap_size'}), 
+    format_ada_hex($appinfo->{'heap_size'}), format_ada_hex($appinfo->{'stack_size'}), 
     format_ada_hex($appinfo->{'entrypoint'}), format_ada_hex($appinfo->{'isr_entrypoint'})
       , $domain, $prio);
 

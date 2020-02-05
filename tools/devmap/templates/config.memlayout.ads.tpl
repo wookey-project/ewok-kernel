@@ -20,21 +20,22 @@
 with interfaces;        use interfaces;
 with types;             use types;
 with ewok.tasks_shared; use ewok.tasks_shared;
-with ewok.tasks;	use ewok.tasks;
+
+with config.applications; use config.applications;
 
 
 package config.memlayout is
 
-   type t_mpu_slot_range is new unsigned_32 range 0 .. 7;
+   subtype t_mpu_slot_range is unsigned_8 range 1 .. 8;
 
    type t_application_memlayout is record
       flash_slot_start    : t_mpu_slot_range;
       flash_slot_number   : t_mpu_slot_range;
       ram_slot_start      : t_mpu_slot_range;
-      ram_slot_end        : t_mpu_slot_range;
+      ram_slot_number     : t_mpu_slot_range;
       -- RAM free space is the amount of free space *after* the HEAP declared by the task
       ram_free_space      : unsigned_32;
    end record;
 
 
-   list : constant array (t_real_task_id'range) or t_application_memlayout := (
+   list : constant array (t_real_task_id'range) of t_application_memlayout := (

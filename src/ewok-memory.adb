@@ -30,6 +30,8 @@ with ewok.layout;
 with ewok.mpu;
 with ewok.mpu.allocator;
 with ewok.debug;
+with config;
+with config.memlayout; use config.memlayout;
 
 package body ewok.memory
    with spark_mode => off
@@ -46,20 +48,25 @@ is
    procedure map_code_and_data
      (id    : in  t_real_task_id)
    is
-      mask  : t_mask := (others => 1);
+      flash_mask  : t_mask := (others => 1);
+      ram_mask    : t_mask := (others => 1);
    begin
 
-      for i in 0 .. ewok.tasks.tasks_list(id).num_slots - 1 loop
-         mask(ewok.tasks.tasks_list(id).slot + i) := 0;
+      for i in 0 .. config.memlayout.list(id).flash_slot_number - 1 loop
+         flash_mask(config.memlayout.list(id).flash_slot_start + i) := 0;
+      end loop;
+
+      for i in 0 .. config.memlayout.list(id).ram_slot_number - 1 loop
+         ram_mask(config.memlayout.list(id).ram_slot_start + i) := 0;
       end loop;
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_CODE_REGION,
-         subregion_mask => to_unsigned_8 (mask));
+         subregion_mask => to_unsigned_8 (flash_mask));
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_DATA_REGION,
-         subregion_mask => to_unsigned_8 (mask));
+         subregion_mask => to_unsigned_8 (ram_mask));
 
    end map_code_and_data;
 

@@ -21,7 +21,7 @@
 --
 
 
-with applications; use applications;
+with config.applications; use config.applications;
 with ewok.perm_auto;
 with ewok.tasks_shared; use ewoK.tasks_shared;
 
@@ -92,7 +92,7 @@ is
    -- Test if a task is allowed to use a resource
    function ressource_is_granted
      (perm_name : in t_perm_name;
-      task_id   : in applications.t_real_task_id)
+      task_id   : in config.applications.t_real_task_id)
       return boolean
       with Global => null;
 

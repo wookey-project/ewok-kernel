@@ -52,7 +52,7 @@ is
    is
       t : constant m4.systick.t_tick := m4.systick.get_ticks;
    begin
-      for id in applications.list'range loop
+      for id in config.applications.list'range loop
          if (TSK.tasks_list(id).state = TASK_STATE_SLEEPING or
             TSK.tasks_list(id).state = TASK_STATE_SLEEPING_DEEP) and then
             t > awakening_time(id)

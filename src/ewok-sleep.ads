@@ -20,7 +20,7 @@
 --
 --
 
-with applications;         use applications;
+with config.applications;         use config.applications;
 with ewok.exported.sleep;  use ewok.exported.sleep;
 with ewok.tasks;
 with m4.systick;

@@ -22,7 +22,7 @@
 
 
 with ewok.tasks_shared; use ewok.tasks_shared;
-with applications;
+with config.applications;
 
 package ewok.sched
    with spark_mode => on
@@ -31,7 +31,7 @@ is
    sched_period            : unsigned_32  := 0;
    current_task_id         : t_task_id    := ID_KERNEL;
    current_task_mode       : t_task_mode  := TASK_MODE_MAINTHREAD;
-   last_main_user_task_id  : t_task_id    := applications.list'first;
+   last_main_user_task_id  : t_task_id    := config.applications.list'first;
 
    pragma assertion_policy (pre => IGNORE, post => IGNORE, assert => IGNORE);
 

@@ -129,7 +129,18 @@ sub main {
         }
         print KERN_GENAPP "   );\n";
 
-        printf KERN_GENAPP "end config.applicattions;";
+        my $prefix="\U${mode}\L";
+        print KERN_GENAPP "
+     txt_kern_region_base : constant unsigned_32   := soc.layout.${prefix}_KERN_BASE;
+     txt_kern_region_size : constant m4.mpu.t_region_size := soc.layout.${prefix}_KERN_REGION_SIZE;
+     txt_kern_size        : constant unsigned_32   := soc.layout.${prefix}_KERN_SIZE;
+
+     txt_user_region_base : constant unsigned_32   := soc.layout.${prefix}_USER_BASE;
+     txt_user_region_size : constant m4.mpu.t_region_size := soc.layout.${prefix}_USER_REGION_SIZE;
+     txt_user_size        : constant unsigned_32   := soc.layout.${prefix}_USER_SIZE;
+";
+
+        printf KERN_GENAPP "end config.applications;";
         # now we can close the file
         close(KERN_GENAPP);
 
@@ -161,7 +172,7 @@ sub main {
 
         print KERN_ARCHAPP "   );
 
-end config.memlayout\n";
+end config.memlayout;\n";
 
         close(KERN_ARCHAPP);
     } else {
