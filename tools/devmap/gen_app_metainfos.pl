@@ -87,7 +87,7 @@ sub main {
         # for Ada output here
         #
         #
-        open(KERN_GENAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.applications.ads") or die "unable to open output ada file for writing $!";
+        open(KERN_GENAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config-applications.ads") or die "unable to open output ada file for writing $!";
         @applines = gen_kernel_generic();
 
         #
@@ -129,6 +129,7 @@ sub main {
         }
         print KERN_GENAPP "   );\n";
 
+        printf KERN_GENAPP "end config.applicattions;";
         # now we can close the file
         close(KERN_GENAPP);
 
@@ -138,7 +139,8 @@ sub main {
         #
 
       my $socinfos = Devmap::Appinfo::get_arch_informations();
-      @applines = gen_kernel_membackend();
+      @applines = @{gen_kernel_membackend()};
+      print "cacaboudin @applines";
         open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config.memlayout.ads") or die "unable to open output ada file for writing $!";
 
         #
@@ -224,7 +226,7 @@ sub gen_kernel_membackend {
 
         $appid += 1;
     }
-    return @applines;
+    return \@applines;
 }
 
 
