@@ -102,7 +102,7 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
 
     my $stacksize = $hash{"${i}_STACKSIZE"} // 8192; # fallbacking to 8192
     my $heapsize = $hash{"${i}_HEAPSIZE"} // 0;
-    my $socinfos = Devmap::Appinfo::get_arch_informations();    
+    my $socinfos = Devmap::Appinfo::get_arch_informations();
     
     
    $final_ldscript =~ s/__is_flip\s+=\s+\@SELECTMODE\@/__is_flip = $is_flip/;
@@ -112,10 +112,13 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
    $final_ldscript =~ s/\@STACKSIZE\@/$stacksize/;
    $final_ldscript =~ s/\@HEAPSIZE\@/$heapsize/;
 
-   $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", $socinfos->{"memory.flash.\L$mode\E.addr"}+$hashcfg{"textoff"}))/e;
-   $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", $hashcfg{"textsize"}+$hashcfg{"datasize"})).";"/e;
-   $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", $socinfos->{"memory.ram.addr"}+$hashcfg{"dataoff"}))/e;
-   $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", $hashcfg{"datasize"}+$hashcfg{"bsssize"}+$hashcfg{"heapsize"})).";"/e;
+   print( "memory.flash." . lc($mode) . ".addr" . " => " . $socinfos->{"memory.flash." . lc($mode) . ".addr"});
+
+   my $mode2=lc($mode);
+   $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", (hex($socinfos->{"memory.flash.$mode2.addr"})+$hashcfg{"textoff"})))/e;
+   $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", hex($hashcfg{"textsize"})+hex($hashcfg{"datasize"})))/e;
+   $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", hex($socinfos->{"memory.ram.addr"})+$hashcfg{"dataoff"}))/e;
+   $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", hex($hashcfg{"stacksize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"bsssize"})+$hashcfg{"heapsize"}))/e;
 
    print OUTLD "$final_ldscript";
    close OUTLD;
