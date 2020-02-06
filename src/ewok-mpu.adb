@@ -163,15 +163,29 @@ is
                                   to_address (
                                      config.applications.txt_user_region_base
                                      + config.applications.list(id).text_off
-                                     + config.applications.list(id).text_size);
+                                     + config.applications.list(id).text_size
+                                     + config.applications.list(id).got_size );
             data_region : byte_array (1 .. config.applications.list(id).data_size)
                                 with address =>
                                   to_address (
                                      ewok.layout.USER_DATA_BASE
                                      + config.applications.list(id).data_off
                                      + config.applications.list(id).stack_size);
+
+            bss_region : byte_array (1 .. config.applications.list(id).bss_size + 4)
+                                with address =>
+                                  to_address (
+                                     ewok.layout.USER_DATA_BASE
+                                     + config.applications.list(id).data_off
+                                     + config.applications.list(id).data_size
+                                     + config.applications.list(id).stack_size);
          begin
+            debug.log(debug.INFO, "task " & id'image & ": copy data from " &
+            system_address'image(to_system_address(src'address)) & " to " & system_address'image(to_system_address(data_region'address)) & ", size " &
+           config.applications.list(id).data_size'image);
+
             data_region := src;
+            bss_region := (others => 0 );
          end;
       end if;
    end copy_data_to_ram;

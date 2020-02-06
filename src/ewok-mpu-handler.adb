@@ -43,6 +43,7 @@ is
 #end if;
    begin
       pragma DEBUG (ewok.tasks.debug.crashdump (frame_a));
+      ewok.tasks.debug.crashdump (frame_a);
 
       -- On memory fault, the task is not scheduled anymore
       ewok.tasks.set_state

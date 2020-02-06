@@ -48,6 +48,8 @@ sub format_appinfo_for_kernel {
          %s_name,   -- application name
          %s,        -- task code offset in flash
          %s,        -- task code (.text) section size
+         %s,        -- task .got section offset
+         %s,        -- task .got section size
          %s,        -- task RAM offset in memory
          %s,        -- .data section size
          %s,        -- .bss section size
@@ -59,7 +61,8 @@ sub format_appinfo_for_kernel {
          %s         -- task priority
       ),",
     $appinfo->{'id'}, ${name}, format_ada_hex($appinfo->{'text_off'}),
-    format_ada_hex($appinfo->{'text_size'}), format_ada_hex($appinfo->{'data_off'}),
+    format_ada_hex($appinfo->{'text_size'}), format_ada_hex($appinfo->{'got_off'}),
+     format_ada_hex($appinfo->{'got_size'}), format_ada_hex($appinfo->{'data_off'}),
     format_ada_hex($appinfo->{'data_size'}), format_ada_hex($appinfo->{'bss_size'}),
     format_ada_hex($appinfo->{'heap_size'}), format_ada_hex($appinfo->{'stack_size'}), 
     format_ada_hex($appinfo->{'entrypoint'}), format_ada_hex($appinfo->{'isr_entrypoint'})
@@ -124,7 +127,7 @@ sub format_appinfo_for_cfg {
     print FH "app$id.textoff=$appinfo->{'text_off'}";
     print FH "app$id.textaddr=$appinfo->{'text_addr'}";
     print FH "app$id.textsize=$appinfo->{'text_size'}";
-    print FH "app$id.gotoff=$appinfo->{'got_addr'}";
+    print FH "app$id.gotoff=".($appinfo->{'text_off'} + $appinfo->{'text_size'});
     print FH "app$id.gotsize=$appinfo->{'got_size'}";
     print FH "app$id.vdsooff=$appinfo->{'vdso_addr'}";
     print FH "app$id.vdsosize=$appinfo->{'vdso_size'}";
