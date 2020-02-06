@@ -44,6 +44,16 @@ is
       ewok.mpu.init (success);
    end init;
 
+   -- map .data section from flash memory to RAM for target application
+   -- mapping .data section depend on the memory backend, i.e. in MPU based
+   -- system, this is a recopy from a given region to another as in MMU
+   -- based system, this is a virtual memory mapping
+   procedure copy_data_to_ram
+     (id    : in  t_real_task_id)
+   is
+   begin
+      ewok.mpu.copy_data_to_ram(id);
+   end copy_data_to_ram;
 
    procedure map_code_and_data
      (id    : in  t_real_task_id)

@@ -24,6 +24,7 @@
 with m4.mpu;
 with m4.scb;
 with ewok.interrupts;
+with config.applications; use config.applications;
 
 package ewok.mpu
    with spark_mode => on
@@ -63,6 +64,11 @@ is
          global => (in_out => (m4.mpu.MPU,
                                m4.scb.SCB,
                                ewok.interrupts.interrupt_table));
+
+   procedure copy_data_to_ram
+     (id    : in  t_real_task_id)
+      with
+         global => (input  => (config.applications.list));
 
    -- Allows the kernel to access the whole memory
    procedure enable_unrestricted_kernel_access
