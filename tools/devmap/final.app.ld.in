@@ -47,6 +47,7 @@ SECTIONS
 		*(.glue_7)         	/* glue arm to thumb code */
 		*(.glue_7t)        	/* glue thumb to arm code */
 		*(.eh_frame)
+        . = ALIGN(4);
 		KEEP (*(.init))
 		KEEP (*(.fini))
 		__e_text = .;        	/* define a global symbols at end of code */
@@ -60,6 +61,7 @@ SECTIONS
 		_s_got = .;
 		*(.got)
 		*(.got*)
+        . = ALIGN(4);
 		/* declaring variables for various task slots and add them to flash */
 		__e_got = .;
 	}>FLASH_APP

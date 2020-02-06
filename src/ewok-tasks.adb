@@ -33,7 +33,6 @@ with types.c;              use type types.c.t_retval;
 
 with config.applications; -- Automatically generated
 with config.memlayout; -- Automatically generated
-with sections;     -- Automatically generated
 
 package body ewok.tasks
    with spark_mode => off
@@ -643,7 +642,9 @@ is
       init_softirq_task;
       init_apps;
 
-      sections.task_map_data;
+      for id in config.applications.list'range loop
+         ewok.memory.copy_data_to_ram(id);
+      end loop;
 
    end task_init;
 

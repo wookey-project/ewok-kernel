@@ -28,7 +28,6 @@ with ewok.mpu.handler;
 with ewok.layout;
 with ewok.debug;
 with soc.layout;
-with config.applications; -- generated
 
 package body ewok.mpu
   with spark_mode => on
@@ -153,6 +152,29 @@ is
    procedure disable_unrestricted_kernel_access
       renames m4.mpu.disable_unrestricted_kernel_access;
 
+   procedure copy_data_to_ram
+     (id    : in  t_real_task_id)
+   is
+   begin
+      if config.applications.list(id).data_size > 0 then
+         declare
+            src         : byte_array (1 .. config.applications.list(id).data_size)
+                                with address =>
+                                  to_address (
+                                     config.applications.txt_user_region_base
+                                     + config.applications.list(id).text_off
+                                     + config.applications.list(id).text_size);
+            data_region : byte_array (1 .. config.applications.list(id).data_size)
+                                with address =>
+                                  to_address (
+                                     ewok.layout.USER_DATA_BASE
+                                     + config.applications.list(id).data_off
+                                     + config.applications.list(id).stack_size);
+         begin
+            data_region := src;
+         end;
+      end if;
+   end copy_data_to_ram;
 
    procedure set_region
      (region_number  : in  m4.mpu.t_region_number;

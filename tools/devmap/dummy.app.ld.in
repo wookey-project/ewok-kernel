@@ -46,20 +46,22 @@ SECTIONS
 		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */
 		*(.glue_7)         	/* glue arm to thumb code */
 		*(.glue_7t)        	/* glue thumb to arm code */
-		*(.eh_frame)
+        *(.eh_frame)
+        . = ALIGN(4);
 		KEEP (*(.init))
 		KEEP (*(.fini))
 		__e_text = .;        	/* define a global symbols at end of code */
 	}>FLASH_APP
 
-	. = ALIGN(4);
+    . = ALIGN(4);
 
 	/* used by the startup to initialize got */
 	.got :
 	{
 		_s_got = .;
 		*(.got)
-		*(.got*)
+        *(.got*)
+        . = ALIGN(4);
 		/* declaring variables for various task slots and add them to flash */
 		__e_got = .;
 	}>FLASH_APP

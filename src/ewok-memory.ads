@@ -39,6 +39,11 @@ is
    procedure init
      (success : out boolean);
 
+   -- map application data section from storage to RAM
+   procedure copy_data_to_ram
+     (id    : in  t_real_task_id)
+     with inline;
+
    -- Map task's code and data sections
    procedure map_code_and_data
      (id : in  t_real_task_id)
