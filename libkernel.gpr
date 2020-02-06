@@ -147,8 +147,7 @@ library project Libkernel is
       "types",
       "types.c",
       "processor",
-      "rings",
-      "sections");
+      "rings");
 
 
    Local_Path := ".";

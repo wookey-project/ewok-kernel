@@ -40,6 +40,10 @@ package config.applications is
       text_off          : memory_offset;
       -- task text size, in bytes
       text_size         : application_section_size;
+      -- task got section addr in flash
+      got_off          : memory_offset;
+      -- task got size, in bytes
+      got_size         : application_section_size;
       -- task data address, in RAM
       data_off          : memory_offset;
       -- task data size
