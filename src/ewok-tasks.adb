@@ -365,7 +365,7 @@ is
          tasks_list(id).isr_ctx.entry_point :=
             user_base
             + config.applications.list(id).text_off
-            + config.applications.list(id).entrypoint_off;
+            + config.applications.list(id).isr_entrypoint_off;
 
 
          pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
