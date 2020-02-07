@@ -163,7 +163,7 @@ is
             -- As a consequence, .bss start 4 bytes later.
             -- As a conservative measure, this variable, as a ldscript variable (accessed only
             -- for its address) is also set to 0.
-            bss_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).bss_size) + 4)
+            bss_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).bss_size))
                                 with address =>
                                   to_address (
                                      ewok.layout.USER_DATA_BASE
@@ -172,8 +172,8 @@ is
                                      + to_unsigned_32(config.applications.list(id).stack_size));
          begin
             debug.log(debug.INFO, "task " & id'image & ": zeroify bss: from " &
-                      system_address'image(to_system_address(bss_region'address)) & " to " &
-                      system_address'image(to_unsigned_32(bss_region'address) + bss_region'size));
+                      system_address'image(to_system_address(bss_region'address)) & " with size: " &
+                      system_address'image(to_unsigned_32(config.applications.list(id).bss_size)));
 
             bss_region := (others => 0 );
          end;
