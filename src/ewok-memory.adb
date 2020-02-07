@@ -44,6 +44,14 @@ is
       ewok.mpu.init (success);
    end init;
 
+   -- zerofiy BSS section of given task in RAM.
+   procedure zeroify_bss
+     (id    : in  t_real_task_id)
+   is
+   begin
+      ewok.mpu.zeroify_bss(id);
+   end zeroify_bss;
+
    -- map .data section from flash memory to RAM for target application
    -- mapping .data section depend on the memory backend, i.e. in MPU based
    -- system, this is a recopy from a given region to another as in MMU

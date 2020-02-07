@@ -32,6 +32,8 @@ package config.applications is
    subtype memory_offset is unsigned_32 range 0 .. 4194304;
    -- an application section can be up to 512K length
    subtype application_section_size is unsigned_32 range 0 .. 524288;
+   -- an application data section (mapped in RAM) can be up to 65K length
+   subtype application_data_size is unsigned_16 range 0 .. 65535;
 
    type t_application is record
       -- task name
@@ -47,13 +49,13 @@ package config.applications is
       -- task data address, in RAM
       data_off          : memory_offset;
       -- task data size
-      data_size         : application_section_size;
+      data_size         : application_data_size;
       -- task BSS size
-      bss_size          : application_section_size;
+      bss_size          : application_data_size;
       -- task heap size
-      heap_size         : application_section_size;
+      heap_size         : application_data_size;
       -- task requested stack size
-      stack_size        : application_section_size;
+      stack_size        : application_data_size;
       -- entrypoint offset, starting at application text start addr
       entrypoint_off    : memory_offset;
       -- isr_entrypoint offset, starting at  application text start addr

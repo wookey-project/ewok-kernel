@@ -39,7 +39,12 @@ is
    procedure init
      (success : out boolean);
 
-   -- map application data section from storage to RAM
+   -- Zerofiy BSS section of given task in RAM.
+   procedure zeroify_bss
+     (id    : in  t_real_task_id)
+     with inline;
+
+   -- Map application data section from storage to RAM
    procedure copy_data_to_ram
      (id    : in  t_real_task_id)
      with inline;
