@@ -135,8 +135,6 @@ is
       ttype             : t_task_type     := TASK_TYPE_USER;
       mode              : t_task_mode     := TASK_MODE_MAINTHREAD;
       id                : ewok.tasks_shared.t_task_id := ID_UNUSED;
-      slot              : unsigned_8      := 0; -- 1: first slot (0: unused)
-      num_slots         : unsigned_8      := 0;
       prio              : unsigned_8      := 0;
 #if CONFIG_KERNEL_DOMAIN
       domain            : unsigned_8      := 0;
@@ -159,7 +157,7 @@ is
       txt_slot_end      : system_address  := 0;
       stack_bottom      : system_address  := 0;
       stack_top         : system_address  := 0;
-      stack_size        : unsigned_32     := 0;
+      stack_size        : unsigned_16     := 0;
       state             : t_task_state    := TASK_STATE_EMPTY;
       isr_state         : t_task_state    := TASK_STATE_EMPTY;
       ipc_endpoint_id   : t_ipc_endpoint_id_list;

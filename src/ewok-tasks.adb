@@ -107,8 +107,6 @@ is
       tsk.ttype             := TASK_TYPE_USER;
       tsk.mode              := TASK_MODE_MAINTHREAD;
       tsk.id                := ID_UNUSED;
-      tsk.slot              := 0;
-      tsk.num_slots         := 0;
       tsk.prio              := 0;
 
 #if CONFIG_KERNEL_DOMAIN
@@ -288,8 +286,6 @@ is
          tasks_list(id).ttype := TASK_TYPE_USER;
          tasks_list(id).id    := id;
 
-         --tasks_list(id).slot      := applications.list(id).slot;
-         --tasks_list(id).num_slots := applications.list(id).num_slots;
 
          tasks_list(id).prio  := config.applications.list(id).priority;
 
@@ -304,10 +300,10 @@ is
          tasks_list(id).data_slot_end     :=
             USER_DATA_BASE
             + config.applications.list(id).data_off
-            + config.applications.list(id).stack_size
-            + config.applications.list(id).data_size
-            + config.applications.list(id).bss_size
-            + config.applications.list(id).heap_size
+            + to_unsigned_32(config.applications.list(id).stack_size)
+            + to_unsigned_32(config.applications.list(id).data_size)
+            + to_unsigned_32(config.applications.list(id).bss_size)
+            + to_unsigned_32(config.applications.list(id).heap_size)
             + config.memlayout.list(id).ram_free_space;
 
          tasks_list(id).txt_slot_start :=
@@ -318,7 +314,7 @@ is
             user_base
             + config.applications.list(id).text_off
             + config.applications.list(id).text_size
-            + config.applications.list(id).data_size;
+            + to_unsigned_32(config.applications.list(id).data_size);
 
          tasks_list(id).stack_bottom   :=
             USER_DATA_BASE
@@ -326,7 +322,7 @@ is
          tasks_list(id).stack_top      :=
             USER_DATA_BASE
             + config.applications.list(id).data_off
-            + config.applications.list(id).stack_size;
+            + to_unsigned_32(config.applications.list(id).stack_size);
          tasks_list(id).stack_size     :=
             config.applications.list(id).stack_size;
 
@@ -339,10 +335,10 @@ is
 
          -- Zeroing the stack
          declare
-            stack : byte_array(1 .. tasks_list(id).stack_size)
+            stack : byte_array(1 .. to_unsigned_32(tasks_list(id).stack_size))
                with address => to_address
                  (tasks_list(id).data_slot_end -
-                  tasks_list(id).stack_size);
+                  to_unsigned_32(tasks_list(id).stack_size));
          begin
             stack := (others => 0);
          end;
@@ -644,6 +640,7 @@ is
 
       for id in config.applications.list'range loop
          ewok.memory.copy_data_to_ram(id);
+         ewok.memory.zeroify_bss(id);
       end loop;
 
    end task_init;

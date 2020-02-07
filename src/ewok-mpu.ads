@@ -65,6 +65,11 @@ is
                                m4.scb.SCB,
                                ewok.interrupts.interrupt_table));
 
+   procedure zeroify_bss
+     (id    : in  t_real_task_id)
+      with
+         global => (input  => (config.applications.list));
+
    procedure copy_data_to_ram
      (id    : in  t_real_task_id)
       with
