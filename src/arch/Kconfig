@@ -172,13 +172,13 @@ config MAXTASKS
 
 config AFLAGS_GCC
     string
-    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F4
-    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fPIC -fpie" if STM32F2
+    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fPIC -fpie" if STM32F4
+    default "-mlittle-endian -mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fPIC -fpie" if STM32F2
 
 config AFLAGS_LLVM
     string
-    default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F4
-    default "--target=arm-none-eabi -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fPIC -fpie" if STM32F2
+    default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -mthumb -fPIC -fpie" if STM32F4
+    default "--target=arm-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -mthumb -fPIC -fpie" if STM32F2
 
 
 
