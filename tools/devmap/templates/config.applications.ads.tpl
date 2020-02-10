@@ -19,8 +19,6 @@ with interfaces;        use interfaces;
 with types;             use types;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.tasks;	    use ewok.tasks;
-with m4.mpu;
-with soc.layout;    use soc.layout;
 
 
 package config.applications is

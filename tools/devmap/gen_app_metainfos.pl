@@ -68,12 +68,20 @@ sub main {
         my $appinfo;
         my $socinfos = Devmap::Appinfo::get_arch_informations();
 
-        # initialize memory layout for MPU-based device, setting requested properties
-        Devmap::Mpu::elf2mem::set_numslots($socinfos->{"mpu.subregions_number"});
-        Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
-        Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
-        Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
-        Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
+        if ($socinfos->{"soc.memorymodel"} =~  m/mpu/) {
+            # initialize memory layout for MPU-based device, setting requested properties
+            Devmap::Mpu::elf2mem::set_numslots($socinfos->{"mpu.subregions_number"});
+            Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
+            Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
+            Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
+            Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
+        } elsif ($socinfos->{"soc.memorymodel"} =~  m/mmu/) {
+            # initialize memory layout for MMU-based device, setting requested properties
+            # TODO
+        } else {
+            print "Error! Unsupported memory model " . $socinfos->{"soc.memorymodel"} . "!";
+            exit 1;
+        }
 
         my $appid = 1;
         foreach my $application (@applications) {
@@ -137,18 +145,6 @@ sub main {
         }
         print KERN_GENAPP "   );\n";
 
-        ## TODO: to be replaced by config-kernel.ads
-        my $prefix="\U${mode}\L";
-        print KERN_GENAPP "
-     txt_kern_region_base : constant unsigned_32   := soc.layout.${prefix}_KERN_BASE;
-     txt_kern_region_size : constant m4.mpu.t_region_size := soc.layout.${prefix}_KERN_REGION_SIZE;
-     txt_kern_size        : constant unsigned_32   := soc.layout.${prefix}_KERN_SIZE;
-
-     txt_user_region_base : constant unsigned_32   := soc.layout.${prefix}_USER_BASE;
-     txt_user_region_size : constant m4.mpu.t_region_size := soc.layout.${prefix}_USER_REGION_SIZE;
-     txt_user_size        : constant unsigned_32   := soc.layout.${prefix}_USER_SIZE;
-";
-
         printf KERN_GENAPP "end config.applications;";
         # now we can close the file
         close(KERN_GENAPP);
@@ -160,30 +156,50 @@ sub main {
 
       my $socinfos = Devmap::Appinfo::get_arch_informations();
       @applines = @{gen_kernel_membackend()};
-      print "cacaboudin @applines";
-        open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config-memlayout.ads") or die "unable to open output ada file for writing $!";
+      print "@applines";
+      open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config-memlayout.ads") or die "unable to open output ada file for writing $!";
 
-        #
-        # First we print the template constant content into the file
-        #
-        open(KERN_ARCHAPP_TPL, "<", dirname(abs_path($0)) . "/templates/config.memlayout.ads.tpl") or die "unable to open output ada file for writing $!";
-        while (<KERN_ARCHAPP_TPL>) {
-            chomp;
-            print KERN_ARCHAPP "$_";
-        }
-        close(KERN_ARCHAPP_TPL);
+      #
+      # First we print the template constant content into the file
+      #
+      open(KERN_ARCHAPP_TPL, "<", dirname(abs_path($0)) . "/templates/config.memlayout.ads.tpl") or die "unable to open output ada file for writing $!";
+      while (<KERN_ARCHAPP_TPL>) {
+          chomp;
+          print KERN_ARCHAPP "$_";
+      }
+      close(KERN_ARCHAPP_TPL);
 
-        my $i = 0;
-        foreach my $line (@applines) {
-            chop $line if (++$i == @applines);
-            print KERN_ARCHAPP "      $line";
-        }
+      my $i = 0;
+      foreach my $line (@applines) {
+          chop $line if (++$i == @applines);
+          print KERN_ARCHAPP "      $line";
+      }
+      print KERN_ARCHAPP "   );\n";
 
-        print KERN_ARCHAPP "   );
+      # let's now, create kernel region information. This handle kernel memory
+      # this hold flash and RAM memory address and size.
+      print KERN_ARCHAPP "   kernel_region : constant t_kernel_region := (
+      " . Ada::Format::format_ada_hex($socinfos->{"memory.flash.\L$mode\E.kern.addr"}) . ",
+      " . $socinfos->{"memory.flash.\L$mode\E.kern.size"} . ",
+      " . $socinfos->{"memory.flash.\L$mode\E.kern.regionsize"} . ",
+      " . Ada::Format::format_ada_hex($socinfos->{"memory.ram.kernel.addr"}) . ",
+      " . $socinfos->{"memory.flash.\L$mode\E.kern.size"} . ",
+      " . $socinfos->{"memory.ram.kernel.regionsize"} .");\n";
 
-end config.memlayout;\n";
+      #
+      # let's now, create applications region informations
+      print KERN_ARCHAPP "   apps_region : constant t_applications_region := (
+      " . Ada::Format::format_ada_hex($socinfos->{"memory.flash.\L$mode\E.apps.addr"}) . ",
+      " . $socinfos->{"memory.flash.\L$mode\E.apps.size"} . ",
+      " . $socinfos->{"memory.flash.\L$mode\E.apps.regionsize"} . ",
+      " . Ada::Format::format_ada_hex($socinfos->{"memory.ram.apps.addr"}) . ",
+      " . $socinfos->{"memory.ram.apps.size"} . ",
+      " . $socinfos->{"memory.ram.apps.regionsize"} .");\n";
 
-        close(KERN_ARCHAPP);
+
+       print KERN_ARCHAPP "end config.memlayout;";
+
+       close(KERN_ARCHAPP);
     } else {
         print ("unknown action $action !");
         exit 1;
@@ -212,12 +228,24 @@ sub gen_kernel_membackend {
 
     my $socinfos = Devmap::Appinfo::get_arch_informations();
 
-    # initialize memory layout
-    Devmap::Mpu::elf2mem::set_numslots($socinfos->{'mpu.subregions_number'});
-    Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
-    Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
-    Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
-    Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
+    if ($socinfos->{"soc.memorymodel"} =~  m/mpu/) {
+        print "[+] Handling MPU based memory model";
+        # initialize memory layout
+        Devmap::Mpu::elf2mem::set_numslots($socinfos->{'mpu.subregions_number'});
+        Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
+        Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
+        Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
+        Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
+    } elsif ($socinfos->{"soc.memorymodel"} =~  m/mmu/) {
+        # initialize memory layout for MMU-based device, setting requested properties
+        # TODO
+        print "[+] MMU based memory model not yet supported";
+        exit 1;
+    } else {
+        print "Error! Unsupported memory model " . $socinfos->{"soc.memorymodel"} . "!";
+        exit 1;
+    }
+
 
     foreach my $application (@applications) {
         my %hash;
@@ -240,8 +268,18 @@ sub gen_kernel_membackend {
                          hex($hash{"app${appid}.bsssize"}) +
                          hex($hash{"app${appid}.stacksize"}) +
                          hex($hash{"app${appid}.heapsize"});
-
-        my %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
+        my %hash;
+        if ($socinfos->{"soc.memorymodel"} =~ m/mpu/) {
+            print "[+] mapping application to MPU based memory model";
+            %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
+        } elsif ($socinfos->{"soc.memorymodel"} =~ m/mmu/) {
+            # initialize memory layout for MMU-based device, setting requested properties
+            # TODO
+            exit 1;
+        } else {
+            print "Error! Unsupported memory model " . $socinfos->{"soc.memorymodel"} . "!";
+            exit 1;
+        }
 
         my $appline = sprintf("ID_APP%d => (%d, %d, %d, %d, %s),",
             $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
@@ -358,48 +396,6 @@ sub create_app_generic_info {
     return \%appinfo;
 }
 
-
-# get flash size for current application
-#
-# @argument:     None
-# @prerequisite: Devmap::Elfinfo::openelf() must have been previously called
-# @return:       the flash requested size in bytes
-#
-sub get_flash_size {
-    my %hash;
-    my $size = 0;
-    foreach (('.text', '.rodata', '.got', '.data')) {
-        if (Devmap::Elfinfo::elf_section_exists($_)) {
-            %hash = Devmap::Elfinfo::elf_get_section($_);
-            # align the section properly first
-            $size += ($size % hex($hash{'align'}));
-            # then add its size
-            $size += hex($hash{'size'});
-        }
-    }
-    return $size;
-}
-
-# get the ram size of the current application
-#
-# @argument:     None
-# @prerequisite: Devmap::Elfinfo::openelf() must have been previously called
-# @return:       the RAM requested size in bytes
-#
-sub get_ram_size {
-    my %hash;
-    my $size = 0;
-    foreach (('.stack', '.data', '.bss')) {
-        if (Devmap::Elfinfo::elf_section_exists($_)) {
-            %hash = Devmap::Elfinfo::elf_get_section($_);
-            # align the section properly first
-            $size += ($size % hex($hash{'align'}));
-            # then add its size
-            $size = $size + hex($hash{'size'});
-        }
-    }
-    return $size;
-}
 
 sub usage {
   print STDERR "usage: $0  <build_dir> <mode> <action>";

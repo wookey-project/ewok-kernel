@@ -266,7 +266,7 @@ is
          debug.panic ("Too many apps");
       end if;
 
-      user_base := config.applications.txt_user_region_base;
+      user_base := config.memlayout.apps_region.flash_memory_addr;
 
       for id in config.applications.list'range loop
 
@@ -294,11 +294,11 @@ is
 #end if;
 
          tasks_list(id).data_slot_start   :=
-            USER_DATA_BASE
+            config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_off;
 
          tasks_list(id).data_slot_end     :=
-            USER_DATA_BASE
+            config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_off
             + to_unsigned_32(config.applications.list(id).stack_size)
             + to_unsigned_32(config.applications.list(id).data_size)
@@ -317,10 +317,10 @@ is
             + to_unsigned_32(config.applications.list(id).data_size);
 
          tasks_list(id).stack_bottom   :=
-            USER_DATA_BASE
+            config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_off;
          tasks_list(id).stack_top      :=
-            USER_DATA_BASE
+            config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_off
             + to_unsigned_32(config.applications.list(id).stack_size);
          tasks_list(id).stack_size     :=
