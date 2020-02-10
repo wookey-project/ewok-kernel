@@ -26,6 +26,7 @@ my    $builddir = shift;
 my    $mode     = shift;
 my    $action   = shift;
 
+my $DEBUG = 0;
 
 #
 # main entry point. There is three possible actions:
@@ -156,7 +157,6 @@ sub main {
 
       my $socinfos = Devmap::Appinfo::get_arch_informations();
       @applines = @{gen_kernel_membackend()};
-      print "@applines";
       open(KERN_ARCHAPP, ">", dirname(abs_path($0)) . "/../../src/generated/config-memlayout.ads") or die "unable to open output ada file for writing $!";
 
       #
@@ -229,7 +229,7 @@ sub gen_kernel_membackend {
     my $socinfos = Devmap::Appinfo::get_arch_informations();
 
     if ($socinfos->{"soc.memorymodel"} =~  m/mpu/) {
-        print "[+] Handling MPU based memory model";
+        if ($DEBUG) { print "[+] Handling MPU based memory model"; }
         # initialize memory layout
         Devmap::Mpu::elf2mem::set_numslots($socinfos->{'mpu.subregions_number'});
         Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
@@ -239,7 +239,7 @@ sub gen_kernel_membackend {
     } elsif ($socinfos->{"soc.memorymodel"} =~  m/mmu/) {
         # initialize memory layout for MMU-based device, setting requested properties
         # TODO
-        print "[+] MMU based memory model not yet supported";
+        if ($DEBUG) { print "[+] MMU based memory model not yet supported"; }
         exit 1;
     } else {
         print "Error! Unsupported memory model " . $socinfos->{"soc.memorymodel"} . "!";
@@ -270,7 +270,7 @@ sub gen_kernel_membackend {
                          hex($hash{"app${appid}.heapsize"});
         my %hash;
         if ($socinfos->{"soc.memorymodel"} =~ m/mpu/) {
-            print "[+] mapping application to MPU based memory model";
+            if ($DEBUG) { print "[+] mapping application to MPU based memory model"; }
             %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
         } elsif ($socinfos->{"soc.memorymodel"} =~ m/mmu/) {
             # initialize memory layout for MMU-based device, setting requested properties
