@@ -13,6 +13,7 @@ use Kconfig::Application;
 
 my $builddir = "";
 my $mode = "";
+my $component = "";
 my $socinfos;
 
 #########################################################
@@ -24,6 +25,10 @@ sub set_builddir {
 
 sub set_mode {
     ($mode) = @_;
+}
+
+sub set_component {
+    ($component) = @_;
 }
 
 sub set_socinfos {
@@ -181,8 +186,10 @@ sub dump_elf_metainfo {
 
     # 5) the memory mapper has returned informations about. Here, this information is calculated in offset
     #    starting with the begining of the user flash/ram region of the current session
-    $appinfo{'text_off'} = hex($app_memorymap{'flash_slot_addr'}) - hex($socinfos->{"memory.flash.\L$mode\E.addr"});
-    $appinfo{'data_off'} = hex($app_memorymap{'ram_slot_addr'}) - hex($socinfos->{"memory.ram.addr"});
+    $appinfo{'text_off'} = hex($app_memorymap{'flash_slot_addr'}) - hex($socinfos->{"memory.flash.\L$mode\E.\L$component\E.addr"});
+    $appinfo{'text_addr'} = $app_memorymap{'flash_slot_addr'};
+    $appinfo{'data_addr'} = sprintf("0x%08x", (hex($app_memorymap{'flash_slot_addr'}) + hex($appinfo{'text_size'}) + hex($appinfo{'got_size'}) + hex($appinfo{'vdso_size'})));
+    $appinfo{'data_off'} = hex($app_memorymap{'ram_slot_addr'}) - hex($socinfos->{"memory.ram.\L$component\E.addr"});
 
 
     # 6) now get back .config info for app

@@ -112,12 +112,12 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
    $final_ldscript =~ s/\@STACKSIZE\@/$stacksize/;
    $final_ldscript =~ s/\@HEAPSIZE\@/$heapsize/;
 
-   print( "memory.flash." . lc($mode) . ".addr" . " => " . $socinfos->{"memory.flash." . lc($mode) . ".addr"});
+   print( "memory.flash." . lc($mode) . ".apps.addr" . " => " . $socinfos->{"memory.flash." . lc($mode) . ".apps.addr"});
 
    my $mode2=lc($mode);
-   $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", (hex($socinfos->{"memory.flash.$mode2.addr"})+$hashcfg{"textoff"})))/e;
+   $final_ldscript =~ s/\@ORIGIN_FLASH\@/(sprintf("0x%08x", (hex($socinfos->{"memory.flash.$mode2.apps.addr"})+$hashcfg{"textoff"})))/e;
    $final_ldscript =~ s/\@LENGTH_FLASH\@/(sprintf("0x%08x", hex($hashcfg{"textsize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"gotsize"})))/e;
-   $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", hex($socinfos->{"memory.ram.addr"})+$hashcfg{"dataoff"}))/e;
+   $final_ldscript =~ s/\@ORIGIN_RAM\@/(sprintf("0x%08x", hex($socinfos->{"memory.ram.apps.addr"})+$hashcfg{"dataoff"}))/e;
    # INFO: why +wordsize here ???? Good question :-)
    # ldscripts hold _s_data, _e_data, _s_bss, _e_bss, and so one symbols, which permit to get back addresses of various sections in RAM.
    # This sections are used in order to calculate application mapping and typically used by the allocator.

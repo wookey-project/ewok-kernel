@@ -51,21 +51,29 @@ sub main {
     if ($action =~ m/action=genappcfg/) {
         # generate configuration file
         #   req: dummy ELF file
-        open(CFGH, ">", "$builddir/apps/layout.\L$mode\E.cfg") or die "unable to open app cfg file for writing: $!";
+        # Here, we handle userspace applications informations (memory layouting
+        # including MPU-related information).
+        # Kernel memory layout is handled after.
+        #
+        my $component = "apps";
+
+        open(CFGH, ">", "$builddir/$component/layout.\L$mode\E.cfg") or die "unable to open $component cfg file for writing: $!";
         Devmap::Appinfo::set_builddir($builddir);
         Devmap::Appinfo::set_mode($mode);
+        # here we handle applications (not kernel)
+        Devmap::Appinfo::set_component($component);
 
         my @applines;
-        my @applications = <"$builddir/apps/*/*.\L$mode\E.elf">;
+        my @applications = <"$builddir/$component/*/*.\L$mode\E.elf">;
         my $appinfo;
         my $socinfos = Devmap::Appinfo::get_arch_informations();
 
         # initialize memory layout for MPU-based device, setting requested properties
         Devmap::Mpu::elf2mem::set_numslots($socinfos->{"mpu.subregions_number"});
-        Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.size"});
-        Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.addr"});
-        Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.size"});
-        Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.addr"});
+        Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
+        Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
+        Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
+        Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
 
         my $appid = 1;
         foreach my $application (@applications) {
@@ -129,6 +137,7 @@ sub main {
         }
         print KERN_GENAPP "   );\n";
 
+        ## TODO: to be replaced by config-kernel.ads
         my $prefix="\U${mode}\L";
         print KERN_GENAPP "
      txt_kern_region_base : constant unsigned_32   := soc.layout.${prefix}_KERN_BASE;
@@ -195,15 +204,20 @@ sub gen_kernel_membackend {
     # here we only get back the list of application. ELF file are not opened
     # FIXME: this could be obtain directly in the layout file, as the application list
     # can be dumped from it
+    # Here we handle membackend for applications, not kernel.
+    #
     my @applications = <"$builddir/apps/*/*.dummy.\L$mode\E.elf">;
     my $appid = 1;
+    my $component = "apps";
 
     my $socinfos = Devmap::Appinfo::get_arch_informations();
 
     # initialize memory layout
     Devmap::Mpu::elf2mem::set_numslots($socinfos->{'mpu.subregions_number'});
-    Devmap::Mpu::elf2mem::set_ram_size($socinfos->{'memory.ram.size'});
-    Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.size"});
+    Devmap::Mpu::elf2mem::set_ram_size($socinfos->{"memory.ram.$component.size"});
+    Devmap::Mpu::elf2mem::set_ram_addr($socinfos->{"memory.ram.$component.addr"});
+    Devmap::Mpu::elf2mem::set_flash_size($socinfos->{"memory.flash.\L$mode\E.$component.size"});
+    Devmap::Mpu::elf2mem::set_flash_addr($socinfos->{"memory.flash.\L$mode\E.$component.addr"});
 
     foreach my $application (@applications) {
         my %hash;
