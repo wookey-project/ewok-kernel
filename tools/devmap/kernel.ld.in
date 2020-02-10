@@ -1,6 +1,12 @@
-/* fwx.ld */
 
-INCLUDE BUILDDIR/layout.ld
+MEMORY
+{
+  /* sample flash, 512k */
+  FLASH_KERN (rx) : ORIGIN = @ORIGIN_FLASH@, LENGTH = @LENGTH_FLASH@
+  /* sample RAM, 256k */
+  RAM_KERN   (rx) : ORIGIN = @ORIGIN_RAM@, LENGTH = @LENGTH_RAM@
+}
+
 
 _estack = _kern_init_msp_stack;
 
@@ -13,7 +19,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  }>FLASHMAP_KERN
+  }>FLASH_KERN
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -36,7 +42,7 @@ SECTIONS
 
     _sigot = .;
 
-  }>FLASHMAP_KERN
+  }>FLASH_KERN
 
   /* used by the startup to initialize got */
   .got : AT ( _sigot ) {
@@ -54,7 +60,7 @@ SECTIONS
   /* used by the startup to initialize data */
     _sidata = .;
 
-  }>FLASHMAP_KERN
+  }>FLASH_KERN
   /* used by the startup to initialize data */
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data : AT ( _sidata )
@@ -75,7 +81,7 @@ SECTIONS
      * the size of .data section */
     . = . + SIZEOF(.data);
     . = ALIGN(4);
-  }>FLASHMAP_KERN
+  }>FLASH_KERN
 
   /* Uninitialized data section */
   . = ALIGN(4);
