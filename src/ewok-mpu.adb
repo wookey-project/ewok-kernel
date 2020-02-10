@@ -25,9 +25,10 @@ with ada.unchecked_conversion;
 
 with m4.mpu;   use m4.mpu;
 with ewok.mpu.handler;
-with ewok.layout;
 with ewok.debug;
-with soc.layout;
+with soc;
+with soc.layout; use soc.layout;
+with config.memlayout; use config.memlayout;
 
 package body ewok.mpu
   with spark_mode => on
@@ -36,13 +37,8 @@ is
    procedure init
      (success : out boolean)
    is
-      -- Layout mapping validation of generated constants
-      pragma assert
-        (config.applications.txt_kern_size + config.applications.txt_kern_region_base
-            <= config.applications.txt_user_region_base);
-
-      function get_region_size (size : t_region_size) return unsigned_32
-         is (2**(natural (size) + 1));
+      -- Layout mapping validation of generated constants can be done at runtime
+      -- assertion is now based on a dictionary that can be checked by kernel perl tools
 
    begin
 
@@ -81,8 +77,8 @@ is
       -- Region: kernel code
       set_region
         (region_number  => KERN_CODE_REGION,
-         addr           => config.applications.txt_kern_region_base,
-         size           => REGION_SIZE_64KB,
+         addr           => config.memlayout.kernel_region.flash_memory_addr,
+         size           => config.memlayout.kernel_region.flash_memory_region_size,
          region_type    => REGION_TYPE_KERN_CODE,
          subregion_mask => 0);
 
@@ -95,52 +91,32 @@ is
          subregion_mask => 0);
 
       -- Region: kernel data + stack
-      if get_region_size (REGION_SIZE_64KB) /= ewok.layout.KERN_DATA_SIZE then
-         pragma DEBUG
-           (debug.log (debug.ERROR, "MPU: invalid 'KERNEL DATA' size"));
-         return;
-      end if;
-
       set_region
         (region_number  => KERN_DATA_REGION,
-         addr           => ewok.layout.KERN_DATA_BASE,
-         size           => REGION_SIZE_64KB,
+         addr           => config.memlayout.kernel_region.ram_memory_addr,
+         size           => config.memlayout.kernel_region.ram_memory_region_size,
          region_type    => REGION_TYPE_KERN_DATA,
          subregion_mask => 0);
 
-      -- Region: user data
-      -- Note: This is for the whole area. Each task will use only a fixed
-      --       number of sub-regions
-      if get_region_size (REGION_SIZE_128KB) /= ewok.layout.USER_RAM_SIZE then
-         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'USER DATA' size"));
-         return;
-      end if;
-
       set_region
         (region_number  => USER_DATA_REGION,
-         addr           => ewok.layout.USER_DATA_BASE,
-         size           => REGION_SIZE_128KB,
+         addr           => config.memlayout.apps_region.ram_memory_addr,
+         size           => config.memlayout.apps_region.ram_memory_region_size,
          region_type    => REGION_TYPE_USER_DATA,
          subregion_mask => 0);
 
-      -- Region: user code
-      -- Note: This is for the whole area. Each task will use only a fixed
-      --       number of sub-regions
-      if get_region_size (REGION_SIZE_256KB) /= ewok.layout.FW1_USER_SIZE then
-         pragma DEBUG (debug.log (debug.ERROR, "MPU: invalid 'USER CODE' size"));
-         return;
-      end if;
-
       set_region
         (region_number  => USER_CODE_REGION,
-         addr           => config.applications.txt_user_region_base,
-         size           => config.applications.txt_user_region_size,
+         addr           => config.memlayout.apps_region.flash_memory_addr,
+         size           => config.memlayout.apps_region.flash_memory_region_size,
          region_type    => REGION_TYPE_USER_CODE,
          subregion_mask => 0);
 
       pragma DEBUG (debug.log (debug.INFO, "MPU is configured"));
       m4.mpu.enable;
       pragma DEBUG (debug.log (debug.INFO, "MPU is enabled"));
+
+      success := true;
 
    end init;
 
@@ -166,7 +142,7 @@ is
             bss_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).bss_size))
                                 with address =>
                                   to_address (
-                                     ewok.layout.USER_DATA_BASE
+                                     config.memlayout.apps_region.ram_memory_addr
                                      + config.applications.list(id).data_off
                                      + to_unsigned_32(config.applications.list(id).data_size)
                                      + to_unsigned_32(config.applications.list(id).stack_size));
@@ -189,14 +165,14 @@ is
             src         : byte_array (1 .. to_unsigned_32(config.applications.list(id).data_size))
                                 with address =>
                                   to_address (
-                                     config.applications.txt_user_region_base
+                                     config.memlayout.apps_region.flash_memory_addr
                                      + config.applications.list(id).text_off
                                      + config.applications.list(id).text_size
                                      + config.applications.list(id).got_size );
             data_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).data_size))
                                 with address =>
                                   to_address (
-                                     ewok.layout.USER_DATA_BASE
+                                     config.memlayout.apps_region.ram_memory_addr
                                      + config.applications.list(id).data_off
                                      + to_unsigned_32(config.applications.list(id).stack_size));
          begin
