@@ -18,7 +18,6 @@ my $cur_flash_slot = 1;
 # set current MPU slot number per region
 sub set_numslots {
     my ($val) = @_;
-    print("## set numslots to $val");
     $numslot = $val;
 }
 
@@ -68,7 +67,17 @@ sub map_application {
     );
 
     $cur_ram_slot += $ram_slot_consumed;
+    if ($cur_ram_slot > ($numslot + 1)) {
+        print "[-] Error! Too many memory space consumed! application can't be mapped in RAM!";
+        exit 1;
+    }
+
     $cur_flash_slot += $flash_slot_consumed;
+    if ($cur_ram_slot > ($numslot + 1)) {
+        print "[-] Error! Too many memory space consumed! application can't be mapped in FLASH!";
+        exit 1;
+    }
+
     return %appslotting;
 }
 
