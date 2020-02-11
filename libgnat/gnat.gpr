@@ -1,5 +1,11 @@
 library project Gnat is
 
+   -- TODO: the arch and ABI should not be hard-coded here. Yet we should
+   -- specify the float ABI to Gnat
+   arch :=
+      ("-mcpu=cortex-m4",
+       "-mfloat-abi=soft");
+
    for Languages use ("Ada");
    for Library_Kind use "static";
    for Library_Name use "gnat";
@@ -23,7 +29,7 @@ library project Gnat is
       for Default_Switches ("Ada") use
         ("-O2",
          "-gnatg",  -- Mandatory to compile GNAT units
-         "-gnatp"); -- Suppress all checks
+         "-gnatp") & arch; -- Suppress all checks
 
    end Compiler;
 
