@@ -1,1 +1,1 @@
-../stm32f439/soc-pwr.ads
+../stm32f407/soc-pwr.ads
