@@ -285,6 +285,13 @@ sub gen_kernel_membackend {
             $appid, $hash{'flash_slot_start'}, $hash{'flash_slot_num'},
             $hash{'ram_slot_start'}, $hash{'ram_slot_num'}, Ada::Format::format_ada_hex($hash{'ram_free_space'}));
 
+        if ($socinfos->{"soc.memorymodel"} =~  m/mpu/) {
+            # let's check that there is no overflow
+            if (($hash{'flash_slot_start'} + $hash{'flash_slot_num'} - 1) > $socinfos->{'mpu.subregions_number'}) {
+                print "Error! Unable to map application $appid! too many slots consumed for backend architecture!";
+                exit 1;
+            }
+        }
         push @applines, $appline;
 
         $appid += 1;
