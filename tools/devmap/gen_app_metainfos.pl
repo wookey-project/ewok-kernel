@@ -288,7 +288,11 @@ sub gen_kernel_membackend {
         if ($socinfos->{"soc.memorymodel"} =~  m/mpu/) {
             # let's check that there is no overflow
             if (($hash{'flash_slot_start'} + $hash{'flash_slot_num'} - 1) > $socinfos->{'mpu.subregions_number'}) {
-                print "Error! Unable to map application $appid! too many slots consumed for backend architecture!";
+                print "Error! Unable to map application $appid in flash! too many slots consumed for backend architecture!";
+                exit 1;
+            }
+            if (($hash{'ram_slot_start'} + $hash{'ram_slot_num'} - 1) > $socinfos->{'mpu.subregions_number'}) {
+                print "Error! Unable to map application $appid in RAM! too many slots consumed for backend architecture!";
                 exit 1;
             }
         }
