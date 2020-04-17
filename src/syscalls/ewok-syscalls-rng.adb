@@ -64,12 +64,6 @@ is
          goto ret_inval;
       end if;
 
-      -- Size is arbitrary limited to 16 bytes to avoid exhausting the entropy pool
-      -- FIXME - is that check really correct?
-      if length > 16 then
-         goto ret_inval;
-      end if;
-
       -- Is the task allowed to use the RNG?
       if not ewok.perm.ressource_is_granted
                (ewok.perm.PERM_RES_TSK_RNG, caller_id)
