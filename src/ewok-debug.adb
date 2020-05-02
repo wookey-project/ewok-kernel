@@ -174,6 +174,11 @@ is
    is
    begin
       for i in s'range loop
+         -- we need carriage return on serial interface, in addition to POSIX standard
+         -- newline character
+         if s(i) = ASCII.LF then
+            putc (ASCII.CR);
+         end if;
          putc (s(i));
       end loop;
       if nl then
