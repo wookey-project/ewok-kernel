@@ -44,6 +44,10 @@ SECTIONS
 		*(.text*)
 		*(.rodata)         	/* .rodata sections (constants, strings, etc.) */
 		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */
+                . = ALIGN(4);
+		__s_SEC_sanhandlers = .;
+                KEEP (*(SEC_sanhandlers*))     /* handlers sanitization section */
+		__e_SEC_sanhandlers = .;
 		*(.glue_7)         	/* glue arm to thumb code */
 		*(.glue_7t)        	/* glue thumb to arm code */
 		*(.eh_frame)
