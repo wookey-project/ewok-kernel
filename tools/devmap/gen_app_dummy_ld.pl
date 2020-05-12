@@ -33,22 +33,27 @@ my $is_flip = 0;
 my $is_flop = 0;
 my $is_fw   = 0;
 my $is_dfu  = 0;
+my $subdir = "";
 
 if ($mode =~ "FW1") {
     $is_flip = 0xf0;
     $is_fw   = 0xf0;
+    $subdir = "fw";
 }
 if ($mode =~ "FW2") {
     $is_flop = 0xf0;
     $is_fw   = 0xf0;
+    $subdir = "fw";
 }
 if ($mode =~ "DFU1") {
     $is_flip = 0xf0;
     $is_dfu  = 0xf0;
+    $subdir = "dfu";
 }
 if ($mode =~ "DFU2") {
     $is_flop = 0xf0;
     $is_dfu  = 0xf0;
+    $subdir = "dfu";
 }
 
 
@@ -62,10 +67,10 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
 
     if ($DEBUG) { print "[+] $i has to be handled in $mode"; }
 
-    if ($DEBUG) { print "[+] opening output ldscript $builddir/apps/\L$i/$i.dummy.$mode\E.ld"; }
-    make_path("$builddir/apps/\L$i");
-    open(OUTLD, '>', "$builddir/apps/\L$i/$i.dummy.$mode\E.ld")
-        or die "unable to open $builddir/apps/\L$i/$i.$mode\E.ld";
+    if ($DEBUG) { print "[+] opening output ldscript $builddir/apps/\L$i/$subdir/$i.dummy.$mode\E.ld"; }
+    make_path("$builddir/apps/\L$i/$subdir");
+    open(OUTLD, '>', "$builddir/apps/\L$i/$subdir/$i.dummy.$mode\E.ld")
+        or die "unable to open $builddir/apps/\L$i/$subdir/$i.$mode\E.ld";
 
     if ($DEBUG) { print "[+] opening intput dummy ldscript $dummy"; }
     open(INLD, '<',"$dummy") or die "unable to open $dummy";

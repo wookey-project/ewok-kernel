@@ -65,7 +65,7 @@ sub main {
         Devmap::Appinfo::set_component($component);
 
         my @applines;
-        my @applications = <"$builddir/$component/*/*.\L$mode\E.elf">;
+        my @applications = <"$builddir/$component/*/*/*.\L$mode\E.elf">;
         my $appinfo;
         my $socinfos = Devmap::Appinfo::get_arch_informations();
 
@@ -222,7 +222,7 @@ sub gen_kernel_membackend {
     # can be dumped from it
     # Here we handle membackend for applications, not kernel.
     #
-    my @applications = <"$builddir/apps/*/*.dummy.\L$mode\E.elf">;
+    my @applications = <"$builddir/apps/*/*/*.dummy.\L$mode\E.elf">;
     my $appid = 1;
     my $component = "apps";
 
@@ -309,7 +309,7 @@ sub gen_kernel_membackend {
 ################################################################
 sub gen_kernel_generic {
     my @applines;
-    my @applications = <"$builddir/apps/*/*.\L$mode\E.elf">;
+    my @applications = <"$builddir/apps/*/*/*.\L$mode\E.elf">;
     my $appid = 1;
 
     foreach my $application (@applications) {
