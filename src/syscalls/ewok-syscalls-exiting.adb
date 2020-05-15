@@ -22,7 +22,6 @@
 
 
 with ewok.tasks;        use ewok.tasks;
-with ewok.sched;
 
 package body ewok.syscalls.exiting
    with spark_mode => off
@@ -34,24 +33,42 @@ is
    is
    begin
 
-      -- FIXME: maybe we should clean resources (devices, DMA, IPCs) ?
-      -- This means:
-      --    * unlock task waiting for this task to respond to IPC, returning BUSY
-      --    * disabling all registered interrupts (NVIC)
-      --    * disabling all EXTIs
-      --    * cleaning DMA registered streams & reseting them
-      --    * deregistering devices
-      --    * deregistering GPIOs
-      --  Most of those actions should be handled by each component unregister()
-      --  call (or equivalent)
-      --  All waiting events of the softirq input queue for this task should also be
-      --  cleaned (they also can be cleaned as they are treated by softirqd)
-      ewok.tasks.set_state
-         (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
-      ewok.tasks.set_state
-         (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.sched.request_schedule;
+      if mode = TASK_MODE_ISRTHREAD then
+#if CONFIG_SCHED_SUPPORT_FISR
+         declare
+            current_state : constant t_task_state :=
+               ewok.tasks.get_state (caller_id, TASK_MODE_MAINTHREAD);
+         begin
+            if current_state = TASK_STATE_RUNNABLE or
+               current_state = TASK_STATE_IDLE
+            then
+               ewok.tasks.set_state
+                  (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FORCED);
+            end if;
+         end;
+#end if;
+         ewok.tasks.set_state
+            (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
+
+         -- Main thread mode
+      else
+         -- FIXME: maybe we should clean resources (devices, DMA, IPCs) ?
+         -- This means:
+         --    * unlock task waiting for this task to respond to IPC, returning BUSY
+         --    * disabling all registered interrupts (NVIC)
+         --    * disabling all EXTIs
+         --    * cleaning DMA registered streams & reseting them
+         --    * deregistering devices
+         --    * deregistering GPIOs
+         --  Most of those actions should be handled by each component unregister()
+         --  call (or equivalent)
+         --  All waiting events of the softirq input queue for this task should also be
+         --  cleaned (they also can be cleaned as they are treated by softirqd)
+         ewok.tasks.set_state
+            (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
+      end if;
+
+
    end svc_exit;
 
 end ewok.syscalls.exiting;
