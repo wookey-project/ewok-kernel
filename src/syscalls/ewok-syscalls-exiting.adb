@@ -22,6 +22,7 @@
 
 
 with ewok.tasks;        use ewok.tasks;
+with ewok.debug;
 
 package body ewok.syscalls.exiting
    with spark_mode => off
@@ -60,6 +61,7 @@ is
          --    * cleaning DMA registered streams & reseting them
          --    * deregistering devices
          --    * deregistering GPIOs
+         --    * zeroing data regions
          --  Most of those actions should be handled by each component unregister()
          --  call (or equivalent)
          --  All waiting events of the softirq input queue for this task should also be
@@ -68,7 +70,23 @@ is
             (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
       end if;
 
-
    end svc_exit;
+
+
+   procedure svc_panic
+     (caller_id   : in  ewok.tasks_shared.t_task_id)
+   is
+   begin
+      -- FIXME: maybe we should clean resources (devices, DMA, IPCs) or
+      --        freezing the board ?
+      ewok.tasks.set_state
+         (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
+      ewok.tasks.set_state
+         (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
+
+      pragma DEBUG (debug.log (debug.ALERT,
+            ewok.tasks.tasks_list(caller_id).name & ": panic!"));
+   end svc_panic;
+
 
 end ewok.syscalls.exiting;
