@@ -53,7 +53,7 @@ is
 
          -- Main thread mode
       else
-         -- FIXME: maybe we should clean resources (devices, DMA, IPCs) ?
+         -- FIXME: we should also clean resources (devices, DMA, IPCs, ISRs...)
          -- This means:
          --    * unlock task waiting for this task to respond to IPC, returning BUSY
          --    * disabling all registered interrupts (NVIC)
@@ -77,15 +77,13 @@ is
      (caller_id   : in  ewok.tasks_shared.t_task_id)
    is
    begin
-      -- FIXME: maybe we should clean resources (devices, DMA, IPCs) or
-      --        freezing the board ?
+      -- FIXME: we should also clean resources (devices, DMA, IPCs, ISRs...)
       ewok.tasks.set_state
          (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
       ewok.tasks.set_state
-         (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
+         (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
-      pragma DEBUG (debug.log (debug.ALERT,
-            ewok.tasks.tasks_list(caller_id).name & ": panic!"));
+      debug.panic (ewok.tasks.tasks_list(caller_id).name & ": panic!");
    end svc_panic;
 
 
