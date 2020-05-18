@@ -609,6 +609,10 @@ is
          return;
       end if;
 
+      soc.dma.interfaces.reset_stream
+        (registered_dma(index).config.dma_id,
+         registered_dma(index).config.stream);
+
       periph_id := registered_dma(index).periph_id;
 
       if registered_dma(index).config.in_handler  /= 0 or
@@ -621,10 +625,6 @@ is
          registered_dma(index).config.in_handler := 0;
          registered_dma(index).config.out_handler := 0;
       end if;
-
-      soc.dma.interfaces.reset_stream
-        (registered_dma(index).config.dma_id,
-         registered_dma(index).config.stream);
 
       registered_dma(index).status     := DMA_UNUSED;
       registered_dma(index).periph_id  := soc.devmap.NO_PERIPH;
