@@ -350,6 +350,8 @@ is
       -- Releasing the device
       release_registered_device_entry (dev_id);
 
+      success := true;
+
    end release_device;
 
 

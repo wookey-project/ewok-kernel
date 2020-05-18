@@ -110,4 +110,9 @@ is
       status    : out soc.dma.t_dma_stream_int_status;
       success   : out boolean);
 
+   procedure release_stream
+     (caller_id      : in     ewok.tasks_shared.t_task_id;
+      index          : in     ewok.dma_shared.t_registered_dma_index;
+      success        : out    boolean);
+
 end ewok.dma;

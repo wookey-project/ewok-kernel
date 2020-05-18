@@ -594,4 +594,45 @@ is
    end get_status_register;
 
 
+   procedure release_stream
+     (caller_id      : in     ewok.tasks_shared.t_task_id;
+      index          : in     ewok.dma_shared.t_registered_dma_index;
+      success        : out    boolean)
+   is
+      periph_id   : soc.devmap.t_periph_id;
+   begin
+
+      if registered_dma(index).status   = DMA_UNUSED or
+         registered_dma(index).task_id /= caller_id
+      then
+         success := false;
+         return;
+      end if;
+
+      periph_id := registered_dma(index).periph_id;
+
+      if registered_dma(index).config.in_handler  /= 0 or
+         registered_dma(index).config.out_handler /= 0
+      then
+         ewok.interrupts.reset_interrupt_handler
+           (soc.devmap.periphs(periph_id).interrupt_list(soc.devmap.t_interrupt_range'first),
+            caller_id,
+            ewok.devices_shared.ID_DEV_UNUSED);
+         registered_dma(index).config.in_handler := 0;
+         registered_dma(index).config.out_handler := 0;
+      end if;
+
+      soc.dma.interfaces.reset_stream
+        (registered_dma(index).config.dma_id,
+         registered_dma(index).config.stream);
+
+      registered_dma(index).status     := DMA_UNUSED;
+      registered_dma(index).periph_id  := soc.devmap.NO_PERIPH;
+      registered_dma(index).task_id    := ID_UNUSED;
+
+      success := true;
+
+   end release_stream;
+
+
 end ewok.dma;

@@ -21,12 +21,18 @@
 --
 
 
-with ewok.tasks;        use ewok.tasks;
+with ewok.tasks;           use ewok.tasks;
+with ewok.devices_shared;  use ewok.devices_shared;
+with ewok.dma_shared;      use ewok.dma_shared;
+with ewok.devices;
+with ewok.dma;
 with ewok.debug;
 
 package body ewok.syscalls.exiting
    with spark_mode => off
 is
+
+   package TSK renames ewok.tasks;
 
    procedure svc_exit
      (caller_id   : in  ewok.tasks_shared.t_task_id;
@@ -76,14 +82,55 @@ is
    procedure svc_panic
      (caller_id   : in  ewok.tasks_shared.t_task_id)
    is
+      dev_id   : ewok.devices_shared.t_device_id;
+      ok       : boolean;
    begin
-      -- FIXME: we should also clean resources (devices, DMA, IPCs, ISRs...)
+
+      -- Release registered devices
+      for dev_descriptor in TSK.tasks_list(caller_id).devices'range loop
+         dev_id := TSK.tasks_list(caller_id).devices(dev_descriptor).device_id;
+         if dev_id /= ID_DEV_UNUSED then
+
+            -- Unmounting the device
+            if TSK.is_mounted (caller_id, dev_descriptor) then
+               TSK.unmount_device (caller_id, dev_descriptor, ok);
+               if not ok then
+                  raise program_error; -- Should never happen
+               end if;
+            end if;
+
+            -- Removing it from the task's list of used devices
+            TSK.remove_device (caller_id, dev_descriptor);
+
+            -- Release GPIOs, EXTIs and interrupts
+            ewok.devices.release_device (caller_id, dev_id, ok);
+            if not ok then
+               raise program_error; -- Should never happen
+            end if;
+         end if;
+      end loop;
+
+      -- Release DMA streams
+      for dma_descriptor in TSK.tasks_list(caller_id).dma_id'range loop
+         if TSK.tasks_list(caller_id).dma_id(dma_descriptor) /= ID_DMA_UNUSED
+         then
+            ewok.dma.release_stream
+              (caller_id,
+               TSK.tasks_list(caller_id).dma_id(dma_descriptor),
+               ok);
+            if not ok then
+               raise program_error; -- Should never happen
+            end if;
+         end if;
+      end loop;
+
+      -- FIXME: maybe we should also clean IPCs ?
       ewok.tasks.set_state
          (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
       ewok.tasks.set_state
          (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
-      debug.panic (ewok.tasks.tasks_list(caller_id).name & ": panic!");
+      debug.panic (ewok.tasks.tasks_list(caller_id).name);
    end svc_panic;
 
 
