@@ -21,11 +21,18 @@
 --
 
 
-with ewok.tasks;        use ewok.tasks;
+with ewok.tasks;           use ewok.tasks;
+with ewok.devices_shared;  use ewok.devices_shared;
+with ewok.dma_shared;      use ewok.dma_shared;
+with ewok.devices;
+with ewok.dma;
+with ewok.debug;
 
 package body ewok.syscalls.exiting
    with spark_mode => off
 is
+
+   package TSK renames ewok.tasks;
 
    procedure svc_exit
      (caller_id   : in  ewok.tasks_shared.t_task_id;
@@ -52,7 +59,7 @@ is
 
          -- Main thread mode
       else
-         -- FIXME: maybe we should clean resources (devices, DMA, IPCs) ?
+         -- FIXME: we should also clean resources (devices, DMA, IPCs, ISRs...)
          -- This means:
          --    * unlock task waiting for this task to respond to IPC, returning BUSY
          --    * disabling all registered interrupts (NVIC)
@@ -60,6 +67,7 @@ is
          --    * cleaning DMA registered streams & reseting them
          --    * deregistering devices
          --    * deregistering GPIOs
+         --    * zeroing data regions
          --  Most of those actions should be handled by each component unregister()
          --  call (or equivalent)
          --  All waiting events of the softirq input queue for this task should also be
@@ -68,7 +76,67 @@ is
             (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
       end if;
 
-
    end svc_exit;
+
+
+   -- Deallocate registered devices and DMA streams in order
+   -- to avoid user ISRs (potentially faulty) triggered by
+   -- interrupts.
+   -- TODO: the appropriate action should be chosen at compile time
+   --       (ie. DO_NOTHING, RESET, FREEZE...)
+   procedure svc_panic
+     (caller_id   : in  ewok.tasks_shared.t_task_id)
+   is
+      dev_id   : ewok.devices_shared.t_device_id;
+      ok       : boolean;
+   begin
+
+      -- Release registered devices
+      for dev_descriptor in TSK.tasks_list(caller_id).devices'range loop
+         dev_id := TSK.tasks_list(caller_id).devices(dev_descriptor).device_id;
+         if dev_id /= ID_DEV_UNUSED then
+
+            -- Unmounting the device
+            if TSK.is_mounted (caller_id, dev_descriptor) then
+               TSK.unmount_device (caller_id, dev_descriptor, ok);
+               if not ok then
+                  raise program_error; -- Should never happen
+               end if;
+            end if;
+
+            -- Removing it from the task's list of used devices
+            TSK.remove_device (caller_id, dev_descriptor);
+
+            -- Release GPIOs, EXTIs and interrupts
+            ewok.devices.release_device (caller_id, dev_id, ok);
+            if not ok then
+               raise program_error; -- Should never happen
+            end if;
+         end if;
+      end loop;
+
+      -- Release DMA streams
+      for dma_descriptor in TSK.tasks_list(caller_id).dma_id'range loop
+         if TSK.tasks_list(caller_id).dma_id(dma_descriptor) /= ID_DMA_UNUSED
+         then
+            ewok.dma.release_stream
+              (caller_id,
+               TSK.tasks_list(caller_id).dma_id(dma_descriptor),
+               ok);
+            if not ok then
+               raise program_error; -- Should never happen
+            end if;
+         end if;
+      end loop;
+
+      -- FIXME: maybe we should also clean IPCs ?
+      ewok.tasks.set_state
+         (caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_ISR_DONE);
+      ewok.tasks.set_state
+         (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
+
+      debug.log (debug.ALERT, ewok.tasks.tasks_list(caller_id).name & " voluntary panic!");
+   end svc_panic;
+
 
 end ewok.syscalls.exiting;

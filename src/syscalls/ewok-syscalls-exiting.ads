@@ -31,4 +31,7 @@ is
      (caller_id   : in  ewok.tasks_shared.t_task_id;
       mode        : in  ewok.tasks_shared.t_task_mode);
 
+   procedure svc_panic
+     (caller_id   : in  ewok.tasks_shared.t_task_id);
+
 end ewok.syscalls.exiting;
