@@ -79,6 +79,11 @@ is
    end svc_exit;
 
 
+   -- Deallocate registered devices and DMA streams in order
+   -- to avoid user ISRs (potentially faulty) triggered by
+   -- interrupts.
+   -- TODO: the appropriate action should be chosen at compile time
+   --       (ie. DO_NOTHING, RESET, FREEZE...)
    procedure svc_panic
      (caller_id   : in  ewok.tasks_shared.t_task_id)
    is
@@ -130,7 +135,7 @@ is
       ewok.tasks.set_state
          (caller_id, TASK_MODE_MAINTHREAD, TASK_STATE_FINISHED);
 
-      debug.panic (ewok.tasks.tasks_list(caller_id).name);
+      debug.log (debug.ALERT, ewok.tasks.tasks_list(caller_id).name & " voluntary panic!");
    end svc_panic;
 
 
