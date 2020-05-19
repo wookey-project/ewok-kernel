@@ -23,6 +23,7 @@
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
 with ewok.sched;
+with ewok.sanitize;
 with ewok.syscalls.cfg.dev;
 with ewok.syscalls.cfg.gpio;
 with ewok.syscalls.gettick;
@@ -37,6 +38,7 @@ with ewok.syscalls.yield;
 with ewok.syscalls.exiting;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
+with ewok.debug;
 
 #if CONFIG_KERNEL_DMA_ENABLE
 with ewok.syscalls.dma;
@@ -54,10 +56,10 @@ is
      (frame_a : t_stack_frame_access)
       return t_stack_frame_access
    is
-      svc            : t_svc;
-      svc_params_a   : t_parameters_access;
       current_id     : constant t_task_id       := ewok.sched.current_task_id;
       current_a      : constant t_task_access   := ewok.tasks.tasks_list(current_id)'access;
+      svc_params_a   : t_parameters_access      := NULL;
+      svc            : t_svc;
    begin
 
       --
@@ -103,7 +105,31 @@ is
       -- Getting svc parameters from caller's stack
       --
 
-      svc_params_a := to_parameters_access (frame_a.all.R0);
+      if
+         ewok.sanitize.is_word_in_data_slot
+           (frame_a.all.R0, current_id, current_a.all.mode)
+      then
+         svc_params_a := to_parameters_access (frame_a.all.R0);
+      else
+         if svc /= SVC_EXIT         and
+            svc /= SVC_YIELD        and
+            svc /= SVC_RESET        and
+            svc /= SVC_INIT_DONE    and
+            svc /= SVC_LOCK_ENTER   and
+            svc /= SVC_LOCK_EXIT    and
+            svc /= SVC_PANIC
+         then
+            -- R0 points outside the caller's data area
+            pragma DEBUG (debug.log (debug.ERROR,
+               current_a.all.name & "svc_handler(): R0 invalid: " &
+               unsigned_32'image (frame_a.all.R0)));
+            ewok.tasks.set_state
+              (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
+            set_return_value
+              (current_id, current_a.all.mode, SYS_E_DENIED);
+            return frame_a;
+         end if;
+      end if;
 
       -------------------
       -- Managing SVCs --
