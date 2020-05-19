@@ -107,6 +107,11 @@ is
          goto ret_inval;
       end if;
 
+      -- Does that GPIO really belongs to the caller ?
+      if not ewok.gpio.belong_to (caller_id, ref) then
+         goto ret_denied;
+      end if;
+
       -- Does &val is in the caller address space ?
       if not ewok.sanitize.is_word_in_data_slot
                (to_system_address (val'address), caller_id, mode)
