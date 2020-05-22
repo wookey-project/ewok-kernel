@@ -106,8 +106,8 @@ is
       --
 
       if
-         ewok.sanitize.is_word_in_data_slot
-           (frame_a.all.R0, current_id, current_a.all.mode)
+         ewok.sanitize.is_range_in_data_slot
+           (frame_a.all.R0, t_parameters'size/8, current_id, current_a.all.mode)
       then
          svc_params_a := to_parameters_access (frame_a.all.R0);
       else
@@ -121,7 +121,7 @@ is
          then
             -- R0 points outside the caller's data area
             pragma DEBUG (debug.log (debug.ERROR,
-               current_a.all.name & "svc_handler(): R0 invalid: " &
+               current_a.all.name & "svc_handler(): invalid @parameters: " &
                unsigned_32'image (frame_a.all.R0)));
             ewok.tasks.set_state
               (current_id, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
