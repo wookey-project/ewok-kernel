@@ -22,8 +22,8 @@
 
 with ewok.tasks;        use ewok.tasks;
 with ewok.tasks_shared; use ewok.tasks_shared;
+with ewok.dma_shared;   use ewok.dma_shared;
 with ewok.exported.dma;
-with ewok.dma_shared;
 with ewok.dma;
 with ewok.perm;
 with ewok.sanitize;
@@ -128,19 +128,16 @@ is
       return;
 
    <<ret_busy>>
-      descriptor := 0;
       set_return_value (caller_id, mode, SYS_E_BUSY);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
    <<ret_inval>>
-      descriptor := 0;
       set_return_value (caller_id, mode, SYS_E_INVAL);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
 
    <<ret_denied>>
-      descriptor := 0;
       set_return_value (caller_id, mode, SYS_E_DENIED);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
