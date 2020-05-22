@@ -37,13 +37,10 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
-      length      : unsigned_16
+      buffer_address : constant system_address := params(1);
+      buffer_length  : unsigned_16
          with address => params(2)'address;
-
-      buffer      : unsigned_8_array (1 .. unsigned_32 (length))
-         with address => to_address (params(1));
-
-      ok : boolean;
+      ok             : boolean;
    begin
 
       -- Forbidden after end of task initialization
@@ -51,10 +48,10 @@ is
          goto ret_denied;
       end if;
 
-      -- Does buffer'address is in the caller address space ?
+      -- Does buffer's address is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
-                 (to_system_address (buffer'address),
-                  types.to_unsigned_32(length),
+                 (buffer_address,
+                  types.to_unsigned_32(buffer_length),
                   caller_id,
                   mode)
       then
@@ -82,7 +79,13 @@ is
       --       busy. Please check this return value when using this
       --       syscall to avoid using weak random content
 
-      ewok.rng.random_array (buffer, ok);
+
+      declare
+         buffer   : unsigned_8_array (1 .. unsigned_32 (buffer_length))
+            with address => to_address (buffer_address);
+      begin
+         ewok.rng.random_array (buffer, ok);
+      end;
 
       if not ok then
          pragma DEBUG (debug.log (debug.ERROR,

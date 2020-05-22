@@ -88,13 +88,9 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
-
-      ref   : ewok.exported.gpios.t_gpio_ref
+      ref            : ewok.exported.gpios.t_gpio_ref
          with address => params(1)'address;
-
-      val   : unsigned_8
-         with address => to_address (params(2));
-
+      retval_address : constant system_address := params(2);
    begin
 
       -- Task initialization is complete ?
@@ -114,17 +110,21 @@ is
 
       -- Does &val is in the caller address space ?
       if not ewok.sanitize.is_word_in_data_slot
-               (to_system_address (val'address), caller_id, mode)
+               (retval_address, caller_id, mode)
       then
          goto ret_denied;
       end if;
 
-      -- Read the pin
-      val := unsigned_8 (ewok.gpio.read_pin (ref));
-
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+      declare
+         retval : unsigned_8
+            with address => to_address (retval_address);
+      begin
+         -- Read the pin
+         retval := unsigned_8 (ewok.gpio.read_pin (ref));
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_inval>>
       set_return_value (caller_id, mode, SYS_E_INVAL);

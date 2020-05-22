@@ -45,15 +45,10 @@ is
       mode        : in ewok.tasks_shared.t_task_mode)
    is
 
-      udev     : aliased ewok.exported.devices.t_user_device
-         with import, address => to_address (params(1));
-
-      -- Device descriptor transmitted to userspace
-      descriptor  : unsigned_8 range 0 .. ewok.tasks.MAX_DEVS_PER_TASK
-         with address => to_address (params(2));
-
-      dev_id   : ewok.devices_shared.t_device_id;
-      ok       : boolean;
+      udev_address         : constant system_address := params(1);
+      descriptor_address   : constant system_address := params(2);
+      dev_id      : ewok.devices_shared.t_device_id;
+      ok          : boolean;
    begin
 
       -- Forbidden after end of task initialization
@@ -67,14 +62,14 @@ is
       --    RAM (.data section) or in flash (.rodata section)
       if TSK.is_real_user (caller_id) and then
         (not ewok.sanitize.is_range_in_data_slot
-               (to_system_address (udev'address),
-                udev'size/8,
+               (udev_address,
+                ewok.exported.devices.t_user_device'size/8,
                 caller_id,
                 mode)
          and
          not ewok.sanitize.is_range_in_txt_slot
-               (to_system_address (udev'address),
-                udev'size/8,
+               (udev_address,
+                ewok.exported.devices.t_user_device'size/8,
                 caller_id))
       then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -84,77 +79,87 @@ is
 
       if TSK.is_real_user (caller_id) and then
          not ewok.sanitize.is_word_in_data_slot
-               (to_system_address (descriptor'address), caller_id, mode)
+               (descriptor_address, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
             "svc_register_device(): descriptor not in task's memory space"));
          goto ret_denied;
       end if;
 
-      -- Ada based sanitization
-      if not udev'valid_scalars
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev scalars"));
-         goto ret_inval;
-      end if;
 
-      if TSK.is_real_user (caller_id) and then
-         not ewok.devices.sanitize_user_defined_device
-                 (udev'unchecked_access, caller_id)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev"));
-         goto ret_inval;
-      end if;
+      declare
+         -- Device descriptor transmitted to userspace
+         descriptor  : unsigned_8 range 0 .. ewok.tasks.MAX_DEVS_PER_TASK
+            with address => to_address (descriptor_address);
+         udev        : aliased ewok.exported.devices.t_user_device
+            with import, address => to_address (udev_address);
+      begin
 
-      if TSK.tasks_list(caller_id).num_devs = TSK.MAX_DEVS_PER_TASK then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "svc_register_device(): no space left to register the device"));
-         goto ret_busy;
-      end if;
+         -- Ada based sanitization
+         if not udev'valid_scalars
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev scalars"));
+            goto ret_inval;
+         end if;
 
-      -- Device should be automatically mapped...
-      if (udev.map_mode = DEV_MAP_AUTO  and udev.size > 0)
-         -- ...but no free memory available!
-         and then not ewok.memory.device_can_be_mapped
-      then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "svc_register_device(): no free region left to map the device"));
-         goto ret_busy;
-      end if;
+         if TSK.is_real_user (caller_id) and then
+            not ewok.devices.sanitize_user_defined_device
+                    (udev'unchecked_access, caller_id)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_device(): invalid udev"));
+            goto ret_inval;
+         end if;
 
-      --
-      -- Registering the device
-      --
+         if TSK.tasks_list(caller_id).num_devs = TSK.MAX_DEVS_PER_TASK then
+            pragma DEBUG (debug.log (debug.ERROR,
+               "svc_register_device(): no space left to register the device"));
+            goto ret_busy;
+         end if;
 
-      ewok.devices.register_device
-        (caller_id, udev'unchecked_access, dev_id, ok);
+         -- Device should be automatically mapped...
+         if (udev.map_mode = DEV_MAP_AUTO  and udev.size > 0)
+            -- ...but no free memory available!
+            and then not ewok.memory.device_can_be_mapped
+         then
+            pragma DEBUG (debug.log (debug.ERROR,
+               "svc_register_device(): no free region left to map the device"));
+            goto ret_busy;
+         end if;
 
-      if not ok then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "svc_register_device(): failed to register the device"));
-         goto ret_denied;
-      end if;
+         --
+         -- Registering the device
+         --
 
-      --
-      -- Recording registered devices in the task record
-      --
+         ewok.devices.register_device
+           (caller_id, udev'unchecked_access, dev_id, ok);
 
-      TSK.append_device (caller_id, dev_id, descriptor, ok);
-      if not ok then
-         raise program_error; -- Should never happen here
-      end if;
+         if not ok then
+            pragma DEBUG (debug.log (debug.ERROR,
+               "svc_register_device(): failed to register the device"));
+            goto ret_denied;
+         end if;
 
-      -- Mount DEV_MAP_AUTO devices in memory
-      if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
-         TSK.mount_device (caller_id, descriptor, ok);
+         --
+         -- Recording registered devices in the task record
+         --
+
+         TSK.append_device (caller_id, dev_id, descriptor, ok);
          if not ok then
             raise program_error; -- Should never happen here
          end if;
-      end if;
 
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+         -- Mount DEV_MAP_AUTO devices in memory
+         if udev.size > 0 and udev.map_mode = DEV_MAP_AUTO then
+            TSK.mount_device (caller_id, descriptor, ok);
+            if not ok then
+               raise program_error; -- Should never happen here
+            end if;
+         end if;
+
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_busy>>
       set_return_value (caller_id, mode, SYS_E_BUSY);
@@ -230,53 +235,69 @@ is
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
-
-      target_name : TSK.t_task_name
-         with address => to_address (params(1));
-
-      target_id   : ewok.tasks_shared.t_task_id
-         with address => to_address (params(2));
-
-      tmp_id      : ewok.tasks_shared.t_task_id;
-
+      target_name_address  : constant system_address := params(1);
+      target_id_address    : constant system_address := params(2);
+      tmp_id               : ewok.tasks_shared.t_task_id;
    begin
+
+      --
+      -- Early sanitization
+      --
 
       -- Forbidden after end of task initialization
       if TSK.is_init_done (caller_id) then
          goto ret_denied;
       end if;
 
-      -- Does &target_id is in the caller address space ?
+      -- Does &target_name is in the caller address space ?
       if not ewok.sanitize.is_word_in_data_slot
-               (to_system_address (target_id'address), caller_id, mode)
+               (target_name_address, caller_id, mode)
       then
          goto ret_denied;
       end if;
 
-      -- We retrieve the 'id' related to the target name. Before updating the
-      -- parameter passed by the user, we must check that the 2 tasked are
-      -- allowed to communicate
-      tmp_id := TSK.get_task_id (target_name);
-
-      if tmp_id = ID_UNUSED then
-         goto ret_inval;
+      -- Does &target_id is in the caller address space ?
+      if not ewok.sanitize.is_word_in_data_slot
+               (target_id_address, caller_id, mode)
+      then
+         goto ret_denied;
       end if;
+
+      --
+      -- Main
+      --
+
+      declare
+         target_name : TSK.t_task_name
+            with address => to_address (target_name_address);
+         target_id   : ewok.tasks_shared.t_task_id
+            with address => to_address (target_id_address);
+      begin
+         -- We retrieve the 'id' related to the target name. Before updating the
+         -- parameter passed by the user, we must check that the 2 tasked are
+         -- allowed to communicate
+         tmp_id := TSK.get_task_id (target_name);
+
+         if tmp_id = ID_UNUSED then
+            goto ret_inval;
+         end if;
 
 #if CONFIG_KERNEL_DOMAIN
-      if TSK.get_domain (tmp_id) /= TSK.get_domain (caller_id) then
-         goto ret_inval;
-      end if;
+         if TSK.get_domain (tmp_id) /= TSK.get_domain (caller_id) then
+            goto ret_inval;
+         end if;
 #end if;
 
-      -- Are tasks allowed to communicate through IPCs or DMA_SHM ?
-      if not ewok.perm.ipc_is_granted (caller_id, tmp_id) and
-         not ewok.perm.dmashm_is_granted (caller_id, tmp_id)
-      then
-         goto ret_inval;
-      end if;
+         -- Are tasks allowed to communicate through IPCs or DMA_SHM ?
+         if not ewok.perm.ipc_is_granted (caller_id, tmp_id) and
+            not ewok.perm.dmashm_is_granted (caller_id, tmp_id)
+         then
+            goto ret_inval;
+         end if;
 
-      -- We may update the target_id
-      target_id := tmp_id;
+         -- We may update the target_id
+         target_id := tmp_id;
+      end;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
@@ -294,4 +315,3 @@ is
    end svc_get_taskid;
 
 end ewok.syscalls.init;
-

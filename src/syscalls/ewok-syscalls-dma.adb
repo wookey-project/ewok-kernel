@@ -40,12 +40,10 @@ is
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
-      dma_config  : ewok.exported.dma.t_dma_user_config
-         with import, address => to_address (params(1));
-      descriptor  : unsigned_32
-         with import, address => to_address (params(2));
-      index       : ewok.dma_shared.t_registered_dma_index;
-      ok : boolean;
+      dma_config_address : constant system_address := params(1);
+      descriptor_address : constant system_address := params(2);
+      index              : ewok.dma_shared.t_registered_dma_index;
+      ok                 : boolean;
    begin
 
       -- Forbidden after end of task initialization
@@ -61,71 +59,76 @@ is
          goto ret_denied;
       end if;
 
-      -- Ada based sanitation using on types compliance
-      if not dma_config'valid_scalars
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): invalid dma_t"));
-         goto ret_inval;
-      end if;
-
-      -- Does dma_config'address and descriptor'address are in the caller
+      -- Does dma_config_address and descriptor_address point to the caller
       -- address space ?
       if not ewok.sanitize.is_range_in_data_slot
-                 (to_system_address (dma_config'address),
-                  dma_config'size/8,
+                 (dma_config_address,
+                  ewok.exported.dma.t_dma_user_config'size/8,
                   caller_id,
                   mode)
          or
          not ewok.sanitize.is_word_in_data_slot
-                 (to_system_address (descriptor'address), caller_id, mode)
+                 (descriptor_address, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): parameters not in task's memory space"));
          goto ret_denied;
       end if;
 
-      -- Verify DMA configuration transmitted by the user
-      if not ewok.dma.sanitize_dma
-                 (dma_config, caller_id,
-                  ewok.exported.dma.t_config_mask'(others => false), mode)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): invalid dma configuration"));
-         goto ret_inval;
-      end if;
-
-      -- Check if controller/stream are already used
-      -- Note: A DMA controller can manage only one channel per stream in the
-      --       same time.
-      if ewok.dma.stream_is_already_used (dma_config) then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): dma configuration already used"));
-         goto ret_denied;
-      end if;
-
-      -- Is there any user descriptor available ?
-      if TSK.tasks_list(caller_id).num_dma_id < MAX_DMAS_PER_TASK then
-         TSK.tasks_list(caller_id).num_dma_id :=
-            TSK.tasks_list(caller_id).num_dma_id + 1;
-      else
-         goto ret_busy;
-      end if;
-
-      -- Initialization
-      ewok.dma.init_stream (dma_config, caller_id, index, ok);
-      if not ok then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): dma initialization failed"));
-         goto ret_denied;
-      end if;
 
       declare
-         dma_descriptor : constant unsigned_32 :=
-            TSK.tasks_list(caller_id).num_dma_id;
-      begin
-         TSK.tasks_list(caller_id).dma_id(dma_descriptor) := index;
-      end;
+         dma_config  : ewok.exported.dma.t_dma_user_config
+            with import, address => to_address (dma_config_address);
 
-      descriptor := TSK.tasks_list(caller_id).num_dma_id;
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+         descriptor  : unsigned_32
+            with import, address => to_address (descriptor_address);
+      begin
+
+         -- Ada based sanitation using on types compliance
+         if not dma_config'valid_scalars
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): invalid dma_t"));
+            goto ret_inval;
+         end if;
+
+         -- Verify DMA configuration transmitted by the user
+         if not ewok.dma.sanitize_dma
+                    (dma_config, caller_id,
+                     ewok.exported.dma.t_config_mask'(others => false), mode)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): invalid dma configuration"));
+            goto ret_inval;
+         end if;
+
+         -- Check if controller/stream are already used
+         -- Note: A DMA controller can manage only one channel per stream in the
+         --       same time.
+         if ewok.dma.stream_is_already_used (dma_config) then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): dma configuration already used"));
+            goto ret_denied;
+         end if;
+
+         -- Is there any user descriptor available ?
+         if TSK.tasks_list(caller_id).num_dma_id < MAX_DMAS_PER_TASK then
+            TSK.tasks_list(caller_id).num_dma_id :=
+               TSK.tasks_list(caller_id).num_dma_id + 1;
+         else
+            goto ret_busy;
+         end if;
+
+         -- Initialization
+         ewok.dma.init_stream (dma_config, caller_id, index, ok);
+         if not ok then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): dma initialization failed"));
+            goto ret_denied;
+         end if;
+
+         TSK.tasks_list(caller_id).dma_id(descriptor) := index;
+
+         descriptor := TSK.tasks_list(caller_id).num_dma_id;
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_busy>>
       set_return_value (caller_id, mode, SYS_E_BUSY);
@@ -150,9 +153,8 @@ is
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
-      user_dma_shm   : ewok.exported.dma.t_dma_shm_info
-         with import, address => to_address (params(1));
-      granted_id     : ewok.tasks_shared.t_task_id;
+      dma_shm_config_address : constant system_address := params(1);
+      granted_id           : ewok.tasks_shared.t_task_id;
    begin
 
       -- Forbidden after end of task initialization
@@ -160,17 +162,10 @@ is
          goto ret_denied;
       end if;
 
-      -- Ada based sanitation using on types compliance
-      if not user_dma_shm'valid_scalars
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): invalid dma_shm_t"));
-         goto ret_inval;
-      end if;
-
-      -- Does user_dma_shm'address is in the caller address space ?
+      -- Does dma_shm_config'address is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
-                 (to_system_address (user_dma_shm'address),
-                  user_dma_shm'size/8,
+                 (dma_shm_config_address,
+                  ewok.exported.dma.t_dma_shm_info'size/8,
                   caller_id,
                   mode)
       then
@@ -178,39 +173,53 @@ is
          goto ret_denied;
       end if;
 
-      -- Verify DMA shared memory configuration transmitted by the user
-      if not ewok.dma.sanitize_dma_shm (user_dma_shm, caller_id, mode)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): invalid configuration"));
-         goto ret_inval;
-      end if;
 
-      granted_id := user_dma_shm.granted_id;
+      declare
+         dma_shm_config   : ewok.exported.dma.t_dma_shm_info
+            with import, address => to_address (dma_shm_config_address);
+      begin
 
-      -- Does the task can share memory with its target task?
-      if not ewok.perm.dmashm_is_granted (caller_id, granted_id)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): not granted"));
-         goto ret_denied;
-      end if;
+         -- Ada based sanitation using on types compliance
+         if not dma_shm_config'valid_scalars
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): invalid dma_shm_t"));
+            goto ret_inval;
+         end if;
 
-      -- Is there any user descriptor available ?
-      if TSK.tasks_list(granted_id).num_dma_shms < MAX_DMA_SHM_PER_TASK and
-         TSK.tasks_list(caller_id).num_dma_shms  < MAX_DMA_SHM_PER_TASK
-      then
-         TSK.tasks_list(granted_id).num_dma_shms := TSK.tasks_list(granted_id).num_dma_shms + 1;
-         TSK.tasks_list(caller_id).num_dma_shms  := TSK.tasks_list(caller_id).num_dma_shms + 1;
-      else
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): busy"));
-         goto ret_busy;
-      end if;
+         -- Verify DMA shared memory configuration transmitted by the user
+         if not ewok.dma.sanitize_dma_shm (dma_shm_config, caller_id, mode)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): invalid configuration"));
+            goto ret_inval;
+         end if;
 
-      TSK.tasks_list(granted_id).dma_shm(TSK.tasks_list(granted_id).num_dma_shms) := user_dma_shm;
-      TSK.tasks_list(caller_id).dma_shm(TSK.tasks_list(caller_id).num_dma_shms) := user_dma_shm;
+         granted_id := dma_shm_config.granted_id;
 
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+         -- Does the task can share memory with its target task?
+         if not ewok.perm.dmashm_is_granted (caller_id, granted_id)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): not granted"));
+            goto ret_denied;
+         end if;
+
+         -- Is there any user descriptor available ?
+         if TSK.tasks_list(granted_id).num_dma_shms < MAX_DMA_SHM_PER_TASK and
+            TSK.tasks_list(caller_id).num_dma_shms  < MAX_DMA_SHM_PER_TASK
+         then
+            TSK.tasks_list(granted_id).num_dma_shms := TSK.tasks_list(granted_id).num_dma_shms + 1;
+            TSK.tasks_list(caller_id).num_dma_shms  := TSK.tasks_list(caller_id).num_dma_shms + 1;
+         else
+            pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma_shm(): busy"));
+            goto ret_busy;
+         end if;
+
+         TSK.tasks_list(granted_id).dma_shm(TSK.tasks_list(granted_id).num_dma_shms) := dma_shm_config;
+         TSK.tasks_list(caller_id).dma_shm(TSK.tasks_list(caller_id).num_dma_shms) := dma_shm_config;
+
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_busy>>
       set_return_value (caller_id, mode, SYS_E_BUSY);
@@ -235,13 +244,12 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
-      new_dma_config : ewok.exported.dma.t_dma_user_config
-         with import, address => to_address (params(1));
+      new_dma_config_address : constant system_address := params(1);
       config_mask    : ewok.exported.dma.t_config_mask
          with import, address => params(2)'address;
       dma_descriptor : unsigned_32
          with import, address => params(3)'address;
-      ok : boolean;
+      ok             : boolean;
    begin
 
       -- Forbidden before end of task initialization
@@ -256,8 +264,8 @@ is
 
       -- Does new_dma_config'address is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
-                 (to_system_address (new_dma_config'address),
-                  new_dma_config'size/8,
+                 (new_dma_config_address,
+                  ewok.exported.dma.t_dma_user_config'size/8,
                   caller_id,
                   mode)
       then
@@ -273,38 +281,44 @@ is
          goto ret_inval;
       end if;
 
-      -- Check if the user tried to change the DMA ctrl/channel/stream
-      -- parameters
-      if not ewok.dma.has_same_dma_channel
-                 (TSK.tasks_list(caller_id).dma_id(dma_descriptor), new_dma_config)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): ctrl/channel/stream changed"));
-         goto ret_inval;
-      end if;
 
-      -- Verify DMA configuration transmitted by the user
-      if not ewok.dma.sanitize_dma
-                 (new_dma_config, caller_id, config_mask, mode)
-      then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): invalid configuration"));
-         goto ret_inval;
-      end if;
+      declare
+         new_dma_config : ewok.exported.dma.t_dma_user_config
+            with import, address => to_address (new_dma_config_address);
+      begin
+         -- Check if the user tried to change the DMA ctrl/channel/stream
+         -- parameters
+         if not ewok.dma.has_same_dma_channel
+                    (TSK.tasks_list(caller_id).dma_id(dma_descriptor), new_dma_config)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): ctrl/channel/stream changed"));
+            goto ret_inval;
+         end if;
 
-      -- Reconfigure the DMA controller
-      ewok.dma.reconfigure_stream
-        (new_dma_config,
-         TSK.tasks_list(caller_id).dma_id(dma_descriptor),
-         config_mask,
-         caller_id,
-         ok);
+         -- Verify DMA configuration transmitted by the user
+         if not ewok.dma.sanitize_dma
+                    (new_dma_config, caller_id, config_mask, mode)
+         then
+            pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): invalid configuration"));
+            goto ret_inval;
+         end if;
 
-      if not ok then
-         goto ret_inval;
-      end if;
+         -- Reconfigure the DMA controller
+         ewok.dma.reconfigure_stream
+           (new_dma_config,
+            TSK.tasks_list(caller_id).dma_id(dma_descriptor),
+            config_mask,
+            caller_id,
+            ok);
 
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+         if not ok then
+            goto ret_inval;
+         end if;
+
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_inval>>
       set_return_value (caller_id, mode, SYS_E_INVAL);
