@@ -76,7 +76,7 @@ is
 
 
       declare
-         dma_config  : ewok.exported.dma.t_dma_user_config
+         dma_config  : constant ewok.exported.dma.t_dma_user_config
             with import, address => to_address (dma_config_address);
 
          descriptor  : unsigned_32
@@ -122,9 +122,9 @@ is
             goto ret_denied;
          end if;
 
+         descriptor := TSK.tasks_list(caller_id).num_dma_id;
          TSK.tasks_list(caller_id).dma_id(descriptor) := index;
 
-         descriptor := TSK.tasks_list(caller_id).num_dma_id;
          set_return_value (caller_id, mode, SYS_E_DONE);
          ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
          return;
