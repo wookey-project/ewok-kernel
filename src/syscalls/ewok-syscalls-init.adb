@@ -250,7 +250,7 @@ is
       end if;
 
       -- Does &target_name is in the caller address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_any_slot
                (target_name_address, caller_id, mode)
       then
          goto ret_denied;
@@ -268,8 +268,8 @@ is
       --
 
       declare
-         target_name : TSK.t_task_name
-            with address => to_address (target_name_address);
+         target_name : constant TSK.t_task_name
+            with import, address => to_address (target_name_address);
          target_id   : ewok.tasks_shared.t_task_id
             with address => to_address (target_id_address);
       begin
