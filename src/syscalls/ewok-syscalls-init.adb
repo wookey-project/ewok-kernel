@@ -44,11 +44,10 @@ is
       params      : in t_parameters;
       mode        : in ewok.tasks_shared.t_task_mode)
    is
-
       udev_address         : constant system_address := params(1);
       descriptor_address   : constant system_address := params(2);
-      dev_id      : ewok.devices_shared.t_device_id;
-      ok          : boolean;
+      dev_id               : ewok.devices_shared.t_device_id;
+      ok                   : boolean;
    begin
 
       -- Forbidden after end of task initialization
@@ -56,41 +55,37 @@ is
          goto ret_denied;
       end if;
 
-      -- NOTE
-      --    The kernel might register some devices using this syscall
-      --    for user tasks. The device_t structure may be stored in
-      --    RAM (.data section) or in flash (.rodata section)
-      if TSK.is_real_user (caller_id) and then
-        (not ewok.sanitize.is_range_in_data_slot
-               (udev_address,
-                ewok.exported.devices.t_user_device'size/8,
-                caller_id,
-                mode)
-         and
-         not ewok.sanitize.is_range_in_txt_slot
-               (udev_address,
-                ewok.exported.devices.t_user_device'size/8,
-                caller_id))
-      then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "svc_register_device(): udev not in task's memory space"));
-         goto ret_denied;
-      end if;
+      -- Does &udev and &descriptor fit in caller's address space?
+      -- NOTE: The kernel might also use this syscall
+      if TSK.is_real_user (caller_id) then
+         -- Device_t structure may be stored in user data or in user code
+         if not ewok.sanitize.is_range_in_any_slot
+                    (udev_address,
+                     ewok.exported.devices.t_user_device'size/8,
+                     caller_id,
+                     mode)
+         then
+            pragma DEBUG (debug.log (debug.ERROR,
+               "svc_register_device(): udev not in task's memory space"));
+            goto ret_denied;
+         end if;
 
-      if TSK.is_real_user (caller_id) and then
-         not ewok.sanitize.is_word_in_data_slot
-               (descriptor_address, caller_id, mode)
-      then
-         pragma DEBUG (debug.log (debug.ERROR,
-            "svc_register_device(): descriptor not in task's memory space"));
-         goto ret_denied;
+         if not ewok.sanitize.is_word_in_data_slot
+                  (descriptor_address, caller_id, mode)
+         then
+            pragma DEBUG (debug.log (debug.ERROR,
+               "svc_register_device(): descriptor not in task's memory space"));
+            goto ret_denied;
+         end if;
       end if;
 
 
       declare
          -- Device descriptor transmitted to userspace
+         -- FIXME: use a proper type for descriptors
          descriptor  : unsigned_8 range 0 .. ewok.tasks.MAX_DEVS_PER_TASK
             with address => to_address (descriptor_address);
+
          udev        : aliased ewok.exported.devices.t_user_device
             with import, address => to_address (udev_address);
       begin

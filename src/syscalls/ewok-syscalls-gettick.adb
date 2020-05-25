@@ -44,20 +44,17 @@ is
          with address => params(2)'address;
    begin
 
-      --
-      -- Verifying parameters
-      --
+      if not precision'valid then
+         goto ret_inval;
+      end if;
 
+      -- Does &value is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
                (value_address, 8, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
             & ": svc_gettick(): 'value' parameter not in caller space"));
-         goto ret_inval;
-      end if;
-
-      if not precision'valid then
          goto ret_inval;
       end if;
 

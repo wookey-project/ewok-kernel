@@ -59,18 +59,22 @@ is
          goto ret_denied;
       end if;
 
-      -- Does dma_config_address and descriptor_address point to the caller
-      -- address space ?
+      -- Does dma_config is in caller's address space ?
       if not ewok.sanitize.is_range_in_data_slot
                  (dma_config_address,
                   ewok.exported.dma.t_dma_user_config'size/8,
                   caller_id,
                   mode)
-         or
-         not ewok.sanitize.is_word_in_data_slot
+      then
+         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): dma_config not in task's memory space"));
+         goto ret_denied;
+      end if;
+
+      -- Does descriptor_address is in caller's address space ?
+      if not ewok.sanitize.is_word_in_data_slot
                  (descriptor_address, caller_id, mode)
       then
-         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): parameters not in task's memory space"));
+         pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): descriptor not in task's memory space"));
          goto ret_denied;
       end if;
 
@@ -244,11 +248,15 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
+
       new_dma_config_address : constant system_address := params(1);
+
       config_mask    : ewok.exported.dma.t_config_mask
          with import, address => params(2)'address;
+
       dma_descriptor : unsigned_32
          with import, address => params(3)'address;
+
       ok             : boolean;
    begin
 
@@ -256,11 +264,6 @@ is
       if not is_init_done (caller_id) then
          goto ret_denied;
       end if;
-
-      -- Ada based sanitation using on types compliance is not easy,
-      -- as only fields marked by config_mask have a real interpretation
-      -- These fields are checked in the dma_sanitize_dma() function call
-      -- bellow
 
       -- Does new_dma_config'address is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
@@ -294,6 +297,11 @@ is
             pragma DEBUG (debug.log (debug.ERROR, "svc_dma_reconf(): ctrl/channel/stream changed"));
             goto ret_inval;
          end if;
+
+         -- Ada based sanitation using on types compliance is not easy,
+         -- as only fields marked by config_mask have a real interpretation
+         -- These fields are checked in the dma_sanitize_dma() function call
+         -- bellow
 
          -- Verify DMA configuration transmitted by the user
          if not ewok.dma.sanitize_dma

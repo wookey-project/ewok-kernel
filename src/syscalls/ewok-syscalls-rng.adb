@@ -48,19 +48,6 @@ is
          goto ret_denied;
       end if;
 
-      -- Does buffer's address is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
-                 (buffer_address,
-                  types.to_unsigned_32(buffer_length),
-                  caller_id,
-                  mode)
-      then
-         pragma DEBUG (debug.log (debug.ERROR,
-            ewok.tasks.tasks_list(caller_id).name
-            & ": svc_get_random(): 'value' parameter not in caller space"));
-         goto ret_inval;
-      end if;
-
       -- Is the task allowed to use the RNG?
       if not ewok.perm.ressource_is_granted
                (ewok.perm.PERM_RES_TSK_RNG, caller_id)
@@ -71,28 +58,39 @@ is
          goto ret_denied;
       end if;
 
-      -- Calling the RNG which handle the potential random source errors (case
-      -- of harware random sources such as TRNG IP)
-      -- NOTE: there is some time when the generated random
-      --       content may be weak for various reason due to arch-specific
-      --       constraint. In this case, the return value is set to
-      --       busy. Please check this return value when using this
-      --       syscall to avoid using weak random content
+      -- Does buffer's address is in the caller address space ?
+      if not ewok.sanitize.is_range_in_data_slot
+                 (buffer_address,
+                  unsigned_32 (buffer_length),
+                  caller_id,
+                  mode)
+      then
+         pragma DEBUG (debug.log (debug.ERROR,
+            ewok.tasks.tasks_list(caller_id).name
+            & ": svc_get_random(): 'value' parameter not in caller space"));
+         goto ret_inval;
+      end if;
 
 
       declare
          buffer   : unsigned_8_array (1 .. unsigned_32 (buffer_length))
             with address => to_address (buffer_address);
       begin
+         -- Calling the RNG which handle the potential random source errors (case
+         -- of hardware random sources such as TRNG)
          ewok.rng.random_array (buffer, ok);
-      end;
 
-      if not ok then
-         pragma DEBUG (debug.log (debug.ERROR,
-            ewok.tasks.tasks_list(caller_id).name
-            & ": svc_get_random(): weak seed"));
-         goto ret_busy;
-      end if;
+         -- NOTE:
+         --    Please, always check the returned value when using this syscall!
+         --    For various arch-specific reasons or constraints, generated random
+         --    content might be weak. If so, the return value is set to busy.
+         if not ok then
+            pragma DEBUG (debug.log (debug.ERROR,
+               ewok.tasks.tasks_list(caller_id).name
+               & ": svc_get_random(): weak seed"));
+            goto ret_busy;
+         end if;
+      end;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

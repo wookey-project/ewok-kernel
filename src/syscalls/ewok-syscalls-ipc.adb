@@ -131,7 +131,7 @@ is
             with address => to_address (buf_address);
       begin
 
-         -- Does buf is in the caller address space ?
+         -- Does &buf is in the caller address space ?
          if not ewok.sanitize.is_range_in_data_slot
                   (buf_address, unsigned_32 (buf_size), caller_id, mode)
          then

@@ -88,9 +88,12 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
+
       ref            : ewok.exported.gpios.t_gpio_ref
          with address => params(1)'address;
+
       retval_address : constant system_address := params(2);
+
    begin
 
       -- Task initialization is complete ?
@@ -138,7 +141,6 @@ is
    end svc_gpio_get;
 
 
-
    -- Unlock EXTI line associated to given GPIO, if the EXTI
    -- line has been locked by the kernel (exti lock parameter is
    -- set to 'true'.
@@ -170,7 +172,7 @@ is
          goto ret_denied;
       end if;
 
-      cfg := ewok.gpio.get_config(ref);
+      cfg := ewok.gpio.get_config (ref);
 
       -- Does that GPIO has an EXTI line which is lockable ?
       if cfg.all.exti_trigger = GPIO_EXTI_TRIGGER_NONE or
