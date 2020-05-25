@@ -89,11 +89,10 @@ is
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
 
-      ref   : ewok.exported.gpios.t_gpio_ref
+      ref            : ewok.exported.gpios.t_gpio_ref
          with address => params(1)'address;
 
-      val   : unsigned_8
-         with address => to_address (params(2));
+      retval_address : constant system_address := params(2);
 
    begin
 
@@ -107,19 +106,28 @@ is
          goto ret_inval;
       end if;
 
+      -- Does that GPIO really belongs to the caller ?
+      if not ewok.gpio.belong_to (caller_id, ref) then
+         goto ret_denied;
+      end if;
+
       -- Does &val is in the caller address space ?
       if not ewok.sanitize.is_word_in_data_slot
-               (to_system_address (val'address), caller_id, mode)
+               (retval_address, caller_id, mode)
       then
          goto ret_denied;
       end if;
 
-      -- Read the pin
-      val := unsigned_8 (ewok.gpio.read_pin (ref));
-
-      set_return_value (caller_id, mode, SYS_E_DONE);
-      ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
-      return;
+      declare
+         retval : unsigned_8
+            with address => to_address (retval_address);
+      begin
+         -- Read the pin
+         retval := unsigned_8 (ewok.gpio.read_pin (ref));
+         set_return_value (caller_id, mode, SYS_E_DONE);
+         ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
+         return;
+      end;
 
    <<ret_inval>>
       set_return_value (caller_id, mode, SYS_E_INVAL);
@@ -131,7 +139,6 @@ is
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;
    end svc_gpio_get;
-
 
 
    -- Unlock EXTI line associated to given GPIO, if the EXTI
@@ -165,7 +172,7 @@ is
          goto ret_denied;
       end if;
 
-      cfg := ewok.gpio.get_config(ref);
+      cfg := ewok.gpio.get_config (ref);
 
       -- Does that GPIO has an EXTI line which is lockable ?
       if cfg.all.exti_trigger = GPIO_EXTI_TRIGGER_NONE or

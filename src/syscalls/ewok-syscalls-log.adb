@@ -36,27 +36,34 @@ is
       -- Message size
       size  : positive
          with address => params(1)'address;
-      -- Message
-      -- FIXME: size must be sanitized first
-      msg   : string (1 .. size)
-         with address => to_address (params(2));
+
+      -- Message address
+      msg_address : constant system_address := params(2);
+
    begin
 
-      if not ewok.sanitize.is_word_in_data_slot
-              (to_system_address (msg'address),
+      if size >= 512 then
+         goto ret_inval;
+      end if;
+
+      -- Does &msg is in the caller address space ?
+      if not ewok.sanitize.is_range_in_data_slot
+              (msg_address,
+               unsigned_32 (size),
                caller_id,
                mode)
       then
          goto ret_inval;
       end if;
 
-      if size >= 512 then
-         goto ret_inval;
-      end if;
-
-      pragma DEBUG (debug.log
-        (ewok.tasks.tasks_list(caller_id).name & " " & msg & ASCII.CR,
-         false));
+      declare
+         msg : string (1 .. size)
+            with address => to_address (msg_address);
+      begin
+         pragma DEBUG (debug.log
+           (ewok.tasks.tasks_list(caller_id).name & " " & msg & ASCII.CR,
+            false));
+      end;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);

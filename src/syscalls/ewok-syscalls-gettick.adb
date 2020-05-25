@@ -38,19 +38,19 @@ is
       params      : in out t_parameters;
       mode        : in     ewok.tasks_shared.t_task_mode)
    is
-      value       : unsigned_64
-         with address => to_address (params(1));
 
-      precision   : ewok.exported.ticks.t_precision
+      value_address  : constant system_address := params(1);
+      precision      : ewok.exported.ticks.t_precision
          with address => params(2)'address;
    begin
 
-      --
-      -- Verifying parameters
-      --
+      if not precision'valid then
+         goto ret_inval;
+      end if;
 
+      -- Does &value is in the caller address space ?
       if not ewok.sanitize.is_range_in_data_slot
-               (to_system_address (value'address), 8, caller_id, mode)
+               (value_address, 8, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
             ewok.tasks.tasks_list(caller_id).name
@@ -58,36 +58,37 @@ is
          goto ret_inval;
       end if;
 
-      if not precision'valid then
-         goto ret_inval;
-      end if;
+      declare
+         value : unsigned_64
+            with address => to_address (value_address);
+      begin
+         -- Verifying permisions
+         case precision is
+            when PRECISION_MILLI_SEC =>
+               if not ewok.perm.ressource_is_granted
+                  (PERM_RES_TIM_GETMILLI, caller_id)
+               then
+                  goto ret_denied;
+               end if;
+               soc.dwt.get_milliseconds (value);
 
-      -- Verifying permisions
-      case precision is
-         when PRECISION_MILLI_SEC =>
-            if not ewok.perm.ressource_is_granted
-               (PERM_RES_TIM_GETMILLI, caller_id)
-            then
-               goto ret_denied;
-            end if;
-            soc.dwt.get_milliseconds (value);
+            when PRECISION_MICRO_SEC =>
+               if not ewok.perm.ressource_is_granted
+                  (PERM_RES_TIM_GETMICRO, caller_id)
+               then
+                  goto ret_denied;
+               end if;
+               soc.dwt.get_microseconds (value);
 
-         when PRECISION_MICRO_SEC =>
-            if not ewok.perm.ressource_is_granted
-               (PERM_RES_TIM_GETMICRO, caller_id)
-            then
-               goto ret_denied;
-            end if;
-            soc.dwt.get_microseconds (value);
-
-         when PRECISION_CYCLE =>
-            if not ewok.perm.ressource_is_granted
-               (PERM_RES_TIM_GETCYCLE, caller_id)
-            then
-               goto ret_denied;
-            end if;
-            soc.dwt.get_cycles (value);
-      end case;
+            when PRECISION_CYCLE =>
+               if not ewok.perm.ressource_is_granted
+                  (PERM_RES_TIM_GETCYCLE, caller_id)
+               then
+                  goto ret_denied;
+               end if;
+               soc.dwt.get_cycles (value);
+         end case;
+      end;
 
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
