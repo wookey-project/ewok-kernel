@@ -127,14 +127,14 @@ is
 
    procedure update_subregion_mask
      (region_number  : in t_region_number;
-      subregion_mask : in unsigned_8)
+      subregion_mask : in t_subregion_mask)
    is
    begin
       -- Selects which memory region is referenced
       MPU.RNR.REGION := region_number;
 
       -- Defines the region size and memory attributes
-      MPU.RASR.SRD   := subregion_mask;
+      MPU.RASR.SRD   := to_unsigned_8 (subregion_mask);
    end update_subregion_mask;
 
 end m4.mpu;

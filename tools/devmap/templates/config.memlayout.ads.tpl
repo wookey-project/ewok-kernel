@@ -45,10 +45,10 @@ package config.memlayout is
    -- are SoC specific
    type t_kernel_region is record
       flash_memory_addr        : system_address;
-      flash_memory_size        : application_section_size;
+      flash_memory_size        : t_application_section_size;
       flash_memory_region_size : m4.mpu.t_region_size;
       ram_memory_addr          : system_address;
-      ram_memory_size          : application_section_size;
+      ram_memory_size          : t_application_section_size;
       ram_memory_region_size   : m4.mpu.t_region_size;
    end record;
 
@@ -56,10 +56,10 @@ package config.memlayout is
    -- are SoC specific
    type t_applications_region is record
       flash_memory_addr        : system_address;
-      flash_memory_size        : application_section_size;
+      flash_memory_size        : t_application_section_size;
       flash_memory_region_size : m4.mpu.t_region_size;
       ram_memory_addr          : system_address;
-      ram_memory_size          : application_section_size;
+      ram_memory_size          : t_application_section_size;
       ram_memory_region_size   : m4.mpu.t_region_size;
    end record;
 
