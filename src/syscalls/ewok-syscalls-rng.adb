@@ -59,7 +59,7 @@ is
       end if;
 
       -- Does buffer's address is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                  (buffer_address,
                   unsigned_32 (buffer_length),
                   caller_id,

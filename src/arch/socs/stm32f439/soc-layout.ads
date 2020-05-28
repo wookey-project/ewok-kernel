@@ -20,16 +20,15 @@
 --
 --
 
-with m4.mpu;
 with types;
 
 package soc.layout
    with spark_mode => on
 is
 
-   FLASH_BASE        : constant system_address := 16#0800_0000#;
-   -- this specific SoC has two flash bank mapped consecutively, giving access
+   -- This SoC has two flash bank mapped consecutively, giving access
    -- to 2MB of flash
+   FLASH_BASE        : constant system_address := 16#0800_0000#;
    FLASH_SIZE        : constant := 2 * MBYTE;
 
    SRAM_BASE         : constant system_address := 16#1000_0000#;
@@ -39,7 +38,6 @@ is
 
    RAM_BASE          : constant system_address := 16#2000_0000#; -- SRAM
    RAM_SIZE          : constant := 128 * KBYTE;
-
 
    USER_RAM_BASE     : constant system_address := 16#2000_0000#; -- SRAM
    USER_RAM_SIZE     : constant := 128 * KBYTE;
@@ -89,11 +87,9 @@ is
 
    FW1_KERN_BASE        : constant unsigned_32 := 16#0802_0000#;
    FW1_KERN_SIZE        : constant unsigned_32 := 64*1024;
-   FW1_KERN_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
 
    FW1_USER_BASE        : constant unsigned_32 := 16#0808_0000#;
    FW1_USER_SIZE        : constant unsigned_32 := 512*1024;
-   FW1_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
 
    -- DFU 1
 
@@ -103,9 +99,7 @@ is
    DFU1_USER_BASE       : constant unsigned_32 := 16#0804_0000#;
 
    DFU1_KERN_SIZE       : constant unsigned_32 := 64*1024;
-   DFU1_KERN_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
    DFU1_USER_SIZE       : constant unsigned_32 := 256*1024;
-   DFU1_USER_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
    -- Flop bank
 
@@ -113,11 +107,9 @@ is
 
    FW2_KERN_SIZE        : constant unsigned_32 := 64*1024;
    FW2_KERN_BASE        : constant unsigned_32 := 16#0812_0000#;
-   FW2_KERN_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
+
    FW2_USER_BASE        : constant unsigned_32 := 16#0818_0000#;
    FW2_USER_SIZE        : constant unsigned_32 := 512*1024;
-   FW2_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
---   FW2_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
 
 
    --  DFU 2
@@ -125,10 +117,8 @@ is
 
    DFU2_KERN_BASE       : constant unsigned_32 := 16#0813_0000#;
    DFU2_KERN_SIZE       : constant unsigned_32 := 64*1024;
-   DFU2_KERN_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
    DFU2_USER_BASE       : constant unsigned_32 := 16#0814_0000#;
    DFU2_USER_SIZE       : constant unsigned_32 := 256*1024;
-   DFU2_USER_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
 end soc.layout;

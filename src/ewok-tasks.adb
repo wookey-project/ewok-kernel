@@ -135,10 +135,10 @@ is
       tsk.num_devs          := 0;
       tsk.devices           := (others => (ewok.devices_shared.ID_DEV_UNUSED, false));
       tsk.init_done         := false;
-      tsk.data_slot_start   := 0;
-      tsk.data_slot_end     := 0;
-      tsk.txt_slot_start    := 0;
-      tsk.txt_slot_end      := 0;
+      tsk.data_start        := 0;
+      tsk.data_end          := 0;
+      tsk.txt_start         := 0;
+      tsk.txt_end           := 0;
       tsk.stack_size        := 0;
       tsk.state             := TASK_STATE_EMPTY;
       tsk.isr_state         := TASK_STATE_EMPTY;
@@ -294,11 +294,11 @@ is
          tasks_list(id).domain   := config.applications.list(id).domain;
 #end if;
 
-         tasks_list(id).data_slot_start   :=
+         tasks_list(id).data_start   :=
             config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_offset;
 
-         tasks_list(id).data_slot_end     :=
+         tasks_list(id).data_end     :=
             config.memlayout.apps_region.ram_memory_addr
             + config.applications.list(id).data_offset
             + to_unsigned_32(config.applications.list(id).stack_size)
@@ -307,11 +307,11 @@ is
             + to_unsigned_32(config.applications.list(id).heap_size)
             + config.memlayout.list(id).ram_free_space;
 
-         tasks_list(id).txt_slot_start :=
+         tasks_list(id).txt_start :=
             user_base
             + config.applications.list(id).text_offset;
 
-         tasks_list(id).txt_slot_end   :=
+         tasks_list(id).txt_end   :=
             user_base
             + config.applications.list(id).text_offset
             + config.applications.list(id).text_size
@@ -340,7 +340,7 @@ is
          declare
             stack : byte_array(1 .. to_unsigned_32(tasks_list(id).stack_size))
                with address => to_address
-                 (tasks_list(id).data_slot_end -
+                 (tasks_list(id).data_end -
                   to_unsigned_32(tasks_list(id).stack_size));
          begin
             stack := (others => 0);
@@ -373,8 +373,8 @@ is
 
          pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
-            & ", data: " & system_address'image (tasks_list(id).data_slot_start)
-            & " - " & system_address'image (tasks_list(id).data_slot_end)
+            & ", data: " & system_address'image (tasks_list(id).data_start)
+            & " - " & system_address'image (tasks_list(id).data_end)
             & ", sp: " & system_address'image
                            (to_system_address (tasks_list(id).ctx.frame_a))
             & ", ID" & t_task_id'image (id) & ")"));

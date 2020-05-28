@@ -25,7 +25,7 @@ is
                + to_unsigned_32 (CFGAPP.list(id).data_size)
                + to_unsigned_32 (CFGAPP.list(id).stack_size);
 
-            bss_area : byte_array (1 .. to_unsigned_32 (CFGAPP.list(id).bss_size))
+            bss_region : byte_array (1 .. to_unsigned_32 (CFGAPP.list(id).bss_size))
                            with address => to_address (bss_address);
 
          begin
@@ -34,7 +34,7 @@ is
                ", at " & system_address'image (bss_address) &
                ", " & unsigned_16'image (CFGAPP.list(id).bss_size) & " bytes");
 
-            bss_area := (others => 0);
+            bss_region := (others => 0);
          end;
 
       end if;

@@ -203,7 +203,7 @@ is
             end if;
 
             if to_configure.buffer_out then
-               if not ewok.sanitize.is_range_in_any_slot
+               if not ewok.sanitize.is_range_in_any_region
                        (user_config.out_addr, unsigned_32 (user_config.size),
                         caller_id, mode)
                   and
@@ -216,7 +216,7 @@ is
             end if;
 
             if to_configure.handlers then
-               if not ewok.sanitize.is_word_in_txt_slot
+               if not ewok.sanitize.is_word_in_txt_region
                           (user_config.out_handler, caller_id)
                then
                   return false;
@@ -226,7 +226,7 @@ is
          when MEMORY_TO_PERIPHERAL  =>
 
             if to_configure.buffer_in then
-               if not ewok.sanitize.is_range_in_any_slot
+               if not ewok.sanitize.is_range_in_any_region
                        (user_config.in_addr, unsigned_32 (user_config.size),
                         caller_id, mode)
                   and
@@ -247,7 +247,7 @@ is
             end if;
 
             if to_configure.handlers then
-               if not ewok.sanitize.is_word_in_txt_slot
+               if not ewok.sanitize.is_word_in_txt_region
                           (user_config.in_handler, caller_id)
                then
                   return false;
@@ -288,9 +288,9 @@ is
       end if;
 #end if;
 
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
               (shm.base, shm.size, caller_id, mode) and
-         not ewok.sanitize.is_range_in_devices_slot
+         not ewok.sanitize.is_range_in_devices_region
               (shm.base, shm.size, caller_id)
       then
          pragma DEBUG (debug.log (debug.ERROR, "sanitize_dma_shm(): shm not in range"));

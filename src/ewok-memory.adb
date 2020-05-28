@@ -31,12 +31,15 @@ with ewok.mpu;
 with ewok.mpu.allocator;
 with ewok.debug;
 with config;
-with config.memlayout; use config.memlayout;
+with config.memlayout;
 with m4.mpu;
 
 package body ewok.memory
    with spark_mode => off
 is
+
+   package CFGMEM renames config.memlayout;
+
 
    procedure init
      (success : out boolean)
@@ -55,14 +58,18 @@ is
                        (others => m4.mpu.SUB_REGION_DISABLED);
    begin
 
-      for i in 0 .. config.memlayout.list(id).flash_slot_number - 1 loop
-         flash_mask(config.memlayout.list(id).flash_slot_start + i) :=
-            m4.mpu.SUB_REGION_ENABLED;
+      for slot in CFGMEM.list(id).flash_slot_start .. 
+                  CFGMEM.list(id).flash_slot_start  +
+                  CFGMEM.list(id).flash_slot_number - 1 
+      loop
+         flash_mask(slot) := m4.mpu.SUB_REGION_ENABLED;
       end loop;
 
-      for i in 0 .. config.memlayout.list(id).ram_slot_number - 1 loop
-         ram_mask(config.memlayout.list(id).ram_slot_start + i) :=
-            m4.mpu.SUB_REGION_ENABLED;
+      for slot in CFGMEM.list(id).ram_slot_start .. 
+               CFGMEM.list(id).ram_slot_start  +
+               CFGMEM.list(id).ram_slot_number - 1
+      loop
+         ram_mask(slot) := m4.mpu.SUB_REGION_ENABLED;
       end loop;
 
       ewok.mpu.update_subregions

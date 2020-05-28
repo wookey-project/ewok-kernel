@@ -31,7 +31,7 @@ package body ewok.sanitize
    with spark_mode => off
 is
 
-   function is_word_in_data_slot
+   function is_word_in_data_region
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
@@ -40,8 +40,8 @@ is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
-      if ptr >= user_task.data_slot_start   and
-         ptr + 4 <= user_task.data_slot_end
+      if ptr >= user_task.data_start   and
+         ptr + 4 <= user_task.data_end
       then
          return true;
       end if;
@@ -56,24 +56,24 @@ is
       end if;
 
       return false;
-   end is_word_in_data_slot;
+   end is_word_in_data_region;
 
 
-   function is_word_in_txt_slot
+   function is_word_in_txt_region
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id)
       return boolean
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
-      if ptr >= user_task.txt_slot_start     and
-         ptr + 4 <= user_task.txt_slot_end
+      if ptr >= user_task.txt_start     and
+         ptr + 4 <= user_task.txt_end
       then
          return true;
       else
          return false;
       end if;
-   end is_word_in_txt_slot;
+   end is_word_in_txt_region;
 
 
    function is_word_in_allocated_device
@@ -105,7 +105,7 @@ is
    end is_word_in_allocated_device;
 
 
-   function is_word_in_any_slot
+   function is_word_in_any_region
      (ptr      : system_address;
       task_id  : ewok.tasks_shared.t_task_id;
       mode     : ewok.tasks_shared.t_task_mode)
@@ -113,12 +113,12 @@ is
    is
    begin
       return
-         is_word_in_data_slot (ptr, task_id, mode) or
-         is_word_in_txt_slot (ptr, task_id);
-   end is_word_in_any_slot;
+         is_word_in_data_region (ptr, task_id, mode) or
+         is_word_in_txt_region (ptr, task_id);
+   end is_word_in_any_region;
 
 
-   function is_range_in_devices_slot
+   function is_range_in_devices_region
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
@@ -144,11 +144,11 @@ is
       end loop;
 
       return false;
-   end is_range_in_devices_slot;
+   end is_range_in_devices_region;
 
 
 
-   function is_range_in_data_slot
+   function is_range_in_data_region
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id;
@@ -158,9 +158,9 @@ is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
 
-      if ptr >= user_task.data_slot_start       and
-         ptr + size >= ptr                            and
-         ptr + size <= user_task.data_slot_end
+      if ptr >= user_task.data_start       and
+         ptr + size >= ptr                 and
+         ptr + size <= user_task.data_end
       then
          return true;
       end if;
@@ -174,10 +174,10 @@ is
       end if;
 
       return false;
-   end is_range_in_data_slot;
+   end is_range_in_data_region;
 
 
-   function is_range_in_txt_slot
+   function is_range_in_txt_region
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id)
@@ -185,18 +185,18 @@ is
    is
       user_task : ewok.tasks.t_task renames ewok.tasks.tasks_list(task_id);
    begin
-      if ptr >= user_task.txt_slot_start        and
-         ptr + size >= ptr                      and
-         ptr + size <= user_task.txt_slot_end
+      if ptr >= user_task.txt_start        and
+         ptr + size >= ptr                 and
+         ptr + size <= user_task.txt_end
       then
          return true;
       else
          return false;
       end if;
-   end is_range_in_txt_slot;
+   end is_range_in_txt_region;
 
 
-   function is_range_in_any_slot
+   function is_range_in_any_region
      (ptr      : system_address;
       size     : unsigned_32;
       task_id  : ewok.tasks_shared.t_task_id;
@@ -205,9 +205,9 @@ is
    is
    begin
       return
-         is_range_in_data_slot (ptr, size, task_id, mode) or
-         is_range_in_txt_slot (ptr, size, task_id);
-   end is_range_in_any_slot;
+         is_range_in_data_region (ptr, size, task_id, mode) or
+         is_range_in_txt_region (ptr, size, task_id);
+   end is_range_in_any_region;
 
 
    function is_range_in_dma_shm

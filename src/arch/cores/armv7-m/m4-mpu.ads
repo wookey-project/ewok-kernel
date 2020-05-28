@@ -37,7 +37,7 @@ is
    subtype t_region_size   is bits_5     range 4 .. 31;
    subtype t_region_perm   is bits_3;
 
-   subtype t_subregion     is unsigned_8 range 1 .. 8;
+   subtype t_subregion_range  is unsigned_8 range 1 .. 8;
 
    type t_subregion_status is
      (SUB_REGION_ENABLED,
@@ -49,7 +49,7 @@ is
       SUB_REGION_DISABLED  => 1);
 
    type t_subregion_mask is
-      array (t_subregion) of t_subregion_status
+      array (t_subregion_range) of t_subregion_status
          with pack, size => 8;
 
    function to_subregion_mask is new ada.unchecked_conversion

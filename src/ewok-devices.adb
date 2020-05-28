@@ -261,7 +261,7 @@ is
       get_registered_device_entry (dev_id, success);
 
       if not success then
-         pragma DEBUG (debug.log (debug.ERROR, "register_device(): no free slot!"));
+         pragma DEBUG (debug.log (debug.ERROR, "register_device(): no free device's slot!"));
          return;
       end if;
 
@@ -411,7 +411,7 @@ is
    is
    begin
 
-      if not ewok.sanitize.is_word_in_txt_slot
+      if not ewok.sanitize.is_word_in_txt_region
             (to_system_address (config.handler), task_id)
       then
          pragma DEBUG (debug.log (debug.ERROR, "Handler not in .text section"));
@@ -519,7 +519,7 @@ is
       end if;
 
       if config.exti_handler /= 0 and then
-         not ewok.sanitize.is_word_in_txt_slot (config.exti_handler, task_id)
+         not ewok.sanitize.is_word_in_txt_region (config.exti_handler, task_id)
       then
          pragma DEBUG (debug.log (debug.ERROR, "EXTI handler not in .text section"));
          return false;

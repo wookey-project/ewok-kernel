@@ -60,7 +60,7 @@ is
       end if;
 
       -- Does dma_config is in caller's address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                  (dma_config_address,
                   ewok.exported.dma.t_dma_user_config'size/8,
                   caller_id,
@@ -71,7 +71,7 @@ is
       end if;
 
       -- Does descriptor_address is in caller's address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_data_region
                  (descriptor_address, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR, "svc_register_dma(): descriptor not in task's memory space"));
@@ -167,7 +167,7 @@ is
       end if;
 
       -- Does dma_shm_config'address is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                  (dma_shm_config_address,
                   ewok.exported.dma.t_dma_shm_info'size/8,
                   caller_id,
@@ -266,7 +266,7 @@ is
       end if;
 
       -- Does new_dma_config'address is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                  (new_dma_config_address,
                   ewok.exported.dma.t_dma_user_config'size/8,
                   caller_id,

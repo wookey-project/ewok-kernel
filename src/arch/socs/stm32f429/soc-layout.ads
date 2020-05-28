@@ -1,4 +1,3 @@
-with m4.mpu;
 with types;
 
 package soc.layout
@@ -58,24 +57,19 @@ is
 
    FW1_KERN_BASE        : constant unsigned_32 := 16#08020000#;
    FW1_KERN_SIZE        : constant unsigned_32 := 64*1024;
-   FW1_KERN_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
 
    FW1_USER_BASE        : constant unsigned_32 := 16#08080000#;
    FW1_USER_SIZE        : constant unsigned_32 := 512*1024;
-   FW1_USER_REGION_SIZE : constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_512KB;
 
    -- DFU 1
 
    DFU1_SIZE            : constant unsigned_32 := 320*1024;
 
    DFU1_KERN_BASE       : constant unsigned_32 := 16#08030000#;
-   DFU1_USER_BASE       : constant unsigned_32 := 16#08040000#;
-
    DFU1_KERN_SIZE       : constant unsigned_32 := 64*1024;
-   DFU1_KERN_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_64KB;
-   DFU1_USER_SIZE       : constant unsigned_32 := 256*1024;
-   DFU1_USER_REGION_SIZE: constant m4.mpu.t_region_size := m4.mpu.REGION_SIZE_256KB;
 
+   DFU1_USER_BASE       : constant unsigned_32 := 16#08040000#;
+   DFU1_USER_SIZE       : constant unsigned_32 := 256*1024;
 
    -- STM32F429 has 1MB flash that can be mapped at a time, which forbid
    -- the usage of efficient dual banking.

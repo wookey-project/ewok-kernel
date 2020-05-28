@@ -72,8 +72,7 @@ is
    procedure disable_unrestricted_kernel_access
       with
          global => (in_out => (m4.mpu.MPU));
-
-   -- Used by SPARK
+-- Used by SPARK
    function get_region_size_mask (size : m4.mpu.t_region_size) return unsigned_32
       is (2**(natural (size) + 1) - 1)
       with ghost;
