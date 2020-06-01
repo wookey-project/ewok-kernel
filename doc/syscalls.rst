@@ -108,7 +108,8 @@ Syscall overview
    Inter-Process Communication (IPC) <syscalls/sys_ipc>
    Measuring time <syscalls/sys_get_systick>
    Releasing the CPU <syscalls/sys_yield>
-   Terminating a thread <syscalls/sys_exit>
+   Terminating a thread normally <syscalls/sys_exit>
+   Terminating a task abnormally <syscalls/sys_panic>
    Sleeping <syscalls/sys_sleep>
    Reseting the board <syscalls/sys_reset>
    Main thread locking mechanism <syscalls/sys_lock>
