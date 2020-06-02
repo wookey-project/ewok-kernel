@@ -156,8 +156,6 @@ is
          when TIM12     => soc.rcc.RCC.APB1ENR.TIM12EN   := true;
          when TIM13     => soc.rcc.RCC.APB1ENR.TIM13EN   := true;
          when TIM14     => soc.rcc.RCC.APB1ENR.TIM14EN   := true;
-         when CAN1      => soc.rcc.RCC.APB1ENR.CAN1EN    := true;
-         when CAN2      => soc.rcc.RCC.APB1ENR.CAN2EN    := true;
          when FLASH_CTRL ..  FLASH_FLIP_SHR => null;
       end case;
    end enable_clock;
