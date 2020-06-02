@@ -1,1 +1,1 @@
-../stm32f439/soc-rcc.adb
+../stm32f407/soc-rcc.adb

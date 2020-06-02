@@ -134,6 +134,8 @@ is
          when SPI1      => soc.rcc.RCC.APB2ENR.SPI1EN    := true;
          when SPI2      => soc.rcc.RCC.APB1ENR.SPI2EN    := true;
          when SPI3      => soc.rcc.RCC.APB1ENR.SPI3EN    := true;
+         when CAN1      => soc.rcc.RCC.APB1ENR.CAN1EN    := true;
+         when CAN2      => soc.rcc.RCC.APB1ENR.CAN2EN    := true;
          when USART1    => soc.rcc.RCC.APB2ENR.USART1EN  := true;
          when USART6    => soc.rcc.RCC.APB2ENR.USART6EN  := true;
          when USART2    => soc.rcc.RCC.APB1ENR.USART2EN  := true;
