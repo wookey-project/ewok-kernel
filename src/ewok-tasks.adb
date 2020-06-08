@@ -31,8 +31,9 @@ with ewok.softirq;
 with ewok.memory;
 with types.c;              use type types.c.t_retval;
 
+with config.tasks;
 with config.applications; -- Automatically generated
-with config.memlayout; -- Automatically generated
+with config.memlayout;    -- Automatically generated
 
 package body ewok.tasks
    with spark_mode => off
@@ -134,10 +135,10 @@ is
       tsk.num_devs          := 0;
       tsk.devices           := (others => (ewok.devices_shared.ID_DEV_UNUSED, false));
       tsk.init_done         := false;
-      tsk.data_slot_start   := 0;
-      tsk.data_slot_end     := 0;
-      tsk.txt_slot_start    := 0;
-      tsk.txt_slot_end      := 0;
+      tsk.data_start        := 0;
+      tsk.data_end          := 0;
+      tsk.txt_start         := 0;
+      tsk.txt_end           := 0;
       tsk.stack_size        := 0;
       tsk.state             := TASK_STATE_EMPTY;
       tsk.isr_state         := TASK_STATE_EMPTY;
@@ -276,8 +277,8 @@ is
 
          tasks_list(id).entry_point  :=
             user_base
-            + config.applications.list(id).text_off
-            + config.applications.list(id).entrypoint_off;
+            + config.applications.list(id).text_offset
+            + config.applications.list(id).entrypoint_offset;
 
          if tasks_list(id).entry_point mod 2 = 0 then
             tasks_list(id).entry_point := tasks_list(id).entry_point + 1;
@@ -293,36 +294,38 @@ is
          tasks_list(id).domain   := config.applications.list(id).domain;
 #end if;
 
-         tasks_list(id).data_slot_start   :=
+         tasks_list(id).data_start   :=
             config.memlayout.apps_region.ram_memory_addr
-            + config.applications.list(id).data_off;
+            + config.applications.list(id).data_offset;
 
-         tasks_list(id).data_slot_end     :=
+         tasks_list(id).data_end     :=
             config.memlayout.apps_region.ram_memory_addr
-            + config.applications.list(id).data_off
+            + config.applications.list(id).data_offset
             + to_unsigned_32(config.applications.list(id).stack_size)
             + to_unsigned_32(config.applications.list(id).data_size)
             + to_unsigned_32(config.applications.list(id).bss_size)
             + to_unsigned_32(config.applications.list(id).heap_size)
             + config.memlayout.list(id).ram_free_space;
 
-         tasks_list(id).txt_slot_start :=
+         tasks_list(id).txt_start :=
             user_base
-            + config.applications.list(id).text_off;
+            + config.applications.list(id).text_offset;
 
-         tasks_list(id).txt_slot_end   :=
+         tasks_list(id).txt_end   :=
             user_base
-            + config.applications.list(id).text_off
+            + config.applications.list(id).text_offset
             + config.applications.list(id).text_size
             + to_unsigned_32(config.applications.list(id).data_size);
 
          tasks_list(id).stack_bottom   :=
             config.memlayout.apps_region.ram_memory_addr
-            + config.applications.list(id).data_off;
+            + config.applications.list(id).data_offset;
+
          tasks_list(id).stack_top      :=
             config.memlayout.apps_region.ram_memory_addr
-            + config.applications.list(id).data_off
+            + config.applications.list(id).data_offset
             + to_unsigned_32(config.applications.list(id).stack_size);
+
          tasks_list(id).stack_size     :=
             config.applications.list(id).stack_size;
 
@@ -337,7 +340,7 @@ is
          declare
             stack : byte_array(1 .. to_unsigned_32(tasks_list(id).stack_size))
                with address => to_address
-                 (tasks_list(id).data_slot_end -
+                 (tasks_list(id).data_end -
                   to_unsigned_32(tasks_list(id).stack_size));
          begin
             stack := (others => 0);
@@ -364,14 +367,14 @@ is
 
          tasks_list(id).isr_ctx.entry_point :=
             user_base
-            + config.applications.list(id).text_off
-            + config.applications.list(id).isr_entrypoint_off;
+            + config.applications.list(id).text_offset
+            + config.applications.list(id).isr_entrypoint_offset;
 
 
          pragma DEBUG (debug.log (debug.INFO, "Created task " & tasks_list(id).name
             & " (pc: " & system_address'image (tasks_list(id).entry_point)
-            & ", data: " & system_address'image (tasks_list(id).data_slot_start)
-            & " - " & system_address'image (tasks_list(id).data_slot_end)
+            & ", data: " & system_address'image (tasks_list(id).data_start)
+            & " - " & system_address'image (tasks_list(id).data_end)
             & ", sp: " & system_address'image
                            (to_system_address (tasks_list(id).ctx.frame_a))
             & ", ID" & t_task_id'image (id) & ")"));
@@ -639,8 +642,8 @@ is
       init_apps;
 
       for id in config.applications.list'range loop
-         ewok.memory.copy_data_to_ram(id);
-         ewok.memory.zeroify_bss(id);
+         config.tasks.copy_data_to_ram(id);
+         config.tasks.zeroify_bss(id);
       end loop;
 
    end task_init;

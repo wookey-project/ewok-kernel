@@ -37,8 +37,9 @@ is
    procedure init
      (success : out boolean)
    is
-      -- Layout mapping validation of generated constants can be done at runtime
-      -- assertion is now based on a dictionary that can be checked by kernel perl tools
+      -- Layout mapping validation of generated constants can be done at
+      -- runtime. Assertion is now based on a dictionary that can be checked
+      -- by tools
 
    begin
 
@@ -80,7 +81,7 @@ is
          addr           => config.memlayout.kernel_region.flash_memory_addr,
          size           => config.memlayout.kernel_region.flash_memory_region_size,
          region_type    => REGION_TYPE_KERN_CODE,
-         subregion_mask => 0);
+         subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED));
 
       -- Region: devices that may be accessed by the kernel
       set_region
@@ -88,7 +89,7 @@ is
          addr           => soc.layout.PERIPH_BASE,
          size           => REGION_SIZE_512MB,
          region_type    => REGION_TYPE_KERN_DEVICES,
-         subregion_mask => 0);
+         subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED));
 
       -- Region: kernel data + stack
       set_region
@@ -96,21 +97,21 @@ is
          addr           => config.memlayout.kernel_region.ram_memory_addr,
          size           => config.memlayout.kernel_region.ram_memory_region_size,
          region_type    => REGION_TYPE_KERN_DATA,
-         subregion_mask => 0);
+         subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED));
 
       set_region
         (region_number  => USER_DATA_REGION,
          addr           => config.memlayout.apps_region.ram_memory_addr,
          size           => config.memlayout.apps_region.ram_memory_region_size,
          region_type    => REGION_TYPE_USER_DATA,
-         subregion_mask => 0);
+         subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED));
 
       set_region
         (region_number  => USER_CODE_REGION,
          addr           => config.memlayout.apps_region.flash_memory_addr,
          size           => config.memlayout.apps_region.flash_memory_region_size,
          region_type    => REGION_TYPE_USER_CODE,
-         subregion_mask => 0);
+         subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED));
 
       pragma DEBUG (debug.log (debug.INFO, "MPU is configured"));
       m4.mpu.enable;
@@ -128,70 +129,13 @@ is
    procedure disable_unrestricted_kernel_access
       renames m4.mpu.disable_unrestricted_kernel_access;
 
-   procedure zeroify_bss
-     (id    : in  t_real_task_id)
-   is
-   begin
-      if config.applications.list(id).bss_size > 0 then
-         declare
-            -- Important info:
-            -- Here we add 4, because there is a Ldscript variable between .data and .bss region
-            -- As a consequence, .bss start 4 bytes later.
-            -- As a conservative measure, this variable, as a ldscript variable (accessed only
-            -- for its address) is also set to 0.
-            bss_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).bss_size))
-                                with address =>
-                                  to_address (
-                                     config.memlayout.apps_region.ram_memory_addr
-                                     + config.applications.list(id).data_off
-                                     + to_unsigned_32(config.applications.list(id).data_size)
-                                     + to_unsigned_32(config.applications.list(id).stack_size));
-         begin
-            debug.log(debug.INFO, "task " & id'image & ": zeroify bss: from " &
-                      system_address'image(to_system_address(bss_region'address)) & " with size: " &
-                      system_address'image(to_unsigned_32(config.applications.list(id).bss_size)));
-
-            bss_region := (others => 0 );
-         end;
-      end if;
-   end zeroify_bss;
-
-   procedure copy_data_to_ram
-     (id    : in  t_real_task_id)
-   is
-   begin
-      if config.applications.list(id).data_size > 0 then
-         declare
-            src         : byte_array (1 .. to_unsigned_32(config.applications.list(id).data_size))
-                                with address =>
-                                  to_address (
-                                     config.memlayout.apps_region.flash_memory_addr
-                                     + config.applications.list(id).text_off
-                                     + config.applications.list(id).text_size
-                                     + config.applications.list(id).got_size );
-            data_region : byte_array (1 .. to_unsigned_32(config.applications.list(id).data_size))
-                                with address =>
-                                  to_address (
-                                     config.memlayout.apps_region.ram_memory_addr
-                                     + config.applications.list(id).data_off
-                                     + to_unsigned_32(config.applications.list(id).stack_size));
-         begin
-            debug.log(debug.INFO, "task " & id'image & ": copy data from " &
-                      system_address'image(to_system_address(src'address)) & " to " &
-                      system_address'image(to_system_address(data_region'address)) & ", size " &
-                      config.applications.list(id).data_size'image);
-
-            data_region := src;
-         end;
-      end if;
-   end copy_data_to_ram;
 
    procedure set_region
      (region_number  : in  m4.mpu.t_region_number;
       addr           : in  system_address;
       size           : in  m4.mpu.t_region_size;
       region_type    : in  t_region_type;
-      subregion_mask : in  unsigned_8)
+      subregion_mask : in  m4.mpu.t_subregion_mask)
    is
       access_perm    : m4.mpu.t_region_perm;
       xn, b, s       : boolean;
@@ -266,7 +210,7 @@ is
 
    procedure update_subregions
      (region_number  : in  m4.mpu.t_region_number;
-      subregion_mask : in  unsigned_8)
+      subregion_mask : in  m4.mpu.t_subregion_mask)
    is
    begin
       m4.mpu.update_subregion_mask (region_number, subregion_mask);
@@ -275,11 +219,9 @@ is
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;
-      region_size : out m4.mpu.t_region_size;
-      success     : out boolean)
+      region_size : out m4.mpu.t_region_size)
    is
    begin
-      success := true;
       case (bytes) is
          when 32        => region_size := REGION_SIZE_32B;
          when 64        => region_size := REGION_SIZE_64B;
@@ -308,9 +250,7 @@ is
          when 512*MBYTE => region_size := REGION_SIZE_512MB;
          when 1*GBYTE   => region_size := REGION_SIZE_1GB;
          when 2*GBYTE   => region_size := REGION_SIZE_2GB;
-         when others    =>
-            region_size := REGION_SIZE_32B;
-            success     := false;
+         when others    => raise program_error;
       end case;
    end bytes_to_region_size;
 

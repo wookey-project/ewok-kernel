@@ -106,7 +106,7 @@ is
       --
 
       if
-         ewok.sanitize.is_range_in_data_slot
+         ewok.sanitize.is_range_in_data_region
            (frame_a.all.R0, t_parameters'size/8, current_id, current_a.all.mode)
       then
          svc_params_a := to_parameters_access (frame_a.all.R0);

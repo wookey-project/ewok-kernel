@@ -37,7 +37,7 @@ is
    subtype t_task_name is string (1 .. 10);
 
    type t_task_state is (
-      -- No task in this slot
+      -- No task
       TASK_STATE_EMPTY,
 
       -- Task can be elected by the scheduler with its standard priority
@@ -151,10 +151,10 @@ is
       num_devs          : unsigned_8 range 0 .. MAX_DEVS_PER_TASK       := 0;
       devices           : t_device_list (1 .. MAX_DEVS_PER_TASK);
       init_done         : boolean         := false;
-      data_slot_start   : system_address  := 0;
-      data_slot_end     : system_address  := 0;
-      txt_slot_start    : system_address  := 0;
-      txt_slot_end      : system_address  := 0;
+      data_start        : system_address  := 0;
+      data_end          : system_address  := 0;
+      txt_start         : system_address  := 0;
+      txt_end           : system_address  := 0;
       stack_bottom      : system_address  := 0;
       stack_top         : system_address  := 0;
       stack_size        : unsigned_16     := 0;

@@ -65,9 +65,9 @@ print $OUTHDR_ADA "
 with interfaces;        use interfaces;
 with types;             use types;
 with ewok.tasks_shared; use ewok.tasks_shared;
-with ewok.tasks;	use ewok.tasks;
+with ewok.tasks;        use ewok.tasks;
 with m4.mpu;
-with soc.layout;    use soc.layout;
+with soc.layout;        use soc.layout;
 
 package $ada_pkg_name
    with spark_mode => on
@@ -88,7 +88,7 @@ is
 ";
 
   print $OUTHDR_ADA "
-   -- list of activated applications
+   -- List of activated applications
    subtype t_real_task_id is t_task_id
       range ID_APP1 .. ID_APP$appcnt;
 ";
@@ -188,7 +188,7 @@ foreach my $i (grep {!/_/} sort(keys(%hash))) {
   $stack_bottom =~ s/(\d{4})(\d{4})/$1_$2/;
   $stack_top =~ s/(\d{4})(\d{4})/$1_$2/;
 
-  printf $OUTHDR_ADA "      ID_APP$appid => (${i}_name, $slot, $domain, $priority, $num_slots, 16#$stack_bottom#, 16#$stack_top#, $stack_size, 16#$startisr#, $register)";
+  printf $OUTHDR_ADA "    ID_APP$appid => (${i}_name, $slot, $domain, $priority, $num_slots, 16#$stack_bottom#, 16#$stack_top#, $stack_size, 16#$startisr#, $register)";
   $appid = $appid + 1;
 
   my $totalslot = $slot + ${num_slots} - 1;

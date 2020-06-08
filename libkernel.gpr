@@ -75,6 +75,7 @@ library project Libkernel is
      ("config",
       "config.applications",
       "config.memlayout",
+      "config.tasks",
       "main",
       "ewok",
       "ewok.debug",

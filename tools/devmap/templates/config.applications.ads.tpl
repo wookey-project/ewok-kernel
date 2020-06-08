@@ -23,47 +23,48 @@ with ewok.tasks;	    use ewok.tasks;
 
 package config.applications is
 
-   -- we define a memory offset as an unsigned value up to 4Mb. On a
+   -- We define a memory offset as an unsigned value up to 4Mb. On a
    -- microkernel system, this should be enough for nearly all needs.
    -- FIXME: this type can be added to the types.ads package after the
    -- end of the newmem tests
-   subtype memory_offset is unsigned_32 range 0 .. 4194304;
-   -- an application section can be up to 512K length
-   subtype application_section_size is unsigned_32 range 0 .. 524288;
-   -- an application data section (mapped in RAM) can be up to 65K length
-   subtype application_data_size is unsigned_16 range 0 .. 65535;
+   subtype t_memory_offset is unsigned_32 range 0 .. 4194304;
+
+   -- An application section can be up to 512K length
+   subtype t_application_section_size is unsigned_32 range 0 .. 524288;
+
+   -- An application data section (mapped in RAM) can be up to 65K length
+   subtype t_application_data_size is unsigned_16 range 0 .. 65535;
 
    type t_application is record
-      -- task name
+      -- Task name
       name              : ewok.tasks.t_task_name;
-      -- task text section addr in flash
-      text_off          : memory_offset;
-      -- task text size, in bytes
-      text_size         : application_section_size;
-      -- task got section addr in flash
-      got_off          : memory_offset;
-      -- task got size, in bytes
-      got_size         : application_section_size;
-      -- task data address, in RAM
-      data_off          : memory_offset;
-      -- task data size
-      data_size         : application_data_size;
-      -- task BSS size
-      bss_size          : application_data_size;
-      -- task heap size
-      heap_size         : application_data_size;
-      -- task requested stack size
-      stack_size        : application_data_size;
-      -- entrypoint offset, starting at application text start addr
-      entrypoint_off    : memory_offset;
-      -- isr_entrypoint offset, starting at  application text start addr
-      isr_entrypoint_off: memory_offset;
-      -- task security domain
+      -- Text section addr in flash
+      text_offset       : t_memory_offset;
+      -- Text size, in bytes
+      text_size         : t_application_section_size;
+      -- GOT section addr in flash
+      got_offset        : t_memory_offset;
+      -- GOT size, in bytes
+      got_size          : t_application_section_size;
+      -- Data address in RAM
+      data_offset       : t_memory_offset;
+      -- Data size
+      data_size         : t_application_data_size;
+      -- BSS size
+      bss_size          : t_application_data_size;
+      -- Heap size
+      heap_size         : t_application_data_size;
+      -- Requested stack size
+      stack_size        : t_application_data_size;
+      -- Entrypoint offset, starting at application text start addr
+      entrypoint_offset : t_memory_offset;
+      -- Isr_entrypoint offset, starting at  application text start addr
+      isr_entrypoint_offset : t_memory_offset;
+      -- Security domain
       domain            : unsigned_8;
-      -- task priority
+      -- Priority
       priority          : unsigned_8;
    end record;
 
-
-   -- list of activated applications
+   -- List of activated applications
    subtype t_real_task_id is t_task_id

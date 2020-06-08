@@ -112,7 +112,7 @@ is
       end if;
 
       -- Does &val is in the caller address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_data_region
                (retval_address, caller_id, mode)
       then
          goto ret_denied;

@@ -59,7 +59,7 @@ is
       -- NOTE: The kernel might also use this syscall
       if TSK.is_real_user (caller_id) then
          -- Device_t structure may be stored in user data or in user code
-         if not ewok.sanitize.is_range_in_any_slot
+         if not ewok.sanitize.is_range_in_any_region
                     (udev_address,
                      ewok.exported.devices.t_user_device'size/8,
                      caller_id,
@@ -70,7 +70,7 @@ is
             goto ret_denied;
          end if;
 
-         if not ewok.sanitize.is_word_in_data_slot
+         if not ewok.sanitize.is_word_in_data_region
                   (descriptor_address, caller_id, mode)
          then
             pragma DEBUG (debug.log (debug.ERROR,
@@ -245,14 +245,14 @@ is
       end if;
 
       -- Does &target_name is in the caller address space ?
-      if not ewok.sanitize.is_word_in_any_slot
+      if not ewok.sanitize.is_word_in_any_region
                (target_name_address, caller_id, mode)
       then
          goto ret_denied;
       end if;
 
       -- Does &target_id is in the caller address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_data_region
                (target_id_address, caller_id, mode)
       then
          goto ret_denied;

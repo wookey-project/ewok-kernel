@@ -49,7 +49,7 @@ is
       end if;
 
       -- Does &value is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                (value_address, 8, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,

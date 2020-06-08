@@ -102,7 +102,7 @@ is
       end if;
 
       -- Does &expected_sender is in the caller address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_data_region
                (expected_sender_address, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -112,7 +112,7 @@ is
       end if;
 
       -- Does &buf_size is in the caller address space ?
-      if not ewok.sanitize.is_word_in_data_slot
+      if not ewok.sanitize.is_word_in_data_region
                (buf_size_address, caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,
@@ -132,7 +132,7 @@ is
       begin
 
          -- Does &buf is in the caller address space ?
-         if not ewok.sanitize.is_range_in_data_slot
+         if not ewok.sanitize.is_range_in_data_region
                   (buf_address, unsigned_32 (buf_size), caller_id, mode)
          then
             pragma DEBUG (debug.log (debug.ERROR,
@@ -410,7 +410,7 @@ is
       end if;
 
       -- Does &buf is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
                (buf_address, unsigned_32 (buf_size), caller_id, mode)
       then
          pragma DEBUG (debug.log (debug.ERROR,

@@ -47,7 +47,7 @@ is
       end if;
 
       -- Does &msg is in the caller address space ?
-      if not ewok.sanitize.is_range_in_data_slot
+      if not ewok.sanitize.is_range_in_data_region
               (msg_address,
                unsigned_32 (size),
                caller_id,

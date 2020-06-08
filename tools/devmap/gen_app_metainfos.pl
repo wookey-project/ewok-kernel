@@ -58,7 +58,7 @@ sub main {
         #
         my $component = "apps";
 
-        open(CFGH, ">", "$builddir/$component/layout.\L$mode\E.cfg") or die "unable to open $component cfg file for writing: $!";
+        open (CFGH, ">", "$builddir/$component/layout.\L$mode\E.cfg") or die "unable to open $component cfg file for writing: $!";
         Devmap::Appinfo::set_builddir($builddir);
         Devmap::Appinfo::set_mode($mode);
         # here we handle applications (not kernel)
@@ -350,21 +350,21 @@ sub create_app_generic_info {
 
     # preparing the application hashtab, with default values
     my %appinfo = {
-        name        => "",
-        id          => "",
-        text_off    => '0',
-        text_size   => '0',
-        got_off     => '0',
-        got_size    => '0',
-        data_off    => '0',
-        data_size   => '0',
-        bss_size    => '0',
-        heap_size   => '0',
-        stack_size  => '0',
-        entrypoint  => '0',
+        name           => "",
+        id             => "",
+        text_offset    => '0',
+        text_size      => '0',
+        got_offset     => '0',
+        got_size       => '0',
+        data_offset    => '0',
+        data_size      => '0',
+        bss_size       => '0',
+        heap_size      => '0',
+        stack_size     => '0',
+        entrypoint     => '0',
         isr_entrypoint => '0',
-        domain      => '0',
-        prio        => '0'
+        domain         => '0',
+        prio           => '0'
     };
 
     # here the application config file has already been generated, we
@@ -386,11 +386,11 @@ sub create_app_generic_info {
     %appinfo = (
         name        => $hash{"app${id}.name"},
         id          => "$id",
-        text_off    => $hash{"app${id}.textoff"},
+        text_offset => $hash{"app${id}.textoff"},
         text_size   => $hash{"app${id}.textsize"},
-        got_off     => $hash{"app${id}.gotoff"},
+        got_offset  => $hash{"app${id}.gotoff"},
         got_size    => $hash{"app${id}.gotsize"},
-        data_off    => $hash{"app${id}.dataoff"},
+        data_offset => $hash{"app${id}.dataoff"},
         data_size   => $hash{"app${id}.datasize"},
         bss_size    => $hash{"app${id}.bsssize"},
         heap_size   => $hash{"app${id}.heapsize"},
