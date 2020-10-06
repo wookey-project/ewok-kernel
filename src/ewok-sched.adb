@@ -26,6 +26,7 @@ with system.machine_code;
 with ewok.tasks;           use ewok.tasks;
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.sleep;
+with ewok.alarm;
 with ewok.syscalls.handler;
 with ewok.memory;
 with ewok.interrupts;
@@ -117,7 +118,7 @@ is
             ewok.tasks.set_mode (id, TASK_MODE_MAINTHREAD);
 
 
-            -- When a task has just finished its ISR  its main thread might
+            -- When a task has just finished its ISR, its main thread might
             -- become runnable
             if ewok.sleep.is_sleeping (id) then
                ewok.sleep.try_waking_up (id);
@@ -343,6 +344,9 @@ is
 
       -- Waking-up sleeping tasks
       ewok.sleep.check_is_awoke;
+
+      -- Trigger alarms
+      ewok.alarm.check_alarms;
 
       -- Keep ISR threads running until they finish
       if current_task_mode = TASK_MODE_ISRTHREAD and then

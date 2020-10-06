@@ -46,6 +46,7 @@ is
       return frame_a;
    end busfault_handler;
 
+
    function usagefault_handler
      (frame_a : ewok.t_stack_frame_access) return ewok.t_stack_frame_access
    is
