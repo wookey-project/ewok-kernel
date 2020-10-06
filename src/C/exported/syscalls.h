@@ -56,7 +56,8 @@ typedef enum {
     SVC_DEV_RELEASE,
     SVC_LOCK_ENTER,
     SVC_LOCK_EXIT,
-    SVC_PANIC
+    SVC_PANIC,
+    SVC_ALARM
 } e_svc_type;
 
 /**
