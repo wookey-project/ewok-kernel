@@ -43,6 +43,18 @@ is
    end set_alarm;
 
 
+   procedure unset_alarm
+     (task_id        : in  t_real_task_id)
+   is
+   begin
+      if alarm_state(task_id).time > 0 then
+         count_alarms := count_alarms - 1;
+      end if;
+      alarm_state(task_id).time     := 0;
+      alarm_state(task_id).handler  := 0;
+   end unset_alarm;
+
+
    procedure check_alarm
      (task_id : in  t_real_task_id)
    is
@@ -54,10 +66,7 @@ is
       then
          soft_params := (alarm_state(task_id).handler, unsigned_32 (t), 0, 0);
          ewok.softirq.push_soft (task_id, soft_params);
-
-         alarm_state(task_id).time     := 0;
-         alarm_state(task_id).handler  := 0;
-         count_alarms                  := count_alarms - 1;
+         unset_alarm (task_id);
       end if;
    end check_alarm;
 

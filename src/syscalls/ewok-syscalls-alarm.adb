@@ -39,6 +39,11 @@ is
       handler     : constant system_address  := params(2);
    begin
 
+      if alarm_time = 0 or handler = 0 then
+         ewok.alarm.unset_alarm (caller_id);
+         goto ret_ok;
+      end if;
+
       if not ewok.sanitize.is_word_in_txt_slot (handler, caller_id)
       then
          pragma DEBUG (debug.log (debug.ERROR, "Handler not in .txt section"));
@@ -48,7 +53,7 @@ is
       ewok.alarm.set_alarm
         (caller_id, milliseconds (alarm_time), handler);
 
-      -- Note: state set by ewok.alarm.alarming procedure
+   <<ret_ok>>
       set_return_value (caller_id, mode, SYS_E_DONE);
       ewok.tasks.set_state (caller_id, mode, TASK_STATE_RUNNABLE);
       return;

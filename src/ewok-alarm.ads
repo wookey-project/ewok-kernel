@@ -45,6 +45,11 @@ is
    with
       global => (Output => alarm_state);
 
+   procedure unset_alarm
+     (task_id        : in  t_real_task_id)
+   with
+      global => (Output => alarm_state);
+
    -- For a task, check if it's alarming time is over
    procedure check_alarm
      (task_id : in  t_real_task_id)
