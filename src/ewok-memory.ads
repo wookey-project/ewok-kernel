@@ -29,25 +29,9 @@ package ewok.memory
    with spark_mode => on
 is
 
-   type t_mask is array (unsigned_8 range 1 .. 8) of bit
-      with pack, size => 8;
-
-   function to_unsigned_8 is new ada.unchecked_conversion
-      (t_mask, unsigned_8);
-
    -- Initialize the memory backend
    procedure init
      (success : out boolean);
-
-   -- Zerofiy BSS section of given task in RAM.
-   procedure zeroify_bss
-     (id    : in  t_real_task_id)
-     with inline;
-
-   -- Map application data section from storage to RAM
-   procedure copy_data_to_ram
-     (id    : in  t_real_task_id)
-     with inline;
 
    -- Map task's code and data sections
    procedure map_code_and_data

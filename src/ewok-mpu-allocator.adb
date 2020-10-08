@@ -41,18 +41,13 @@ is
      (addr           : in  system_address;
       size           : in  unsigned_32; -- in bytes
       region_type    : in  ewok.mpu.t_region_type;
-      subregion_mask : in  unsigned_8;
+      subregion_mask : in  m4.mpu.t_subregion_mask;
       success        : out boolean)
    is
       region_size    : m4.mpu.t_region_size;
-      ok             : boolean;
    begin
 
-      ewok.mpu.bytes_to_region_size (size, region_size, ok);
-      if not ok then
-         success := false;
-         return;
-      end if;
+      ewok.mpu.bytes_to_region_size (size, region_size);
 
       -- Verifying region alignement
       if (unsigned_32 (addr) and (size - 1)) > 0 then

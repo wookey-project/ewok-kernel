@@ -124,6 +124,7 @@ library project Libkernel is
       "ewok.syscalls.exiting",
       "ewok.tasks",
       "ewok.tasks.debug",
+      "ewok.tasks.init",
       "ewok.tasks_shared",
       "ewok.sleep",
       "ewok.posthook",

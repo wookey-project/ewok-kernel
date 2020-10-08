@@ -30,8 +30,11 @@ with ewok.layout;
 with ewok.mpu;
 with ewok.mpu.allocator;
 with ewok.debug;
+with soc.devmap;           use type soc.devmap.t_periph_id;
+with m4.mpu;
 with config;
-with config.memlayout; use config.memlayout;
+with config.memlayout;
+
 
 package body ewok.memory
    with spark_mode => off
@@ -44,47 +47,47 @@ is
       ewok.mpu.init (success);
    end init;
 
-   -- zerofiy BSS section of given task in RAM.
-   procedure zeroify_bss
-     (id    : in  t_real_task_id)
-   is
-   begin
-      ewok.mpu.zeroify_bss(id);
-   end zeroify_bss;
-
-   -- map .data section from flash memory to RAM for target application
-   -- mapping .data section depend on the memory backend, i.e. in MPU based
-   -- system, this is a recopy from a given region to another as in MMU
-   -- based system, this is a virtual memory mapping
-   procedure copy_data_to_ram
-     (id    : in  t_real_task_id)
-   is
-   begin
-      ewok.mpu.copy_data_to_ram(id);
-   end copy_data_to_ram;
 
    procedure map_code_and_data
      (id    : in  t_real_task_id)
    is
-      flash_mask  : t_mask := (others => 1);
-      ram_mask    : t_mask := (others => 1);
+      flash_mask  : m4.mpu.t_subregion_mask := (others => m4.mpu.SUB_REGION_DISABLED);
+      ram_mask    : m4.mpu.t_subregion_mask := (others => m4.mpu.SUB_REGION_DISABLED);
    begin
 
-      for i in 0 .. config.memlayout.list(id).flash_slot_number - 1 loop
-         flash_mask(config.memlayout.list(id).flash_slot_start + i) := 0;
-      end loop;
+      -- TODO: 'flash_mask' should be constant
+      declare
+         first_slot : constant m4.mpu.t_subregion
+            := config.memlayout.list(id).flash_slot_start;
+         last_slot  : constant m4.mpu.t_subregion
+            := config.memlayout.list(id).flash_slot_start
+               + config.memlayout.list(id).flash_slot_number
+               - 1;
+      begin
+         flash_mask (first_slot .. last_slot) :=
+            (others => m4.mpu.SUB_REGION_ENABLED);
+      end;
 
-      for i in 0 .. config.memlayout.list(id).ram_slot_number - 1 loop
-         ram_mask(config.memlayout.list(id).ram_slot_start + i) := 0;
-      end loop;
+      -- TODO: 'ram_mask' should be constant
+      declare
+         first_slot : constant m4.mpu.t_subregion
+            := config.memlayout.list(id).ram_slot_start;
+         last_slot  : constant m4.mpu.t_subregion
+            := config.memlayout.list(id).ram_slot_start
+               + config.memlayout.list(id).ram_slot_number
+               - 1;
+      begin
+         ram_mask (first_slot .. last_slot) :=
+            (others => m4.mpu.SUB_REGION_ENABLED);
+      end;
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_CODE_REGION,
-         subregion_mask => to_unsigned_8 (flash_mask));
+         subregion_mask => flash_mask);
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_DATA_REGION,
-         subregion_mask => to_unsigned_8 (ram_mask));
+         subregion_mask => ram_mask);
 
    end map_code_and_data;
 
@@ -94,11 +97,11 @@ is
    begin
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_CODE_REGION,
-         subregion_mask => 2#1111_1111#);
+         subregion_mask => (others => m4.mpu.SUB_REGION_DISABLED));
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_DATA_REGION,
-         subregion_mask => 2#1111_1111#);
+         subregion_mask => (others => m4.mpu.SUB_REGION_DISABLED));
    end unmap_user_code_and_data;
 
 
@@ -179,7 +182,7 @@ is
            (addr           => ewok.layout.STACK_BOTTOM_TASK_ISR,
             size           => 4096,
             region_type    => ewok.mpu.REGION_TYPE_ISR_STACK,
-            subregion_mask => 0,
+            subregion_mask => (others => m4.mpu.SUB_REGION_ENABLED),
             success        => ok);
 
          if not ok then
@@ -190,6 +193,13 @@ is
          dev_id := new_task.isr_ctx.device_id;
 
          if dev_id /= ID_DEV_UNUSED then
+
+            if ewok.devices.registered_device(dev_id).periph_id
+                  = soc.devmap.NO_PERIPH
+            then
+               raise program_error;
+            end if;
+
             map_device (dev_id, ok);
             if not ok then
                debug.panic ("mpu_switching(): mapping device failed!");
@@ -208,6 +218,13 @@ is
             if new_task.devices(i).device_id /= ID_DEV_UNUSED and then
                new_task.devices(i).mounted = true
             then
+
+               if ewok.devices.registered_device(new_task.devices(i).device_id).periph_id
+                     = soc.devmap.NO_PERIPH
+               then
+                  raise program_error;
+               end if;
+
                map_device (new_task.devices(i).device_id, ok);
                if not ok then
                   debug.panic ("mpu_switching(): mapping device failed!");

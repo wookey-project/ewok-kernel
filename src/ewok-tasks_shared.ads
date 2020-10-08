@@ -26,6 +26,12 @@ with ada.unchecked_conversion;
 package ewok.tasks_shared
    with spark_mode => on
 is
+
+   -- TODO
+   --   - there may be less than 7 user apps!
+   --   - ID_SOFTIRQ and ID_KERNEL should be ahead in the list
+   --   - 't_real_task_id' type should be renamed as 't_user_task_id'
+   --   - having to use 't_real_task_id' type is cumbersome
    type t_task_id is
      (ID_UNUSED,
       ID_APP1,
@@ -46,9 +52,9 @@ is
       ISR_FORCE_MAINTHREAD,
       ISR_WITHOUT_MAINTHREAD);
 
-   pragma Warnings (Off);
    -- We have to turn warnings off because the size of the t_task_id may
    -- differ
+   pragma Warnings (Off);
 
    function to_task_id is new ada.unchecked_conversion
      (unsigned_32, t_task_id);

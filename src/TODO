@@ -1,0 +1,60 @@
+
+C/exported/syscalls.h://[PTH]
+	TODO: differentiate a synchronous send/recv and an asynchronous (with loss) one
+
+arch/socs/stm32f439/soc-gpio.adb:
+	FIXME - Should be in soc.rcc package
+
+arch/socs/stm32f407/startup.S:
+	FIXME: We should use dynimic value for VTORS_SIZE */
+
+arch/cores/armv7-m/m4-systick.ads:
+	FIXME - Should be defined in arch/boards
+
+syscalls/ewok-syscalls-cfg-dev.adb:
+	FIXME - That code should not be here.
+
+syscalls/ewok-syscalls-init.adb:
+	FIXME: use a proper type for descriptors
+	FIXME - Create new syscalls for enabling/disabling devices?
+	FIXME - has to be changed when device mapping will be synchronously done
+
+syscalls/ewok-syscalls-ipc.adb:
+	FIXME
+
+syscalls/ewok-syscalls-exiting.adb:
+	TODO: the appropriate action should be chosen at compile time
+	FIXME: we should also clean resources (devices, DMA, IPCs, ISRs...)
+	FIXME: maybe we should also clean IPCs ?
+
+ewok-memory.adb:
+	TODO: 'flash_mask' should be constant
+	TODO: 'ram_mask' should be constant
+
+ewok-tasks_shared.ads:
+	TODO
+
+ewok-tasks.adb:
+	TODO: replace 'idle_task' occurences by 'kernel_task'
+	FIXME: defensive programming, should be removed
+	FIXME: defensive programming, should be removed
+	FIXME: defensive programming, should be removed
+
+ewok-sched.adb:
+	FIXME - CONFIG_SCHED_PERIOD must be in milliseconds,
+	TODO: define a clear denomination for locking/unlocking critical
+
+ewok-gpio.adb:
+	FIXME - Writing to LCKR register requires a specific sequence
+
+ewok-devices.ads:
+	type t_device_state is FIXME
+
+ewok-devices.adb:
+	FIXME initialize registered_device(dev_id).udev with 0 values
+
+ewok-debug.adb:
+	TODO: Clearing IPC content
+
+generated/config-applications.ads:
+	FIXME: this type can be added to the types.ads package after the

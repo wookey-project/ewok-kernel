@@ -25,7 +25,8 @@ with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.exported.devices;
 with ewok.exported.interrupts;
 with soc.interrupts;
-with soc.devmap;
+with soc.devmap;           use soc.devmap;
+with m4.mpu;
 
 package ewok.devices
    with spark_mode => off
@@ -75,7 +76,9 @@ is
       return boolean;
 
    function get_device_subregions_mask (dev_id : t_registered_device_id)
-      return unsigned_8;
+      return m4.mpu.t_subregion_mask
+   with
+      pre => registered_device(dev_id).periph_id /= soc.devmap.NO_PERIPH;
 
    function get_interrupt_config_from_interrupt
      (interrupt : soc.interrupts.t_interrupt)

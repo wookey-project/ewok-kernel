@@ -24,7 +24,6 @@
 with m4.mpu;
 with m4.scb;
 with ewok.interrupts;
-with config.applications; use config.applications;
 
 package ewok.mpu
    with spark_mode => on
@@ -65,16 +64,6 @@ is
                                m4.scb.SCB,
                                ewok.interrupts.interrupt_table));
 
-   procedure zeroify_bss
-     (id    : in  t_real_task_id)
-      with
-         global => (input  => (config.applications.list));
-
-   procedure copy_data_to_ram
-     (id    : in  t_real_task_id)
-      with
-         global => (input  => (config.applications.list));
-
    -- Allows the kernel to access the whole memory
    procedure enable_unrestricted_kernel_access
       with
@@ -97,7 +86,7 @@ is
       addr           : in  system_address;
       size           : in  m4.mpu.t_region_size;
       region_type    : in  t_region_type;
-      subregion_mask : in  unsigned_8)
+      subregion_mask : in  m4.mpu.t_subregion_mask)
       with
          global => (in_out => (m4.mpu.MPU)),
          pre =>
@@ -113,19 +102,21 @@ is
 
    procedure update_subregions
      (region_number  : in  m4.mpu.t_region_number;
-      subregion_mask : in  unsigned_8)
+      subregion_mask : in  m4.mpu.t_subregion_mask)
       with
          global => (in_out => (m4.mpu.MPU));
 
    procedure bytes_to_region_size
      (bytes       : in  unsigned_32;
-      region_size : out m4.mpu.t_region_size;
-      success     : out boolean)
+      region_size : out m4.mpu.t_region_size)
       with
          global => null,
          -- Bytes (region size) is a power of 2
-         pre    => ((bytes >= 32) and (bytes and (bytes - 1)) = 0),
          -- 4GB region size is not considered by this function
-         post   => region_size < 31;
+         pre    => ((bytes and (bytes - 1)) = 0 and
+                     bytes >= 32 and
+                     bytes <= 2*GBYTE),
+         post   => region_size < 31 and
+                   (2**(natural (region_size) + 1) = bytes);
 
 end ewok.mpu;

@@ -29,15 +29,18 @@ with ewok.ipc;             use ewok.ipc;
 with ewok.rng;
 with ewok.softirq;
 with ewok.memory;
+with ewok.tasks.init;
 with types.c;              use type types.c.t_retval;
 
 with config.applications; -- Automatically generated
 with config.memlayout; -- Automatically generated
 
+
 package body ewok.tasks
    with spark_mode => off
 is
 
+   -- TODO: replace 'idle_task' occurences by 'kernel_task'
    procedure idle_task
    is
    begin
@@ -631,6 +634,8 @@ is
    begin
 
       for id in tasks_list'range loop
+         -- Note: set default values for applications but also privileged tasks
+         --       (KERNEl and SOFTIRQ)
          set_default_values (tasks_list(id));
       end loop;
 
@@ -639,8 +644,8 @@ is
       init_apps;
 
       for id in config.applications.list'range loop
-         ewok.memory.copy_data_to_ram(id);
-         ewok.memory.zeroify_bss(id);
+         ewok.tasks.init.copy_data_to_ram (id);
+         ewok.tasks.init.zeroify_bss (id);
       end loop;
 
    end task_init;

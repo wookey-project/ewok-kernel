@@ -32,9 +32,30 @@ is
    ------------
    -- Config --
    ------------
+
    subtype t_region_number is unsigned_8 range 0 .. 7;
    subtype t_region_size is bits_5 range 4 .. 31;
    subtype t_region_perm is bits_3;
+
+   subtype t_subregion is unsigned_8 range 1 .. 8;
+
+   type t_subregion_status is
+     (SUB_REGION_ENABLED,
+      SUB_REGION_DISABLED)
+      with size => 1;
+
+   for t_subregion_status use
+     (SUB_REGION_ENABLED   => 0,
+      SUB_REGION_DISABLED  => 1);
+
+   type t_subregion_mask is array (t_subregion) of t_subregion_status
+      with pack, size => 8;
+
+   function to_subregion_mask is new ada.unchecked_conversion
+      (unsigned_8, t_subregion_mask);
+
+   function to_unsigned_8 is new ada.unchecked_conversion
+      (t_subregion_mask, unsigned_8);
 
    type t_region_config is record
       region_number  : t_region_number;
@@ -44,7 +65,7 @@ is
       xn             : boolean;  -- Execute Never
       b              : boolean;
       s              : boolean;
-      subregion_mask : unsigned_8; -- 0: sub-region enabled, 1: disabled
+      subregion_mask : t_subregion_mask;
    end record;
 
    REGION_SIZE_32B   : constant t_region_size := 4;
@@ -117,7 +138,8 @@ is
          inline_always,
          global => (in_out => (MPU));
 
-   -- Only used by SPARK prover
+   -- Return true if configured region is executable and writable
+   -- by the CPU in privileged or unprivileged mode
    function region_rwx(region : t_region_config) return boolean
       is (region.xn = false and
           (region.access_perm = REGION_PERM_PRIV_RW_USER_NO or
@@ -164,7 +186,7 @@ is
 
    procedure update_subregion_mask
      (region_number  : in t_region_number;
-      subregion_mask : in unsigned_8)
+      subregion_mask : in t_subregion_mask)
       with
          inline_always,
          global => (in_out => (MPU));

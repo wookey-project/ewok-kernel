@@ -30,7 +30,6 @@ with ewok.gpio;
 with ewok.exti;
 with ewok.debug;
 with ewok.devices.perms;
-with soc.devmap;                 use soc.devmap;
 with soc.interrupts;             use soc.interrupts;
 with soc.nvic;
 with soc.gpio;
@@ -98,10 +97,11 @@ is
 
 
    function get_device_subregions_mask (dev_id : t_registered_device_id)
-      return unsigned_8
+      return m4.mpu.t_subregion_mask
    is
    begin
-      return soc.devmap.periphs(registered_device(dev_id).periph_id).subregions;
+      return m4.mpu.to_subregion_mask
+        (soc.devmap.periphs(registered_device(dev_id).periph_id).subregions);
    end get_device_subregions_mask;
 
 
