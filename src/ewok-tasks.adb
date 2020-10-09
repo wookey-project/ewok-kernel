@@ -29,7 +29,7 @@ with ewok.ipc;             use ewok.ipc;
 with ewok.rng;
 with ewok.softirq;
 with ewok.memory;
-with ewok.tasks.init;
+with ewok.tasks.memory;
 with types.c;              use type types.c.t_retval;
 
 with config.applications; -- Automatically generated
@@ -643,9 +643,11 @@ is
       init_softirq_task;
       init_apps;
 
+      ewok.tasks.memory.compute_subregions_per_app;
+
       for id in config.applications.list'range loop
-         ewok.tasks.init.copy_data_to_ram (id);
-         ewok.tasks.init.zeroify_bss (id);
+         ewok.tasks.memory.copy_data_to_ram (id);
+         ewok.tasks.memory.zeroify_bss (id);
       end loop;
 
    end task_init;

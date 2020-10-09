@@ -25,6 +25,7 @@ with ada.unchecked_conversion;
 
 with ewok.devices_shared;  use ewok.devices_shared;
 with ewok.tasks;           use type ewok.tasks.t_task_type;
+with ewok.tasks.memory;
 with ewok.devices;
 with ewok.layout;
 with ewok.mpu;
@@ -33,7 +34,6 @@ with ewok.debug;
 with soc.devmap;           use type soc.devmap.t_periph_id;
 with m4.mpu;
 with config;
-with config.memlayout;
 
 
 package body ewok.memory
@@ -51,43 +51,15 @@ is
    procedure map_code_and_data
      (id    : in  t_real_task_id)
    is
-      flash_mask  : m4.mpu.t_subregion_mask := (others => m4.mpu.SUB_REGION_DISABLED);
-      ram_mask    : m4.mpu.t_subregion_mask := (others => m4.mpu.SUB_REGION_DISABLED);
    begin
-
-      -- TODO: 'flash_mask' should be constant
-      declare
-         first_slot : constant m4.mpu.t_subregion
-            := config.memlayout.list(id).flash_slot_start;
-         last_slot  : constant m4.mpu.t_subregion
-            := config.memlayout.list(id).flash_slot_start
-               + config.memlayout.list(id).flash_slot_number
-               - 1;
-      begin
-         flash_mask (first_slot .. last_slot) :=
-            (others => m4.mpu.SUB_REGION_ENABLED);
-      end;
-
-      -- TODO: 'ram_mask' should be constant
-      declare
-         first_slot : constant m4.mpu.t_subregion
-            := config.memlayout.list(id).ram_slot_start;
-         last_slot  : constant m4.mpu.t_subregion
-            := config.memlayout.list(id).ram_slot_start
-               + config.memlayout.list(id).ram_slot_number
-               - 1;
-      begin
-         ram_mask (first_slot .. last_slot) :=
-            (others => m4.mpu.SUB_REGION_ENABLED);
-      end;
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_CODE_REGION,
-         subregion_mask => flash_mask);
+         subregion_mask => ewok.tasks.memory.flash_mask(id));
 
       ewok.mpu.update_subregions
         (region_number  => ewok.mpu.USER_DATA_REGION,
-         subregion_mask => ram_mask);
+         subregion_mask => ewok.tasks.memory.ram_mask(id));
 
    end map_code_and_data;
 
