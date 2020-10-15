@@ -44,7 +44,7 @@ is
          goto ret_ok;
       end if;
 
-      if not ewok.sanitize.is_word_in_txt_slot (handler, caller_id)
+      if not ewok.sanitize.is_word_in_txt_region (handler, caller_id)
       then
          pragma DEBUG (debug.log (debug.ERROR, "Handler not in .txt section"));
          goto ret_denied;
