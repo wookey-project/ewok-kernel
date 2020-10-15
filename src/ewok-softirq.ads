@@ -42,6 +42,19 @@ is
       params      : t_isr_parameters               := (others => <>);
    end record;
 
+   type t_soft_parameters is record
+      handler     : system_address                 := 0;
+      param1      : unsigned_32                    := 0;
+      param2      : unsigned_32                    := 0;
+      param3      : unsigned_32                    := 0;
+   end record;
+
+   type t_soft_request is record
+      caller_id   : ewok.tasks_shared.t_task_id    := ID_UNUSED;
+      params      : t_soft_parameters              := (others => <>);
+   end record;
+
+
    -- softirq input queue depth. Can be configured depending
    -- on the devices behavior (IRQ bursts)
    -- defaulting to 20 (see Kconfig)
@@ -51,7 +64,12 @@ is
      (t_isr_request, MAX_QUEUE_SIZE, t_isr_request'(others => <>));
    use p_isr_requests;
 
+   package p_soft_requests is new rings
+     (t_soft_request, MAX_QUEUE_SIZE, t_soft_request'(others => <>));
+   use p_soft_requests;
+
    isr_queue      : p_isr_requests.ring;
+   soft_queue     : p_soft_requests.ring;
 
    procedure init;
 
@@ -59,7 +77,14 @@ is
      (task_id     : in  ewok.tasks_shared.t_task_id;
       params      : in  t_isr_parameters);
 
+   procedure push_soft
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      params      : in  t_soft_parameters);
+
    procedure isr_handler (req : in  t_isr_request)
+      with global => (in_out => ewok.tasks.tasks_list);
+
+   procedure soft_handler (req : in  t_soft_request)
       with global => (in_out => ewok.tasks.tasks_list);
 
    procedure main_task

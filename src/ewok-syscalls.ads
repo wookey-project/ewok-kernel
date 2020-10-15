@@ -63,7 +63,8 @@ is
       SVC_DEV_RELEASE,
       SVC_LOCK_ENTER,
       SVC_LOCK_EXIT,
-      SVC_PANIC)
+      SVC_PANIC,
+      SVC_ALARM)
    with size => 8;
 
 end ewok.syscalls;

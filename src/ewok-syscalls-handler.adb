@@ -36,6 +36,7 @@ with ewok.syscalls.rng;
 with ewok.syscalls.sleep;
 with ewok.syscalls.yield;
 with ewok.syscalls.exiting;
+with ewok.syscalls.alarm;
 with ewok.exported.interrupts;
    use type ewok.exported.interrupts.t_interrupt_config_access;
 with ewok.debug;
@@ -288,6 +289,11 @@ is
          when SVC_PANIC       =>
             ewok.syscalls.exiting.svc_panic (current_id);
             return ewok.sched.do_schedule (frame_a);
+
+         when SVC_ALARM       =>
+            ewok.syscalls.alarm.svc_alarm
+              (current_id, svc_params_a.all, current_a.all.mode);
+            return frame_a;
 
       end case;
 

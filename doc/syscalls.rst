@@ -111,6 +111,7 @@ Syscall overview
    Terminating a thread normally <syscalls/sys_exit>
    Terminating a task abnormally <syscalls/sys_panic>
    Sleeping <syscalls/sys_sleep>
+   Alarm <syscalls/sys_alarm>
    Reseting the board <syscalls/sys_reset>
    Main thread locking mechanism <syscalls/sys_lock>
    Accessing the RNG <syscalls/sys_get_random>

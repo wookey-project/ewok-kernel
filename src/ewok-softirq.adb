@@ -22,6 +22,7 @@
 
 
 with ewok.tasks;        use ewok.tasks;
+with ewok.devices_shared; use ewok.devices_shared;
 with ewok.debug;
 with ewok.devices;
 with ewok.exported.interrupts;
@@ -76,6 +77,32 @@ is
       ewok.tasks.set_state
         (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
    end push_isr;
+
+
+   procedure push_soft
+     (task_id     : in  ewok.tasks_shared.t_task_id;
+      params      : in  t_soft_parameters)
+   is
+      req   : constant t_soft_request := (task_id, params);
+      ok    : boolean;
+   begin
+#if CONFIG_KERNEL_EXP_REENTRANCY
+      -- accessing the softirq input queue is not reentrant
+      m4.cpu.disable_irq;
+#end if;
+      p_soft_requests.write (soft_queue, req, ok);
+      if not ok then
+#if CONFIG_KERNEL_EXP_REENTRANCY
+         m4.cpu.enable_irq;
+#end if;
+         debug.panic ("push_isr() failed.");
+      end if;
+#if CONFIG_KERNEL_EXP_REENTRANCY
+      m4.cpu.enable_irq;
+#end if;
+      ewok.tasks.set_state
+        (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_RUNNABLE);
+   end push_soft;
 
 
    procedure isr_handler (req : in  t_isr_request)
@@ -152,9 +179,56 @@ is
    end isr_handler;
 
 
+   procedure soft_handler (req : in  t_soft_request)
+   is
+      params   : t_parameters;
+   begin
+
+      TSK.tasks_list(req.caller_id).isr_ctx.device_id    := ID_DEV_UNUSED;
+      TSK.tasks_list(req.caller_id).isr_ctx.sched_policy := ISR_STANDARD;
+
+      -- Zeroing the ISR stack if the ISR previously executed belongs to
+      -- another task
+      if previous_isr_owner /= req.caller_id then
+         declare
+            stack : byte_array(1 .. ewok.layout.STACK_SIZE_TASK_ISR)
+               with address => to_address (ewok.layout.STACK_BOTTOM_TASK_ISR);
+         begin
+            stack := (others => 0);
+         end;
+
+         previous_isr_owner := req.caller_id;
+      end if;
+
+      -- User defined ISR handler
+      params(1) := req.params.handler;
+
+      -- Args
+      params(2) := req.params.param1;
+      params(3) := req.params.param2;
+      params(4) := req.params.param3;
+
+      --
+      -- Note - soft_ctx.entry_point is a wrapper. The real ISR entry
+      -- point is defined in params(1)
+      --
+      create_stack
+        (ewok.layout.STACK_TOP_TASK_ISR,
+         TSK.tasks_list(req.caller_id).isr_ctx.entry_point, -- Wrapper
+         params,
+         TSK.tasks_list(req.caller_id).isr_ctx.frame_a);
+
+      ewok.tasks.set_mode (req.caller_id, TASK_MODE_ISRTHREAD);
+      ewok.tasks.set_state
+        (req.caller_id, TASK_MODE_ISRTHREAD, TASK_STATE_RUNNABLE);
+
+   end soft_handler;
+
+
    procedure main_task
    is
       isr_req  : t_isr_request;
+      soft_req : t_soft_request;
       ok       : boolean;
    begin
 
@@ -185,8 +259,35 @@ is
             end if;
          end loop;
 
+         -- Read pending user soft ISRs
+         loop
+            m4.cpu.disable_irq;
+
+            p_soft_requests.read (soft_queue, soft_req, ok);
+            if not ok then
+               exit;
+            end if;
+
+            if TSK.tasks_list(soft_req.caller_id).state /= TASK_STATE_LOCKED and
+               TSK.tasks_list(soft_req.caller_id).state /= TASK_STATE_SLEEPING_DEEP
+            then
+               soft_handler (soft_req);
+               ewok.sched.request_schedule;
+               m4.cpu.enable_irq;
+            else
+               p_soft_requests.write (soft_queue, soft_req, ok);
+               if not ok then
+                  debug.panic ("SOFTIRQ failed to add ISR request");
+               end if;
+               ewok.sched.request_schedule;
+               m4.cpu.enable_irq;
+            end if;
+         end loop;
+
          -- No more pending request: Softirq task is IDLE
-         if p_isr_requests.state (isr_queue) = p_isr_requests.EMPTY then
+         if p_isr_requests.state (isr_queue)   = p_isr_requests.EMPTY and
+            p_soft_requests.state (soft_queue) = p_soft_requests.EMPTY
+         then
             ewok.tasks.set_state
               (ID_SOFTIRQ, TASK_MODE_MAINTHREAD, TASK_STATE_IDLE);
             ewok.sched.request_schedule;

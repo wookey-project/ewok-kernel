@@ -7,14 +7,14 @@ menu "Board setup"
 choice
   prompt "Target board"
   config DISCO407
-    bool "Support for 32F429IDISCOVERY board"
+    bool "Support for 32F407IDISCOVERY board"
     select STACK_PROT_FLAG
     select STM32F407
     help
       Compile for the Discovery 32F407I board.
       No Cryp support, 1MB flash bank.
   config DISCO429
-    bool "Support for 32F407IDISCOVERY board"
+    bool "Support for 32F429IDISCOVERY board"
     select STACK_PROT_FLAG
     select STM32F429
     help
@@ -179,6 +179,3 @@ config AFLAGS_LLVM
     string
     default "--target=thumbv7m-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -mthumb -fPIC -fpie" if STM32F4
     default "--target=arm-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -mthumb -fPIC -fpie" if STM32F2
-
-
-
