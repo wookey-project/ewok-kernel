@@ -34,13 +34,16 @@ SECTIONS
 {
 	/* The program code and other data goes into FLASH */
 	/* this is the kernel code part */
-	.text :
-	{
+    .init : {
                 heapsize = @HEAPSIZE@;
-		_s_text = .;	            /* create a global symbol at data start */
-		*startup*(.vdso.do_starttask)
+        _s_text = .;	            /* create a global symbol at data start */
+        *startup*(.vdso.do_starttask)
 		*(.vdso.do_startisr)
+		*(.vdso)
 		*(.vdso*)
+    }>FLASH_APP
+    .text :
+	{
 		*(.text*)
 		*(.rodata)         	/* .rodata sections (constants, strings, etc.) */
 		*(.rodata*)         	/* .rodata sections (constants, strings, etc.) */

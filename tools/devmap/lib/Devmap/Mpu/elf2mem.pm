@@ -48,6 +48,7 @@ sub map_application {
 
     my $ram_slot_size = $ramsize / $numslot;
     my $flash_slot_size = $flashsize / $numslot;
+    printf("---> map application: flash size: %x, ram size: %x\n", $app_flash_size, $app_ram_size);
 
     while ($app_flash_size > ($flash_slot_size * $flash_slot_consumed)) {
         $flash_slot_consumed += 1;

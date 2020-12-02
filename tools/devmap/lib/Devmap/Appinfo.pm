@@ -108,12 +108,28 @@ sub dump_elf_metainfo {
 
     # 2) get back the generic info (sections size are valid but not
     #    correctly memory mapped)
+    #
+    my $text_addr = 0;
+    my $text_sz = 0;
+    if (Devmap::Elfinfo::elf_section_exists('.init')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.init');
+        $text_addr = hex($hash{'lma'});
+        $text_sz = hex($hash{'size'});
+    }
     if (Devmap::Elfinfo::elf_section_exists('.text')) {
         my %hash = Devmap::Elfinfo::elf_get_section('.text');
-        # then add its size
-        $appinfo{'text_addr'} = $hash{'lma'};
-        $appinfo{'text_size'} = $hash{'size'};
+        if ($text_addr == 0) {
+            $text_addr = hex($hash{'lma'});
+        }
+        $text_sz += hex($hash{'size'});
     }
+    if (Devmap::Elfinfo::elf_section_exists('.fini')) {
+        my %hash = Devmap::Elfinfo::elf_get_section('.fini');
+        $text_sz += hex($hash{'size'});
+    }
+    $appinfo{'text_addr'} = sprintf("0x%08x", $text_addr);
+    $appinfo{'text_size'} = sprintf("0x%08x", $text_sz);
+
     if (Devmap::Elfinfo::elf_section_exists('.data')) {
         my %hash = Devmap::Elfinfo::elf_get_section('.data');
         # then add its size

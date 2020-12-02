@@ -14,7 +14,7 @@ my @objdump_syms;
 sub openelf {
     my ($binary) = @_;
     @objdump_raw=`${CROSS_COMPILE}objdump -h $binary`;
-    @objdump_syms=`${CROSS_COMPILE}objdump -j .text -j .vdso --syms $binary`
+    @objdump_syms=`${CROSS_COMPILE}objdump -j .text -j .init -j fini --syms $binary`
 }
 
 sub elf_section_exists {
