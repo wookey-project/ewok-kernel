@@ -107,10 +107,10 @@ SECTIONS
 		*(.bss)
 		*(.bss*)
 		*(COMMON)
-		_e_bss = .;         /* define a global symbol at bss end */
+        _e_bss = .;         /* define a global symbol at bss end */
 	}>RAM_APP
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 		_s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 	.heap : AT (.)

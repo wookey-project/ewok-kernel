@@ -61,7 +61,7 @@ SECTIONS
 		__e_text = .;        	/* define a global symbols at end of code */
 	}>FLASH_APP
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	/* used by the startup to initialize got */
 	.got :
@@ -111,7 +111,7 @@ SECTIONS
 		_e_bss = .;         /* define a global symbol at bss end */
 	}>RAM_APP
 
-  	. = ALIGN(4);
+  	. = ALIGN(8);
 
         _s_heap = .;         /* define a global symbol after .data+.bss+.stack size content */
 	.heap : AT (.)
