@@ -170,7 +170,11 @@ is
       if config.in_addr  = 0 or
          config.out_addr = 0 or
          config.bytes    = 0 or
+#if CONFIG_KERNEL_DMA_DIRECTCOPY
+         (config.transfer_dir  = MEMORY_TO_MEMORY and config.in_handler = 0)
+#else
          config.transfer_dir  = MEMORY_TO_MEMORY or
+#end if;
          (config.transfer_dir = MEMORY_TO_PERIPHERAL and config.in_handler = 0)
          or
          (config.transfer_dir = PERIPHERAL_TO_MEMORY and config.out_handler = 0)
@@ -255,7 +259,45 @@ is
             end if;
 
          when MEMORY_TO_MEMORY      =>
+
+#if CONFIG_KERNEL_DMA_DIRECTCOPY
+            if to_configure.buffer_in then
+               if not ewok.sanitize.is_range_in_any_region
+                       (user_config.in_addr, unsigned_32 (user_config.size),
+                        caller_id, mode)
+                  and
+                  not ewok.sanitize.is_range_in_dma_shm
+                       (user_config.in_addr, unsigned_32 (user_config.size),
+                        SHM_ACCESS_READ, caller_id)
+               then
+                  return false;
+               end if;
+            end if;
+
+            if to_configure.buffer_out then
+               if not ewok.sanitize.is_range_in_any_region
+                       (user_config.out_addr, unsigned_32 (user_config.size),
+                        caller_id, mode)
+                  and
+                  not ewok.sanitize.is_range_in_dma_shm
+                       (user_config.out_addr, unsigned_32 (user_config.size),
+                        SHM_ACCESS_WRITE, caller_id)
+               then
+                  return false;
+               end if;
+            end if;
+
+            if to_configure.handlers then
+               if not ewok.sanitize.is_word_in_txt_region
+                          (user_config.out_handler, caller_id)
+               then
+                  return false;
+               end if;
+            end if;
+
+#else
             return false;
+#end if;
       end case;
 
       return true;
@@ -342,11 +384,17 @@ is
                   user_config.in_priority;
 
             when MEMORY_TO_MEMORY      =>
+
+#if CONFIG_KERNEL_DMA_DIRECTCOPY
+               registered_dma(index).config.in_priority :=
+                  user_config.out_priority;
+#else
                pragma DEBUG (debug.log
                  (debug.ERROR,
                   "reconfigure_stream(): MEMORY_TO_MEMORY not implemented"));
                success := false;
                return;
+#end if;
          end case;
       end if;
 
@@ -387,9 +435,26 @@ is
                end if;
 
             when MEMORY_TO_MEMORY      =>
+
+#if CONFIG_KERNEL_DMA_DIRECTCOPY
+               registered_dma(index).config.in_handler :=
+                  user_config.in_handler;
+
+               ewok.interrupts.set_interrupt_handler
+                 (soc.devmap.periphs(periph_id).interrupt_list (soc.devmap.t_interrupt_range'first),
+                  ewok.interrupts.to_handler_access (user_config.in_handler),
+                  caller_id,
+                  ewok.devices_shared.ID_DEV_UNUSED,
+                  ok);
+
+               if not ok then
+                  raise program_error;
+               end if;
+#else
                pragma DEBUG (debug.log (debug.ERROR, "reconfigure_stream(): MEMORY_TO_MEMORY not implemented"));
                success := false;
                return;
+#end if;
          end case;
       end if;
 
@@ -495,9 +560,24 @@ is
             end if;
 
          when MEMORY_TO_MEMORY      =>
+#if CONFIG_KERNEL_DMA_DIRECTCOPY
+            if user_config.in_handler /= 0 then
+               ewok.interrupts.set_interrupt_handler
+                 (soc.devmap.periphs(periph_id).interrupt_list(soc.devmap.t_interrupt_range'first),
+                  ewok.interrupts.to_handler_access (user_config.in_handler),
+                  caller_id,
+                  ewok.devices_shared.ID_DEV_UNUSED,
+                  ok);
+
+                  if not ok then
+                     raise program_error;
+                  end if;
+            end if;
+#else
             pragma DEBUG (debug.log ("dma.init(): MEMORY_TO_MEMORY not implemented"));
             success := false;
             return;
+#end if;
       end case;
 
       if is_config_complete (registered_dma(index).config) then
