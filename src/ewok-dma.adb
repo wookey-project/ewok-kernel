@@ -172,6 +172,7 @@ is
          config.bytes    = 0 or
 #if CONFIG_KERNEL_DMA_DIRECTCOPY
          (config.transfer_dir  = MEMORY_TO_MEMORY and config.in_handler = 0)
+         or
 #else
          config.transfer_dir  = MEMORY_TO_MEMORY or
 #end if;

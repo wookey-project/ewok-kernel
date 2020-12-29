@@ -112,6 +112,8 @@ config KERNEL_DMA_DIRECTCOPY
     can be any .rodata, .data, .bss or .heap content or any previously
     registered DMA-SHM content (with respect for read/write access to it).
 
+endif
+
 config KERNEL_GETCYCLES
   bool "Kernel support for DWT-based getcycles()"
   default y
