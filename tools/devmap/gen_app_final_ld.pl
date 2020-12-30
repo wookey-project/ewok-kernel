@@ -131,6 +131,7 @@ for my $i (grep {!/_/} sort(keys(%hash))) {
    # .bss section start wordsize bytes *after* the end of the .data section, instead of directly after it. This particularity is hold here.
    $final_ldscript =~ s/\@LENGTH_RAM\@/(sprintf("0x%08x", hex($hashcfg{"stacksize"})+hex($hashcfg{"datasize"})+hex($hashcfg{"bsssize"})+hex($hashcfg{"heapsize"}) + $socinfos->{"arch.wordsize"} ))/e;
 
+   chomp($final_ldscript);
    print OUTLD "$final_ldscript";
    close OUTLD;
 } # End of inner for
