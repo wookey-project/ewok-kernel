@@ -48,6 +48,8 @@ package config.applications is
       got_size          : t_application_section_size;
       -- Data address in RAM
       data_offset       : t_memory_offset;
+      -- Data section offset in flash
+      data_flash_offset : t_memory_offset;
       -- Data size
       data_size         : t_application_data_size;
       -- BSS size

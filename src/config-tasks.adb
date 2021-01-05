@@ -50,9 +50,7 @@ is
          declare
             data_in_flash_address : constant system_address :=
                CFGMEM.apps_region.flash_memory_addr
-               + CFGAPP.list(id).text_offset
-               + CFGAPP.list(id).text_size
-               + CFGAPP.list(id).got_size;
+               + CFGAPP.list(id).data_flash_offset;
 
             data_in_flash  : byte_array (1 .. to_unsigned_32 (CFGAPP.list(id).data_size))
                                 with address => to_address (data_in_flash_address);

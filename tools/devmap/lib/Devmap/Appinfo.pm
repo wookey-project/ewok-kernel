@@ -203,8 +203,9 @@ sub dump_elf_metainfo {
     # 5) the memory mapper has returned informations about. Here, this information is calculated in offset
     #    starting with the begining of the user flash/ram region of the current session
     $appinfo{'text_offset'} = hex($app_memorymap{'flash_slot_addr'}) - hex($socinfos->{"memory.flash.\L$mode\E.\L$component\E.addr"});
-    $appinfo{'data_addr'} = sprintf("0x%08x", (hex($appinfo{'data_addr'} - hex($appinfo{'text_addr'}) + $app_memorymap{'flash_slot_addr'})));
     $appinfo{'text_addr'} = $app_memorymap{'flash_slot_addr'};
+    $appinfo{'data_addr'} = sprintf("0x%x", (hex($appinfo{'data_addr'}) - hex($socinfos->{"memory.flash.base"})) + hex($app_memorymap{'flash_slot_addr'}));
+    $appinfo{'data_flash_offset'} = sprintf("0x%x", (hex($appinfo{'data_addr'}) - hex($socinfos->{"memory.flash.\L$mode\E.\L$component\E.addr"})));
     $appinfo{'data_offset'} = hex($app_memorymap{'ram_slot_addr'}) - hex($socinfos->{"memory.ram.\L$component\E.addr"});
 
 

@@ -51,6 +51,7 @@ sub format_appinfo_for_kernel {
          %s,        -- task .got section offset
          %s,        -- task .got section size
          %s,        -- task RAM offset in memory
+         %s,        -- .data section offset in flash
          %s,        -- .data section size
          %s,        -- .bss section size
          %s,        -- heap size
@@ -63,6 +64,7 @@ sub format_appinfo_for_kernel {
     $appinfo->{'id'}, ${name}, format_ada_hex($appinfo->{'text_offset'}),
     format_ada_hex($appinfo->{'text_size'}), format_ada_hex($appinfo->{'got_offset'}),
     format_ada_hex($appinfo->{'got_size'}), format_ada_hex($appinfo->{'data_offset'}),
+    format_ada_hex($appinfo->{'data_flash_offset'}),
     format_ada_hex($appinfo->{'data_size'}), format_ada_hex($appinfo->{'bss_size'}),
     format_ada_hex($appinfo->{'heap_size'}), format_ada_hex($appinfo->{'stack_size'}), 
     format_ada_hex($appinfo->{'entrypoint'}), format_ada_hex($appinfo->{'isr_entrypoint'})
@@ -135,6 +137,7 @@ sub format_appinfo_for_cfg {
     print FH "app$id.rodatasize=$appinfo->{'rodata_size'}";
     print FH "app$id.dataoff=$appinfo->{'data_offset'}";
     print FH "app$id.dataaddr=$appinfo->{'data_addr'}";
+    print FH "app$id.dataflashoff=$appinfo->{'data_flash_offset'}";
     print FH "app$id.datasize=$appinfo->{'data_size'}";
     print FH "app$id.bsssize=$appinfo->{'bss_size'}";
     print FH "app$id.stacksize=$appinfo->{'stack_size'}";
