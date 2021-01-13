@@ -42,13 +42,13 @@ sub set_flash_addr {
 }
 
 sub map_application {
-    my ($app_flash_size, $app_ram_size) = @_;
+    my ($app_flash_size, $app_ram_size, $app_name, $app_id) = @_;
     my $ram_slot_consumed = 1;
     my $flash_slot_consumed = 1;
 
     my $ram_slot_size = $ramsize / $numslot;
     my $flash_slot_size = $flashsize / $numslot;
-    printf("---> map application: flash size: %x, ram size: %x\n", $app_flash_size, $app_ram_size);
+    printf("---> map application (name = %s, id = %d): flash size: 0x%x, ram size: 0x%x\n", $app_name, $app_id, $app_flash_size, $app_ram_size);
 
     while ($app_flash_size > ($flash_slot_size * $flash_slot_consumed)) {
         $flash_slot_consumed += 1;

@@ -196,9 +196,11 @@ sub dump_elf_metainfo {
     hex($appinfo{'stack_size'}) +
     hex($appinfo{'heap_size'});
 
+    my $app_name = $appinfo{'name'};
+    my $app_id = $appinfo{'id'};
     # 4) Now that the application constraints in term of memory footprint are
     #    knwon, let's map it to the SoC memory
-    my %app_memorymap = Devmap::Mpu::elf2mem::map_application($app_flash_size, $app_ram_size);
+    my %app_memorymap = Devmap::Mpu::elf2mem::map_application($app_flash_size, $app_ram_size, $app_name, $app_id);
 
     # 5) the memory mapper has returned informations about. Here, this information is calculated in offset
     #    starting with the begining of the user flash/ram region of the current session
