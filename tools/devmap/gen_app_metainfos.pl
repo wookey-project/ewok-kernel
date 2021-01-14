@@ -260,6 +260,7 @@ sub gen_kernel_membackend {
         }
         close(CFGH);
 
+        my $app_name   = $hash{"app${appid}.name"};
         # 2) get back the requested RAM and Flash size, using the ELF binary
         my $flash_size = hex($hash{"app${appid}.textsize"}) +
                          hex($hash{"app${appid}.datasize"});
@@ -271,7 +272,7 @@ sub gen_kernel_membackend {
         my %hash;
         if ($socinfos->{"soc.memorymodel"} =~ m/mpu/) {
             if ($DEBUG) { print "[+] mapping application to MPU based memory model"; }
-            %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size);
+            %hash = Devmap::Mpu::elf2mem::map_application($flash_size, $ram_size, $app_name, $appid);
         } elsif ($socinfos->{"soc.memorymodel"} =~ m/mmu/) {
             # initialize memory layout for MMU-based device, setting requested properties
             # TODO
