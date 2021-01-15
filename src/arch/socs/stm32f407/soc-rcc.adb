@@ -157,6 +157,7 @@ is
          when TIM13     => soc.rcc.RCC.APB1ENR.TIM13EN   := true;
          when TIM14     => soc.rcc.RCC.APB1ENR.TIM14EN   := true;
          when FLASH_CTRL ..  FLASH_FLIP_SHR => null;
+         when BACKUP_SRAM => null;
       end case;
    end enable_clock;
 
