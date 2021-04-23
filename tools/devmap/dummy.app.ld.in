@@ -73,7 +73,7 @@ SECTIONS
 		__e_got = .;
 	}>FLASH_APP
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	_s_data_in_flash = .;
 
 	.stacking :
@@ -95,7 +95,7 @@ SECTIONS
 		_e_data = .;        /* define a global symbol at data end */
 	}>RAM_APP
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	/* Uninitialized data section */
 	.bss : AT (.)
