@@ -101,6 +101,19 @@ config KERNEL_DMA_ENABLE
   kernel control for address and channel management. If you
   say n here, any DMA declaration will return SYS_E_DENIED.
 
+if KERNEL_DMA_ENABLE
+
+config KERNEL_DMA_DIRECTCOPY
+    bool "Enable memory to memory DMA transfers (may be dangerous)"
+    default n
+    ---help---
+    This allows tasks to transfer content from reachable memory to
+    another reachable memory through DMA (not a device). Reachable memory
+    can be any .rodata, .data, .bss or .heap content or any previously
+    registered DMA-SHM content (with respect for read/write access to it).
+
+endif
+
 config KERNEL_GETCYCLES
   bool "Kernel support for DWT-based getcycles()"
   default y
